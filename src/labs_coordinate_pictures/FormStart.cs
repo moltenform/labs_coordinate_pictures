@@ -15,12 +15,20 @@ namespace labs_coordinate_pictures
         public FormStart()
         {
             InitializeComponent();
+            ClassConfigs.Current.LoadPersisted();
+            ClassConfigs.Current.Set(ConfigsPersistedKeys.Version, "0.1");
+#if DEBUG
+            CoordinatePicturesTests.RunTests();
+#endif
         }
 
         private void FormStart_KeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.T)
-                Tests.RunTests();
+            {
+                CoordinatePicturesTests.RunTests();
+                MessageBox.Show("Tests complete.");
+            }
         }
     }
 }
