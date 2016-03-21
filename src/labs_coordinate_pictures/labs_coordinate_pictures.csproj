@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassConfigs.cs" />
+    <Compile Include="ClassModes.cs" />
     <Compile Include="ClassOsHelpers.cs" />
     <Compile Include="FormGallery.cs">
       <SubType>Form</SubType>

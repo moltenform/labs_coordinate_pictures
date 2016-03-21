@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace labs_coordinate_pictures
 {
@@ -19,6 +18,7 @@ namespace labs_coordinate_pictures
         None,
         Version,
         EnablePersonalFeatures,
+        EnableVerboseLogging,
         FilepathTrash,
         FilepathAltEditorImage,
         FilepathPython,
@@ -107,6 +107,10 @@ namespace labs_coordinate_pictures
         {
             _memory[key] = s;
         }
+        public void SetBool(ConfigsPersistedKeys key, bool b)
+        {
+            Set(key, b ? "true" : "");
+        }
 
         public string Get(ConfigsPersistedKeys key)
         {
@@ -117,6 +121,10 @@ namespace labs_coordinate_pictures
         {
             string s;
             return _memory.TryGetValue(key, out s) ? s : "";
+        }
+        public bool GetBool(ConfigsPersistedKeys key)
+        {
+            return !string.IsNullOrEmpty(Get(key));
         }
     }
 }

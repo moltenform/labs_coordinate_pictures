@@ -110,7 +110,6 @@ namespace labs_coordinate_pictures
             TestUtil.AssertExceptionMessage(() => TestUtil.AssertEqual(true, false), "expected True but got False");
         }
 
-
         static void TestMethod_OsHelpersCombineProcessArguments()
         {
             TestUtil.AssertEqual("\"\"", OsHelpers.CombineProcessArguments(new string[] { "" }));
@@ -153,6 +152,17 @@ namespace labs_coordinate_pictures
             TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.FilepathTrash));
         }
 
+        static void TestMethod_ClassConfigsPersistedBools()
+        {
+            string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testbools.ini");
+            ClassConfigs cfg = new ClassConfigs(path);
+            TestUtil.AssertEqual(false, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
+            cfg.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, true);
+            TestUtil.AssertEqual(true, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
+            cfg.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, false);
+            TestUtil.AssertEqual(false, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
+        }
+
         static void TestMethod_ClassConfigsNewlinesShouldNotBeAccepted()
         {
             string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
@@ -163,6 +173,17 @@ namespace labs_coordinate_pictures
                 () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\nnewline"), "cannot contain newline");
         }
 
+        static void TestMethod_ClassConfigsInMemory()
+        {
+            string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
+            ClassConfigs cfg = new ClassConfigs(path);
+            TestUtil.AssertEqual("", cfg.GetTemporary(ConfigsMemoryKeys.SupressDialogs));
+            cfg.SetTemporary(ConfigsMemoryKeys.SupressDialogs, "data=with=equals=");
+            TestUtil.AssertEqual("data=with=equals=", cfg.GetTemporary(ConfigsMemoryKeys.SupressDialogs));
+            cfg.SetTemporary(ConfigsMemoryKeys.SupressDialogs, "");
+            TestUtil.AssertEqual("", cfg.GetTemporary(ConfigsMemoryKeys.SupressDialogs));
+        }
+        
         public static void RunTests()
         {
             string dir = TestUtil.GetTestWriteDirectory();
