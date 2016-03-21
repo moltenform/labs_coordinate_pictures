@@ -176,12 +176,6 @@ namespace labs_coordinate_pictures
 
     public class CoordinatePicturesException : ApplicationException
     {
-        public CoordinatePicturesException(string message) : base(message)
-        {
-            if (SimpleLog.Current != null)
-            {
-                SimpleLog.Current.WriteError(message);
-            }
-        }
+        public CoordinatePicturesException(string message) : base("CoordinatePictures " + message) { }
     }
 }

@@ -18,6 +18,7 @@ namespace labs_coordinate_pictures
             SimpleLog.Current.WriteLog("Initializing.");
             ClassConfigs.Current.LoadPersisted();
             ClassConfigs.Current.Set(ConfigsPersistedKeys.Version, "0.1");
+            HideOrShowMenus();
             if (OsHelpers.Debug)
             {
                 CoordinatePicturesTests.RunTests();
@@ -42,7 +43,31 @@ namespace labs_coordinate_pictures
                 bool nextState = !ClassConfigs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
                 ClassConfigs.Current.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, nextState);
                 MessageBox.Show("Set personal features to " + nextState);
+                HideOrShowMenus();
             }
+        }
+
+        void HideOrShowMenus()
+        {
+            ToolStripItem[] menusPersonalOnly = new ToolStripItem[] {
+                this.toolStripMenuItem1,
+                this.toolStripMenuItem2,
+                this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem,
+                this.markwavQualityToolStripMenuItem,
+                this.markmp3QualityToolStripMenuItem,
+                this.setMediaEditorDirectoryToolStripMenuItem,
+                this.setMediaPlayerDirectoryToolStripMenuItem,
+                this.setCreateSyncDirectoryToolStripMenuItem
+            };
+            foreach (var item in menusPersonalOnly)
+            {
+                item.Visible = ClassConfigs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
+            }
+        }
+
+        private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassConfigs.cs" />
+    <Compile Include="ClassImageCache.cs" />
     <Compile Include="ClassModes.cs" />
     <Compile Include="ClassOsHelpers.cs" />
     <Compile Include="FormGallery.cs">
@@ -60,6 +61,18 @@
     </Compile>
     <Compile Include="FormGallery.Designer.cs">
       <DependentUpon>FormGallery.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormPersonalMusic.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPersonalMusic.Designer.cs">
+      <DependentUpon>FormPersonalMusic.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormPersonalTwitter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPersonalTwitter.Designer.cs">
+      <DependentUpon>FormPersonalTwitter.cs</DependentUpon>
     </Compile>
     <Compile Include="FormStart.cs">
       <SubType>Form</SubType>

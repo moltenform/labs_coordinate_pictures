@@ -35,9 +35,9 @@
             this.findDuplicateFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resizePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.sortAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.ndPassThroughPicturesToCheckFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,11 +48,11 @@
             this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMozjpegDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setWebpDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.setMediaPlayerDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMediaEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setCreateSyncDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,6 +82,7 @@
             this.syncDirectoriesToolStripMenuItem.Name = "syncDirectoriesToolStripMenuItem";
             this.syncDirectoriesToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.syncDirectoriesToolStripMenuItem.Text = "&Sync Directories...";
+            this.syncDirectoriesToolStripMenuItem.Click += new System.EventHandler(this.syncDirectoriesToolStripMenuItem_Click);
             // 
             // findDuplicateFilesToolStripMenuItem
             // 
@@ -93,9 +94,9 @@
             // 
             this.picturesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.resizePicturesToolStripMenuItem,
-            this.sortAndRenamePicturesToolStripMenuItem,
+            this.categorizeAndRenamePicturesToolStripMenuItem,
             this.toolStripMenuItem1,
-            this.ndPassThroughPicturesToCheckFilesizesToolStripMenuItem,
+            this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem,
             this.markwavQualityToolStripMenuItem,
             this.markmp3QualityToolStripMenuItem});
             this.picturesToolStripMenuItem.Name = "picturesToolStripMenuItem";
@@ -108,22 +109,22 @@
             this.resizePicturesToolStripMenuItem.Size = new System.Drawing.Size(311, 22);
             this.resizePicturesToolStripMenuItem.Text = "&Resize Pictures...";
             // 
-            // sortAndRenamePicturesToolStripMenuItem
+            // categorizeAndRenamePicturesToolStripMenuItem
             // 
-            this.sortAndRenamePicturesToolStripMenuItem.Name = "sortAndRenamePicturesToolStripMenuItem";
-            this.sortAndRenamePicturesToolStripMenuItem.Size = new System.Drawing.Size(311, 22);
-            this.sortAndRenamePicturesToolStripMenuItem.Text = "&Categorize and Rename Pictures...";
+            this.categorizeAndRenamePicturesToolStripMenuItem.Name = "categorizeAndRenamePicturesToolStripMenuItem";
+            this.categorizeAndRenamePicturesToolStripMenuItem.Size = new System.Drawing.Size(311, 22);
+            this.categorizeAndRenamePicturesToolStripMenuItem.Text = "&Categorize and Rename Pictures...";
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(308, 6);
             // 
-            // ndPassThroughPicturesToCheckFilesizesToolStripMenuItem
+            // secondPassThroughPicturesToCheckFilesizesToolStripMenuItem
             // 
-            this.ndPassThroughPicturesToCheckFilesizesToolStripMenuItem.Name = "ndPassThroughPicturesToCheckFilesizesToolStripMenuItem";
-            this.ndPassThroughPicturesToCheckFilesizesToolStripMenuItem.Size = new System.Drawing.Size(311, 22);
-            this.ndPassThroughPicturesToCheckFilesizesToolStripMenuItem.Text = "2nd pass through pictures to check filesizes...";
+            this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem.Name = "secondPassThroughPicturesToCheckFilesizesToolStripMenuItem";
+            this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem.Size = new System.Drawing.Size(311, 22);
+            this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem.Text = "2nd pass through pictures to check filesizes...";
             // 
             // markwavQualityToolStripMenuItem
             // 
@@ -197,15 +198,6 @@
             this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.setWebpDirectoryToolStripMenuItem.Text = "Set webp directory...";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 38);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(201, 52);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
-            // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
@@ -229,8 +221,18 @@
             this.setCreateSyncDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.setCreateSyncDirectoryToolStripMenuItem.Text = "Set create sync directory...";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 38);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(201, 52);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
+            // 
             // FormStart
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
@@ -258,7 +260,7 @@
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setTrashDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setPythonLocationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem sortAndRenamePicturesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem categorizeAndRenamePicturesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem resizePicturesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setWinMergeDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setJpegCropDirectoryToolStripMenuItem;
@@ -267,7 +269,7 @@
         private System.Windows.Forms.ToolStripMenuItem setWebpDirectoryToolStripMenuItem;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem ndPassThroughPicturesToCheckFilesizesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem secondPassThroughPicturesToCheckFilesizesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem markwavQualityToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem markmp3QualityToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
