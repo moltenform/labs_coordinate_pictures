@@ -10,17 +10,11 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    public partial class FormStart : Form
+    public partial class FormGallery : Form
     {
-        public FormStart()
+        public FormGallery()
         {
             InitializeComponent();
-        }
-
-        private void FormStart_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.T)
-                Tests.RunTests();
         }
     }
 }

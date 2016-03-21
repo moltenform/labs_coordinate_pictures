@@ -49,6 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassConfigs.cs" />
+    <Compile Include="ClassOsHelpers.cs" />
+    <Compile Include="FormGallery.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormGallery.Designer.cs">
+      <DependentUpon>FormGallery.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormStart.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -57,6 +65,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests.cs" />
+    <EmbeddedResource Include="FormGallery.resx">
+      <DependentUpon>FormGallery.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormStart.resx">
       <DependentUpon>FormStart.cs</DependentUpon>
     </EmbeddedResource>
