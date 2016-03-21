@@ -55,7 +55,7 @@
     <Compile Include="ClassConfigs.cs" />
     <Compile Include="ClassImageCache.cs" />
     <Compile Include="ClassModes.cs" />
-    <Compile Include="ClassOsHelpers.cs" />
+    <Compile Include="ClassUtils.cs" />
     <Compile Include="FormGallery.cs">
       <SubType>Form</SubType>
     </Compile>
