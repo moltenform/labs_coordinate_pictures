@@ -19,11 +19,14 @@ namespace labs_coordinate_pictures
         FilepathPython,
         FilepathWinMerge,
         FilepathJpegCrop,
-        FilepathMozjpeg,
+        FilepathMozJpeg,
         FilepathWebp,
         FilepathMediaPlayer,
         FilepathMediaEditor,
-        FilepathCreateSync
+        FilepathCreateSync,
+        MRUOpenImageDirectory,
+        MRUOpenMusicDirectory,
+        MRURename,
     }
     public class Configs
     {

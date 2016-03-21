@@ -214,6 +214,18 @@ namespace labs_coordinate_pictures
             RunExeWithArguments(player, args, createWindow: false, waitForExit: false, shellEx: false);
         }
 
+        public static string GetClipboard()
+        {
+            try
+            {
+                return Clipboard.GetText() ?? "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
 #if DEBUG
         public static readonly bool Debug = true;
 #else
@@ -340,7 +352,7 @@ namespace labs_coordinate_pictures
         {
             try
             {
-                File.AppendAllText(_path, s);
+                File.AppendAllText(_path, Environment.NewLine + s);
             }
             catch (Exception)
             {
