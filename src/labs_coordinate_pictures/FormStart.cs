@@ -15,11 +15,9 @@ namespace labs_coordinate_pictures
         public FormStart()
         {
             InitializeComponent();
-            SimpleLog.Current.WriteLog("Initializing.");
-            ClassConfigs.Current.LoadPersisted();
-            ClassConfigs.Current.Set(ConfigsPersistedKeys.Version, "0.1");
+            
             HideOrShowMenus();
-            if (OsHelpers.Debug)
+            if (Utils.Debug)
             {
                 CoordinatePicturesTests.RunTests();
             }
@@ -34,14 +32,14 @@ namespace labs_coordinate_pictures
             }
             else if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.L)
             {
-                bool nextState = !ClassConfigs.Current.GetBool(ConfigsPersistedKeys.EnableVerboseLogging);
-                ClassConfigs.Current.SetBool(ConfigsPersistedKeys.EnableVerboseLogging, nextState);
+                bool nextState = !Configs.Current.GetBool(ConfigsPersistedKeys.EnableVerboseLogging);
+                Configs.Current.SetBool(ConfigsPersistedKeys.EnableVerboseLogging, nextState);
                 MessageBox.Show("Set verbose logging to " + nextState);
             }
             else if (!e.Shift && e.Control && e.Alt && e.KeyCode == Keys.E)
             {
-                bool nextState = !ClassConfigs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
-                ClassConfigs.Current.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, nextState);
+                bool nextState = !Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
+                Configs.Current.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, nextState);
                 MessageBox.Show("Set personal features to " + nextState);
                 HideOrShowMenus();
             }
@@ -61,7 +59,7 @@ namespace labs_coordinate_pictures
             };
             foreach (var item in menusPersonalOnly)
             {
-                item.Visible = ClassConfigs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
+                item.Visible = Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
             }
         }
 

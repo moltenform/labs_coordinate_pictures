@@ -6,11 +6,6 @@ using System.Text;
 
 namespace labs_coordinate_pictures
 {
-    public enum ConfigsMemoryKeys
-    {
-        None,
-        SupressDialogs
-    }
     public enum ConfigsPersistedKeys
     {
         /* nb: unlike a C++ enum, it's changing the names and 
@@ -25,31 +20,34 @@ namespace labs_coordinate_pictures
         FilepathWinMerge,
         FilepathJpegCrop,
         FilepathMozjpeg,
-        FilepathWebp
+        FilepathWebp,
+        FilepathMediaPlayer,
+        FilepathMediaEditor,
+        FilepathCreateSync
     }
-    public class ClassConfigs
+    public class Configs
     {
-        public static ConfigsMemoryKeys ConfigsMemoryKeysFromString(string s)
-        {
-            ConfigsMemoryKeys e = ConfigsMemoryKeys.None;
-            return Enum.TryParse(s, out e) ? e : ConfigsMemoryKeys.None;
-        }
         public static ConfigsPersistedKeys ConfigsPersistedKeysFromString(string s)
         {
             ConfigsPersistedKeys e = ConfigsPersistedKeys.None;
             return Enum.TryParse(s, out e) ? e : ConfigsPersistedKeys.None;
         }
 
-        private static readonly ClassConfigs currentconfig = new ClassConfigs("./config.ini");
-        internal ClassConfigs(string path) { _path = path; }
+        private static Configs _instance;
+        private static object locker = new Object();
+        internal Configs(string path) { _path = path; }
         Dictionary<ConfigsPersistedKeys, string> _persisted = new Dictionary<ConfigsPersistedKeys, string>();
-        Dictionary<ConfigsMemoryKeys, string> _memory = new Dictionary<ConfigsMemoryKeys, string>();
         string _path;
-        public static ClassConfigs Current
+        public static void Init(string path)
+        {
+            _instance = new Configs(path);
+            _instance.Directory = Path.GetDirectoryName(path);
+        }
+        public static Configs Current
         {
             get
             {
-                return currentconfig;
+                return _instance;
             }
         }
 
@@ -103,10 +101,6 @@ namespace labs_coordinate_pictures
             _persisted[key] = s;
             SavePersisted();
         }
-        public void SetTemporary(ConfigsMemoryKeys key, string s)
-        {
-            _memory[key] = s;
-        }
         public void SetBool(ConfigsPersistedKeys key, bool b)
         {
             Set(key, b ? "true" : "");
@@ -117,14 +111,13 @@ namespace labs_coordinate_pictures
             string s;
             return _persisted.TryGetValue(key, out s) ? s : "";
         }
-        public string GetTemporary(ConfigsMemoryKeys key)
-        {
-            string s;
-            return _memory.TryGetValue(key, out s) ? s : "";
-        }
         public bool GetBool(ConfigsPersistedKeys key)
         {
             return !string.IsNullOrEmpty(Get(key));
         }
+
+        // in-memory non-persisted settings
+        public string Directory { get; private set; }
+        public bool SupressDialogs { get; set; }
     }
 }

@@ -159,67 +159,67 @@
             // setTrashDirectoryToolStripMenuItem
             // 
             this.setTrashDirectoryToolStripMenuItem.Name = "setTrashDirectoryToolStripMenuItem";
-            this.setTrashDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setTrashDirectoryToolStripMenuItem.Text = "Set trash directory...";
+            this.setTrashDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setTrashDirectoryToolStripMenuItem.Text = "Set trash directory location...";
             // 
             // setAltImageEditorDirectoryToolStripMenuItem
             // 
             this.setAltImageEditorDirectoryToolStripMenuItem.Name = "setAltImageEditorDirectoryToolStripMenuItem";
-            this.setAltImageEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setAltImageEditorDirectoryToolStripMenuItem.Text = "Set alt editor directory...";
+            this.setAltImageEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setAltImageEditorDirectoryToolStripMenuItem.Text = "Set alt editor location...";
             // 
             // setPythonLocationToolStripMenuItem
             // 
             this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
-            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setPythonLocationToolStripMenuItem.Text = "Set Python directory...";
+            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setPythonLocationToolStripMenuItem.Text = "Set Python location...";
             // 
             // setWinMergeDirectoryToolStripMenuItem
             // 
             this.setWinMergeDirectoryToolStripMenuItem.Name = "setWinMergeDirectoryToolStripMenuItem";
-            this.setWinMergeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setWinMergeDirectoryToolStripMenuItem.Text = "Set WinMerge directory...";
+            this.setWinMergeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setWinMergeDirectoryToolStripMenuItem.Text = "Set WinMerge location...";
             // 
             // setJpegCropDirectoryToolStripMenuItem
             // 
             this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
-            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set JpegCrop directory...";
+            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set JpegCrop location...";
             // 
             // setMozjpegDirectoryToolStripMenuItem
             // 
             this.setMozjpegDirectoryToolStripMenuItem.Name = "setMozjpegDirectoryToolStripMenuItem";
-            this.setMozjpegDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setMozjpegDirectoryToolStripMenuItem.Text = "Set mozjpeg directory...";
+            this.setMozjpegDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setMozjpegDirectoryToolStripMenuItem.Text = "Set mozjpeg location...";
             // 
             // setWebpDirectoryToolStripMenuItem
             // 
             this.setWebpDirectoryToolStripMenuItem.Name = "setWebpDirectoryToolStripMenuItem";
-            this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setWebpDirectoryToolStripMenuItem.Text = "Set webp directory...";
+            this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setWebpDirectoryToolStripMenuItem.Text = "Set webp location...";
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(217, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(221, 6);
             // 
             // setMediaPlayerDirectoryToolStripMenuItem
             // 
             this.setMediaPlayerDirectoryToolStripMenuItem.Name = "setMediaPlayerDirectoryToolStripMenuItem";
-            this.setMediaPlayerDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setMediaPlayerDirectoryToolStripMenuItem.Text = "Set media player directory...";
+            this.setMediaPlayerDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setMediaPlayerDirectoryToolStripMenuItem.Text = "Set media player location...";
             // 
             // setMediaEditorDirectoryToolStripMenuItem
             // 
             this.setMediaEditorDirectoryToolStripMenuItem.Name = "setMediaEditorDirectoryToolStripMenuItem";
-            this.setMediaEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setMediaEditorDirectoryToolStripMenuItem.Text = "Set media editor directory...";
+            this.setMediaEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setMediaEditorDirectoryToolStripMenuItem.Text = "Set media editor location...";
             // 
             // setCreateSyncDirectoryToolStripMenuItem
             // 
             this.setCreateSyncDirectoryToolStripMenuItem.Name = "setCreateSyncDirectoryToolStripMenuItem";
-            this.setCreateSyncDirectoryToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
-            this.setCreateSyncDirectoryToolStripMenuItem.Text = "Set create sync directory...";
+            this.setCreateSyncDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setCreateSyncDirectoryToolStripMenuItem.Text = "Set create sync location...";
             // 
             // label1
             // 
