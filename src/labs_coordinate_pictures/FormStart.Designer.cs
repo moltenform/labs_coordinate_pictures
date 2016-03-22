@@ -53,6 +53,8 @@
             this.setMediaEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setCreateSyncDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
+            this.setStartspotifypyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setDropq128pyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -151,7 +153,9 @@
             this.toolStripMenuItem2,
             this.setMediaPlayerDirectoryToolStripMenuItem,
             this.setMediaEditorDirectoryToolStripMenuItem,
-            this.setCreateSyncDirectoryToolStripMenuItem});
+            this.setCreateSyncDirectoryToolStripMenuItem,
+            this.setStartspotifypyLocationToolStripMenuItem,
+            this.setDropq128pyLocationToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "&Options";
@@ -230,6 +234,18 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
+            // setStartspotifypyLocationToolStripMenuItem
+            // 
+            this.setStartspotifypyLocationToolStripMenuItem.Name = "setStartspotifypyLocationToolStripMenuItem";
+            this.setStartspotifypyLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setStartspotifypyLocationToolStripMenuItem.Text = "Set coordmusic location...";
+            // 
+            // setDropq128pyLocationToolStripMenuItem
+            // 
+            this.setDropq128pyLocationToolStripMenuItem.Name = "setDropq128pyLocationToolStripMenuItem";
+            this.setDropq128pyLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setDropq128pyLocationToolStripMenuItem.Text = "Set dropq128.py location...";
+            // 
             // FormStart
             // 
             this.AllowDrop = true;
@@ -242,6 +258,8 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormStart";
             this.Text = " ";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FormStart_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FormStart_DragEnter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormStart_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -276,6 +294,8 @@
         private System.Windows.Forms.ToolStripMenuItem setMediaPlayerDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setMediaEditorDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setCreateSyncDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setStartspotifypyLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setDropq128pyLocationToolStripMenuItem;
     }
 }
 

@@ -24,6 +24,8 @@ namespace labs_coordinate_pictures
         FilepathMediaPlayer,
         FilepathMediaEditor,
         FilepathCreateSync,
+        FilepathCoordMusicDirectory,
+        FilepathEncodeMusicDropQDirectory,
         MRUOpenImageDirectory,
         MRUOpenMusicDirectory,
         MRURename,

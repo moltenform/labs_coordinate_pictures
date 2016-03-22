@@ -38,7 +38,12 @@ namespace labs_coordinate_pictures
                 OnSetConfigsFile(sender, "(Optional) Choose application for editing audio, such as Audacity.", ConfigsPersistedKeys.FilepathMediaEditor);
             this.setCreateSyncDirectoryToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsFile(sender, "(Optional) Locate 'create synchronicity.exe'", ConfigsPersistedKeys.FilepathCreateSync);
-            
+            this.setStartspotifypyLocationToolStripMenuItem.Click += (sender, e) =>
+                OnSetConfigsDir(sender, "(Optional) Locate coordinate_music directory containing main.py.", ConfigsPersistedKeys.FilepathCoordMusicDirectory);
+            this.setDropq128pyLocationToolStripMenuItem.Click += (sender, e) =>
+                OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigsPersistedKeys.FilepathEncodeMusicDropQDirectory);
+
+
             if (Utils.Debug)
             {
                 CoordinatePicturesTests.RunTests();
@@ -119,6 +124,60 @@ namespace labs_coordinate_pictures
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             
+        }
+
+        private void FormStart_DragEnter(object sender, DragEventArgs e)
+        {
+            if (Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures) && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void FormStart_DragDrop(object sender, DragEventArgs e)
+        {
+            if (Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures))
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+                {
+                    string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
+                    string filePath = filePaths[0];
+                    if (!String.IsNullOrEmpty(filePath))
+                    {
+                        OnStartSpotify(filePath);
+                    }
+                }
+            }
+        }
+
+        public static void OnStartSpotify(string path)
+        {
+            string pathlower = path.ToLowerInvariant();
+            if (pathlower.EndsWith(".url"))
+            {
+                Utils.RunExeWithArguments(path, null, createWindow: false, waitForExit: false, shellEx: true);
+            }
+            else if (pathlower.EndsWith(".mp3") || pathlower.EndsWith(".mp4") ||
+                pathlower.EndsWith(".m4a") || pathlower.EndsWith(".flac"))
+            {
+                var script = Path.Combine(Configs.Current.Get(ConfigsPersistedKeys.FilepathCoordMusicDirectory), "main.py");
+                if (!File.Exists(script))
+                {
+                    MessageBox.Show("could not find " + script + ". locate it by choosing from the menu Options->Set coordmusic location...");
+                }
+                else
+                {
+                    Utils.RunPythonScriptOnSeparateThread(script, new string[] { "startspotify", path }, true /*create window*/);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Unsupported file type.");
+            }
         }
     }
 }
