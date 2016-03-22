@@ -136,6 +136,15 @@ namespace labs_coordinate_pictures
             TestUtil.AssertEqual("\"C:\\Program Files\\\\\"", Utils.CombineProcessArguments(new string[] { "C:\\Program Files\\" }));
             TestUtil.AssertEqual("\"dafc\\\"\\\"\\\"a\"", Utils.CombineProcessArguments(new string[] { "dafc\"\"\"a" }));
         }
+        static void TestMethod_UtilsAddMark()
+        {
+            var test1 = FilenameUtils.AddMarkToFilename(@"c:\foo\test\bar bar.aaa.jpg", "mk");
+            TestUtil.AssertEqual(@"c:\foo\test\bar bar.aaa__MARKAS__mk.jpg", test1);
+            string testgetmark, testgetpath;
+            FilenameUtils.GetMarkFromFilename(@"c:\foo\test\bar bar.aaa__MARKAS__mk.jpg", out testgetpath, out testgetmark);
+            TestUtil.AssertEqual("mk", testgetmark);
+            TestUtil.AssertEqual(@"c:\foo\test\bar bar.aaa.jpg", testgetpath);
+        }
 
         static void TestMethod_ClassConfigsPersistedCommonUsage()
         {
@@ -182,6 +191,7 @@ namespace labs_coordinate_pictures
                 () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\nnewline"), "cannot contain newline");
         }
         
+
         public static void RunTests()
         {
             string dir = TestUtil.GetTestWriteDirectory();

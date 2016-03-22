@@ -12,9 +12,11 @@ namespace labs_coordinate_pictures
 {
     public partial class FormGallery : Form
     {
-        public FormGallery()
+        public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = null)
         {
             InitializeComponent();
+            this.movePrevMenuItem.ShortcutKeyDisplayString = "Left";
+            this.moveNextMenuItem.ShortcutKeyDisplayString = "Right";
         }
     }
 }

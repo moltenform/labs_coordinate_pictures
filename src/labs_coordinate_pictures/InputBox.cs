@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace labs_coordinate_pictures
 {
@@ -15,7 +16,7 @@ namespace labs_coordinate_pictures
             Rename,
         }
 
-        public static string GetStrInput(string strPrompt, string strCurrent = null, History history = History.None, string[] more = null, bool useClipboard = true)
+        public static string GetStrInput(string strPrompt, string strCurrent = null, History history = History.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
         {
             InputBoxForm myForm = new InputBoxForm(history);
             myForm.label1.Text = strPrompt;
@@ -33,6 +34,7 @@ namespace labs_coordinate_pictures
             if (more != null)
                 comboEntries.AddRange(more);
 
+            comboEntries = comboEntries.Where(entry => FilenameUtils.IsPathRooted(entry) || !mustBeDirectory).ToList();
             myForm.comboBox1.Items.Clear();
             foreach (var s in comboEntries)
                 myForm.comboBox1.Items.Add(s);
@@ -41,6 +43,12 @@ namespace labs_coordinate_pictures
             myForm.ShowDialog(new Form());
             if (myForm.DialogResult != DialogResult.OK)
                 return null;
+
+            if (mustBeDirectory && !Directory.Exists(myForm.comboBox1.Text))
+            {
+                MessageBox.Show("Directory does not exist");
+                return null;
+            }
 
             // save to history
             myForm.saver.AddToHistory(myForm.comboBox1.Text);

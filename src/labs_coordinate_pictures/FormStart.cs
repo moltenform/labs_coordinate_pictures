@@ -19,7 +19,7 @@ namespace labs_coordinate_pictures
             HideOrShowMenus();
 
             this.setTrashDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsDir(sender, "When pressing Delete to 'move to trash', files will be moved to this directory.", ConfigsPersistedKeys.FilepathMediaEditor);
+                OnSetConfigsDir(sender, "When pressing Delete to 'move to trash', files will be moved to this directory.", ConfigsPersistedKeys.FilepathTrash);
             this.setAltImageEditorDirectoryToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsFile(sender, "(Optional) Choose an alternative image editor.", ConfigsPersistedKeys.FilepathAltEditorImage);
             this.setPythonLocationToolStripMenuItem.Click += (sender, e) =>
@@ -38,30 +38,53 @@ namespace labs_coordinate_pictures
                 OnSetConfigsFile(sender, "(Optional) Choose application for editing audio, such as Audacity.", ConfigsPersistedKeys.FilepathMediaEditor);
             this.setCreateSyncDirectoryToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsFile(sender, "(Optional) Locate 'create synchronicity.exe'", ConfigsPersistedKeys.FilepathCreateSync);
-            this.setStartspotifypyLocationToolStripMenuItem.Click += (sender, e) =>
+            this.setCoordmusicLocationToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsDir(sender, "(Optional) Locate coordinate_music directory containing main.py.", ConfigsPersistedKeys.FilepathCoordMusicDirectory);
             this.setDropq128pyLocationToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigsPersistedKeys.FilepathEncodeMusicDropQDirectory);
-
+            this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
+                OpenForm(new ModeCategorizeAndRename());
+            this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
+                OpenForm(new ModeCheckFilesizes());
 
             if (Utils.Debug)
             {
                 CoordinatePicturesTests.RunTests();
             }
+            if (Environment.GetCommandLineArgs().Length > 1 && Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures))
+            {
+                OpenAudioFileInGallery(Environment.GetCommandLineArgs()[1]);
+            }
+        }
+
+        void OpenAudioFileInGallery(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        string AskUserForDirectory(ModeBase mode)
+        {
+            // save separate mru histories for images vs music
+            var mruKey = ((mode as ModeCategorizeAndRenameBase) != null || (mode as ModeCategorizeAndRenameBase) != null) ?
+                InputBoxForm.History.OpenImageDirectory : InputBoxForm.History.OpenMusicDirectory;
+
+            return InputBoxForm.GetStrInput("Enter directory:", null, mruKey, mustBeDirectory: true);
+        }
+
+        void OpenForm(ModeBase mode)
+        {
+            var dir = AskUserForDirectory(mode);
+            if (dir == null)
+                return;
+
+            new FormGallery(mode, dir).Show();
         }
 
         private void OnSetConfigsDir(object sender, string info, ConfigsPersistedKeys key)
         {
             var prompt = (sender as ToolStripItem).Text;
-            var res = InputBoxForm.GetStrInput(prompt + Environment.NewLine + info, Configs.Current.Get(key));
-            if (String.IsNullOrEmpty(res))
-            {
-            }
-            else if (!Directory.Exists(res))
-            {
-                MessageBox.Show("directory not found");
-            }
-            else
+            var res = InputBoxForm.GetStrInput(prompt + Environment.NewLine + info, Configs.Current.Get(key), mustBeDirectory: true);
+            if (!String.IsNullOrEmpty(res))
             {
                 Configs.Current.Set(key, res);
             }
@@ -108,12 +131,15 @@ namespace labs_coordinate_pictures
             ToolStripItem[] menusPersonalOnly = new ToolStripItem[] {
                 this.toolStripMenuItem1,
                 this.toolStripMenuItem2,
-                this.secondPassThroughPicturesToCheckFilesizesToolStripMenuItem,
+                this.resizePhotosKeepingExifsToolStripMenuItem,
+                this.checkFilesizesToolStripMenuItem,
                 this.markwavQualityToolStripMenuItem,
                 this.markmp3QualityToolStripMenuItem,
                 this.setMediaEditorDirectoryToolStripMenuItem,
                 this.setMediaPlayerDirectoryToolStripMenuItem,
-                this.setCreateSyncDirectoryToolStripMenuItem
+                this.setCreateSyncDirectoryToolStripMenuItem,
+                this.setCoordmusicLocationToolStripMenuItem,
+                this.setDropq128pyLocationToolStripMenuItem
             };
             foreach (var item in menusPersonalOnly)
             {

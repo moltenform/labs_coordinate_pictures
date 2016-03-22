@@ -26,6 +26,8 @@ namespace labs_coordinate_pictures
         FilepathCreateSync,
         FilepathCoordMusicDirectory,
         FilepathEncodeMusicDropQDirectory,
+        CategoriesModeCategorizeAndRename,
+        CategoriesModeCheckFilesizes,
         MRUOpenImageDirectory,
         MRUOpenMusicDirectory,
         MRURename,

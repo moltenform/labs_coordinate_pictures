@@ -89,6 +89,12 @@
     <EmbeddedResource Include="FormGallery.resx">
       <DependentUpon>FormGallery.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormPersonalMusic.resx">
+      <DependentUpon>FormPersonalMusic.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPersonalTwitter.resx">
+      <DependentUpon>FormPersonalTwitter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormStart.resx">
       <DependentUpon>FormStart.cs</DependentUpon>
     </EmbeddedResource>

@@ -158,6 +158,16 @@ namespace labs_coordinate_pictures
             return false;
         }
 
+        public static void CloseOtherProcessesByName(string name)
+        {
+            var thisId = Process.GetCurrentProcess().Id;
+            foreach (var process in Process.GetProcessesByName(name))
+            {
+                if (process.Id != thisId)
+                    process.Kill();
+            }
+        }
+
         public static void RunPythonScriptOnSeparateThread(string pyScript, string[] listArgs, bool createWindow = false)
         {
             ThreadPool.QueueUserWorkItem(delegate
@@ -328,6 +338,24 @@ namespace labs_coordinate_pictures
                     return true;
             }
             return false;
+        }
+        public static bool SameExceptExtension(string s1, string s2, string[] allowedTypes)
+        {
+            var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));
+            var rootNoExtension2 = Path.Combine(Path.GetDirectoryName(s2), Path.GetFileNameWithoutExtension(s2));
+            return rootNoExtension1.ToLowerInvariant() == rootNoExtension2.ToLowerInvariant() &&
+                Array.IndexOf(allowedTypes, "." + Path.GetExtension(s2)) != -1;
+        }
+        public static bool IsPathRooted(string s)
+        {
+            try
+            {
+                return Path.IsPathRooted(s);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
         }
     }
 
