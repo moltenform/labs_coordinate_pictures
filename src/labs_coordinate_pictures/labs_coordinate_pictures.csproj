@@ -68,6 +68,12 @@
     <Compile Include="FormPersonalMusic.Designer.cs">
       <DependentUpon>FormPersonalMusic.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormPersonalText.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPersonalText.Designer.cs">
+      <DependentUpon>FormPersonalText.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormPersonalTwitter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormPersonalMusic.resx">
       <DependentUpon>FormPersonalMusic.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPersonalText.resx">
+      <DependentUpon>FormPersonalText.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormPersonalTwitter.resx">
       <DependentUpon>FormPersonalTwitter.cs</DependentUpon>

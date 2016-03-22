@@ -236,6 +236,22 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public static string GetFirstHttpLink(string s)
+        {
+            foreach (var match in Regex.Matches(s, @"https?://\S+"))
+            {
+                return ((Match)match).ToString();
+            }
+            return null;
+        }
+
+        public static void LaunchUrl(string s)
+        {
+            s = GetFirstHttpLink(s);
+            if (s != null && s.StartsWith("http"))
+                System.Diagnostics.Process.Start(s);
+        }
+
 #if DEBUG
         public static readonly bool Debug = true;
 #else
