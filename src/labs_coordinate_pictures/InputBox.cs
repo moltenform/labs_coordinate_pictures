@@ -8,15 +8,7 @@ namespace labs_coordinate_pictures
 {
     public class InputBoxForm : Form
     {
-        public enum History
-        {
-            None,
-            OpenImageDirectory,
-            OpenMusicDirectory,
-            Rename,
-        }
-
-        public static string GetStrInput(string strPrompt, string strCurrent = null, History history = History.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
+        public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
         {
             InputBoxForm myForm = new InputBoxForm(history);
             myForm.label1.Text = strPrompt;
@@ -28,7 +20,7 @@ namespace labs_coordinate_pictures
             if (!string.IsNullOrEmpty(Utils.GetClipboard()))
                 comboEntries.Add(Utils.GetClipboard());
 
-            if (history != History.None)
+            if (history != InputBoxHistory.None)
                 comboEntries.AddRange(myForm.saver.Get());
 
             if (more != null)
@@ -55,7 +47,7 @@ namespace labs_coordinate_pictures
             return myForm.comboBox1.Text;
         }
 
-        public static int? GetInteger(string strPrompt, int nDefault = 0, History history = History.None)
+        public static int? GetInteger(string strPrompt, int nDefault = 0, InputBoxHistory history = InputBoxHistory.None)
         {
             int fromClipboard = 0;
             string s = GetStrInput(strPrompt, nDefault.ToString(), history, 
@@ -74,7 +66,7 @@ namespace labs_coordinate_pictures
         private ComboBox comboBox1;
         private System.Windows.Forms.Label label1;
         HistorySaver saver;
-        public InputBoxForm(History currentKey)
+        public InputBoxForm(InputBoxHistory currentKey)
         {
             InitializeComponent();
             saver = new HistorySaver(currentKey);
@@ -191,13 +183,13 @@ namespace labs_coordinate_pictures
     {
         public const int cMaxHistoryEntries = 10;
         public const int cMaxEntryLength = 300;
-        InputBoxForm.History _historyKey = InputBoxForm.History.None;
+        InputBoxHistory _historyKey = InputBoxHistory.None;
         ConfigsPersistedKeys _configsKey = ConfigsPersistedKeys.None;
         string[] _returned;
-        public HistorySaver(InputBoxForm.History historyKey)
+        public HistorySaver(InputBoxHistory historyKey)
         {
             _historyKey = historyKey;
-            if (_historyKey != InputBoxForm.History.None)
+            if (_historyKey != InputBoxHistory.None)
             {
                 var strKey = "MRU" + _historyKey.ToString();
                 if (!Enum.TryParse(strKey, out _configsKey))
@@ -207,7 +199,7 @@ namespace labs_coordinate_pictures
 
         public string[] Get()
         {
-            if (_historyKey != InputBoxForm.History.None)
+            if (_historyKey != InputBoxHistory.None)
             {
                 _returned = Configs.Current.Get(_configsKey).Split(
                     new string[] { "||||" }, StringSplitOptions.RemoveEmptyEntries);
@@ -221,7 +213,7 @@ namespace labs_coordinate_pictures
 
         public void AddToHistory(string s)
         {
-            if (_historyKey != InputBoxForm.History.None)
+            if (_historyKey != InputBoxHistory.None)
             {
                 if (_returned == null)
                     Get();

@@ -28,10 +28,26 @@ namespace labs_coordinate_pictures
         FilepathEncodeMusicDropQDirectory,
         CategoriesModeCategorizeAndRename,
         CategoriesModeCheckFilesizes,
+        GalleryViewCategories,
         MRUOpenImageDirectory,
         MRUOpenMusicDirectory,
-        MRURename,
+        MRURenameImage,
+        MRURenameWavAudio,
+        MRURenameOther,
+        MRUEditCategoriesString,
     }
+
+    public enum InputBoxHistory
+    {
+        None,
+        OpenImageDirectory,
+        OpenMusicDirectory,
+        RenameImage,
+        RenameWavAudio,
+        RenameOther,
+        EditCategoriesString,
+    }
+
     public class Configs
     {
         public static ConfigsPersistedKeys ConfigsPersistedKeysFromString(string s)

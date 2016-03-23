@@ -199,6 +199,20 @@ namespace labs_coordinate_pictures
                 () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\nnewline"), "cannot contain newline");
         }
 
+        static void TestMethod_ClassConfigsInputBoxHistoryShouldHaveCorrespondingConfig()
+        {
+            // each enum value in InputBoxHistory should have a corresponding MRUvalue
+            foreach (var en in Enum.GetValues(typeof(InputBoxHistory)).Cast<InputBoxHistory>())
+            {
+                if (en != InputBoxHistory.None)
+                {
+                    var s = "MRU" + en.ToString();
+                    ConfigsPersistedKeys key;
+                    TestUtil.AssertEqual(true, Enum.TryParse<ConfigsPersistedKeys>(s, out key));
+                }
+            }
+        }
+
         static void TestMethod_FileListNavigation()
         {
             /* setup */
