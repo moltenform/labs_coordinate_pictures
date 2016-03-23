@@ -53,8 +53,9 @@
             this.setMediaEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setCreateSyncDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setCoordmusicLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setDropq128pyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setDropqpyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
+            this.setMp3DirectCutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -155,7 +156,8 @@
             this.setMediaEditorDirectoryToolStripMenuItem,
             this.setCreateSyncDirectoryToolStripMenuItem,
             this.setCoordmusicLocationToolStripMenuItem,
-            this.setDropq128pyLocationToolStripMenuItem});
+            this.setDropqpyLocationToolStripMenuItem,
+            this.setMp3DirectCutToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "&Options";
@@ -231,11 +233,11 @@
             this.setCoordmusicLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.setCoordmusicLocationToolStripMenuItem.Text = "Set coordmusic location...";
             // 
-            // setDropq128pyLocationToolStripMenuItem
+            // setDropqpyLocationToolStripMenuItem
             // 
-            this.setDropq128pyLocationToolStripMenuItem.Name = "setDropq128pyLocationToolStripMenuItem";
-            this.setDropq128pyLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.setDropq128pyLocationToolStripMenuItem.Text = "Set dropq128.py location...";
+            this.setDropqpyLocationToolStripMenuItem.Name = "setDropqpyLocationToolStripMenuItem";
+            this.setDropqpyLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setDropqpyLocationToolStripMenuItem.Text = "Set dropq.py location...";
             // 
             // label1
             // 
@@ -245,6 +247,12 @@
             this.label1.Size = new System.Drawing.Size(201, 52);
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
+            // 
+            // setMp3DirectCutToolStripMenuItem
+            // 
+            this.setMp3DirectCutToolStripMenuItem.Name = "setMp3DirectCutToolStripMenuItem";
+            this.setMp3DirectCutToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setMp3DirectCutToolStripMenuItem.Text = "Set mp3DirectCut location...";
             // 
             // FormStart
             // 
@@ -295,7 +303,8 @@
         private System.Windows.Forms.ToolStripMenuItem setMediaEditorDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setCreateSyncDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setCoordmusicLocationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setDropq128pyLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setDropqpyLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setMp3DirectCutToolStripMenuItem;
     }
 }
 

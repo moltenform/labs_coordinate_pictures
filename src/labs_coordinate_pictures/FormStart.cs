@@ -40,8 +40,10 @@ namespace labs_coordinate_pictures
                 OnSetConfigsFile(sender, "(Optional) Locate 'create synchronicity.exe'", ConfigKey.FilepathCreateSync);
             this.setCoordmusicLocationToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsDir(sender, "(Optional) Locate coordinate_music directory containing main.py.", ConfigKey.FilepathCoordMusicDirectory);
-            this.setDropq128pyLocationToolStripMenuItem.Click += (sender, e) =>
+            this.setDropqpyLocationToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigKey.FilepathEncodeMusicDropQDirectory);
+            this.setMp3DirectCutToolStripMenuItem.Click += (sender, e) =>
+                OnSetConfigsFile(sender, "(Optional) Locate mp3directcut.exe.", ConfigKey.FilepathMp3DirectCut);
             this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeCategorizeAndRename());
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
@@ -139,7 +141,7 @@ namespace labs_coordinate_pictures
                 this.setMediaPlayerDirectoryToolStripMenuItem,
                 this.setCreateSyncDirectoryToolStripMenuItem,
                 this.setCoordmusicLocationToolStripMenuItem,
-                this.setDropq128pyLocationToolStripMenuItem
+                this.setDropqpyLocationToolStripMenuItem
             };
             foreach (var item in menusPersonalOnly)
             {
@@ -149,7 +151,7 @@ namespace labs_coordinate_pictures
 
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void FormStart_DragEnter(object sender, DragEventArgs e)
@@ -185,7 +187,7 @@ namespace labs_coordinate_pictures
             string pathlower = path.ToLowerInvariant();
             if (pathlower.EndsWith(".url"))
             {
-                Utils.RunExeWithArguments(path, null, createWindow: false, waitForExit: false, shellEx: true);
+                Utils.Run(path, null, hideWindow: true, waitForExit: false, shell: true);
             }
             else if (pathlower.EndsWith(".mp3") || pathlower.EndsWith(".mp4") ||
                 pathlower.EndsWith(".m4a") || pathlower.EndsWith(".flac"))

@@ -146,6 +146,7 @@
             this.showInExplorerToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
             this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.showInExplorerToolStripMenuItem.Text = "Show in Explorer";
+            this.showInExplorerToolStripMenuItem.Click += new System.EventHandler(this.showInExplorerToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
@@ -189,6 +190,7 @@
             this.copyPathToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
             this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.copyPathToolStripMenuItem.Text = "Copy Path";
+            this.copyPathToolStripMenuItem.Click += new System.EventHandler(this.copyPathToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -201,6 +203,7 @@
             this.editFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.editFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.editFileToolStripMenuItem.Text = "Edit File...";
+            this.editFileToolStripMenuItem.Click += new System.EventHandler(this.editFileToolStripMenuItem_Click);
             // 
             // editInAltEditorToolStripMenuItem
             // 
@@ -209,6 +212,7 @@
             | System.Windows.Forms.Keys.E)));
             this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.editInAltEditorToolStripMenuItem.Text = "Edit File in Alternate Editor...";
+            this.editInAltEditorToolStripMenuItem.Click += new System.EventHandler(this.editInAltEditorToolStripMenuItem_Click);
             // 
             // cropRotateFileToolStripMenuItem
             // 
@@ -217,6 +221,7 @@
             | System.Windows.Forms.Keys.X)));
             this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.cropRotateFileToolStripMenuItem.Text = "Crop/Rotate File...";
+            this.cropRotateFileToolStripMenuItem.Click += new System.EventHandler(this.cropRotateFileToolStripMenuItem_Click);
             // 
             // convertResizeImageToolStripMenuItem
             // 

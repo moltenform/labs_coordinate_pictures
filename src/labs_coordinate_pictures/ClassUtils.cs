@@ -16,42 +16,54 @@ namespace labs_coordinate_pictures
         static Random rand = new Random();
         public static void OpenDirInExplorer(string sDir)
         {
-            if (!Directory.Exists(sDir))
-            {
-                sDir = ".";
-            }
-
-            RunExeWithArguments("explorer", new string[] { sDir },
-                createWindow: true, waitForExit: false, shellEx: true);
+            Process.Start("explorer.exe", "\"" + sDir + "\"");
         }
 
-        public static string RunExeWithArguments(string exe, string[] args, bool createWindow, bool waitForExit, bool shellEx)
+        public static void SelectFileInExplorer(string path)
         {
-            string sErr = "";
+            Process.Start("explorer.exe", "/select,\"" + path+"\"");
+        }
+
+        public static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
+        {
+            string stdout, stderr;
+            Run(exe, args, shell, waitForExit, hideWindow, false, out stdout, out stderr);
+        }
+
+        public static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, out string stdout, out string stderr)
+        {
+            Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
+        }
+
+        static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr)
+        {
             var startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = !createWindow;
-            startInfo.UseShellExecute = shellEx;
+            startInfo.CreateNoWindow = hideWindow;
+            startInfo.UseShellExecute = shell;
             startInfo.FileName = exe;
             startInfo.Arguments = CombineProcessArguments(args);
-            if (!shellEx)
+            if (getStdout)
             {
                 startInfo.RedirectStandardError = true;
                 startInfo.RedirectStandardOutput = true;
             }
 
+            string serr = "", sout = "";
             var process = Process.Start(startInfo);
-            if (!shellEx)
+            if (getStdout)
             {
-                process.ErrorDataReceived += (sender, errordataargs) => sErr += errordataargs.Data;
+                process.OutputDataReceived += (sender, errordataargs) => sout += errordataargs.Data;
+                process.ErrorDataReceived += (sender, errordataargs) => serr += errordataargs.Data;
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
             }
-            if (waitForExit)
+            if (waitForExit || getStdout)
             {
                 process.WaitForExit();
             }
 
-            return sErr;
+            outStdout = sout;
+            outStderr = serr;
         }
 
         public static bool AskToConfirm(string s)
@@ -206,12 +218,13 @@ namespace labs_coordinate_pictures
 
             var args = new List<string> { pyScript };
             args.AddRange(listArgs);
-            string sErr = RunExeWithArguments(python, args.ToArray(), createWindow, waitForExit: true, shellEx: false);
-            if (warnIfStdErr && !String.IsNullOrEmpty(sErr))
+            string stdout, stderr;
+            Run(python, args.ToArray(), false, true, !createWindow, out stdout, out stderr);
+            if (warnIfStdErr && !String.IsNullOrEmpty(stderr))
             {
-                MessageBox.Show("warning, error from script: " + sErr);
+                MessageBox.Show("warning, error from script: " + stderr);
             }
-            return sErr;
+            return stderr;
         }
 
         public static void PlayMedia(string path)
@@ -229,7 +242,7 @@ namespace labs_coordinate_pictures
             var args = player.ToLower().Contains("foobar") ? new string[] { "/playnow", path } :
                 new string[] { path };
 
-            RunExeWithArguments(player, args, createWindow: false, waitForExit: false, shellEx: false);
+            Run(player, args, hideWindow: true, waitForExit: false, shell: false);
         }
 
         public static string GetClipboard()
@@ -257,7 +270,7 @@ namespace labs_coordinate_pictures
         {
             s = GetFirstHttpLink(s);
             if (s != null && s.StartsWith("http"))
-                System.Diagnostics.Process.Start(s);
+                Process.Start(s);
         }
 
         public static T ArrayAt<T>(T[] arr, int index)
@@ -462,7 +475,7 @@ namespace labs_coordinate_pictures
         }
         public static bool LooksLikeEditableAudio(string s)
         {
-            return IsExtensionInList(s, new string[] { ".wav", ".flac", ".mp3" });
+            return IsExtensionInList(s, new string[] { ".wav", ".flac", ".mp3", ".m4a", ".mp4" });
         }
         public static bool IsExtensionInList(string s, string[] sExts)
         {

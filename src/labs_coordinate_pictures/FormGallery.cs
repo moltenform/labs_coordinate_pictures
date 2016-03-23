@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -239,16 +240,65 @@ namespace labs_coordinate_pictures
             }
         }
 
-        internal void UIEnable()
+        public void UIEnable()
         {
             this.label.ForeColor = Color.Black;
             _enabled = true;
         }
 
-        internal void UIDisable()
+        public void UIDisable()
         {
             this.label.ForeColor = Color.Gray;
             _enabled = false;
         }
+
+        private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.SelectFileInExplorer(nav.Current);
+        }
+
+        private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(nav.Current ?? "");
+        }
+
+        static void LaunchEditor(string exe, string path)
+        {
+            if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
+                MessageBox.Show("Could not find the application '" + exe + "'. The location can be set in the Options menu.");
+            else
+                Utils.Run(exe, new string[] { path }, shell: false, waitForExit: false, hideWindow: false);
+        }
+
+        private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (nav.Current.ToLowerInvariant().EndsWith(".webp"))
+                Process.Start(nav.Current); // open in default viewer
+            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
+            else
+                LaunchEditor(@"C:\Windows\System32\mspaint.exe", nav.Current);
+        }
+
+        private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (nav.Current.ToLowerInvariant().EndsWith(".webp"))
+                LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", nav.Current);
+            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
+            else
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathAltEditorImage), nav.Current);
+        }
+
+        private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (nav.Current.ToLowerInvariant().EndsWith(".jpg"))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), nav.Current);
+            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), nav.Current);
+            else
+                LaunchEditor(@"C:\Windows\System32\mspaint.exe", nav.Current);
+        }
+        
     }
 }
