@@ -252,6 +252,16 @@ namespace labs_coordinate_pictures
                 System.Diagnostics.Process.Start(s);
         }
 
+        public static T ArrayAt<T>(T[] arr, int index)
+        {
+            if (index < 0)
+                return arr[0];
+            if (index >= arr.Length - 1)
+                return arr[arr.Length - 1];
+
+            return arr[index];
+        }
+
 #if DEBUG
         public static readonly bool Debug = true;
 #else
@@ -265,11 +275,11 @@ namespace labs_coordinate_pictures
         string[] _list = new string[] { };
         FileSystemWatcher m_watcher;
         string _root;
-        bool _recurse;
+        public bool Recurse {get; private set;}
         public FileListAutoUpdated(string root, bool recurse)
         {
             _root = root;
-            _recurse = recurse;
+            Recurse = recurse;
             m_watcher = new FileSystemWatcher(root);
             m_watcher.IncludeSubdirectories = recurse;
             m_watcher.Created += m_watcher_Created;
@@ -290,19 +300,149 @@ namespace labs_coordinate_pictures
         {
             _dirty = true;
         }
-        public string[] GetList()
+        public void Dirty()
         {
-            if (_dirty)
+            _dirty = true;
+        }
+        public string[] GetList(bool forceRefresh=false)
+        {
+            if (_dirty || forceRefresh)
             {
                 // for a 900 file directory, DirectoryInfo takes about 13ms, Directory.EnumerateFiles takes about 12ms
-                var enumerator = Directory.EnumerateFiles(_root, "*", _recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-                var listtemp = enumerator.ToList();
-                listtemp.Sort(StringComparer.Ordinal);
-                _list = listtemp.ToArray();
+                var enumerator = Directory.EnumerateFiles(_root, "*", Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                _list = enumerator.ToArray();
+                Array.Sort<string>(_list, StringComparer.Ordinal);
                 _dirty = false;
             }
 
             return _list;
+        }
+    }
+
+    public class FileListNavigation
+    {
+        string[] _extensionsAllowed;
+        bool _excludeMarked;
+        FileListAutoUpdated _list;
+        public string Current { get; private set; }
+        public string BaseDirectory { get; private set; }
+        public FileListNavigation(string basedir, string[] extensionsAllowed, bool fRecurse, bool excludeMarked = true, string sCurrent = "")
+        {
+            BaseDirectory = basedir;
+            _extensionsAllowed = extensionsAllowed;
+            _list = new FileListAutoUpdated(basedir, fRecurse);
+            _excludeMarked = excludeMarked;
+            TrySetPath(sCurrent);
+        }
+
+        public void Refresh(bool justPokeUpdates = false)
+        {
+            _list = new FileListAutoUpdated(BaseDirectory, _list.Recurse);
+            TrySetPath("");
+        }
+
+        public void NotifyFileChanges()
+        {
+            _list.Dirty();
+        }
+
+        bool IncludeFile(string path)
+        {
+            if (_excludeMarked && path.Contains(FilenameUtils.MarkerString))
+                return false;
+            if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
+                return false;
+            return true;
+        }
+
+        void TryAgainIfFileIsMissing(Func<string[], string> fn)
+        {
+            var list = _list.GetList();
+            if (list.Length == 0)
+            {
+                Current = null;
+                return;
+            }
+
+            string firstTry = fn(list);
+            if (firstTry != null && !File.Exists(firstTry))
+            {
+                list = _list.GetList(true /*refresh the list*/);
+                if (list.Length == 0)
+                {
+                    Current = null;
+                    return;
+                }
+
+                Current = fn(list);
+            }
+            else
+            {
+                Current = firstTry;
+            }
+        }
+
+        static int GetLessThanOrEqual(string[] list, string search)
+        {
+            var index = Array.BinarySearch<string>(list, search);
+            if (index < 0)
+                index = ~index - 1;
+            return index;
+        }
+
+        public void GoNextOrPrev(bool isNext, List<string> neighbors=null, int retrieveNeighbors=0)
+        {
+            TryAgainIfFileIsMissing((list) =>
+            {
+                var index = GetLessThanOrEqual(list, Current ?? "");
+                if (isNext)
+                {
+                    for (int i = 0; i < retrieveNeighbors; i++)
+                    {
+                        neighbors[i] = Utils.ArrayAt(list, index + i + 2);
+                    }
+
+                    return Utils.ArrayAt(list, index + 1);
+                }
+                else
+                {
+                    // index is LessThanOrEqual, but we want just LessThan, so move prev if equal.
+                    if (index > 0 && Current == list[index])
+                        index--;
+
+                    for (int i = 0; i < retrieveNeighbors; i++)
+                    {
+                        neighbors[i] = Utils.ArrayAt(list, index - i - 1);
+                    }
+
+                    return Utils.ArrayAt(list, index);
+                }
+            });
+        }
+
+        public void GoFirst()
+        {
+            TryAgainIfFileIsMissing((list) =>
+            {
+                return list[0];
+            });
+        }
+        public void GoLast()
+        {
+            TryAgainIfFileIsMissing((list) =>
+            {
+                return list[list.Length - 1];
+            });
+        }
+
+        public void TrySetPath(string sCurrent, bool verify = true)
+        {
+            Current = sCurrent;
+            if (verify)
+            {
+                GoNextOrPrev(true);
+                GoNextOrPrev(false);
+            }
         }
     }
 

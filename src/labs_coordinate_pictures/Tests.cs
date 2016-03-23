@@ -16,19 +16,6 @@ namespace labs_coordinate_pictures
 
     public static class TestUtil
     {
-        public static void AssertEqual(object expected, object actual)
-        {
-            if (!expected.Equals(actual))
-            {
-                throw new Exception("Assertion failure, expected " + expected + " but got " + actual);
-            }
-        }
-
-        public static void AssertTrue(bool actual)
-        {
-            AssertEqual(true, actual);
-        }
-
         public static void AssertExceptionMessage(Action fn, string strExpect)
         {
             string strException = null;
@@ -40,16 +27,37 @@ namespace labs_coordinate_pictures
             {
                 strException = exc.ToString();
             }
+
             if (strException == null || !strException.Contains(strExpect))
             {
-                throw new CoordinatePicturesTestException("Testing.AssertExceptionMessageIncludes expected " + strExpect + " but got " + strException + ".");
+                throw new CoordinatePicturesTestException("Testing.AssertExceptionMessageIncludes expected " +
+                    strExpect + " but got " + strException + ".");
             }
         }
 
-        public static void AssertStringArrayEqual(IList<string> expected, IList<string> actual)
+        public static void AssertEqual(object expected, object actual)
         {
-            AssertEqual(expected.Count, actual.Count);
-            for (int i = 0; i < expected.Count; i++)
+            // the nullToken compares equal to itself, but nothing else.
+            object nullToken = new object();
+            expected = expected ?? nullToken;
+            actual = actual ?? nullToken;
+
+            if (!expected.Equals(actual))
+            {
+                throw new Exception("Assertion failure, expected " + expected + " but got " + actual);
+            }
+        }
+
+        public static void AssertTrue(bool actual)
+        {
+            AssertEqual(true, actual);
+        }
+
+        public static void AssertStringArrayEqual(string strexpected, IList<string> actual)
+        {
+            var expected = strexpected.Split(new char[] { '|' });
+            AssertEqual(expected.Length, actual.Count);
+            for (int i = 0; i < expected.Length; i++)
             {
                 AssertEqual(expected[i], actual[i]);
             }
@@ -190,7 +198,146 @@ namespace labs_coordinate_pictures
             TestUtil.AssertExceptionMessage(
                 () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\nnewline"), "cannot contain newline");
         }
-        
+
+        static void TestMethod_FileListNavigation()
+        {
+            /* setup */
+            Directory.Delete(TestUtil.GetTestWriteDirectory(), true);
+            var dir = TestUtil.GetTestWriteDirectory();
+            File.WriteAllText(Path.Combine(dir, "dd.png"), "content");
+            File.WriteAllText(Path.Combine(dir, "cc.png"), "content");
+            File.WriteAllText(Path.Combine(dir, "bb.png"), "content");
+            File.WriteAllText(Path.Combine(dir, "aa.png"), "content");
+            List<string> neighbors = new List<string>(new string[4]);
+
+            { // gonext, gofirst
+                var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                nav.GoNextOrPrev(true, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "bb.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(true, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(true, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(true, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoFirst();
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+            }
+
+            { // golast, goprev
+                var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                nav.GoLast();
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+                nav.GoNextOrPrev(false, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(false, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "bb.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(false, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                nav.GoNextOrPrev(false, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+            }
+
+            { // gonext when file is missing
+                var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "().png"), false);
+                nav.GoNextOrPrev(true, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "ab.png"), false);
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "bb.png"), nav.Current);
+
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "bc.png"), false);
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
+
+                nav.GoFirst();
+                nav.TrySetPath(Path.Combine(dir, "zz.png"), false);
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+            }
+
+            { // goprev when file is missing
+                var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "().png"), false);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "bc.png"), false);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "bb.png"), nav.Current);
+
+                nav.GoLast();
+                nav.TrySetPath(Path.Combine(dir, "cd.png"), false);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
+
+                nav.GoFirst();
+                nav.TrySetPath(Path.Combine(dir, "zz.png"), false);
+                nav.GoNextOrPrev(false, neighbors, neighbors.Count);
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+                TestUtil.AssertStringArrayEqual("%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+            }
+
+            { //gonext and goprev after deleted file
+                var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
+                nav.GoFirst();
+                File.Delete(Path.Combine(dir, "bb.png"));
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
+                File.Delete(Path.Combine(dir, "cc.png"));
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+
+                // go down to 1 file
+                File.Delete(Path.Combine(dir, "dd.png"));
+                nav.GoLast();
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
+
+                // go down to no files
+                File.Delete(Path.Combine(dir, "aa.png"));
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(null, nav.Current);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(null, nav.Current);
+                nav.GoFirst();
+                TestUtil.AssertEqual(null, nav.Current);
+                nav.GoLast();
+                TestUtil.AssertEqual(null, nav.Current);
+
+                // recover from no files
+                File.WriteAllText(Path.Combine(dir, "new.png"), "content");
+                nav.NotifyFileChanges();
+                nav.GoNextOrPrev(true);
+                TestUtil.AssertEqual(Path.Combine(dir, "new.png"), nav.Current);
+                nav.GoNextOrPrev(false);
+                TestUtil.AssertEqual(Path.Combine(dir, "new.png"), nav.Current);
+            }
+        }
+
 
         public static void RunTests()
         {
