@@ -54,6 +54,7 @@
             this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.addNumberedPrefixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNumberedPrefixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,7 +64,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -269,6 +269,11 @@
             this.replaceInFilenameToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.replaceInFilenameToolStripMenuItem.Text = "Replace in Filename...";
             // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(278, 6);
+            // 
             // addNumberedPrefixToolStripMenuItem
             // 
             this.addNumberedPrefixToolStripMenuItem.Name = "addNumberedPrefixToolStripMenuItem";
@@ -301,12 +306,14 @@
             | System.Windows.Forms.Keys.V)));
             this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.viewCategoriesToolStripMenuItem.Text = "View Categories";
+            this.viewCategoriesToolStripMenuItem.Click += new System.EventHandler(this.viewCategoriesToolStripMenuItem_Click);
             // 
             // editCategoriesToolStripMenuItem
             // 
             this.editCategoriesToolStripMenuItem.Name = "editCategoriesToolStripMenuItem";
             this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
+            this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
             // finishedCategorizingToolStripMenuItem
             // 
@@ -349,11 +356,6 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(278, 6);
-            // 
             // FormGallery
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -365,6 +367,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormGallery";
             this.Text = "FormGallery";
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);

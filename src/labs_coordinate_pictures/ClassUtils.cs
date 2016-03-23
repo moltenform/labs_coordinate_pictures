@@ -65,21 +65,29 @@ namespace labs_coordinate_pictures
             return s.Substring(0, Math.Min(2, s.Length));
         }
 
-        public static void SoftDelete(string s)
+        public static string GetSoftDeleteDestination(string s)
         {
             var trashdir = Configs.Current.Get(ConfigsPersistedKeys.FilepathTrash);
-            if (String.IsNullOrEmpty(trashdir) || 
+            if (String.IsNullOrEmpty(trashdir) ||
                 !Directory.Exists(trashdir))
             {
                 MessageBox.Show("Trash directory not found. Go to the main screen and to the option menu and click Options->Set trash directory...");
-                return;
+                return null;
             }
 
             // as a prefix, the first 2 chars of the parent directory
             var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(s))) + "_";
-            var newname = Path.Combine(trashdir, prefix + Path.GetFileName(s) + rand.Next());
-            SimpleLog.Current.WriteLog("Moving [" + s + "] to [" + newname + "]");
-            File.Move(s, newname);
+            return Path.Combine(trashdir, prefix + Path.GetFileName(s) + rand.Next());
+        }
+
+        public static void SoftDelete(string s)
+        {
+            var newname = GetSoftDeleteDestination(s);
+            if (newname != null)
+            {
+                SimpleLog.Current.WriteLog("Moving [" + s + "] to [" + newname + "]");
+                File.Move(s, newname);
+            }
         }
 
         public static string CombineProcessArguments(string[] args)
@@ -448,35 +456,6 @@ namespace labs_coordinate_pictures
 
     public static class FilenameUtils
     {
-        public static string MarkerString = "__MARKAS__";
-        public static string AddMarkToFilename(string path, string category)
-        {
-            if (path.Contains(MarkerString)) {
-                MessageBox.Show("Path " + path + " already contains marker.");
-                return path;
-            }
-
-            var ext = Path.GetExtension(path);
-            var before = Path.GetFileNameWithoutExtension(path);
-            return Path.Combine(Path.GetDirectoryName(path), before) + MarkerString + category + ext;
-        }
-        public static void GetMarkFromFilename(string pathAndCatgory, out string path, out string category)
-        {
-            // check nothing in path has mark
-            if (Path.GetDirectoryName(pathAndCatgory).Contains(MarkerString))
-                throw new CoordinatePicturesException("Directories should not have magic");
-
-            var parts = Regex.Split(pathAndCatgory, Regex.Escape(MarkerString));
-            if (parts.Length != 2)
-            {
-                MessageBox.Show("Path " + pathAndCatgory + " does not contain marker.");
-                path = pathAndCatgory; category = ""; return;
-            }
-            var partsmore = parts[1].Split(new char[] { '.' });
-            Debug.Assert(partsmore.Length == 2);
-            category = partsmore[0];
-            path = parts[0] + "." + partsmore[1];
-        }
         public static bool LooksLikeImage(string s)
         {
             return IsExtensionInList(s, new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
@@ -495,6 +474,38 @@ namespace labs_coordinate_pictures
             }
             return false;
         }
+
+        public static string MarkerString = "__MARKAS__";
+        public static string AddMarkToFilename(string path, string category)
+        {
+            if (path.Contains(MarkerString)) {
+                MessageBox.Show("Path " + path + " already contains marker.");
+                return path;
+            }
+
+            var ext = Path.GetExtension(path);
+            var before = Path.GetFileNameWithoutExtension(path);
+            return Path.Combine(Path.GetDirectoryName(path), before) + MarkerString + category + ext;
+        }
+
+        public static void GetMarkFromFilename(string pathAndCatgory, out string path, out string category)
+        {
+            // check nothing in path has mark
+            if (Path.GetDirectoryName(pathAndCatgory).Contains(MarkerString))
+                throw new CoordinatePicturesException("Directories should not have magic");
+
+            var parts = Regex.Split(pathAndCatgory, Regex.Escape(MarkerString));
+            if (parts.Length != 2)
+            {
+                MessageBox.Show("Path " + pathAndCatgory + " does not contain marker.");
+                path = pathAndCatgory; category = ""; return;
+            }
+            var partsmore = parts[1].Split(new char[] { '.' });
+            Debug.Assert(partsmore.Length == 2);
+            category = partsmore[0];
+            path = parts[0] + "." + partsmore[1];
+        }
+        
         public static bool SameExceptExtension(string s1, string s2, string[] allowedTypes)
         {
             var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));

@@ -36,8 +36,8 @@
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -116,17 +116,17 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(254, 6);
             // 
-            // resizePhotosKeepingExifsToolStripMenuItem
-            // 
-            this.resizePhotosKeepingExifsToolStripMenuItem.Name = "resizePhotosKeepingExifsToolStripMenuItem";
-            this.resizePhotosKeepingExifsToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.resizePhotosKeepingExifsToolStripMenuItem.Text = "&Resize photographs keeping exifs...";
-            // 
             // checkFilesizesToolStripMenuItem
             // 
             this.checkFilesizesToolStripMenuItem.Name = "checkFilesizesToolStripMenuItem";
             this.checkFilesizesToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.checkFilesizesToolStripMenuItem.Text = "Check file&sizes...";
+            // 
+            // resizePhotosKeepingExifsToolStripMenuItem
+            // 
+            this.resizePhotosKeepingExifsToolStripMenuItem.Name = "resizePhotosKeepingExifsToolStripMenuItem";
+            this.resizePhotosKeepingExifsToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.resizePhotosKeepingExifsToolStripMenuItem.Text = "&Resize photographs keeping exifs...";
             // 
             // markwavQualityToolStripMenuItem
             // 
@@ -200,7 +200,7 @@
             // 
             this.setWebpDirectoryToolStripMenuItem.Name = "setWebpDirectoryToolStripMenuItem";
             this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.setWebpDirectoryToolStripMenuItem.Text = "Set webp location...";
+            this.setWebpDirectoryToolStripMenuItem.Text = "Set cwebp location...";
             // 
             // toolStripMenuItem2
             // 

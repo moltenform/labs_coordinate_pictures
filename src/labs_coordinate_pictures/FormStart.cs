@@ -66,7 +66,7 @@ namespace labs_coordinate_pictures
         {
             // save separate mru histories for images vs music
             var mruKey = ((mode as ModeCategorizeAndRenameBase) != null || (mode as ModeCategorizeAndRenameBase) != null) ?
-                InputBoxForm.History.OpenImageDirectory : InputBoxForm.History.OpenMusicDirectory;
+                InputBoxHistory.OpenImageDirectory : InputBoxHistory.OpenMusicDirectory;
 
             return InputBoxForm.GetStrInput("Enter directory:", null, mruKey, mustBeDirectory: true);
         }

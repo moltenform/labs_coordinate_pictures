@@ -8,12 +8,42 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
+    public static class ModeUtils
+    {
+        public static Tuple<string, string, string>[] CategoriesStringToTuple(string s)
+        {
+            var ret = new List<Tuple<string, string, string>>();
+            if (string.IsNullOrWhiteSpace(s))
+                return ret.ToArray();
+
+            var categories = s.Split(new char[] { '|' });
+            foreach (var category in categories)
+            {
+                var parts = category.Split(new char[] { '/' });
+                if (parts.Length != 3)
+                    throw new CoordinatePicturesException("category must be in form a/b/c but got " + category);
+
+            }
+            return ret.ToArray();
+        }
+
+        public static void UseDefaultCategoriesIfFirstRun(ModeBase mode)
+        {
+            if (mode.GetDefaultCategories() != null && Configs.Current.Get(mode.GetCategories()) == "")
+            {
+                Configs.Current.Set(mode.GetCategories(), mode.GetDefaultCategories());
+            }
+        }
+    }
+
+
     public abstract class ModeBase
     {
         public abstract bool SupportsRename();
         public abstract bool SupportsCompletionAction();
         public abstract void OnOpenItem(string sPath, FormGallery obj);
         public abstract ConfigsPersistedKeys GetCategories();
+        public abstract string GetDefaultCategories();
         public abstract void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen);
         public abstract string[] GetFileTypes();
         public abstract void OnBeforeAssignCategory();
@@ -61,6 +91,10 @@ namespace labs_coordinate_pictures
         {
             return ConfigsPersistedKeys.CategoriesModeCategorizeAndRename;
         }
+        public override string GetDefaultCategories()
+        {
+            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
+        }
     }
 
     public class ModeCheckFilesizes : ModeCategorizeAndRenameBase
@@ -68,6 +102,10 @@ namespace labs_coordinate_pictures
         public override ConfigsPersistedKeys GetCategories()
         {
             return ConfigsPersistedKeys.CategoriesModeCheckFilesizes;
+        }
+        public override string GetDefaultCategories()
+        {
+            return "A/size is good/size is good";
         }
         public override KeyValuePair<string, string>[] GetDisplayCustomCommands()
         {
