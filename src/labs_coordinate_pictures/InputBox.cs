@@ -184,7 +184,7 @@ namespace labs_coordinate_pictures
         public const int cMaxHistoryEntries = 10;
         public const int cMaxEntryLength = 300;
         InputBoxHistory _historyKey = InputBoxHistory.None;
-        ConfigsPersistedKeys _configsKey = ConfigsPersistedKeys.None;
+        ConfigKey _configsKey = ConfigKey.None;
         string[] _returned;
         public HistorySaver(InputBoxHistory historyKey)
         {

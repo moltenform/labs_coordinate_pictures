@@ -6,7 +6,7 @@ using System.Text;
 
 namespace labs_coordinate_pictures
 {
-    public enum ConfigsPersistedKeys
+    public enum ConfigKey
     {
         /* nb: unlike a C++ enum, it's changing the names and 
         not the order that will cause compat issues. */
@@ -50,16 +50,16 @@ namespace labs_coordinate_pictures
 
     public class Configs
     {
-        public static ConfigsPersistedKeys ConfigsPersistedKeysFromString(string s)
+        public static ConfigKey ConfigsPersistedKeysFromString(string s)
         {
-            ConfigsPersistedKeys e = ConfigsPersistedKeys.None;
-            return Enum.TryParse(s, out e) ? e : ConfigsPersistedKeys.None;
+            ConfigKey e = ConfigKey.None;
+            return Enum.TryParse(s, out e) ? e : ConfigKey.None;
         }
 
         private static Configs _instance;
         private static object locker = new Object();
         internal Configs(string path) { _path = path; }
-        Dictionary<ConfigsPersistedKeys, string> _persisted = new Dictionary<ConfigsPersistedKeys, string>();
+        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
         string _path;
         public static void Init(string path)
         {
@@ -92,8 +92,8 @@ namespace labs_coordinate_pictures
                     }
                     continue;
                 }
-                ConfigsPersistedKeys key = ConfigsPersistedKeysFromString(split[0]);
-                if (key == ConfigsPersistedKeys.None)
+                ConfigKey key = ConfigsPersistedKeysFromString(split[0]);
+                if (key == ConfigKey.None)
                 {
                     SimpleLog.Current.WriteWarning("unrecognized config key on line " + i + ", might occur if using config from future version.");
                     continue;
@@ -119,22 +119,22 @@ namespace labs_coordinate_pictures
             File.WriteAllText(_path, sb.ToString());
         }
 
-        public void Set(ConfigsPersistedKeys key, string s)
+        public void Set(ConfigKey key, string s)
         {
             _persisted[key] = s;
             SavePersisted();
         }
-        public void SetBool(ConfigsPersistedKeys key, bool b)
+        public void SetBool(ConfigKey key, bool b)
         {
             Set(key, b ? "true" : "");
         }
 
-        public string Get(ConfigsPersistedKeys key)
+        public string Get(ConfigKey key)
         {
             string s;
             return _persisted.TryGetValue(key, out s) ? s : "";
         }
-        public bool GetBool(ConfigsPersistedKeys key)
+        public bool GetBool(ConfigKey key)
         {
             return !string.IsNullOrEmpty(Get(key));
         }

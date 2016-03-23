@@ -42,7 +42,7 @@ namespace labs_coordinate_pictures
         public abstract bool SupportsRename();
         public abstract bool SupportsCompletionAction();
         public abstract void OnOpenItem(string sPath, FormGallery obj);
-        public abstract ConfigsPersistedKeys GetCategories();
+        public abstract ConfigKey GetCategories();
         public abstract string GetDefaultCategories();
         public abstract void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen);
         public abstract string[] GetFileTypes();
@@ -87,9 +87,9 @@ namespace labs_coordinate_pictures
 
     public class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
     {
-        public override ConfigsPersistedKeys GetCategories()
+        public override ConfigKey GetCategories()
         {
-            return ConfigsPersistedKeys.CategoriesModeCategorizeAndRename;
+            return ConfigKey.CategoriesModeCategorizeAndRename;
         }
         public override string GetDefaultCategories()
         {
@@ -99,9 +99,9 @@ namespace labs_coordinate_pictures
 
     public class ModeCheckFilesizes : ModeCategorizeAndRenameBase
     {
-        public override ConfigsPersistedKeys GetCategories()
+        public override ConfigKey GetCategories()
         {
-            return ConfigsPersistedKeys.CategoriesModeCheckFilesizes;
+            return ConfigKey.CategoriesModeCheckFilesizes;
         }
         public override string GetDefaultCategories()
         {

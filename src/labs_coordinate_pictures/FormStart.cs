@@ -19,29 +19,29 @@ namespace labs_coordinate_pictures
             HideOrShowMenus();
 
             this.setTrashDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsDir(sender, "When pressing Delete to 'move to trash', files will be moved to this directory.", ConfigsPersistedKeys.FilepathTrash);
+                OnSetConfigsDir(sender, "When pressing Delete to 'move to trash', files will be moved to this directory.", ConfigKey.FilepathTrash);
             this.setAltImageEditorDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "(Optional) Choose an alternative image editor.", ConfigsPersistedKeys.FilepathAltEditorImage);
+                OnSetConfigsFile(sender, "(Optional) Choose an alternative image editor.", ConfigKey.FilepathAltEditorImage);
             this.setPythonLocationToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "Locate python.exe; currently only Python 2 is supported.", ConfigsPersistedKeys.FilepathPython);
+                OnSetConfigsFile(sender, "Locate python.exe; currently only Python 2 is supported.", ConfigKey.FilepathPython);
             this.setWinMergeDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "(Optional) Locate winmerge.exe or another diff/merge application.", ConfigsPersistedKeys.FilepathWinMerge);
+                OnSetConfigsFile(sender, "(Optional) Locate winmerge.exe or another diff/merge application.", ConfigKey.FilepathWinMerge);
             this.setJpegCropDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "(Optional) Locate jpegcrop.exe or another jpeg crop/rotate application.", ConfigsPersistedKeys.FilepathJpegCrop);
+                OnSetConfigsFile(sender, "(Optional) Locate jpegcrop.exe or another jpeg crop/rotate application.", ConfigKey.FilepathJpegCrop);
             this.setMozjpegDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "Locate cjpeg.exe from mozjpeg (can be freely downloaded from Mozilla).", ConfigsPersistedKeys.FilepathMozJpeg);
+                OnSetConfigsFile(sender, "Locate cjpeg.exe from mozjpeg (can be freely downloaded from Mozilla).", ConfigKey.FilepathMozJpeg);
             this.setWebpDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "Locate cwebp.exe from webp (can be freely downloaded from Google)", ConfigsPersistedKeys.FilepathWebp);
+                OnSetConfigsFile(sender, "Locate cwebp.exe from webp (can be freely downloaded from Google)", ConfigKey.FilepathWebp);
             this.setMediaPlayerDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "Choose application for playing audio.", ConfigsPersistedKeys.FilepathMediaPlayer);
+                OnSetConfigsFile(sender, "Choose application for playing audio.", ConfigKey.FilepathMediaPlayer);
             this.setMediaEditorDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "(Optional) Choose application for editing audio, such as Audacity.", ConfigsPersistedKeys.FilepathMediaEditor);
+                OnSetConfigsFile(sender, "(Optional) Choose application for editing audio, such as Audacity.", ConfigKey.FilepathMediaEditor);
             this.setCreateSyncDirectoryToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsFile(sender, "(Optional) Locate 'create synchronicity.exe'", ConfigsPersistedKeys.FilepathCreateSync);
+                OnSetConfigsFile(sender, "(Optional) Locate 'create synchronicity.exe'", ConfigKey.FilepathCreateSync);
             this.setCoordmusicLocationToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsDir(sender, "(Optional) Locate coordinate_music directory containing main.py.", ConfigsPersistedKeys.FilepathCoordMusicDirectory);
+                OnSetConfigsDir(sender, "(Optional) Locate coordinate_music directory containing main.py.", ConfigKey.FilepathCoordMusicDirectory);
             this.setDropq128pyLocationToolStripMenuItem.Click += (sender, e) =>
-                OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigsPersistedKeys.FilepathEncodeMusicDropQDirectory);
+                OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigKey.FilepathEncodeMusicDropQDirectory);
             this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeCategorizeAndRename());
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
@@ -51,7 +51,7 @@ namespace labs_coordinate_pictures
             {
                 CoordinatePicturesTests.RunTests();
             }
-            if (Environment.GetCommandLineArgs().Length > 1 && Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures))
+            if (Environment.GetCommandLineArgs().Length > 1 && Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
                 OpenAudioFileInGallery(Environment.GetCommandLineArgs()[1]);
             }
@@ -80,7 +80,7 @@ namespace labs_coordinate_pictures
             new FormGallery(mode, dir).Show();
         }
 
-        private void OnSetConfigsDir(object sender, string info, ConfigsPersistedKeys key)
+        private void OnSetConfigsDir(object sender, string info, ConfigKey key)
         {
             var prompt = (sender as ToolStripItem).Text;
             var res = InputBoxForm.GetStrInput(prompt + Environment.NewLine + info, Configs.Current.Get(key), mustBeDirectory: true);
@@ -90,7 +90,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void OnSetConfigsFile(object sender, string info, ConfigsPersistedKeys key)
+        private void OnSetConfigsFile(object sender, string info, ConfigKey key)
         {
             var prompt = (sender as ToolStripItem).Text;
             OpenFileDialog dialog = new OpenFileDialog();
@@ -113,14 +113,14 @@ namespace labs_coordinate_pictures
             }
             else if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.L)
             {
-                bool nextState = !Configs.Current.GetBool(ConfigsPersistedKeys.EnableVerboseLogging);
-                Configs.Current.SetBool(ConfigsPersistedKeys.EnableVerboseLogging, nextState);
+                bool nextState = !Configs.Current.GetBool(ConfigKey.EnableVerboseLogging);
+                Configs.Current.SetBool(ConfigKey.EnableVerboseLogging, nextState);
                 MessageBox.Show("Set verbose logging to " + nextState);
             }
             else if (!e.Shift && e.Control && e.Alt && e.KeyCode == Keys.E)
             {
-                bool nextState = !Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
-                Configs.Current.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, nextState);
+                bool nextState = !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
+                Configs.Current.SetBool(ConfigKey.EnablePersonalFeatures, nextState);
                 MessageBox.Show("Set personal features to " + nextState);
                 HideOrShowMenus();
             }
@@ -143,7 +143,7 @@ namespace labs_coordinate_pictures
             };
             foreach (var item in menusPersonalOnly)
             {
-                item.Visible = Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures);
+                item.Visible = Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
             }
         }
 
@@ -154,7 +154,7 @@ namespace labs_coordinate_pictures
 
         private void FormStart_DragEnter(object sender, DragEventArgs e)
         {
-            if (Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures) && e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures) && e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
             }
@@ -166,7 +166,7 @@ namespace labs_coordinate_pictures
 
         private void FormStart_DragDrop(object sender, DragEventArgs e)
         {
-            if (Configs.Current.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures))
+            if (Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
                 {
@@ -190,7 +190,7 @@ namespace labs_coordinate_pictures
             else if (pathlower.EndsWith(".mp3") || pathlower.EndsWith(".mp4") ||
                 pathlower.EndsWith(".m4a") || pathlower.EndsWith(".flac"))
             {
-                var script = Path.Combine(Configs.Current.Get(ConfigsPersistedKeys.FilepathCoordMusicDirectory), "main.py");
+                var script = Path.Combine(Configs.Current.Get(ConfigKey.FilepathCoordMusicDirectory), "main.py");
                 if (!File.Exists(script))
                 {
                     MessageBox.Show("could not find " + script + ". locate it by choosing from the menu Options->Set coordmusic location...");

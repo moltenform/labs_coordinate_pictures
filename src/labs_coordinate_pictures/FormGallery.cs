@@ -96,7 +96,7 @@ namespace labs_coordinate_pictures
             foreach(var tuple in tuples)
             {
 
-                if (Configs.Current.GetBool(ConfigsPersistedKeys.GalleryViewCategories))
+                if (Configs.Current.GetBool(ConfigKey.GalleryViewCategories))
                 {
 
                 }
@@ -105,8 +105,8 @@ namespace labs_coordinate_pictures
 
         private void viewCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var current = Configs.Current.GetBool(ConfigsPersistedKeys.GalleryViewCategories);
-            Configs.Current.SetBool(ConfigsPersistedKeys.GalleryViewCategories, !current);
+            var current = Configs.Current.GetBool(ConfigKey.GalleryViewCategories);
+            Configs.Current.SetBool(ConfigKey.GalleryViewCategories, !current);
             RefreshCategories();
         }
 

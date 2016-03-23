@@ -159,34 +159,34 @@ namespace labs_coordinate_pictures
             string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
             Configs cfg = new Configs(path);
             cfg.LoadPersisted();
-            TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.EnablePersonalFeatures));
-            TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.FilepathPython));
-            TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.FilepathTrash));
-            cfg.Set(ConfigsPersistedKeys.EnablePersonalFeatures, "data=with=equals=");
-            cfg.Set(ConfigsPersistedKeys.FilepathPython, " data\twith\t tabs");
+            TestUtil.AssertEqual("", cfg.Get(ConfigKey.EnablePersonalFeatures));
+            TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
+            cfg.Set(ConfigKey.EnablePersonalFeatures, "data=with=equals=");
+            cfg.Set(ConfigKey.FilepathPython, " data\twith\t tabs");
             
             /* from memory */
-            TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigsPersistedKeys.EnablePersonalFeatures));
-            TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigsPersistedKeys.FilepathPython));
-            TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.FilepathTrash));
+            TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
+            TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
             
             /* from disk */
             cfg = new Configs(path);
             cfg.LoadPersisted();
-            TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigsPersistedKeys.EnablePersonalFeatures));
-            TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigsPersistedKeys.FilepathPython));
-            TestUtil.AssertEqual("", cfg.Get(ConfigsPersistedKeys.FilepathTrash));
+            TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
+            TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
         }
 
         static void TestMethod_ClassConfigsPersistedBools()
         {
             string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testbools.ini");
             Configs cfg = new Configs(path);
-            TestUtil.AssertEqual(false, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
-            cfg.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, true);
-            TestUtil.AssertEqual(true, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
-            cfg.SetBool(ConfigsPersistedKeys.EnablePersonalFeatures, false);
-            TestUtil.AssertEqual(false, cfg.GetBool(ConfigsPersistedKeys.EnablePersonalFeatures));
+            TestUtil.AssertEqual(false, cfg.GetBool(ConfigKey.EnablePersonalFeatures));
+            cfg.SetBool(ConfigKey.EnablePersonalFeatures, true);
+            TestUtil.AssertEqual(true, cfg.GetBool(ConfigKey.EnablePersonalFeatures));
+            cfg.SetBool(ConfigKey.EnablePersonalFeatures, false);
+            TestUtil.AssertEqual(false, cfg.GetBool(ConfigKey.EnablePersonalFeatures));
         }
 
         static void TestMethod_ClassConfigsNewlinesShouldNotBeAccepted()
@@ -194,9 +194,9 @@ namespace labs_coordinate_pictures
             string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
             Configs cfg = new Configs(path);
             TestUtil.AssertExceptionMessage(
-                () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\rnewline"), "cannot contain newline");
+                () => cfg.Set(ConfigKey.FilepathPython, "data\rnewline"), "cannot contain newline");
             TestUtil.AssertExceptionMessage(
-                () => cfg.Set(ConfigsPersistedKeys.FilepathPython, "data\nnewline"), "cannot contain newline");
+                () => cfg.Set(ConfigKey.FilepathPython, "data\nnewline"), "cannot contain newline");
         }
 
         static void TestMethod_ClassConfigsInputBoxHistoryShouldHaveCorrespondingConfig()
@@ -207,8 +207,8 @@ namespace labs_coordinate_pictures
                 if (en != InputBoxHistory.None)
                 {
                     var s = "MRU" + en.ToString();
-                    ConfigsPersistedKeys key;
-                    TestUtil.AssertEqual(true, Enum.TryParse<ConfigsPersistedKeys>(s, out key));
+                    ConfigKey key;
+                    TestUtil.AssertEqual(true, Enum.TryParse<ConfigKey>(s, out key));
                 }
             }
         }

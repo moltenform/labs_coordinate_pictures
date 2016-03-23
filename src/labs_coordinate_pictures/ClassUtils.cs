@@ -67,7 +67,7 @@ namespace labs_coordinate_pictures
 
         public static string GetSoftDeleteDestination(string s)
         {
-            var trashdir = Configs.Current.Get(ConfigsPersistedKeys.FilepathTrash);
+            var trashdir = Configs.Current.Get(ConfigKey.FilepathTrash);
             if (String.IsNullOrEmpty(trashdir) ||
                 !Directory.Exists(trashdir))
             {
@@ -197,7 +197,7 @@ namespace labs_coordinate_pictures
                 return "Script not found";
             }
 
-            var python = Configs.Current.Get(ConfigsPersistedKeys.FilepathPython);
+            var python = Configs.Current.Get(ConfigKey.FilepathPython);
             if (String.IsNullOrEmpty(python) || !File.Exists(python))
             {
                 MessageBox.Show("Python exe not found. Go to the main screen and to the option menu and click Options->Set python location...");
@@ -219,7 +219,7 @@ namespace labs_coordinate_pictures
             if (path == null)
                 path = Path.Combine(Configs.Current.Directory, "silence.flac");
 
-            var player = Configs.Current.Get(ConfigsPersistedKeys.FilepathMediaPlayer);
+            var player = Configs.Current.Get(ConfigKey.FilepathMediaPlayer);
             if (String.IsNullOrEmpty(player) || !File.Exists(player))
             {
                 MessageBox.Show("Media player not found. Go to the main screen and to the option menu and click Options->Set media player location...");
@@ -566,7 +566,7 @@ namespace labs_coordinate_pictures
         }
         public void WriteVerbose(string s)
         {
-            if (Configs.Current.GetBool(ConfigsPersistedKeys.EnableVerboseLogging))
+            if (Configs.Current.GetBool(ConfigKey.EnableVerboseLogging))
             {
                 WriteLog("[vb] " + s);
             }

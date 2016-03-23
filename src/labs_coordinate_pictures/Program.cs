@@ -38,7 +38,7 @@ namespace labs_coordinate_pictures
             SimpleLog.Current.WriteLog("Initializing.");
             Configs.Init(Path.Combine(dir, "options.ini"));
             Configs.Current.LoadPersisted();
-            Configs.Current.Set(ConfigsPersistedKeys.Version, "0.1");
+            Configs.Current.Set(ConfigKey.Version, "0.1");
             Application.Run(new FormStart());
         }
 
