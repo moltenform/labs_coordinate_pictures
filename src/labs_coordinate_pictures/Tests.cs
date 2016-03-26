@@ -313,17 +313,21 @@ namespace labs_coordinate_pictures
             { //gonext and goprev after deleted file
                 var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
                 nav.GoFirst();
+                TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
                 File.Delete(Path.Combine(dir, "bb.png"));
+                nav.NotifyFileChanges();
                 nav.GoNextOrPrev(true);
                 TestUtil.AssertEqual(Path.Combine(dir, "cc.png"), nav.Current);
                 nav.GoNextOrPrev(true);
                 TestUtil.AssertEqual(Path.Combine(dir, "dd.png"), nav.Current);
                 File.Delete(Path.Combine(dir, "cc.png"));
+                nav.NotifyFileChanges();
                 nav.GoNextOrPrev(false);
                 TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
 
                 // go down to 1 file
                 File.Delete(Path.Combine(dir, "dd.png"));
+                nav.NotifyFileChanges();
                 nav.GoLast();
                 TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
                 nav.GoNextOrPrev(true);
@@ -333,6 +337,7 @@ namespace labs_coordinate_pictures
 
                 // go down to no files
                 File.Delete(Path.Combine(dir, "aa.png"));
+                nav.NotifyFileChanges();
                 nav.GoNextOrPrev(true);
                 TestUtil.AssertEqual(null, nav.Current);
                 nav.GoNextOrPrev(false);

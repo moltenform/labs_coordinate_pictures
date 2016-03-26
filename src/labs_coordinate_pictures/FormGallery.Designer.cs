@@ -64,6 +64,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.labelView = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -102,36 +103,42 @@
             // movePrevMenuItem
             // 
             this.movePrevMenuItem.Name = "movePrevMenuItem";
+            this.movePrevMenuItem.ShortcutKeyDisplayString = "Left";
             this.movePrevMenuItem.Size = new System.Drawing.Size(206, 22);
             this.movePrevMenuItem.Text = "Move Previous";
             // 
             // moveNextMenuItem
             // 
             this.moveNextMenuItem.Name = "moveNextMenuItem";
+            this.moveNextMenuItem.ShortcutKeyDisplayString = "Right";
             this.moveNextMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveNextMenuItem.Text = "Move Next";
             // 
             // moveManyPrevToolStripMenuItem
             // 
             this.moveManyPrevToolStripMenuItem.Name = "moveManyPrevToolStripMenuItem";
+            this.moveManyPrevToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
             this.moveManyPrevToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveManyPrevToolStripMenuItem.Text = "Move 15 Previous";
             // 
             // moveManyNextToolStripMenuItem
             // 
             this.moveManyNextToolStripMenuItem.Name = "moveManyNextToolStripMenuItem";
+            this.moveManyNextToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
             this.moveManyNextToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveManyNextToolStripMenuItem.Text = "Move 15 Next";
             // 
             // moveFirstToolStripMenuItem
             // 
             this.moveFirstToolStripMenuItem.Name = "moveFirstToolStripMenuItem";
+            this.moveFirstToolStripMenuItem.ShortcutKeyDisplayString = "Home";
             this.moveFirstToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveFirstToolStripMenuItem.Text = "Move First";
             // 
             // moveLastToolStripMenuItem
             // 
             this.moveLastToolStripMenuItem.Name = "moveLastToolStripMenuItem";
+            this.moveLastToolStripMenuItem.ShortcutKeyDisplayString = "End";
             this.moveLastToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveLastToolStripMenuItem.Text = "Move Last";
             // 
@@ -143,7 +150,7 @@
             // showInExplorerToolStripMenuItem
             // 
             this.showInExplorerToolStripMenuItem.Name = "showInExplorerToolStripMenuItem";
-            this.showInExplorerToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+            this.showInExplorerToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+W";
             this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.showInExplorerToolStripMenuItem.Text = "Show in Explorer";
             this.showInExplorerToolStripMenuItem.Click += new System.EventHandler(this.showInExplorerToolStripMenuItem_Click);
@@ -156,7 +163,7 @@
             // moveToTrashToolStripMenuItem
             // 
             this.moveToTrashToolStripMenuItem.Name = "moveToTrashToolStripMenuItem";
-            this.moveToTrashToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.moveToTrashToolStripMenuItem.ShortcutKeyDisplayString = "Del";
             this.moveToTrashToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveToTrashToolStripMenuItem.Text = "Move to Trash";
             // 
@@ -180,14 +187,14 @@
             // undoMoveToolStripMenuItem
             // 
             this.undoMoveToolStripMenuItem.Name = "undoMoveToolStripMenuItem";
-            this.undoMoveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
             this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
             // 
             // copyPathToolStripMenuItem
             // 
             this.copyPathToolStripMenuItem.Name = "copyPathToolStripMenuItem";
-            this.copyPathToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.copyPathToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+C";
             this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.copyPathToolStripMenuItem.Text = "Copy Path";
             this.copyPathToolStripMenuItem.Click += new System.EventHandler(this.copyPathToolStripMenuItem_Click);
@@ -200,7 +207,7 @@
             // editFileToolStripMenuItem
             // 
             this.editFileToolStripMenuItem.Name = "editFileToolStripMenuItem";
-            this.editFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.editFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+E";
             this.editFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.editFileToolStripMenuItem.Text = "Edit File...";
             this.editFileToolStripMenuItem.Click += new System.EventHandler(this.editFileToolStripMenuItem_Click);
@@ -208,8 +215,7 @@
             // editInAltEditorToolStripMenuItem
             // 
             this.editInAltEditorToolStripMenuItem.Name = "editInAltEditorToolStripMenuItem";
-            this.editInAltEditorToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.E)));
+            this.editInAltEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+E";
             this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.editInAltEditorToolStripMenuItem.Text = "Edit File in Alternate Editor...";
             this.editInAltEditorToolStripMenuItem.Click += new System.EventHandler(this.editInAltEditorToolStripMenuItem_Click);
@@ -217,8 +223,7 @@
             // cropRotateFileToolStripMenuItem
             // 
             this.cropRotateFileToolStripMenuItem.Name = "cropRotateFileToolStripMenuItem";
-            this.cropRotateFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.X)));
+            this.cropRotateFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+X";
             this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.cropRotateFileToolStripMenuItem.Text = "Crop/Rotate File...";
             this.cropRotateFileToolStripMenuItem.Click += new System.EventHandler(this.cropRotateFileToolStripMenuItem_Click);
@@ -226,26 +231,29 @@
             // convertResizeImageToolStripMenuItem
             // 
             this.convertResizeImageToolStripMenuItem.Name = "convertResizeImageToolStripMenuItem";
-            this.convertResizeImageToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.convertResizeImageToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+[";
+            this.convertResizeImageToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertResizeImageToolStripMenuItem.Text = "Convert/Resize Image...";
             // 
             // convertAllPngToWebpToolStripMenuItem
             // 
             this.convertAllPngToWebpToolStripMenuItem.Name = "convertAllPngToWebpToolStripMenuItem";
-            this.convertAllPngToWebpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D1)));
+            this.convertAllPngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
             this.convertAllPngToWebpToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
             this.convertAllPngToWebpToolStripMenuItem.Text = "Convert all png to lossless webp";
             // 
             // convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem
             // 
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Name = "convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem";
-            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+[";
+            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Text = "Convert to several jpgs with different qualities";
             // 
             // keepAndDeleteOthersToolStripMenuItem
             // 
             this.keepAndDeleteOthersToolStripMenuItem.Name = "keepAndDeleteOthersToolStripMenuItem";
-            this.keepAndDeleteOthersToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.keepAndDeleteOthersToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+]";
+            this.keepAndDeleteOthersToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.keepAndDeleteOthersToolStripMenuItem.Text = "Keep this jpg and delete others with different qualities...";
             // 
             // renameToolStripMenuItem1
@@ -263,6 +271,7 @@
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameToolStripMenuItem.ShortcutKeyDisplayString = "H";
             this.renameToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.renameToolStripMenuItem.Text = "Rename...";
             // 
@@ -273,6 +282,7 @@
             | System.Windows.Forms.Keys.H)));
             this.replaceInFilenameToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.replaceInFilenameToolStripMenuItem.Text = "Replace in Filename...";
+            this.replaceInFilenameToolStripMenuItem.Click += new System.EventHandler(this.replaceInFilenameToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
@@ -282,17 +292,18 @@
             // addNumberedPrefixToolStripMenuItem
             // 
             this.addNumberedPrefixToolStripMenuItem.Name = "addNumberedPrefixToolStripMenuItem";
-            this.addNumberedPrefixToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D3)));
+            this.addNumberedPrefixToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+3";
             this.addNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.addNumberedPrefixToolStripMenuItem.Text = "Add Numbered Prefix";
+            this.addNumberedPrefixToolStripMenuItem.Click += new System.EventHandler(this.addNumberedPrefixToolStripMenuItem_Click);
             // 
             // removeNumberedPrefixToolStripMenuItem
             // 
             this.removeNumberedPrefixToolStripMenuItem.Name = "removeNumberedPrefixToolStripMenuItem";
-            this.removeNumberedPrefixToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.D3)));
+            this.removeNumberedPrefixToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+3";
             this.removeNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.removeNumberedPrefixToolStripMenuItem.Text = "Remove Numbered Prefix";
+            this.removeNumberedPrefixToolStripMenuItem.Click += new System.EventHandler(this.removeNumberedPrefixToolStripMenuItem_Click);
             // 
             // categoriesToolStripMenuItem
             // 
@@ -307,23 +318,24 @@
             // viewCategoriesToolStripMenuItem
             // 
             this.viewCategoriesToolStripMenuItem.Name = "viewCategoriesToolStripMenuItem";
-            this.viewCategoriesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.V)));
-            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.viewCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+V";
+            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
             this.viewCategoriesToolStripMenuItem.Text = "View Categories";
             this.viewCategoriesToolStripMenuItem.Click += new System.EventHandler(this.viewCategoriesToolStripMenuItem_Click);
             // 
             // editCategoriesToolStripMenuItem
             // 
             this.editCategoriesToolStripMenuItem.Name = "editCategoriesToolStripMenuItem";
-            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.editCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+K";
+            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
             this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
             // finishedCategorizingToolStripMenuItem
             // 
             this.finishedCategorizingToolStripMenuItem.Name = "finishedCategorizingToolStripMenuItem";
-            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.finishedCategorizingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
+            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.finishedCategorizingToolStripMenuItem.Text = "Finish Categorizing...";
             // 
             // tableLayoutPanel1
@@ -333,6 +345,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.labelView, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -360,6 +373,16 @@
             this.pictureBox1.Size = new System.Drawing.Size(100, 50);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            // 
+            // labelView
+            // 
+            this.labelView.AutoSize = true;
+            this.labelView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelView.Location = new System.Drawing.Point(3, 13);
+            this.labelView.Name = "labelView";
+            this.labelView.Size = new System.Drawing.Size(94, 379);
+            this.labelView.TabIndex = 2;
+            this.labelView.Text = "label1";
             // 
             // FormGallery
             // 
@@ -421,5 +444,6 @@
         private System.Windows.Forms.ToolStripMenuItem replaceInFilenameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.Label labelView;
     }
 }

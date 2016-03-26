@@ -332,7 +332,7 @@ namespace labs_coordinate_pictures
                 // for a 900 file directory, DirectoryInfo takes about 13ms, Directory.EnumerateFiles takes about 12ms
                 var enumerator = Directory.EnumerateFiles(_root, "*", Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                 _list = enumerator.ToArray();
-                Array.Sort<string>(_list, StringComparer.Ordinal);
+                Array.Sort<string>(_list, StringComparer.OrdinalIgnoreCase);
                 _dirty = false;
             }
 
@@ -367,7 +367,7 @@ namespace labs_coordinate_pictures
             _list.Dirty();
         }
 
-        bool IncludeFile(string path)
+        public bool IncludeFile(string path)
         {
             if (_excludeMarked && path.Contains(FilenameUtils.MarkerString))
                 return false;
@@ -378,7 +378,7 @@ namespace labs_coordinate_pictures
 
         void TryAgainIfFileIsMissing(Func<string[], string> fn)
         {
-            var list = _list.GetList();
+            var list = GetList();
             if (list.Length == 0)
             {
                 Current = null;
@@ -388,7 +388,7 @@ namespace labs_coordinate_pictures
             string firstTry = fn(list);
             if (firstTry != null && !File.Exists(firstTry))
             {
-                list = _list.GetList(true /*refresh the list*/);
+                list = GetList(true /*refresh the list*/);
                 if (list.Length == 0)
                 {
                     Current = null;
@@ -461,9 +461,17 @@ namespace labs_coordinate_pictures
             Current = sCurrent;
             if (verify)
             {
-                GoNextOrPrev(true);
-                GoNextOrPrev(false);
+                TryAgainIfFileIsMissing((list) =>
+                {
+                    var index = GetLessThanOrEqual(list, Current ?? "");
+                    return Utils.ArrayAt(list, index);
+                });
             }
+        }
+
+        public string[] GetList(bool forceRefresh = false)
+        {
+            return _list.GetList().Where(IncludeFile).ToArray();
         }
     }
 
@@ -486,6 +494,33 @@ namespace labs_coordinate_pictures
                     return true;
             }
             return false;
+        }
+        public static bool IsExt(string s, string ext)
+        {
+            return s.ToLowerInvariant().EndsWith("."+ ext);
+        }
+        public static string AddNumberedPrefix(string path, int n)
+        {
+            var nameOnly = Path.GetFileName(path);
+            if (nameOnly != GetFileNameWithoutNumberedPrefix(path))
+            {
+                // already has one
+                return path;
+            }
+            else
+            {
+                // add a trailing zero, just lets the user change the order more easily.
+                return Path.GetDirectoryName(path) +
+                    "\\([" + n.ToString("D3") + "0])" + nameOnly;
+            }
+        }
+        public static string GetFileNameWithoutNumberedPrefix(string path)
+        {
+            var nameOnly = Path.GetFileName(path);
+            if (nameOnly.Length > 8 && nameOnly.StartsWith("([") && nameOnly.Substring(6, 2) == "])")
+                return nameOnly.Substring(8);
+            else
+                return nameOnly;
         }
 
         public static string MarkerString = "__MARKAS__";

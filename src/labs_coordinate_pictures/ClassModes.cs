@@ -17,12 +17,20 @@ namespace labs_coordinate_pictures
                 return ret.ToArray();
 
             var categories = s.Split(new char[] { '|' });
+            string explain = "category must be in form A/categoryReadable/categoryId, where A is a single capital letter, but got ";
             foreach (var category in categories)
             {
                 var parts = category.Split(new char[] { '/' });
                 if (parts.Length != 3)
-                    throw new CoordinatePicturesException("category must be in form a/b/c but got " + category);
+                    throw new CoordinatePicturesException(explain + category);
 
+                if (parts[0].Length != 1 || parts[0][0] < 'A' || parts[0][0] > 'Z')
+                    throw new CoordinatePicturesException(explain + category);
+
+                if (parts[1].Length == 0 || parts[2].Length == 0)
+                    throw new CoordinatePicturesException(explain + category);
+
+                ret.Add(new Tuple<string, string, string>(parts[0], parts[1], parts[2]));
             }
             return ret.ToArray();
         }
@@ -47,7 +55,7 @@ namespace labs_coordinate_pictures
         public abstract void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen);
         public abstract string[] GetFileTypes();
         public abstract void OnBeforeAssignCategory();
-        public virtual KeyValuePair<string, string>[] GetDisplayCustomCommands() { return null; }
+        public virtual Tuple<string, string>[] GetDisplayCustomCommands() { return new Tuple<string, string>[] { }; }
         public virtual void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys) { }
         public virtual bool SupportsFileType(string s)
         {
@@ -107,10 +115,10 @@ namespace labs_coordinate_pictures
         {
             return "A/size is good/size is good";
         }
-        public override KeyValuePair<string, string>[] GetDisplayCustomCommands()
+        public override Tuple<string, string>[] GetDisplayCustomCommands()
         {
-            return new KeyValuePair<string, string>[] {
-                new KeyValuePair<string, string>("Mark small files as finished", "Ctrl-2")
+            return new Tuple<string, string>[] {
+                new Tuple<string, string>("Ctrl-2", "Mark small files as finished")
             };
         }
         public override void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)

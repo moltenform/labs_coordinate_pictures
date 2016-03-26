@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -15,47 +12,38 @@ namespace labs_coordinate_pictures
     public partial class FormGallery : Form
     {
         ModeBase _mode;
-        string _root;
         bool _enabled = true;
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
+        Dictionary<string, string> _categoryShortcuts;
         internal FileListNavigation nav;
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
             _mode = mode;
-            _root = initialDirectory;
 
             _originalCategoriesMenu = new List<ToolStripItem>(categoriesToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
             _originalEditMenu = new List<ToolStripItem>(editToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
-            movePrevMenuItem.ShortcutKeyDisplayString = "Left";
-            movePrevMenuItem.Click += (sender, e) => MoveOne(false);
-            moveNextMenuItem.ShortcutKeyDisplayString = "Right";
-            moveNextMenuItem.Click += (sender, e) => MoveOne(true);
-            moveManyPrevToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
-            moveManyPrevToolStripMenuItem.Click += (sender, e) => MoveMany(false);
-            moveManyNextToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
-            moveManyNextToolStripMenuItem.Click += (sender, e) => MoveMany(true);
-            moveFirstToolStripMenuItem.ShortcutKeyDisplayString = "Home";
-            moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
-            moveLastToolStripMenuItem.ShortcutKeyDisplayString = "End";
-            moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
-            convertResizeImageToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+[";
-            convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+[";
-            keepAndDeleteOthersToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+]";
-            renameToolStripMenuItem.ShortcutKeyDisplayString = "H";
-            finishedCategorizingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
 
-            ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
-            RefreshCategories();
+            // event handlers
+            movePrevMenuItem.Click += (sender, e) => MoveOne(false);
+            moveNextMenuItem.Click += (sender, e) => MoveOne(true);
+            moveManyPrevToolStripMenuItem.Click += (sender, e) => MoveMany(false);
+            moveManyNextToolStripMenuItem.Click += (sender, e) => MoveMany(true);
+            moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
+            moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
+            moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
+            renameToolStripMenuItem.Click += (sender, e) => RenameFile(false);
 
             nav = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
+            ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
+            RefreshCategories();
             OnOpenItem();
         }
 
         void OnOpenItem()
         {
-            
+            label.Text = nav.Current ?? "looks done.";
         }
 
         void RefreshFilelist()
@@ -86,21 +74,53 @@ namespace labs_coordinate_pictures
             OnOpenItem();
         }
 
+        void RefreshCustomCommands()
+        {
+            if (_mode.GetDisplayCustomCommands().Length > 0)
+            {
+                editToolStripMenuItem.DropDownItems.Clear();
+                foreach (var item in _originalEditMenu)
+                    editToolStripMenuItem.DropDownItems.Add(item);
+
+                editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                labelView.Text = "";
+                foreach (var tuple in _mode.GetDisplayCustomCommands())
+                {
+                    var menuItem = new ToolStripMenuItem(tuple.Item2);
+                    menuItem.ShortcutKeyDisplayString = tuple.Item1;
+                    menuItem.Click += (sender, e) => MessageBox.Show(
+                        "Press the shortcut " + tuple.Item1 + " to run this command.");
+                    editToolStripMenuItem.DropDownItems.Add(menuItem);
+                    labelView.Text += tuple.Item1 + "=" + tuple.Item2 + "\r\n\r\n";
+                }
+            }
+        }
+
+
         void RefreshCategories()
         {
+            RefreshCustomCommands();
             categoriesToolStripMenuItem.DropDownItems.Clear();
             foreach (var item in _originalCategoriesMenu)
                 categoriesToolStripMenuItem.DropDownItems.Add(item);
 
+            categoriesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
             var categoriesString = Configs.Current.Get(_mode.GetCategories());
             var tuples = ModeUtils.CategoriesStringToTuple(categoriesString);
-            foreach(var tuple in tuples)
+            _categoryShortcuts = new Dictionary<string, string>();
+            foreach (var tuple in tuples)
             {
+                var menuItem = new ToolStripMenuItem(tuple.Item2);
+                menuItem.ShortcutKeyDisplayString = tuple.Item1;
+                menuItem.Click += (sender, e) => AssignCategory(tuple.Item3);
+                categoriesToolStripMenuItem.DropDownItems.Add(menuItem);
+                labelView.Text += tuple.Item1 + "=" + tuple.Item2 + "\r\n\r\n";
+                this._categoryShortcuts[tuple.Item1] = tuple.Item3;
+            }
 
-                if (Configs.Current.GetBool(ConfigKey.GalleryViewCategories))
-                {
-
-                }
+            if (!Configs.Current.GetBool(ConfigKey.GalleryViewCategories))
+            {
+                labelView.Text = "";
             }
         }
 
@@ -113,10 +133,26 @@ namespace labs_coordinate_pictures
 
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var suggestions = new string[] { Configs.Current.Get(_mode.GetCategories()),
+            var suggestions = new string[] {
+                Configs.Current.Get(_mode.GetCategories()),
                 _mode.GetDefaultCategories() };
-            var nextCategories = InputBoxForm.GetStrInput("xsdfgdfgdf", null, InputBoxHistory.EditCategoriesString, suggestions);
-            //try it and see if it throws...
+            var text = "Please enter a list of category strings separated by |. Each category string must be in the form A/categoryReadable/categoryId, where A is a single capital letter, categoryReadable will be the human-readable label, and categoryID will be the unique ID (when an image is given this ID, the ID will be added to the filename as a suffix).";
+            var nextCategories = InputBoxForm.GetStrInput(text, null, InputBoxHistory.EditCategoriesString, suggestions);
+            if (!string.IsNullOrEmpty(nextCategories))
+            {
+                try
+                {
+                    ModeUtils.CategoriesStringToTuple(nextCategories);
+                }
+                catch (CoordinatePicturesException exc)
+                {
+                    MessageBox.Show(exc.Message);
+                    return;
+                }
+
+                Configs.Current.Set(_mode.GetCategories(), nextCategories);
+                RefreshCategories();
+            }
         }
 
         internal List<Tuple<string, string>> m_undoStack = new List<Tuple<string, string>>();
@@ -193,12 +229,13 @@ namespace labs_coordinate_pictures
             if (!_enabled)
                 return;
 
+            // Use custom shortcut strings instead of ShortcutKeys
+            // 1) allows shortcuts without Ctrl or Alt
+            // 2) otherwise it uses KeyDown, fires many times if you hold the key
             if (!e.Shift && !e.Control && !e.Alt)
             {
-                if (e.KeyCode == Keys.F5) // not in menus, since shouldn't be needed
+                if (e.KeyCode == Keys.F5) // not in menus, shouldn't be needed
                     RefreshFilelist();
-                else if (e.KeyCode == Keys.Delete)
-                    KeyDelete();
                 else if (e.KeyCode == Keys.Left)
                     MoveOne(false);
                 else if (e.KeyCode == Keys.Right)
@@ -211,20 +248,81 @@ namespace labs_coordinate_pictures
                     MoveFirst(false);
                 else if (e.KeyCode == Keys.End)
                     MoveFirst(true);
-                else if (e.KeyCode == Keys.End)
-                    RenameFile();
+                else if (e.KeyCode == Keys.Delete)
+                    KeyDelete();
+                else if (e.KeyCode == Keys.H)
+                    RenameFile(false);
             }
             else if (e.Shift && !e.Control && !e.Alt)
             {
+                if (_categoryShortcuts.ContainsKey(e.KeyCode.ToString()))
+                    AssignCategory(_categoryShortcuts[e.KeyCode.ToString()]);
+            }
+            else if (e.Shift && e.Control && !e.Alt)
+            {
+                if (e.KeyCode == Keys.E)
+                    editInAltEditorToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.X)
+                    cropRotateFileToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.H)
+                    replaceInFilenameToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.D3)
+                    removeNumberedPrefixToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.V)
+                    viewCategoriesToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.K)
+                    editCategoriesToolStripMenuItem_Click(null, null);
             }
             else if (!e.Shift && e.Control && !e.Alt)
             {
+                if (e.KeyCode == Keys.W)
+                    showInExplorerToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.C)
+                    copyPathToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.E)
+                    editFileToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.D3)
+                    addNumberedPrefixToolStripMenuItem_Click(null, null);
+            }
+            else if (!e.Shift && !e.Control && e.Alt)
+            {
+                if (e.KeyCode == Keys.H) // not in menus, not comonly used
+                    RenameFile(true);
             }
         }
 
-        void RenameFile()
+        private void AssignCategory(string categoryId)
         {
-            
+            throw new NotImplementedException();
+        }
+
+        void RenameFile(bool overwriteNumberedPrefix)
+        {
+            if (!_mode.SupportsRename() || nav.Current == null)
+                return;
+
+            InputBoxHistory key = FilenameUtils.LooksLikeImage(nav.Current) ?
+                InputBoxHistory.RenameImage : (FilenameUtils.IsExt(nav.Current, "wav") ?
+                InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
+
+            var current = overwriteNumberedPrefix ? 
+                Path.GetFileName(nav.Current):
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(nav.Current);
+            var currentNoext = Path.GetFileNameWithoutExtension(current);
+            var newname = InputBoxForm.GetStrInput("Enter a new name:", currentNoext, key);
+            if (!string.IsNullOrEmpty(newname))
+            {
+                var fullnewname = Path.GetDirectoryName(nav.Current) + "\\" +
+                    (current != Path.GetFileName(nav.Current) ? Path.GetFileName(nav.Current).Substring(0, 8) : "") +
+                    newname + Path.GetExtension(nav.Current);
+
+                if (WrapMoveFile(nav.Current, fullnewname))
+                {
+                    nav.NotifyFileChanges();
+                    nav.TrySetPath(fullnewname);
+                    OnOpenItem();
+                }
+            }
         }
 
         void KeyDelete()
@@ -233,7 +331,7 @@ namespace labs_coordinate_pictures
             {
                 _mode.OnBeforeAssignCategory();
                 var dest = Utils.GetSoftDeleteDestination(nav.Current);
-                if (WrapMoveFile(nav.Current, dest))
+                if (dest != null && WrapMoveFile(nav.Current, dest))
                 {
                     MoveOne(true);
                 }
@@ -243,18 +341,25 @@ namespace labs_coordinate_pictures
         public void UIEnable()
         {
             this.label.ForeColor = Color.Black;
+            fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
+                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = false;
             _enabled = true;
         }
 
         public void UIDisable()
         {
             this.label.ForeColor = Color.Gray;
+            fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
+                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = true;
             _enabled = false;
         }
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Utils.SelectFileInExplorer(nav.Current);
+            if (nav.Current == null)
+                Utils.OpenDirInExplorer(nav.BaseDirectory);
+            else
+                Utils.SelectFileInExplorer(nav.Current);
         }
 
         private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
@@ -272,7 +377,7 @@ namespace labs_coordinate_pictures
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current.ToLowerInvariant().EndsWith(".webp"))
+            if (FilenameUtils.IsExt(nav.Current, "webp"))
                 Process.Start(nav.Current); // open in default viewer
             else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
@@ -282,7 +387,7 @@ namespace labs_coordinate_pictures
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current.ToLowerInvariant().EndsWith(".webp"))
+            if (FilenameUtils.IsExt(nav.Current, "webp"))
                 LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", nav.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
@@ -292,13 +397,85 @@ namespace labs_coordinate_pictures
 
         private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current.ToLowerInvariant().EndsWith(".jpg"))
+            if (FilenameUtils.IsExt(nav.Current, "jpg"))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), nav.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), nav.Current);
             else
                 LaunchEditor(@"C:\Windows\System32\mspaint.exe", nav.Current);
         }
-        
+
+        private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int nAddedPrefix = 0, nSkippedPrefix = 0, nFailedToRename = 0;
+            int i = 0;
+            if (Utils.AskToConfirm("Add numbered prefix?"))
+            {
+                foreach (var path in nav.GetList())
+                {
+                    i++;
+                    if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
+                    {
+                        if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, i)))
+                            nAddedPrefix++;
+                        else
+                            nFailedToRename++;
+                    }
+                    else
+                    {
+                        nSkippedPrefix++;
+                    }
+                }
+                MoveFirst(false);
+            }
+            MessageBox.Show(string.Format("{0} files skipped because they already have a prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedPrefix, nFailedToRename, nAddedPrefix));
+        }
+
+        private void removeNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int nRemovedPrefix = 0, nSkippedAlready = 0, nFailedToRename = 0;
+            if (Utils.AskToConfirm("Remove numbered prefix?"))
+            {
+                foreach (var path in nav.GetList())
+                {
+                    if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
+                    {
+                        nSkippedAlready++;
+                    }
+                    else
+                    {
+                        if (WrapMoveFile(path, Path.GetDirectoryName(path) + "\\" + FilenameUtils.GetFileNameWithoutNumberedPrefix(path)))
+                            nRemovedPrefix++;
+                        else
+                            nFailedToRename++;
+                    }
+                }
+                MoveFirst(false);
+            }
+            MessageBox.Show(string.Format("{0} files skipped because they have no prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedAlready, nFailedToRename, nRemovedPrefix));
+        }
+
+        private void replaceInFilenameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (nav.Current == null)
+                return;
+
+            var filename = Path.GetFileName(nav.Current);
+            var search = InputBoxForm.GetStrInput("Search for this in filename (not directory name):", filename, InputBoxHistory.RenameReplaceInName);
+            if (!string.IsNullOrEmpty(search))
+            {
+                var replace = InputBoxForm.GetStrInput("Replace with this:", filename, InputBoxHistory.RenameReplaceInName);
+                if (replace != null && filename.Contains(search))
+                {
+                    var newfilename = Path.GetDirectoryName(nav.Current) + "\\" + filename.Replace(search, replace);
+                    if (WrapMoveFile(nav.Current, newfilename))
+                    {
+                        nav.NotifyFileChanges();
+                        nav.TrySetPath(newfilename);
+                        OnOpenItem();
+                    }
+                }
+            }
+        }
     }
 }
