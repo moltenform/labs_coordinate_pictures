@@ -178,6 +178,17 @@ namespace labs_coordinate_pictures
             return false;
         }
 
+        public static string FormatFilesize(string path)
+        {
+            if (!File.Exists(path))
+                return " file not found";
+
+            var len = new FileInfo(path).Length;
+            return (len > 1024 * 1024) ?
+                String.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
+                String.Format(" ({0}k)", (len / 1024));
+        }
+
         public static void CloseOtherProcessesByName(string name)
         {
             var thisId = Process.GetCurrentProcess().Id;

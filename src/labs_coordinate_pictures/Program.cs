@@ -30,6 +30,8 @@ namespace labs_coordinate_pictures
                 dir = AppDomain.CurrentDomain.BaseDirectory;
             else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools\silence.flac")))
                 dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools");
+            else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools\silence.flac")))
+                dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools");
             else
                 throw new CoordinatePicturesException("cannot find silence.flac");
 

@@ -188,27 +188,27 @@
             // 
             this.undoMoveToolStripMenuItem.Name = "undoMoveToolStripMenuItem";
             this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
-            this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
             // 
             // copyPathToolStripMenuItem
             // 
             this.copyPathToolStripMenuItem.Name = "copyPathToolStripMenuItem";
             this.copyPathToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+C";
-            this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.copyPathToolStripMenuItem.Text = "Copy Path";
             this.copyPathToolStripMenuItem.Click += new System.EventHandler(this.copyPathToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(363, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(401, 6);
             // 
             // editFileToolStripMenuItem
             // 
             this.editFileToolStripMenuItem.Name = "editFileToolStripMenuItem";
             this.editFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+E";
-            this.editFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.editFileToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.editFileToolStripMenuItem.Text = "Edit File...";
             this.editFileToolStripMenuItem.Click += new System.EventHandler(this.editFileToolStripMenuItem_Click);
             // 
@@ -216,7 +216,7 @@
             // 
             this.editInAltEditorToolStripMenuItem.Name = "editInAltEditorToolStripMenuItem";
             this.editInAltEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+E";
-            this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.editInAltEditorToolStripMenuItem.Text = "Edit File in Alternate Editor...";
             this.editInAltEditorToolStripMenuItem.Click += new System.EventHandler(this.editInAltEditorToolStripMenuItem_Click);
             // 
@@ -224,7 +224,7 @@
             // 
             this.cropRotateFileToolStripMenuItem.Name = "cropRotateFileToolStripMenuItem";
             this.cropRotateFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+X";
-            this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.cropRotateFileToolStripMenuItem.Text = "Crop/Rotate File...";
             this.cropRotateFileToolStripMenuItem.Click += new System.EventHandler(this.cropRotateFileToolStripMenuItem_Click);
             // 
@@ -239,7 +239,7 @@
             // 
             this.convertAllPngToWebpToolStripMenuItem.Name = "convertAllPngToWebpToolStripMenuItem";
             this.convertAllPngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
-            this.convertAllPngToWebpToolStripMenuItem.Size = new System.Drawing.Size(366, 22);
+            this.convertAllPngToWebpToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertAllPngToWebpToolStripMenuItem.Text = "Convert all png to lossless webp";
             // 
             // convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem
@@ -319,7 +319,7 @@
             // 
             this.viewCategoriesToolStripMenuItem.Name = "viewCategoriesToolStripMenuItem";
             this.viewCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+V";
-            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.viewCategoriesToolStripMenuItem.Text = "View Categories";
             this.viewCategoriesToolStripMenuItem.Click += new System.EventHandler(this.viewCategoriesToolStripMenuItem_Click);
             // 
@@ -327,7 +327,7 @@
             // 
             this.editCategoriesToolStripMenuItem.Name = "editCategoriesToolStripMenuItem";
             this.editCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+K";
-            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
             this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
@@ -368,11 +368,13 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(103, 16);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 50);
+            this.pictureBox1.Size = new System.Drawing.Size(543, 373);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             // 
             // labelView
             // 
@@ -395,6 +397,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormGallery";
             this.Text = "FormGallery";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormGallery_FormClosed);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

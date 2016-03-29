@@ -17,14 +17,19 @@ namespace labs_coordinate_pictures
         List<ToolStripItem> _originalEditMenu;
         Dictionary<string, string> _categoryShortcuts;
         internal FileListNavigation nav;
+        internal ImageCache imcache;
+        const int imagecachesize = 15;
+        const int imagecachebatch = 8;
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
-            _mode = mode;
 
+            SimpleLog.Current.WriteLog("Starting session in " + initialDirectory + "|" + initialFilepath);
+            _mode = mode;
             _originalCategoriesMenu = new List<ToolStripItem>(categoriesToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
             _originalEditMenu = new List<ToolStripItem>(editToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
-
+            pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+            
             // event handlers
             movePrevMenuItem.Click += (sender, e) => MoveOne(false);
             moveNextMenuItem.Click += (sender, e) => MoveOne(true);
@@ -43,8 +48,34 @@ namespace labs_coordinate_pictures
 
         void OnOpenItem()
         {
-            label.Text = nav.Current ?? "looks done.";
+            if (nav.Current == null)
+            {
+                label.Text = "looks done.";
+                pictureBox1.Image = ImageCache.BitmapBlank;
+            }
+            else
+            {
+                // tell the mode we've opened something
+                _mode.OnOpenItem(nav.Current, this);
+
+                // if the user resized the window, create a new cache for the new size
+                if (imcache == null || imcache.MaxWidth != pictureBox1.Width-1 || imcache.MaxHeight != pictureBox1.Height-1)
+                {
+                    if (imcache != null)
+                        imcache.Dispose();
+                    imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, imagecachesize);
+                }
+
+                int nOrigW = 0, nOrigH = 0;
+                pictureBox1.Image = imcache.Get(nav.Current, out nOrigW, out nOrigH);
+                var showResized = (nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight) ? "s" : "";
+                label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", nav.Current,
+                    Utils.FormatFilesize(nav.Current), Path.GetFileName(nav.Current),
+                    showResized, nOrigW, nOrigH);
+            }
         }
+
+        
 
         void RefreshFilelist()
         {
@@ -54,7 +85,8 @@ namespace labs_coordinate_pictures
 
         void MoveOne(bool forwardDirection)
         {
-            nav.GoNextOrPrev(forwardDirection);
+            List<string> pathsToCache = new List<string>();
+            nav.GoNextOrPrev(forwardDirection, pathsToCache, 0);
             OnOpenItem();
         }
 
@@ -83,7 +115,7 @@ namespace labs_coordinate_pictures
                     editToolStripMenuItem.DropDownItems.Add(item);
 
                 editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-                labelView.Text = "";
+                labelView.Text = "\r\n\r\n";
                 foreach (var tuple in _mode.GetDisplayCustomCommands())
                 {
                     var menuItem = new ToolStripMenuItem(tuple.Item2);
@@ -289,11 +321,21 @@ namespace labs_coordinate_pictures
                 if (e.KeyCode == Keys.H) // not in menus, not comonly used
                     RenameFile(true);
             }
+
+            _mode.OnCustomCommand(this, e.Shift, e.Control, e.Alt, e.KeyCode);
         }
 
-        private void AssignCategory(string categoryId)
+        void AssignCategory(string categoryId)
         {
-            throw new NotImplementedException();
+            _mode.OnBeforeAssignCategory();
+            if (nav.Current == null)
+                return;
+
+            var newname = FilenameUtils.AddMarkToFilename(nav.Current, categoryId);
+            if (WrapMoveFile(nav.Current, newname))
+            {
+                MoveOne(true);
+            }
         }
 
         void RenameFile(bool overwriteNumberedPrefix)
@@ -476,6 +518,17 @@ namespace labs_coordinate_pictures
                     }
                 }
             }
+        }
+
+        private void FormGallery_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (imcache != null)
+                imcache.Dispose();
+        }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            
         }
     }
 }
