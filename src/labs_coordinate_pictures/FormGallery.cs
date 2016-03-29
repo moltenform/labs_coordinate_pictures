@@ -13,6 +13,8 @@ namespace labs_coordinate_pictures
     {
         ModeBase _mode;
         bool _enabled = true;
+        bool _zoomed = false;
+        bool _currentImageResized = false;
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
         Dictionary<string, string> _categoryShortcuts;
@@ -57,6 +59,7 @@ namespace labs_coordinate_pictures
             {
                 // tell the mode we've opened something
                 _mode.OnOpenItem(nav.Current, this);
+                pictureBox1.Image = ImageCache.BitmapBlank;
 
                 // if the user resized the window, create a new cache for the new size
                 if (imcache == null || imcache.MaxWidth != pictureBox1.Width-1 || imcache.MaxHeight != pictureBox1.Height-1)
@@ -68,14 +71,15 @@ namespace labs_coordinate_pictures
 
                 int nOrigW = 0, nOrigH = 0;
                 pictureBox1.Image = imcache.Get(nav.Current, out nOrigW, out nOrigH);
-                var showResized = (nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight) ? "s" : "";
+                _currentImageResized = nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight;
+                var showResized = _currentImageResized ? "s" : "";
                 label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", nav.Current,
                     Utils.FormatFilesize(nav.Current), Path.GetFileName(nav.Current),
                     showResized, nOrigW, nOrigH);
             }
-        }
 
-        
+            _zoomed = false;
+        }
 
         void RefreshFilelist()
         {
@@ -528,7 +532,19 @@ namespace labs_coordinate_pictures
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            
+            if ((ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                if (_zoomed)
+                {
+                    OnOpenItem();
+                }
+                else if (_currentImageResized)
+                {
+                    imcache.Excerpt.MakeBmp(nav.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
+                    pictureBox1.Image = imcache.Excerpt.Bmp;
+                    _zoomed = true;
+                }
+            }
         }
     }
 }

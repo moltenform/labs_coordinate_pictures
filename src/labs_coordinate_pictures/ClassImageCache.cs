@@ -13,6 +13,7 @@ namespace labs_coordinate_pictures
     public class ImageCache : IDisposable
     {
         public static Bitmap BitmapBlank = new Bitmap(1, 1);
+        public ImageViewExcerpt Excerpt { get; private set; }
         public int MaxHeight { get; private set; }
         public int MaxWidth { get; private set; }
         List<Tuple<string, Bitmap, int, int, DateTime>> _cache;
@@ -24,6 +25,7 @@ namespace labs_coordinate_pictures
             MaxWidth = maxwidth;
             MaxHeight = maxheight;
             _cacheSize = cacheSize;
+            Excerpt = new ImageViewExcerpt(maxwidth, maxheight);
             _cache = new List<Tuple<string, Bitmap, int, int, DateTime>>();
             if (_cacheSize <= 1)
             {
@@ -38,6 +40,8 @@ namespace labs_coordinate_pictures
                 foreach (var tuple in _cache)
                     if (tuple.Item2 != null)
                         tuple.Item2.Dispose();
+
+                Excerpt.Dispose();
             }
         }
 
@@ -101,7 +105,7 @@ namespace labs_coordinate_pictures
 
                 // could get the bitmap out of lock... but that risks redundant work
                 int nOrigW = 0, nOrigH = 0;
-                var b = GetBitmap(path, out nOrigW, out nOrigH);
+                var b = GetResizedBitmap(path, out nOrigW, out nOrigH);
                 var lastModified = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : new System.DateTime();
                 _cache.Add(new Tuple<string, Bitmap, int, int, DateTime>(
                     path, b, nOrigW, nOrigH, lastModified));
@@ -123,15 +127,8 @@ namespace labs_coordinate_pictures
             }, null);
         }
 
-        public Bitmap GetBitmap(string path, out int nOrigW, out int nOrigH)
+        public static Bitmap GetBitmap(string path)
         {
-            if (!FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
-            {
-                nOrigW = 0;
-                nOrigH = 0;
-                return BitmapBlank;
-            }
-
             // load from disk
             Bitmap imFromFile;
             try
@@ -145,13 +142,31 @@ namespace labs_coordinate_pictures
                 else
                 {
                     imFromFile = new Bitmap(path);
+
+                    // some image files, especially jpgs from a scanner, have custom resolutions,
+                    // I've found that I get best results when overriding the resolution here.
+                    imFromFile.SetResolution(96.0f, 96.0f);
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("Exception loading "+path+"\r\n"+e);
+                MessageBox.Show("Exception loading " + path + "\r\n" + e);
                 imFromFile = new Bitmap(1, 1);
             }
+
+            return imFromFile;
+        }
+
+        public Bitmap GetResizedBitmap(string path, out int nOrigW, out int nOrigH)
+        {
+            if (!FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
+            {
+                nOrigW = 0;
+                nOrigH = 0;
+                return BitmapBlank;
+            }
+
+            Bitmap imFromFile = GetBitmap(path);
 
             // resize and preserve ratio
             using (imFromFile)
@@ -202,6 +217,51 @@ namespace labs_coordinate_pictures
             {
                 return newImage;
             }
+        }
+    }
+
+    public class ImageViewExcerpt : IDisposable
+    {
+        public int MaxWidth { get; private set; }
+        public int MaxHeight { get; private set; }
+        public Bitmap Bmp { get; private set; }
+        public ImageViewExcerpt(int maxwidth, int maxheight)
+        {
+            MaxWidth = maxwidth;
+            MaxHeight = maxheight;
+            Bmp = new Bitmap(1, 1);
+        }
+
+        public void MakeBmp(string path, int clickX, int clickY, int wasWidth, int wasHeight)
+        {
+            Bmp.Dispose();
+            Bmp = new Bitmap(MaxWidth, MaxHeight);
+            if (path == null || !FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
+                return;
+            
+            using (Bitmap fullImage = ImageCache.GetBitmap(path))
+            {
+                if (fullImage.Width == 1 || fullImage.Height == 1)
+                    return;
+
+                // find where the user clicked, and then show that place in the center at full resolution.
+                var xcenter = (int)(fullImage.Width * (clickX / ((double)wasWidth)));
+                var ycenter = (int)(fullImage.Height * (clickY / ((double)wasHeight)));
+                var shiftx = xcenter - MaxWidth / 2;
+                var shifty = ycenter - MaxHeight / 2;
+
+                // draw the entire image, but pushed off to the side
+                using (Graphics gr = Graphics.FromImage(Bmp))
+                {
+                    gr.FillRectangle(new SolidBrush(Color.White), 0, 0, MaxWidth, MaxHeight);
+                    gr.DrawImageUnscaled(fullImage, -shiftx, -shifty);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Bmp.Dispose();
         }
     }
 }
