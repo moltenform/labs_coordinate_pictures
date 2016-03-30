@@ -18,6 +18,7 @@ namespace labs_coordinate_pictures
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
         Dictionary<string, string> _categoryShortcuts;
+        List<string> _pathsToCache = new List<string>();
         internal FileListNavigation nav;
         internal ImageCache imcache;
         const int imagecachesize = 15;
@@ -25,6 +26,9 @@ namespace labs_coordinate_pictures
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
+
+            for (int i = 0; i < imagecachebatch; i++)
+                _pathsToCache.Add(null);
 
             SimpleLog.Current.WriteLog("Starting session in " + initialDirectory + "|" + initialFilepath);
             _mode = mode;
@@ -62,15 +66,19 @@ namespace labs_coordinate_pictures
                 pictureBox1.Image = ImageCache.BitmapBlank;
 
                 // if the user resized the window, create a new cache for the new size
-                if (imcache == null || imcache.MaxWidth != pictureBox1.Width-1 || imcache.MaxHeight != pictureBox1.Height-1)
+                if (imcache == null || imcache.MaxWidth != pictureBox1.Width || imcache.MaxHeight != pictureBox1.Height)
                 {
                     if (imcache != null)
+                    {
+                        pictureBox1.Image = null;
                         imcache.Dispose();
-                    imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, imagecachesize);
+                    }
+
+                    imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, imagecachesize, this.pictureBox1);
                 }
 
                 int nOrigW = 0, nOrigH = 0;
-                pictureBox1.Image = imcache.Get(nav.Current, out nOrigW, out nOrigH);
+                pictureBox1.Image = imcache.Get(nav.Current, pictureBox1, out nOrigW, out nOrigH);
                 _currentImageResized = nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight;
                 var showResized = _currentImageResized ? "s" : "";
                 label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", nav.Current,
@@ -89,9 +97,12 @@ namespace labs_coordinate_pictures
 
         void MoveOne(bool forwardDirection)
         {
-            List<string> pathsToCache = new List<string>();
-            nav.GoNextOrPrev(forwardDirection, pathsToCache, 0);
+            for (int i = 0; i < _pathsToCache.Count; i++)
+                _pathsToCache[i] = null;
+
+            nav.GoNextOrPrev(forwardDirection, _pathsToCache, _pathsToCache.Count);
             OnOpenItem();
+            imcache.AddAsync(_pathsToCache, pictureBox1);
         }
 
         void MoveMany(bool forwardDirection)
@@ -527,7 +538,10 @@ namespace labs_coordinate_pictures
         private void FormGallery_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (imcache != null)
+            {
+                pictureBox1.Image = null;
                 imcache.Dispose();
+            }
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -540,7 +554,8 @@ namespace labs_coordinate_pictures
                 }
                 else if (_currentImageResized)
                 {
-                    imcache.Excerpt.MakeBmp(nav.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
+                    imcache.Excerpt.MakeBmp(
+                        nav.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
                     pictureBox1.Image = imcache.Excerpt.Bmp;
                     _zoomed = true;
                 }
