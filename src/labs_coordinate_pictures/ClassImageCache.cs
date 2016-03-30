@@ -19,18 +19,19 @@ namespace labs_coordinate_pictures
         List<Tuple<string, Bitmap, int, int, DateTime>> _cache;
         object _lock = new object();
         int _cacheSize;
+        Func<Action, bool> _callbackOnUiThread;
+        Func<Bitmap, bool> _canDisposeBitmap;
         
-        public ImageCache(int maxwidth, int maxheight, int cacheSize, Control mainThread)
+        public ImageCache(int maxwidth, int maxheight, int cacheSize,
+            Func<Action, bool> callbackOnUiThread, Func<Bitmap, bool> canDisposeBitmap)
         {
             MaxWidth = maxwidth;
             MaxHeight = maxheight;
             _cacheSize = cacheSize;
-            Excerpt = new ImageViewExcerpt(maxwidth, maxheight);
+            _callbackOnUiThread = callbackOnUiThread;
+            _canDisposeBitmap = canDisposeBitmap;
             _cache = new List<Tuple<string, Bitmap, int, int, DateTime>>();
-            if (_cacheSize <= 1)
-            {
-                throw new CoordinatePicturesException("cache size too small");
-            }
+            Excerpt = new ImageViewExcerpt(maxwidth, maxheight);
         }
 
         public void Dispose()
@@ -71,7 +72,7 @@ namespace labs_coordinate_pictures
             return index;
         }
 
-        public Bitmap Get(string path, PictureBox mainThread, out int nOrigW, out int nOrigH)
+        public Bitmap Get(string path, out int nOrigW, out int nOrigH)
         {
             lock (_lock)
             {
@@ -80,7 +81,7 @@ namespace labs_coordinate_pictures
                 {
                     SimpleLog.Current.WriteVerbose("adding to cache " + path);
 
-                    Add(new string[] { path }, mainThread);
+                    Add(new string[] { path });
                     index = SearchForUpToDateCacheEntry(path);
                     if (index == -1)
                         throw new CoordinatePicturesException("did not find image we just cached");
@@ -92,7 +93,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void Add(string[] paths, PictureBox mainThread)
+        public void Add(string[] paths)
         {
             bool checkTooBig = false;
             foreach (var path in paths)
@@ -119,13 +120,15 @@ namespace labs_coordinate_pictures
             // note that since checkTooBig is outside the lock, it might have false negatives, but that's ok.
             if (checkTooBig)
             {
-                mainThread.Invoke(new Action(delegate {
+                _callbackOnUiThread.Invoke(new Action(() =>
+                {
                     lock (_lock)
                     {
-                        object currentImage = mainThread.Image as object;
-                        for (int i = _cache.Count-_cacheSize; i>=0; i--)
+                        // iterate backwards, since RemoveAt repositions subsequent elements
+                        var howManyToRemove = _cache.Count - _cacheSize;
+                        for (int i = howManyToRemove - 1; i >= 0; i--)
                         {
-                            if (i <= _cache.Count - 1 && _cache[i].Item2 as object != currentImage)
+                            if (i <= _cache.Count - 1 && _canDisposeBitmap(_cache[i].Item2))
                             {
                                 _cache[i].Item2.Dispose();
                                 _cache.RemoveAt(i);
@@ -140,7 +143,7 @@ namespace labs_coordinate_pictures
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
-                Add(arList.ToArray(), mainThread);
+                Add(arList.ToArray());
             }, null);
         }
 
@@ -167,7 +170,8 @@ namespace labs_coordinate_pictures
             }
             catch (Exception e)
             {
-                MessageBox.Show("Exception loading " + path + "\r\n" + e);
+                if (!Configs.Current.SupressDialogs)
+                    MessageBox.Show("Exception loading " + path + "\r\n" + e);
                 if (imFromFile != null)
                     imFromFile.Dispose();
                 imFromFile = new Bitmap(1, 1);

@@ -54,6 +54,13 @@ namespace labs_coordinate_pictures
 
         void OnOpenItem()
         {
+            // if the user resized the window, create a new cache for the new size
+            pictureBox1.Image = ImageCache.BitmapBlank;
+            if (imcache == null || imcache.MaxWidth != pictureBox1.Width || imcache.MaxHeight != pictureBox1.Height)
+            {
+                RefreshImageCache();
+            }
+
             if (nav.Current == null)
             {
                 label.Text = "looks done.";
@@ -63,22 +70,8 @@ namespace labs_coordinate_pictures
             {
                 // tell the mode we've opened something
                 _mode.OnOpenItem(nav.Current, this);
-                pictureBox1.Image = ImageCache.BitmapBlank;
-
-                // if the user resized the window, create a new cache for the new size
-                if (imcache == null || imcache.MaxWidth != pictureBox1.Width || imcache.MaxHeight != pictureBox1.Height)
-                {
-                    if (imcache != null)
-                    {
-                        pictureBox1.Image = null;
-                        imcache.Dispose();
-                    }
-
-                    imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, imagecachesize, this.pictureBox1);
-                }
-
                 int nOrigW = 0, nOrigH = 0;
-                pictureBox1.Image = imcache.Get(nav.Current, pictureBox1, out nOrigW, out nOrigH);
+                pictureBox1.Image = imcache.Get(nav.Current, out nOrigW, out nOrigH);
                 _currentImageResized = nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight;
                 var showResized = _currentImageResized ? "s" : "";
                 label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", nav.Current,
@@ -87,6 +80,22 @@ namespace labs_coordinate_pictures
             }
 
             _zoomed = false;
+        }
+
+        void RefreshImageCache()
+        {
+            if (imcache != null)
+            {
+                pictureBox1.Image = null;
+                imcache.Dispose();
+            }
+
+            Func<Bitmap, bool> canDisposeBitmap = 
+                (bmp) => (bmp as object) != (pictureBox1.Image as object);
+            Func<Action, bool> callbackOnUiThread =
+                (act) => { this.Invoke((MethodInvoker)(() => act.Invoke())); return true; };
+            imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, 
+                imagecachesize, callbackOnUiThread, canDisposeBitmap);
         }
 
         void RefreshFilelist()
@@ -537,11 +546,7 @@ namespace labs_coordinate_pictures
 
         private void FormGallery_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (imcache != null)
-            {
-                pictureBox1.Image = null;
-                imcache.Dispose();
-            }
+            RefreshImageCache();
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)

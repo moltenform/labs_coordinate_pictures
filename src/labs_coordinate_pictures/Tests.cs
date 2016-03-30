@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -66,7 +67,8 @@ namespace labs_coordinate_pictures
         public static void CallAllTestMethods(Type t, object[] arParams)
         {
             MethodInfo[] methodInfos = t.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
-            foreach (MethodInfo methodInfo in methodInfos)
+            var sortedMethods = methodInfos.OrderBy(item => item.Name);
+            foreach (MethodInfo methodInfo in sortedMethods)
             {
                 if (methodInfo.Name.StartsWith("TestMethod_"))
                 {
@@ -81,6 +83,13 @@ namespace labs_coordinate_pictures
             string path = Path.Combine(Path.GetTempPath(), "test_labs_coordinate_pictures");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
+            return path;
+        }
+
+        public static string GetTestSubDirectory(string dirname)
+        {
+            string path = Path.Combine(GetTestWriteDirectory(), dirname);
+            Directory.CreateDirectory(path);
             return path;
         }
     }
@@ -156,7 +165,7 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_ClassConfigsPersistedCommonUsage()
         {
-            string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
+            string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "test.ini");
             Configs cfg = new Configs(path);
             cfg.LoadPersisted();
             TestUtil.AssertEqual("", cfg.Get(ConfigKey.EnablePersonalFeatures));
@@ -180,7 +189,7 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_ClassConfigsPersistedBools()
         {
-            string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testbools.ini");
+            string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "testbools.ini");
             Configs cfg = new Configs(path);
             TestUtil.AssertEqual(false, cfg.GetBool(ConfigKey.EnablePersonalFeatures));
             cfg.SetBool(ConfigKey.EnablePersonalFeatures, true);
@@ -191,7 +200,7 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_ClassConfigsNewlinesShouldNotBeAccepted()
         {
-            string path = Path.Combine(TestUtil.GetTestWriteDirectory(), "test.ini");
+            string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "test.ini");
             Configs cfg = new Configs(path);
             TestUtil.AssertExceptionMessage(
                 () => cfg.Set(ConfigKey.FilepathPython, "data\rnewline"), "cannot contain newline");
@@ -216,8 +225,7 @@ namespace labs_coordinate_pictures
         static void TestMethod_FileListNavigation()
         {
             /* setup */
-            Directory.Delete(TestUtil.GetTestWriteDirectory(), true);
-            var dir = TestUtil.GetTestWriteDirectory();
+            var dir = TestUtil.GetTestSubDirectory("filelist");
             File.WriteAllText(Path.Combine(dir, "dd.png"), "content");
             File.WriteAllText(Path.Combine(dir, "cc.png"), "content");
             File.WriteAllText(Path.Combine(dir, "bb.png"), "content");
@@ -310,7 +318,7 @@ namespace labs_coordinate_pictures
                 TestUtil.AssertStringArrayEqual("%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
             }
 
-            { //gonext and goprev after deleted file
+            { // gonext and goprev after deleted file
                 var nav = new FileListNavigation(dir, new string[] { ".png" }, true);
                 nav.GoFirst();
                 TestUtil.AssertEqual(Path.Combine(dir, "aa.png"), nav.Current);
@@ -354,6 +362,93 @@ namespace labs_coordinate_pictures
                 TestUtil.AssertEqual(Path.Combine(dir, "new.png"), nav.Current);
                 nav.GoNextOrPrev(false);
                 TestUtil.AssertEqual(Path.Combine(dir, "new.png"), nav.Current);
+            }
+        }
+
+        static void TestMethod_ImageCache()
+        {
+            var dir = TestUtil.GetTestSubDirectory("imcache");
+            File.WriteAllText(Path.Combine(dir, "a1.png"), "fake image1");
+            File.WriteAllText(Path.Combine(dir, "b1.png"), "fake image2");
+            List<object> removedFromCache = new List<object>();
+            Func<Bitmap, bool> canDisposeBitmap =
+                (bmp) => { removedFromCache.Add(bmp); return true; };
+            Func<Action, bool> callbackOnUiThread =
+                (act) => { act(); return true; };
+            
+
+            { // standard lookup
+                var imcache = new ImageCache(20, 20, 3 /*cache size*/,
+                    callbackOnUiThread, canDisposeBitmap);
+
+                // retrieve from the cache
+                int gotW = 0, gotH = 0;
+                var bmp1 = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(1, gotW);
+                TestUtil.AssertEqual(1, gotH);
+
+                // retrieving same path from the cache should return the exact same image
+                var bmp1Same = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(1, gotW);
+                TestUtil.AssertEqual(1, gotH);
+                TestUtil.AssertEqual((object) bmp1, (object)bmp1Same);
+
+                // however, if lmt has changed, cached copy should be refreshed.
+                var wasTime = File.GetLastWriteTime(Path.Combine(dir, "a1.png"));
+                File.SetLastWriteTime(Path.Combine(dir, "a1.png"), wasTime - new TimeSpan(0, 0, 10));
+                var bmp1Changed = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(1, gotW);
+                TestUtil.AssertEqual(1, gotH);
+                TestUtil.AssertTrue((object)bmp1 != (object)bmp1Changed);
+
+                // and further lookups should get this new copy.
+                var bmp1ChangedAfter = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                TestUtil.AssertEqual((object)bmp1ChangedAfter, (object)bmp1Changed);
+
+                // do comparisons work after dispose.
+                bmp1.Dispose();
+                bmp1Same.Dispose();
+                bmp1Changed.Dispose();
+                TestUtil.AssertTrue((object)bmp1 != (object)bmp1Changed);
+                TestUtil.AssertTrue((object)bmp1Same != (object)bmp1Changed);
+                TestUtil.AssertEqual((object)bmp1, (object)bmp1Same);
+                TestUtil.AssertEqual((object)bmp1Same, (object)bmp1Same);
+                TestUtil.AssertEqual((object)bmp1Same, (object)bmp1);
+            }
+
+            { // add past the limit
+                var imcache = new ImageCache(20, 20, 3 /*cache size*/,
+                    callbackOnUiThread, canDisposeBitmap);
+
+                // fill up cache
+                removedFromCache.Clear();
+                int gotW = 0, gotH = 0;
+                var bmp1 = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                var bmp2 = imcache.Get(Path.Combine(dir, "a2.png"), out gotW, out gotH);
+                var bmp3 = imcache.Get(Path.Combine(dir, "a3.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(0, removedFromCache.Count);
+
+                // add one more
+                var bmp4 = imcache.Get(Path.Combine(dir, "a4.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(1, removedFromCache.Count);
+                TestUtil.AssertEqual((object)bmp1, (object)removedFromCache[0]);
+
+                // bmp4 should now be in the cache
+                var bmp4Again = imcache.Get(Path.Combine(dir, "a4.png"), out gotW, out gotH);
+                TestUtil.AssertEqual((object)bmp4Again, (object)bmp4);
+
+                // add one more
+                var bmp5 = imcache.Get(Path.Combine(dir, "a5.png"), out gotW, out gotH);
+                TestUtil.AssertEqual(2, removedFromCache.Count);
+                TestUtil.AssertEqual((object)bmp2, (object)removedFromCache[1]);
+
+                // add many
+                removedFromCache.Clear();
+                imcache.Add(new string[] { Path.Combine(dir, "b1.png"), Path.Combine(dir, "b2.png"), Path.Combine(dir, "b3.png"), Path.Combine(dir, "b4.png"), Path.Combine(dir, "b5.png") });
+                TestUtil.AssertEqual(5, removedFromCache.Count);
+                TestUtil.AssertEqual((object)bmp3, (object)removedFromCache[4]);
+                TestUtil.AssertEqual((object)bmp4, (object)removedFromCache[3]);
+                TestUtil.AssertEqual((object)bmp5, (object)removedFromCache[2]);
             }
         }
 
