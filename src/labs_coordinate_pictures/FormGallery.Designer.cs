@@ -190,6 +190,7 @@
             this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
             this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
+            this.undoMoveToolStripMenuItem.Click += new System.EventHandler(this.undoMoveToolStripMenuItem_Click);
             // 
             // copyPathToolStripMenuItem
             // 
@@ -234,6 +235,7 @@
             this.convertResizeImageToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+[";
             this.convertResizeImageToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertResizeImageToolStripMenuItem.Text = "Convert/Resize Image...";
+            this.convertResizeImageToolStripMenuItem.Click += new System.EventHandler(this.convertResizeImageToolStripMenuItem_Click);
             // 
             // convertAllPngToWebpToolStripMenuItem
             // 
@@ -241,6 +243,7 @@
             this.convertAllPngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
             this.convertAllPngToWebpToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertAllPngToWebpToolStripMenuItem.Text = "Convert all png to lossless webp";
+            this.convertAllPngToWebpToolStripMenuItem.Click += new System.EventHandler(this.convertAllPngToWebpToolStripMenuItem_Click);
             // 
             // convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem
             // 
@@ -248,6 +251,7 @@
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+[";
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Text = "Convert to several jpgs with different qualities";
+            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Click += new System.EventHandler(this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click);
             // 
             // keepAndDeleteOthersToolStripMenuItem
             // 
@@ -255,6 +259,7 @@
             this.keepAndDeleteOthersToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+]";
             this.keepAndDeleteOthersToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.keepAndDeleteOthersToolStripMenuItem.Text = "Keep this jpg and delete others with different qualities...";
+            this.keepAndDeleteOthersToolStripMenuItem.Click += new System.EventHandler(this.keepAndDeleteOthersToolStripMenuItem_Click);
             // 
             // renameToolStripMenuItem1
             // 
@@ -337,6 +342,7 @@
             this.finishedCategorizingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
             this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.finishedCategorizingToolStripMenuItem.Text = "Finish Categorizing...";
+            this.finishedCategorizingToolStripMenuItem.Click += new System.EventHandler(this.finishedCategorizingToolStripMenuItem_Click);
             // 
             // tableLayoutPanel1
             // 

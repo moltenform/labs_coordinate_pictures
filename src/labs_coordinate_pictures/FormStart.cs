@@ -44,6 +44,8 @@ namespace labs_coordinate_pictures
                 OnSetConfigsDir(sender, "(Optional) Locate encoder directory containing dropq128.py.", ConfigKey.FilepathEncodeMusicDropQDirectory);
             this.setMp3DirectCutToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsFile(sender, "(Optional) Locate mp3directcut.exe.", ConfigKey.FilepathMp3DirectCut);
+            this.setExiftoolLocationToolStripMenuItem.Click += (sender, e) =>
+               OnSetConfigsFile(sender, "(Optional) Locate exiftool.exe.", ConfigKey.FilepathExifTool);
             this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeCategorizeAndRename());
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>

@@ -6,6 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+// Getting libwebp.dll:
+// Get libwebp-0.4.3.tar.gz from http://downloads.webmproject.org/releases/webp/index.html
+// Open VS x64 native tools cmd prompt
+// nmake /f Makefile.vc CFG=release-dynamic
+// https://developers.google.com/speed/webp/faq?hl=en
+
 namespace labs_coordinate_pictures
 {
     static class Program

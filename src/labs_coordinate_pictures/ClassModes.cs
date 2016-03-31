@@ -35,6 +35,12 @@ namespace labs_coordinate_pictures
             return ret.ToArray();
         }
 
+        public static Tuple<string, string, string>[] ModeToTuples(ModeBase mode)
+        {
+            var categoriesString = Configs.Current.Get(mode.GetCategories());
+            return ModeUtils.CategoriesStringToTuple(categoriesString);
+        }
+
         public static void UseDefaultCategoriesIfFirstRun(ModeBase mode)
         {
             if (mode.GetDefaultCategories() != null && Configs.Current.Get(mode.GetCategories()) == "")

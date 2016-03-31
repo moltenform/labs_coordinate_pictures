@@ -27,6 +27,7 @@ namespace labs_coordinate_pictures
         FilepathCoordMusicDirectory,
         FilepathEncodeMusicDropQDirectory,
         FilepathMp3DirectCut,
+        FilepathExifTool,
         CategoriesModeCategorizeAndRename,
         CategoriesModeCheckFilesizes,
         GalleryViewCategories,

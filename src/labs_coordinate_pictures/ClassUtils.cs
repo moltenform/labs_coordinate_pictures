@@ -340,7 +340,7 @@ namespace labs_coordinate_pictures
         {
             if (_dirty || forceRefresh)
             {
-                // for a 900 file directory, DirectoryInfo takes about 13ms, Directory.EnumerateFiles takes about 12ms
+                // DirectoryInfo takes about 13ms, Directory.EnumerateFiles takes about 12ms, for a 900 file directory
                 var enumerator = Directory.EnumerateFiles(_root, "*", Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                 _list = enumerator.ToArray();
                 Array.Sort<string>(_list, StringComparer.OrdinalIgnoreCase);
@@ -376,15 +376,6 @@ namespace labs_coordinate_pictures
         public void NotifyFileChanges()
         {
             _list.Dirty();
-        }
-
-        public bool IncludeFile(string path)
-        {
-            if (_excludeMarked && path.Contains(FilenameUtils.MarkerString))
-                return false;
-            if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
-                return false;
-            return true;
         }
 
         void TryAgainIfFileIsMissing(Func<string[], string> fn)
@@ -480,9 +471,18 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public string[] GetList(bool forceRefresh = false)
+        public string[] GetList(bool forceRefresh = false, bool includeMarked = false)
         {
-            return _list.GetList().Where(IncludeFile).ToArray();
+            Func<string, bool> includeFile = (path) =>
+            {
+                if ((includeMarked || !_excludeMarked) && path.Contains(FilenameUtils.MarkerString))
+                    return false;
+                if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
+                    return false;
+                return true;
+            };
+
+            return _list.GetList().Where(includeFile).ToArray();
         }
     }
 
@@ -537,7 +537,8 @@ namespace labs_coordinate_pictures
         public static string MarkerString = "__MARKAS__";
         public static string AddMarkToFilename(string path, string category)
         {
-            if (path.Contains(MarkerString)) {
+            if (path.Contains(MarkerString))
+            {
                 MessageBox.Show("Path " + path + " already contains marker.");
                 return path;
             }

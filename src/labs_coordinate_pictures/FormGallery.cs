@@ -161,9 +161,8 @@ namespace labs_coordinate_pictures
                 categoriesToolStripMenuItem.DropDownItems.Add(item);
 
             categoriesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-            var categoriesString = Configs.Current.Get(_mode.GetCategories());
-            var tuples = ModeUtils.CategoriesStringToTuple(categoriesString);
             _categoryShortcuts = new Dictionary<string, string>();
+            var tuples = ModeUtils.ModeToTuples(_mode);
             foreach (var tuple in tuples)
             {
                 var menuItem = new ToolStripMenuItem(tuple.Item2);
@@ -255,7 +254,7 @@ namespace labs_coordinate_pictures
             return true;
         }
 
-        public void UndoLastMove()
+        internal void undoMoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (m_undoIndex < 0)
             {
@@ -280,14 +279,14 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void FormGallery_KeyUp(object sender, KeyEventArgs e)
+        internal void FormGallery_KeyUp(object sender, KeyEventArgs e)
         {
             if (!_enabled)
                 return;
 
             // Use custom shortcut strings instead of ShortcutKeys
             // 1) allows shortcuts without Ctrl or Alt
-            // 2) otherwise it uses KeyDown, fires many times if you hold the key
+            // 2) ShortcutKeys uses KeyDown which fires many times if you hold the key
             if (!e.Shift && !e.Control && !e.Alt)
             {
                 if (e.KeyCode == Keys.F5) // not in menus, shouldn't be needed
@@ -328,6 +327,8 @@ namespace labs_coordinate_pictures
                     viewCategoriesToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.K)
                     editCategoriesToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.OemOpenBrackets)
+                    convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(null, null);
             }
             else if (!e.Shift && e.Control && !e.Alt)
             {
@@ -339,6 +340,17 @@ namespace labs_coordinate_pictures
                     editFileToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D3)
                     addNumberedPrefixToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.Z)
+                    undoMoveToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.OemOpenBrackets)
+                    convertResizeImageToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.D1)
+                    convertAllPngToWebpToolStripMenuItem_Click(null, null);
+                 else if (e.KeyCode == Keys.OemCloseBrackets)
+                    keepAndDeleteOthersToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.Enter)
+                    finishedCategorizingToolStripMenuItem_Click(null, null);
+                
             }
             else if (!e.Shift && !e.Control && e.Alt)
             {
@@ -362,7 +374,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        void RenameFile(bool overwriteNumberedPrefix)
+        public void RenameFile(bool overwriteNumberedPrefix)
         {
             if (!_mode.SupportsRename() || nav.Current == null)
                 return;
@@ -563,6 +575,50 @@ namespace labs_coordinate_pictures
                         nav.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
                     pictureBox1.Image = imcache.Excerpt.Bmp;
                     _zoomed = true;
+                }
+            }
+        }
+
+        private void convertResizeImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void finishedCategorizingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_mode.SupportsCompletionAction())
+            {
+                MessageBox.Show("Mode does not have an associated action.");
+                return;
+            }
+
+            if (Utils.AskToConfirm("Apply finishing?"))
+            {
+                var tuples = ModeUtils.ModeToTuples(_mode);
+                foreach (var path in nav.GetList(includeMarked: true))
+                {
+                    string sPathNoMark, sMark;
+                    FilenameUtils.GetMarkFromFilename(path, out sPathNoMark, out sMark);
+                    var tupleFound = tuples.Where((item) => item.Item3 == sMark).ToArray();
+                    if (tupleFound.Length == 0)
+                        MessageBox.Show("Invalid mark for file " + path);
+                    else
+                        _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
                 }
             }
         }
