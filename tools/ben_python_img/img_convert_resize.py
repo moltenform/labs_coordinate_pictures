@@ -5,8 +5,11 @@ import readoptions
     
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False):
-    useMozJpeg = True
+    
+    if files.getext(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
+        raise ArgumentError('only jpg files can have a quality less than 100.')
     if not jpgQuality:
+        useMozJpeg = True
         jpgQuality = 94 if useMozJpeg else 93
             
     if infile.lower() == outfile.lower():

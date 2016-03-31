@@ -127,6 +127,18 @@ namespace labs_coordinate_pictures
             TestUtil.AssertExceptionMessage(() => TestUtil.AssertEqual(true, false), "expected True but got False");
         }
 
+        static void TestMethod_UtilsSameExceptExtension()
+        {
+            TestUtil.AssertTrue(FilenameUtils.SameExceptExtension("a\\test6.jpg", "a\\test6.jpg"));
+            TestUtil.AssertTrue(FilenameUtils.SameExceptExtension("a\\test6.jpg", "a\\test6.png"));
+            TestUtil.AssertTrue(FilenameUtils.SameExceptExtension("a\\test6.jpg", "a\\test6.BMP"));
+            TestUtil.AssertTrue(!FilenameUtils.SameExceptExtension("a\\test6.jpg", "b\\test6.jpg"));
+            TestUtil.AssertTrue(!FilenameUtils.SameExceptExtension("a\\test6.jpg", "a\\test6.jpg.jpg"));
+            TestUtil.AssertTrue(!FilenameUtils.SameExceptExtension("a\\test6a.jpg", "a\\test6.jpg"));
+            TestUtil.AssertTrue(FilenameUtils.SameExceptExtension("b\\aa.jpg.test6.jpg", "b\\aa.jpg.test6.bmp"));
+            TestUtil.AssertTrue(!FilenameUtils.SameExceptExtension("b\\aa.jpg.test6.jpg", "b\\aa.bmp.test6.jpg"));
+        }
+
         static void TestMethod_UtilsLastTwoChars()
         {
             TestUtil.AssertEqual("", Utils.FirstTwoChars(""));

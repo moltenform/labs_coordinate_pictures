@@ -45,7 +45,7 @@ namespace labs_coordinate_pictures
             moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
             moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
             moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
-            renameToolStripMenuItem.Click += (sender, e) => RenameFile(false);
+            renameItemToolStripMenuItem.Click += (sender, e) => RenameFile(false);
 
             nav = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
@@ -410,19 +410,24 @@ namespace labs_coordinate_pictures
             if (nav.Current != null)
             {
                 _mode.OnBeforeAssignCategory();
-                var dest = Utils.GetSoftDeleteDestination(nav.Current);
-                if (dest != null && WrapMoveFile(nav.Current, dest))
+                if (UndoableSoftDelete(nav.Current))
                 {
                     MoveOne(true);
                 }
             }
         }
 
+        bool UndoableSoftDelete(string path)
+        {
+            var dest = Utils.GetSoftDeleteDestination(path);
+            return WrapMoveFile(path, dest);
+        }
+
         public void UIEnable()
         {
             this.label.ForeColor = Color.Black;
             fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
-                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = false;
+                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = true;
             _enabled = true;
         }
 
@@ -430,7 +435,7 @@ namespace labs_coordinate_pictures
         {
             this.label.ForeColor = Color.Gray;
             fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
-                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = true;
+                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = false;
             _enabled = false;
         }
 
@@ -591,7 +596,8 @@ namespace labs_coordinate_pictures
             if (string.IsNullOrEmpty(resize))
                 return;
 
-            if ((!resize.EndsWith("h") && !resize.EndsWith("%")) || resize.Contains(" ") || resize.Contains("/") || resize.Contains("\\") || resize.Contains(".") || resize.Contains("^"))
+            if ((!resize.EndsWith("h") && !resize.EndsWith("%")) ||
+                !Utils.isDigits(resize.Substring(0, resize.Length - 1)))
             {
                 MessageBox.Show("invalid resize spec.");
                 return;
@@ -616,28 +622,87 @@ namespace labs_coordinate_pictures
             }
 
             var outFile = Path.GetDirectoryName(nav.Current) + "\\" + Path.GetFileNameWithoutExtension(nav.Current) + "_out." + parts[0];
-            if (File.Exists(outFile))
-            {
-                MessageBox.Show("File already exists, " + outFile);
-                return;
-            }
-
             Utils.RunImageConversion(nav.Current, outFile, resize, nQual);
         }
 
         private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var list = nav.GetList().Where((item) => item.EndsWith(".png"));
+            var newlist = new List<string>();
+            foreach (var path in list)
+            {
+                if (new FileInfo(path).Length < 1024 * 500 || 
+                    Utils.AskToConfirm("include the large file " + 
+                        Path.GetFileName(path) + "\r\n" + Utils.FormatFilesize(path) + "?"))
+                    newlist.Add(path);
+            }
 
+            RunLongActionInThread(new Action(() =>
+            {
+                int countConverted = 0, countLeft = 0;
+                foreach (var path in newlist)
+                {
+                    var newname = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + ".webp";
+                    if (!File.Exists(newname))
+                    {
+                        Utils.RunImageConversion(path, newname, "100%", 100);
+                        if (new FileInfo(newname).Length < new FileInfo(path).Length)
+                        {
+                            countConverted++;
+                            Utils.SoftDelete(path);
+                        }
+                        else
+                        {
+                            countLeft++;
+                            File.Delete(newname);
+                        }
+                    }
+                }
+
+                MessageBox.Show("Complete. " +
+                    countConverted + "file(s) to webp, " + countLeft + " file(s) were smaller as png.");
+            }));
         }
 
         private void convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+                return;
 
+            RunLongActionInThread(new Action(() =>
+            {
+                var qualities = new int[] { 96, 94, 92, 90, 85, 80, 75, 70, 60 };
+                foreach (var qual in qualities)
+                {
+                    var outFile = nav.Current + qual.ToString() + ".jpg";
+                    Utils.RunImageConversion(nav.Current, outFile, "100%", qual);
+                }
+            }));
         }
 
         private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+                return;
 
+            bool fHasMiddleName;
+            string sNewname;
+            var toDelete = FilenameFindSimilarFilenames.FindSimilarNames(nav.Current, _mode.GetFileTypes(), nav.GetList(),
+                out fHasMiddleName, out sNewname);
+
+            if (Utils.AskToConfirm("Delete the extra files \r\n" + String.Join("\r\n", toDelete) + "\r\n?"))
+            {
+                foreach (var sFile in toDelete)
+                    UndoableSoftDelete(sFile);
+
+                // rename this file to be better
+                if (fHasMiddleName && WrapMoveFile(nav.Current, sNewname))
+                {
+                    nav.NotifyFileChanges();
+                    nav.TrySetPath(sNewname);
+                    OnOpenItem();
+                }
+            }
         }
 
         private void finishedCategorizingToolStripMenuItem_Click(object sender, EventArgs e)
@@ -675,7 +740,7 @@ namespace labs_coordinate_pictures
                 }
                 finally
                 {
-                    this.Invoke((MethodInvoker) delegate { UIEnable(); });
+                    this.Invoke((MethodInvoker) delegate { UIEnable(); OnOpenItem(); });
                 }
             });
         }

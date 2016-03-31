@@ -51,8 +51,8 @@
             this.convertAllPngToWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keepAndDeleteOthersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.addNumberedPrefixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,7 +75,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
-            this.renameToolStripMenuItem1,
+            this.renameToolStripMenuItem,
             this.categoriesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -263,22 +263,22 @@
             // 
             // renameToolStripMenuItem1
             // 
-            this.renameToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.renameToolStripMenuItem,
+            this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.renameItemToolStripMenuItem,
             this.replaceInFilenameToolStripMenuItem,
             this.toolStripMenuItem4,
             this.addNumberedPrefixToolStripMenuItem,
             this.removeNumberedPrefixToolStripMenuItem});
-            this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
-            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(62, 20);
-            this.renameToolStripMenuItem1.Text = "Rename";
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem1";
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
+            this.renameToolStripMenuItem.Text = "Rename";
             // 
             // renameToolStripMenuItem
             // 
-            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.ShortcutKeyDisplayString = "H";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
-            this.renameToolStripMenuItem.Text = "Rename...";
+            this.renameItemToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameItemToolStripMenuItem.ShortcutKeyDisplayString = "H";
+            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
+            this.renameItemToolStripMenuItem.Text = "Rename...";
             // 
             // replaceInFilenameToolStripMenuItem
             // 
@@ -447,11 +447,11 @@
         private System.Windows.Forms.ToolStripMenuItem convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem keepAndDeleteOthersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewCategoriesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addNumberedPrefixToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeNumberedPrefixToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceInFilenameToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renameItemToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.Label labelView;
     }

@@ -62,7 +62,7 @@ namespace labs_coordinate_pictures
             {
                 process.WaitForExit();
             }
-
+            
             outStdout = sout;
             outStderr = serr;
         }
@@ -71,6 +71,18 @@ namespace labs_coordinate_pictures
         {
             var res = MessageBox.Show(s, "", MessageBoxButtons.YesNo);
             return res == DialogResult.Yes;
+        }
+
+        public static bool isDigits(string s)
+        {
+            if (s == null || s.Length == 0)
+                return false;
+            foreach (var c in s)
+            {
+                if (!"0123456789".Contains(c))
+                    return false;
+            }
+            return true;
         }
 
         public static string FirstTwoChars(string s)
@@ -241,6 +253,12 @@ namespace labs_coordinate_pictures
 
         public static bool RunImageConversion(string pathin, string pathout, string resizeSpec, int jpgQuality)
         {
+            if (File.Exists(pathout))
+            {
+                MessageBox.Show("File already exists, " + pathout);
+                return false;
+            }
+
             // send a good working directory for the script so that it can find options.ini
             var scriptcurdir = Path.Combine(Configs.Current.Directory, "ben_python_img");
             var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "main.py");
@@ -585,13 +603,13 @@ namespace labs_coordinate_pictures
             path = parts[0] + "." + partsmore[1];
         }
         
-        public static bool SameExceptExtension(string s1, string s2, string[] allowedTypes)
+        public static bool SameExceptExtension(string s1, string s2)
         {
             var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));
             var rootNoExtension2 = Path.Combine(Path.GetDirectoryName(s2), Path.GetFileNameWithoutExtension(s2));
-            return rootNoExtension1.ToLowerInvariant() == rootNoExtension2.ToLowerInvariant() &&
-                Array.IndexOf(allowedTypes, "." + Path.GetExtension(s2)) != -1;
+            return rootNoExtension1.ToLowerInvariant() == rootNoExtension2.ToLowerInvariant();
         }
+
         public static bool IsPathRooted(string s)
         {
             try
@@ -649,6 +667,62 @@ namespace labs_coordinate_pictures
             {
                 WriteLog("[vb] " + s);
             }
+        }
+    }
+
+    // takes example.png90.jpg and notices that example.pmg, example_out.png and example.png60.jpg are related files.
+    public static class FilenameFindSimilarFilenames
+    {
+        public static bool FindMiddleOfName(string path, string[] types, out string pathWithMiddleRemoved)
+        {
+            pathWithMiddleRemoved = null;
+            var filenameParts = Path.GetFileName(path).Split(new char[] { '.' });
+            if (filenameParts.Length > 2)
+            {
+                var middle = filenameParts[filenameParts.Length - 2].ToLowerInvariant();
+                bool found = false;
+                foreach (var fileext in types)
+                {
+                    var type = fileext.Replace(".", "");
+                    if (middle.StartsWith(type) && Utils.isDigits(middle.Replace(type, "")))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    var list = new List<string>(filenameParts);
+                    list.RemoveAt(list.Count - 2);
+                    pathWithMiddleRemoved = Path.GetDirectoryName(path) + "\\" + String.Join(".", list);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static List<string> FindSimilarNames(string path, string[] types, string[] otherfiles, out bool hasMiddleName, out string newname)
+        {
+            // parse the file
+            newname = null;
+            hasMiddleName = FindMiddleOfName(path, types, out newname);
+
+            // delete all the rest in group
+            var root = hasMiddleName ? newname : path;
+            List<string> ret = new List<string>();
+            foreach (var otherfile in otherfiles)
+            {
+                if (otherfile.ToLowerInvariant() != path.ToLowerInvariant())
+                {
+                    string nameMiddleRemoved;
+                    if (FilenameUtils.SameExceptExtension(root, otherfile) ||
+                        (FindMiddleOfName(otherfile, types, out nameMiddleRemoved) && 
+                        FilenameUtils.SameExceptExtension(root, nameMiddleRemoved)))
+                            ret.Add(otherfile);
+                }
+            }
+            return ret;
         }
     }
 
