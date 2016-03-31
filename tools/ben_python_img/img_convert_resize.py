@@ -24,19 +24,21 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             files.copy(infile, outfile, False)
             return
         
-        # shortcut: dwebp natively can save to bmp or png
-        if files.getext(infile) == 'webp' and (files.getext(outfile) == 'bmp' or files.getext(outfile) == 'png'):
+        # shortcut: dwebp natively can save to common formats
+        dwebpsupports = ['png', 'tif']
+        if files.getext(infile) == 'webp' and dwebpsupports.index(files.getext(outfile)) != -1:
             saveWebpToBmpOrPng(infile, outfile)
             return
             
-        # shortcut: cwebp natively can save from bmp or png
-        if files.getext(outfile) == 'webp' and (files.getext(infile) == 'bmp' or files.getext(infile) == 'png'):
+        # shortcut: cwebp natively can save from common formats
+        cwebpsupports = ['bmp', 'png', 'tif']
+        if files.getext(outfile) == 'webp' and cwebpsupports.index(files.getext(infile)) != -1:
             saveBmpOrPngToWebp(infile, outfile)
             return
             
         # shortcut: mozjpeg takes a bmp, we have a bmp.
         if files.getext(infile) == 'bmp' and files.getext(outfile) == 'jpg':
-            saveBmpToMozJpeg(infile, outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
+            saveToMozJpeg(False, infile, outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
             return
         
         # mozjpeg does not accept most bmp written by dwebp,
@@ -44,26 +46,22 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             
     # PIL can't work directly with webp so convert to png first.
     im = None
-    tmpBmp = None
-    tmpPngIn = None
     tmpPngOut = None
-    if files.getext(infile) == 'webp':
-        tmpPngIn = getTempFilename('png')
-        saveWebpToBmpOrPng(infile, tmpPngIn)
-        infile = tmpPngIn
-    
+    memoryStreamIn = None
+    memoryStreamOut = None
     try:
         # load and resize image
-        im = loadImageFromFile(infile, outfile)
+        im, memoryStreamIn = loadImageFromFile(infile, outfile)
         if resizeSpec != '100%':
             im = resizeImage(im, resizeSpec, outfile)
             
         # save image
         if files.getext(outfile) == 'jpg':
-            tmpBmp = getTempFilename('bmp')
-            im.save(tmpBmp)
-            assertTrue(files.exists(tmpBmp))
-            saveBmpToMozJpeg(tmpBmp, outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
+            from cStringIO import StringIO
+            memoryStreamOut = StringIO()
+            im.save(memoryStreamOut, format='bmp')
+            saveToMozJpeg(True, memoryStreamOut.getvalue(),
+                outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
         elif files.getext(outfile) == 'webp':
             tmpPngOut = getTempFilename('png')
             im.save(tmpPngOut)
@@ -75,15 +73,19 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             
     finally:
         del im
-        if tmpBmp:
-            files.deletesure(tmpBmp)
-        if tmpPngIn:
-            files.deletesure(tmpPngIn)
         if tmpPngOut:
             files.deletesure(tmpPngOut)
+        if memoryStreamIn:
+            memoryStreamIn.close()
+        if memoryStreamOut:
+            memoryStreamOut.close()
 
 def loadImageFromFile(infile, outfile):
-    im = Image.open(infile)
+    memoryStream = None
+    if files.getext(infile) == 'webp':
+        im, memoryStream = loadImageFromWebp(infile)
+    else:
+        im = Image.open(infile)
     
     # discard the transparency channel if saving to jpg
     if im.mode == 'RGBA' and (outfile.lower().endswith('jpg') or outfile.lower().endswith('bmp')):
@@ -91,12 +93,38 @@ def loadImageFromFile(infile, outfile):
         newimg.paste(im, mask=im.split()[3]) # 3 is the alpha channel
         im = newimg
         
-    return im
+    return im, memoryStream
+    
+def loadImageFromWebp(infile):
+    # dwebp sends a png to stdout, we'll read it from stdout.
+    dwebp = readoptions.getDwebpLocation()
+    args = [dwebp, infile, '-o', '-']
+    retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
+        throwOnFailure=None, stripText=False, captureoutput=True)
+    if retcode != 0:
+        raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
+
+    # read the png directly from memory
+    from cStringIO import StringIO
+    memoryStream = StringIO(stdout)
+    return Image.open(memoryStream), memoryStream
 
 def runExeShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=True, captureoutput=True)
     if retcode != 0:
+        raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
+        
+def runExeWithStdIn(args, sendToStdIn):
+    import subprocess
+    showNoWindow = 0x08000000
+    sp = subprocess.Popen(args, shell=False, stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=showNoWindow)
+    comm = sp.communicate(input=sendToStdIn)
+    stdout = comm[0]
+    stderr = comm[1]
+    retcode = sp.returncode
+    if retcode!=0:
         raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
      
 def getTempFilename(ext):
@@ -108,6 +136,8 @@ def saveWebpToBmpOrPng(infile, outfile):
     args = [dwebp, infile, '-o', outfile]
     if files.getext(outfile) == 'bmp':
         args.append('-bmp')
+    elif files.getext(outfile) == 'tif':
+        args.append('-tiff')
     runExeShowErr(args)
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')
@@ -124,23 +154,28 @@ def saveBmpOrPngToWebp(infile, outfile):
     
     return outfile
 
-def saveBmpToMozJpeg(infile, outfile, quality, useBetterChromaSample, jpgCorrectResolution):
+def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChromaSample, jpgCorrectResolution):
     assertTrue(isinstance(quality, int))
     args = [readoptions.getMozjpegLocation()]
     args.extend(['-quality', str(quality), '-optimize'])
     if useBetterChromaSample:
         args.extend(['-sample', '1x1'])
         
-    args.extend(['-outfile', outfile, infile])
-    runExeShowErr(args)
+    args.extend(['-outfile', outfile])
+    if not infileIsMemoryStream:
+        args.extend([infile])
+        runExeShowErr(args)
+    else:
+        runExeWithStdIn(args, infile)
+        
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')
     
-    # for some reasonmozjpeg sets xresolution=94, it is usually 96.
+    # for some reason mozjpeg sets xresolution=94, it is usually 96.
     if jpgCorrectResolution:
         import img_exif
         img_exif.deleteResolutionTagsOne(outfile)
-    
+
 def getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext):
     # returning 0, 0 means to return the original image unchanged.
     if not resizeSpec:
@@ -186,6 +221,3 @@ def resizeImage(im, resizeSpec, loggingContext):
         # if enlarging, consider Image.BICUBIC
         ret = im.resize((newWidth, newHeight), Image.ANTIALIAS) 
         return ret
-
-
-        
