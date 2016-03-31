@@ -1,4 +1,4 @@
-
+from ben_python_common import *
 
 def getFilesBadExtension(root, fnGetFiles, informat):
     return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=[informat]))

@@ -1,3 +1,4 @@
+from ben_python_common import *
 
 def readOption(key):
     fname = '../options.ini'
@@ -13,17 +14,17 @@ def readOption(key):
 
 def getCwebpLocation():
     ret = readOption('FilepathWebp')
-    assertTrue(ret.endswith(files.pathsep + 'cwebp.exe')
+    assertTrue(ret.endswith(files.sep + 'cwebp.exe'))
     return ret
     
 def getMozjpegLocation():
     ret = readOption('FilepathMozJpeg')
-    assertTrue(ret.endswith(files.pathsep + 'cjpeg.exe')
+    assertTrue(ret.endswith(files.sep + 'cjpeg.exe'))
     return ret
     
-def getMozjpegLocation():
+def getExifToolLocation():
     ret = readOption('FilepathExifTool')
-    assertTrue(ret.endswith(files.pathsep + 'exiftool.exe')
+    assertTrue(ret.endswith(files.sep + 'exiftool.exe'))
     return ret
 
 def getDwebpLocation():
@@ -34,6 +35,9 @@ def getTempLocation():
     # will also be periodically deleted by coordinate_pictures
     import tempfile
     dir = files.join(tempfile.gettempdir(), 'test_labs_coordinate_pictures')
-    files.makedirs(dir)
+    if not files.exists(dir):
+        files.makedirs(dir)
     return dir
+    
+
     

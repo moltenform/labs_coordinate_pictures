@@ -17,7 +17,7 @@ namespace labs_coordinate_pictures
             if (!string.IsNullOrEmpty(strCurrent))
                 comboEntries.Add(strCurrent);
 
-            if (!string.IsNullOrEmpty(Utils.GetClipboard()))
+            if (useClipboard && !string.IsNullOrEmpty(Utils.GetClipboard()))
                 comboEntries.Add(Utils.GetClipboard());
 
             if (history != InputBoxHistory.None)

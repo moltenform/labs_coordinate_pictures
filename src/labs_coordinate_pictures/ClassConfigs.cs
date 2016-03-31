@@ -37,6 +37,7 @@ namespace labs_coordinate_pictures
         MRURenameWavAudio,
         MRURenameOther,
         MRURenameReplaceInName,
+        MRUEditConvertResizeImage,
         MRUEditCategoriesString,
     }
 
@@ -49,6 +50,7 @@ namespace labs_coordinate_pictures
         RenameWavAudio,
         RenameOther,
         RenameReplaceInName,
+        EditConvertResizeImage,
         EditCategoriesString,
     }
 

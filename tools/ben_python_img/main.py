@@ -21,11 +21,13 @@
 #    or edit options.ini to set FilepathExifTool=c:\path\to\exiftool.exe
 
 from ben_python_common import *
+import sys
+import img_convert_resize
 
-
-
-
-	
-	
-	
-	
+if __name__=='__main__':
+    cmd = sys.argv[1]
+    if cmd == 'convert_resize':
+        _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv
+        img_convert_resize.convertOrResizeImage(infile, outfile, resizeSpec, int(jpgQuality))
+    else:
+        assertTrue(False, 'unknown command' + cmd)

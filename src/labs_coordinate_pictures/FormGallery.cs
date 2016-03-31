@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -386,6 +387,7 @@ namespace labs_coordinate_pictures
             var current = overwriteNumberedPrefix ? 
                 Path.GetFileName(nav.Current):
                 FilenameUtils.GetFileNameWithoutNumberedPrefix(nav.Current);
+
             var currentNoext = Path.GetFileNameWithoutExtension(current);
             var newname = InputBoxForm.GetStrInput("Enter a new name:", currentNoext, key);
             if (!string.IsNullOrEmpty(newname))
@@ -581,7 +583,46 @@ namespace labs_coordinate_pictures
 
         private void convertResizeImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+                return;
 
+            var more = new string[] { "50%", "70%", "100%" };
+            var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):", null, more: more, useClipboard: false);
+            if (string.IsNullOrEmpty(resize))
+                return;
+
+            if ((!resize.EndsWith("h") && !resize.EndsWith("%")) || resize.Contains(" ") || resize.Contains("/") || resize.Contains("\\") || resize.Contains(".") || resize.Contains("^"))
+            {
+                MessageBox.Show("invalid resize spec.");
+                return;
+            }
+
+            more = new string[] { "png|100", "jpg|90", "webp|100" };
+            var fmt = InputBoxForm.GetStrInput("Convert to format|quality:", null, InputBoxHistory.EditConvertResizeImage, more, useClipboard:false);
+            if (string.IsNullOrEmpty(fmt))
+                return;
+
+            var parts = fmt.Split(new char[] { '|' });
+            int nQual = 0;
+            if (!(parts.Length == 2 && int.TryParse(parts[1], out nQual) && nQual > 0 && nQual <= 100))
+            {
+                MessageBox.Show("Invalid format string or bad quality");
+                return;
+            }
+            else if (Array.IndexOf(new string[] { "jpg", "png", "gif", "bmp", "webp" }, parts[0]) == -1)
+            {
+                MessageBox.Show("Unsupported image format");
+                return;
+            }
+
+            var outFile = Path.GetDirectoryName(nav.Current) + "\\" + Path.GetFileNameWithoutExtension(nav.Current) + "_out." + parts[0];
+            if (File.Exists(outFile))
+            {
+                MessageBox.Show("File already exists, " + outFile);
+                return;
+            }
+
+            Utils.RunImageConversion(nav.Current, outFile, resize, nQual);
         }
 
         private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
@@ -621,6 +662,22 @@ namespace labs_coordinate_pictures
                         _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
                 }
             }
+        }
+
+        public void RunLongActionInThread(Action fn)
+        {
+            UIDisable();
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                try
+                {
+                    fn.Invoke();
+                }
+                finally
+                {
+                    this.Invoke((MethodInvoker) delegate { UIEnable(); });
+                }
+            });
         }
     }
 }

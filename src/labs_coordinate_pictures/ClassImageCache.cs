@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -171,7 +172,9 @@ namespace labs_coordinate_pictures
             catch (Exception e)
             {
                 if (!Configs.Current.SupressDialogs)
-                    MessageBox.Show("Exception loading " + path + "\r\n" + e);
+                {
+                    MessageBox.Show("Could not show the image " + path);
+                }
                 if (imFromFile != null)
                     imFromFile.Dispose();
                 imFromFile = new Bitmap(1, 1);

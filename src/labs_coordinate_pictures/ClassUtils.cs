@@ -35,13 +35,14 @@ namespace labs_coordinate_pictures
             Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
         }
 
-        static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr)
+        static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr, string workingDir = null)
         {
             var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = hideWindow;
             startInfo.UseShellExecute = shell;
             startInfo.FileName = exe;
             startInfo.Arguments = CombineProcessArguments(args);
+            startInfo.WorkingDirectory = workingDir;
             if (getStdout)
             {
                 startInfo.RedirectStandardError = true;
@@ -207,7 +208,7 @@ namespace labs_coordinate_pictures
             });
         }
 
-        public static string RunPythonScript(string pyScript, string[] listArgs, bool createWindow = false, bool warnIfStdErr = true)
+        public static string RunPythonScript(string pyScript, string[] listArgs, bool createWindow = false, bool warnIfStdErr = true, string workingDir = null)
         {
             if (!pyScript.Contains("/") && !pyScript.Contains("\\"))
             {
@@ -230,12 +231,30 @@ namespace labs_coordinate_pictures
             var args = new List<string> { pyScript };
             args.AddRange(listArgs);
             string stdout, stderr;
-            Run(python, args.ToArray(), false, true, !createWindow, out stdout, out stderr);
+            Run(python, args.ToArray(), false, true, !createWindow, true, out stdout, out stderr, workingDir: workingDir);
             if (warnIfStdErr && !String.IsNullOrEmpty(stderr))
             {
                 MessageBox.Show("warning, error from script: " + stderr);
             }
             return stderr;
+        }
+
+        public static bool RunImageConversion(string pathin, string pathout, string resizeSpec, int jpgQuality)
+        {
+            // send a good working directory for the script so that it can find options.ini
+            var scriptcurdir = Path.Combine(Configs.Current.Directory, "ben_python_img");
+            var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "main.py");
+            var args = new string[] { "convert_resize", pathin, pathout, resizeSpec, jpgQuality.ToString() };
+            var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false, workingDir: scriptcurdir);
+            if (!String.IsNullOrEmpty(stderr) || !File.Exists(pathout))
+            {
+                MessageBox.Show("RunImageConversion failed, stderr = " + stderr);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public static void PlayMedia(string path)
