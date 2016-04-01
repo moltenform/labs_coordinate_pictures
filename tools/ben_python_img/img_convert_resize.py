@@ -223,3 +223,11 @@ def resizeImage(im, resizeSpec, loggingContext):
         # if enlarging, consider Image.BICUBIC
         ret = im.resize((newWidth, newHeight), Image.ANTIALIAS)
         return ret
+
+if __name__ == '__main__':
+    cmd = sys.argv[1]
+    if cmd == 'convert_resize':
+        _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv
+        convertOrResizeImage(infile, outfile, resizeSpec, int(jpgQuality))
+    else:
+        assertTrue(False, 'unknown command' + cmd)
