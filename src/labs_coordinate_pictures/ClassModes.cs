@@ -52,7 +52,6 @@ namespace labs_coordinate_pictures
         }
     }
 
-
     public abstract class ModeBase
     {
         public abstract bool SupportsRename();
@@ -81,36 +80,6 @@ namespace labs_coordinate_pictures
         {
             return new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp" };
         }
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
-        {
-            // create a directory <base>/<categoryname>
-            var targetdir = Path.Combine(sBaseDir, chosen.Item2);
-            if (!Directory.Exists(targetdir))
-            {
-                Directory.CreateDirectory(targetdir);
-            }
-
-            // simply move the file to <base>/<categoryname>/file.jpg
-            var newpath = Path.Combine(targetdir, Path.GetFileName(sPathNoMark));
-            if (File.Exists(newpath))
-            {
-                MessageBox.Show("File already exists " + newpath);
-                return;
-            }
-            File.Move(sPath, newpath);
-        }
-    }
-
-    public class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
-    {
-        public override ConfigKey GetCategories()
-        {
-            return ConfigKey.CategoriesModeCategorizeAndRename;
-        }
-        public override string GetDefaultCategories()
-        {
-            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
-        }
     }
 
     public class ModeResizeKeepExif : ModeCategorizeAndRenameBase
@@ -131,6 +100,37 @@ namespace labs_coordinate_pictures
         {
             MessageBox.Show("Currently, resize+keep exif is done manually by running a python script, ./tools/ben_python_img/img_convert_resize.py");
             return false;
+        }
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen) { }
+    }
+
+    public class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
+    {
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeCategorizeAndRename;
+        }
+        public override string GetDefaultCategories()
+        {
+            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
+        }
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        {
+            // create a directory <base>/<categoryname>
+            var targetdir = Path.Combine(sBaseDir, chosen.Item3);
+            if (!Directory.Exists(targetdir))
+            {
+                Directory.CreateDirectory(targetdir);
+            }
+
+            // simply move the file to <base>/<categoryname>/file.jpg
+            var newpath = Path.Combine(targetdir, Path.GetFileName(sPathNoMark));
+            if (File.Exists(newpath))
+            {
+                MessageBox.Show("File already exists " + newpath);
+                return;
+            }
+            File.Move(sPath, newpath);
         }
     }
 
@@ -164,10 +164,11 @@ namespace labs_coordinate_pictures
         void AutoAcceptSmall(FormGallery form)
         {
             const int autoAcceptibleSize = 1024 * 45;
-            // first, check for duplicate names
             var list = form.nav.GetList();
             bool hasMiddleName;
             string newname;
+
+            // first, check for duplicate names
             foreach (var path in list)
             {
                 var similar = FilenameFindSimilarFilenames.FindSimilarNames(path, GetFileTypes(), list, out hasMiddleName, out newname);
@@ -206,4 +207,40 @@ namespace labs_coordinate_pictures
             }
         }
     }
-}
+
+    public class ModeWavToM4a : ModeBase
+    {
+        public override bool SupportsRename() { return false; }
+        public override bool SupportsCompletionAction() { return true; }
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeWavToM4a;
+        }
+        public override string GetDefaultCategories()
+        {
+            return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
+        }
+        public override string[] GetFileTypes()
+        {
+            return new string[] { ".wav" };
+        }
+        public override void OnBeforeAssignCategory()
+        {
+            // must play another song so that file can be renamed.
+            Utils.PlayMedia(null /*silence*/);
+        }
+        public override void OnOpenItem(string sPath, FormGallery obj)
+        {
+            Utils.PlayMedia(sPath);
+        }
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        {
+            if (sPath.ToLowerInvariant().EndsWith(".wav"))
+            {
+                var newfile = Utils.RunQaacConversion(sPath, chosen.Item3);
+                // todo: rename newfile, delete old file
+                // todo: retcode, not presence of stderr, should indicate failure
+            }
+        }
+    }
+ }

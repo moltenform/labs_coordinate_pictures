@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -251,27 +252,52 @@ namespace labs_coordinate_pictures
             return stderr;
         }
 
-        public static bool RunImageConversion(string pathin, string pathout, string resizeSpec, int jpgQuality)
+        public static void RunImageConversion(string pathin, string pathout, string resizeSpec, int jpgQuality)
         {
             if (File.Exists(pathout))
             {
                 MessageBox.Show("File already exists, " + pathout);
-                return false;
+                return;
             }
 
             // send a good working directory for the script so that it can find options.ini
             var scriptcurdir = Path.Combine(Configs.Current.Directory, "ben_python_img");
-            var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "main.py");
+            var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_convert_resize.py");
             var args = new string[] { "convert_resize", pathin, pathout, resizeSpec, jpgQuality.ToString() };
             var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false, workingDir: scriptcurdir);
             if (!String.IsNullOrEmpty(stderr) || !File.Exists(pathout))
             {
                 MessageBox.Show("RunImageConversion failed, stderr = " + stderr);
-                return false;
+            }
+        }
+
+        public static string RunQaacConversion(string path, string qualitySpec)
+        {
+            var qualities = new string[] { "16", "24", "96", "128", "144", "160", "192", "224", "256", "288", "320", "640", "flac" };
+            if (Array.IndexOf(qualities, qualitySpec) == -1)
+            {
+                throw new CoordinatePicturesException("Unsupported bitrate.");
+            }
+            else if (!path.EndsWith(".wav"))
+            {
+                throw new CoordinatePicturesException("Unsupported input format.");
             }
             else
             {
-                return true;
+                var pathoutexpected = Path.GetDirectoryName(path) + "\\" + 
+                    Path.GetFileNameWithoutExtension(path) + (qualitySpec == "flac" ? ".flac" : ".m4a");
+                var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) + "\\dropq" + qualitySpec + ".py";
+                var args = new string[] { path };
+                var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false);
+                if (!File.Exists(pathoutexpected))
+                {
+                    MessageBox.Show("RunQaacConversion failed, stderr = " + stderr);
+                    return null;
+                }
+                else
+                {
+                    return pathoutexpected;
+                }
             }
         }
 
@@ -329,6 +355,21 @@ namespace labs_coordinate_pictures
                 return arr[arr.Length - 1];
 
             return arr[index];
+        }
+
+        public static string GetSha512(string path)
+        {
+            if (path == null || !File.Exists(path))
+                return "filenotfound";
+
+            using (SHA512Managed sha512 = new SHA512Managed())
+            {
+                using (var stream = new BufferedStream(File.OpenRead(path), 64 * 1024))
+                {
+                    byte[] hash = sha512.ComputeHash(stream);
+                    return Convert.ToBase64String(hash);
+                }
+            }
         }
 
 #if DEBUG

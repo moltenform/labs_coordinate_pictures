@@ -721,19 +721,22 @@ namespace labs_coordinate_pictures
 
             if (Utils.AskToConfirm("Apply finishing?"))
             {
-                var tuples = ModeUtils.ModeToTuples(_mode);
-                foreach (var path in nav.GetList(includeMarked: true))
+                RunLongActionInThread(new Action(() =>
                 {
-                    string sPathNoMark, sMark;
-                    FilenameUtils.GetMarkFromFilename(path, out sPathNoMark, out sMark);
-                    var tupleFound = tuples.Where((item) => item.Item3 == sMark).ToArray();
-                    if (tupleFound.Length == 0)
-                        MessageBox.Show("Invalid mark for file " + path);
-                    else
-                        _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
-                }
+                    var tuples = ModeUtils.ModeToTuples(_mode);
+                    foreach (var path in nav.GetList(includeMarked: true))
+                    {
+                        string sPathNoMark, sMark;
+                        FilenameUtils.GetMarkFromFilename(path, out sPathNoMark, out sMark);
+                        var tupleFound = tuples.Where((item) => item.Item3 == sMark).ToArray();
+                        if (tupleFound.Length == 0)
+                            MessageBox.Show("Invalid mark for file " + path);
+                        else
+                            _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
+                    }
 
-                OnOpenItem();
+                    OnOpenItem();
+                }));
             }
         }
 

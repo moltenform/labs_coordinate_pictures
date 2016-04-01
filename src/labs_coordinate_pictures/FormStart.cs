@@ -52,6 +52,8 @@ namespace labs_coordinate_pictures
                 OpenForm(new ModeCheckFilesizes());
             this.resizePhotosKeepingExifsToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeResizeKeepExif());
+            this.markwavQualityToolStripMenuItem.Click += (sender, e) =>
+                OpenForm(new ModeWavToM4a());
 
             if (Utils.Debug)
             {
@@ -79,6 +81,7 @@ namespace labs_coordinate_pictures
 
         void OpenForm(ModeBase mode)
         {
+            VerifyProgramChecksums();
             var dir = AskUserForDirectory(mode);
             if (dir == null)
                 return;
@@ -93,6 +96,7 @@ namespace labs_coordinate_pictures
             if (!String.IsNullOrEmpty(res))
             {
                 Configs.Current.Set(key, res);
+                VerifyProgramChecksums();
             }
         }
 
@@ -102,11 +106,12 @@ namespace labs_coordinate_pictures
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.DefaultExt = ".exe";
             dialog.Filter = "Exe files (*.exe)|*.exe";
-            dialog.Title = prompt + Environment.NewLine + info;
+            dialog.Title = prompt + " " + info;
             dialog.CheckPathExists = true;
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Configs.Current.Set(key, dialog.FileName);
+                VerifyProgramChecksums();
             }
         }
 
@@ -209,6 +214,48 @@ namespace labs_coordinate_pictures
             else
             {
                 MessageBox.Show("Unsupported file type.");
+            }
+        }
+
+        static Tuple<ConfigKey, string, ConfigKey>[] verifyChecksumsKeys = new Tuple<ConfigKey, string, ConfigKey>[]
+        {
+            Tuple.Create(ConfigKey.FilepathAltEditorImage, "", ConfigKey.FilepathChecksumAltEditorImage),
+            Tuple.Create(ConfigKey.FilepathPython, "", ConfigKey.FilepathChecksumPython),
+            Tuple.Create(ConfigKey.FilepathWinMerge, "", ConfigKey.FilepathChecksumWinMerge),
+            Tuple.Create(ConfigKey.FilepathJpegCrop, "", ConfigKey.FilepathChecksumJpegCrop),
+            Tuple.Create(ConfigKey.FilepathMozJpeg, "", ConfigKey.FilepathChecksumMozJpeg),
+            Tuple.Create(ConfigKey.FilepathWebp, "", ConfigKey.FilepathChecksumCWebp),
+            Tuple.Create(ConfigKey.FilepathWebp, ".dwebp.exe", ConfigKey.FilepathChecksumDWebp),
+            Tuple.Create(ConfigKey.FilepathMediaPlayer, "", ConfigKey.FilepathChecksumMediaPlayer),
+            Tuple.Create(ConfigKey.FilepathMediaEditor, "", ConfigKey.FilepathChecksumMediaEditor),
+            Tuple.Create(ConfigKey.FilepathCreateSync, "", ConfigKey.FilepathChecksumCreateSync),
+            Tuple.Create(ConfigKey.FilepathEncodeMusicDropQDirectory, "/qaac.exe", ConfigKey.FilepathChecksumEncodeMusicDropQ),
+            Tuple.Create(ConfigKey.FilepathMp3DirectCut, "", ConfigKey.FilepathChecksumMp3DirectCut),
+            Tuple.Create(ConfigKey.FilepathExifTool, "", ConfigKey.FilepathChecksumExifTool),
+        };
+
+        public static void VerifyProgramChecksums()
+        {
+            foreach (var tuple in verifyChecksumsKeys)
+            {
+                if (!string.IsNullOrEmpty(Configs.Current.Get(tuple.Item1)))
+                {
+                    var path = Configs.Current.Get(tuple.Item1);
+                    if (tuple.Item2.StartsWith("."))
+                        path = Path.GetDirectoryName(path) + "\\" + tuple.Item2.Substring(1);
+                    else if (tuple.Item2.StartsWith("/"))
+                        path = path + "\\" + tuple.Item2.Substring(1);
+
+                    var hashNow = Utils.GetSha512(path);
+                    var hashExpected = Configs.Current.Get(tuple.Item3);
+                    if (hashExpected != hashNow)
+                    {
+                        if (Utils.AskToConfirm("Checksum does not match for file " + path + "\r\nwas:" + hashExpected + "\r\nnow: " + hashNow + "\r\nDid you recently upgrade or change this program? If so, click Yes. Otherwise, click No to exit."))
+                            Configs.Current.Set(tuple.Item3, hashNow);
+                        else
+                            Environment.Exit(1);
+                    }
+                }
             }
         }
     }
