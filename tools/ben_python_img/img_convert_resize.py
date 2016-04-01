@@ -1,7 +1,8 @@
 
 from ben_python_common import *
 from PIL import Image
-import readoptions
+import img_utils
+import sys
     
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False):
@@ -100,7 +101,7 @@ def loadImageFromFile(infile, outfile):
     
 def loadImageFromWebp(infile):
     # dwebp sends a png to stdout, we'll read it from stdout.
-    dwebp = readoptions.getDwebpLocation()
+    dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', '-']
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=False, captureoutput=True)
@@ -130,11 +131,11 @@ def runExeWithStdIn(args, sendToStdIn):
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
 
 def getTempFilename(ext):
-    tempdir = readoptions.getTempLocation()
+    tempdir = img_utils.getTempLocation()
     return files.join(tempdir, getRandomString() + '.' + ext)
     
 def saveWebpToBmpOrPng(infile, outfile):
-    dwebp = readoptions.getDwebpLocation()
+    dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', outfile]
     if files.getext(outfile) == 'bmp':
         args.append('-bmp')
@@ -148,7 +149,7 @@ def saveWebpToBmpOrPng(infile, outfile):
 
 def saveBmpOrPngToWebp(infile, outfile):
     # according to docs, specifying both -lossless and -q 100 results in smaller file sizes.
-    cwebp = readoptions.getCwebpLocation()
+    cwebp = img_utils.getCwebpLocation()
     args = [cwebp, infile, '-lossless', '-m', '6', '-q', '100', '-o', outfile]
     runExeShowErr(args)
     if not files.exists(outfile):
@@ -158,7 +159,7 @@ def saveBmpOrPngToWebp(infile, outfile):
 
 def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChromaSample, jpgCorrectResolution):
     assertTrue(isinstance(quality, int))
-    args = [readoptions.getMozjpegLocation()]
+    args = [img_utils.getMozjpegLocation()]
     args.extend(['-quality', str(quality), '-optimize'])
     if useBetterChromaSample:
         args.extend(['-sample', '1x1'])
@@ -225,9 +226,10 @@ def resizeImage(im, resizeSpec, loggingContext):
         return ret
 
 if __name__ == '__main__':
-    cmd = sys.argv[1]
-    if cmd == 'convert_resize':
-        _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv
-        convertOrResizeImage(infile, outfile, resizeSpec, int(jpgQuality))
-    else:
-        assertTrue(False, 'unknown command' + cmd)
+    if len(sys.argv) > 1:
+        cmd = sys.argv[1]
+        if cmd == 'convert_resize':
+            _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv
+            convertOrResizeImage(infile, outfile, resizeSpec, int(jpgQuality))
+        else:
+            assertTrue(False, 'unknown command' + cmd)
