@@ -167,12 +167,25 @@ namespace labs_coordinate_pictures
         }
         static void TestMethod_UtilsAddMark()
         {
-            var test1 = FilenameUtils.AddMarkToFilename(@"c:\foo\test\bar bar.aaa.jpg", "mk");
-            TestUtil.AssertEqual(@"c:\foo\test\bar bar.aaa__MARKAS__mk.jpg", test1);
-            string testgetmark, testgetpath;
-            FilenameUtils.GetMarkFromFilename(@"c:\foo\test\bar bar.aaa__MARKAS__mk.jpg", out testgetpath, out testgetmark);
-            TestUtil.AssertEqual("mk", testgetmark);
-            TestUtil.AssertEqual(@"c:\foo\test\bar bar.aaa.jpg", testgetpath);
+            var testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "mk");
+            TestUtil.AssertEqual(@"c:\foo\test\b b.aaa__MARKAS__mk.jpg", testAdd);
+            testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "");
+            TestUtil.AssertEqual(@"c:\foo\test\b b.aaa__MARKAS__.jpg", testAdd);
+
+            Func<string, string> testGetMark = (input) => {
+                string pathWithoutCategory, category;
+                FilenameUtils.GetMarkFromFilename(input, out pathWithoutCategory, out category);
+                return pathWithoutCategory + "|" + category;
+            };
+
+            TestUtil.AssertEqual(@"C:\foo\test\file.jpg|123", testGetMark(@"C:\foo\test\file__MARKAS__123.jpg"));
+            TestUtil.AssertEqual(@"C:\foo\test\file.also.jpg|123", testGetMark(@"C:\foo\test\file.also__MARKAS__123.jpg"));
+            TestUtil.AssertEqual(@"C:\foo\test\file.jpg|", testGetMark(@"C:\foo\test\file__MARKAS__.jpg"));
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\dirmark__MARKAS__b\file__MARKAS__123.jpg"), "Directories");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\dirmark__MARKAS__b\file.jpg"), "Directories");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file__MARKAS__123__MARKAS__123.jpg"), "exactly 1");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file.jpg"), "exactly 1");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file__MARKAS__123.foo.jpg"), "after the marker");
         }
 
         static void TestMethod_ClassConfigsPersistedCommonUsage()

@@ -627,24 +627,29 @@ namespace labs_coordinate_pictures
             return Path.Combine(Path.GetDirectoryName(path), before) + MarkerString + category + ext;
         }
 
-        public static void GetMarkFromFilename(string pathAndCatgory, out string path, out string category)
+        public static void GetMarkFromFilename(string pathAndCategory, out string pathWithoutCategory, out string category)
         {
             // check nothing in path has mark
-            if (Path.GetDirectoryName(pathAndCatgory).Contains(MarkerString))
-                throw new CoordinatePicturesException("Directories should not have magic");
+            if (Path.GetDirectoryName(pathAndCategory).Contains(MarkerString))
+                throw new CoordinatePicturesException("Directories should not have marker");
 
-            var parts = Regex.Split(pathAndCatgory, Regex.Escape(MarkerString));
+            var parts = Regex.Split(pathAndCategory, Regex.Escape(MarkerString));
             if (parts.Length != 2)
             {
-                MessageBox.Show("Path " + pathAndCatgory + " does not contain marker.");
-                path = pathAndCatgory; category = ""; return;
+                if (!Configs.Current.SupressDialogs)
+                    MessageBox.Show("Path " + pathAndCategory + " should contain exactly 1 marker.");
+
+                throw new CoordinatePicturesException("Path " + pathAndCategory + " should contain exactly 1 marker.");
             }
-            var partsmore = parts[1].Split(new char[] { '.' });
-            Debug.Assert(partsmore.Length == 2);
-            category = partsmore[0];
-            path = parts[0] + "." + partsmore[1];
+
+            var partsAfterMarker = parts[1].Split(new char[] { '.' });
+            if (partsAfterMarker.Length != 2)
+                throw new CoordinatePicturesException("Parts after the marker shouldn't have another .");
+
+            category = partsAfterMarker[0];
+            pathWithoutCategory = parts[0] + "." + partsAfterMarker[1];
         }
-        
+
         public static bool SameExceptExtension(string s1, string s2)
         {
             var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));

@@ -2,6 +2,7 @@ from ben_python_common import *
 
 # field to store original title in. There's an exif tag OriginalRawFileName, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"
+MarkerString = "__MARKAS__"
 
 def readOption(key):
     fname = '../options.ini'
@@ -147,3 +148,21 @@ def transferMostUsefulExifTags(src, dest):
     cmd.append(dest)
     files.run(cmd, shell=False, throwOnFailure=PythonImgExifException)
     
+def getMarkFromFilename(pathAndCategory):
+    '''returns tuple pathWithoutCategory, category'''
+    
+    # check nothing in path has mark
+    if (MarkerString in files.getparent(pathAndCategory)):
+        raise ValueError('Directories should not have marker')
+
+    parts = pathAndCategory.split(MarkerString)
+    if len(parts) != 2:
+        raise ValueError('Expected path to have exactly one marker')
+
+    partsAfterMarker = parts[1].split('.')
+    if (len(partsAfterMarker) != 2):
+        raise ValueError('Parts after the marker shouldn\'t have another .')
+    
+    category = partsAfterMarker[0]
+    pathWithoutCategory = parts[0] + "." + partsAfterMarker[1]
+    return pathWithoutCategory, category
