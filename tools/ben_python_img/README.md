@@ -12,13 +12,13 @@ mozjpeg encoder
    unzip ./tools/mozjpeg_3.1_x86.zip
    (or download from github.com/mozilla/mozjpeg and build)
    either specify location from coordinate_pictures UI, (Options->set mozjpeg location)
-   or edit options.ini to set FilepathMozJpeg=c:\path\to\cjpeg.exe
+   or edit ../options.ini to set FilepathMozJpeg=c:\path\to\cjpeg.exe
 Optional: webp encoder
    download from https://developers.google.com/speed/webp/download
    either specify location from coordinate_pictures UI, (Options->set cwebp location)
-   or edit options.ini to set FilepathWebp=c:\path\to\cwebp.exe
+   or edit ../options.ini to set FilepathWebp=c:\path\to\cwebp.exe
 Optional: exiftool
    download from http://www.sno.phy.queensu.ca/~phil/exiftool/
    either specify location from coordinate_pictures UI, (Options->set exiftool location)
-   or edit options.ini to set FilepathExifTool=c:\path\to\exiftool.exe
+   or edit ../options.ini to set FilepathExifTool=c:\path\to\exiftool.exe
    
