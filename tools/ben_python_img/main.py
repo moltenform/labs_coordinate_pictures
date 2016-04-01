@@ -1,7 +1,7 @@
 
 
 # dependencies:
-# ben_python_common 
+# ben_python_common
 #    download github.com/downpoured/labs_coordinate_music/tree/master/ben_python_common
 #    place in directory called ben_python_common, within ben_python_img.
 # Pillow
@@ -24,7 +24,7 @@ from ben_python_common import *
 import sys
 import img_convert_resize
 
-if __name__=='__main__':
+if __name__ == '__main__':
     cmd = sys.argv[1]
     if cmd == 'convert_resize':
         _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv

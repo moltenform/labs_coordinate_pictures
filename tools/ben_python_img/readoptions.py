@@ -9,8 +9,8 @@ def readOption(key):
         for line in f:
             if line.startswith(key + '='):
                 line = line.strip()
-                return line[len(key+'='):]
-    raise RuntimeError('key '+key+' not found in options.ini')
+                return line[len(key + '='):]
+    raise RuntimeError('key ' + key + ' not found in options.ini')
 
 def getCwebpLocation():
     ret = readOption('FilepathWebp')
@@ -38,6 +38,3 @@ def getTempLocation():
     if not files.exists(dir):
         files.makedirs(dir)
     return dir
-    
-
-    

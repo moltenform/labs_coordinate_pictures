@@ -21,7 +21,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
     if not files.exists(infile):
         raise ArgumentError('input file not found.')
         
-    if resizeSpec=='100%':
+    if resizeSpec == '100%':
         # shortcut: just copy the file if no format conversion or resize
         if files.getext(infile) == files.getext(outfile):
             files.copy(infile, outfile, False)
@@ -29,13 +29,13 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         
         # shortcut: dwebp natively can save to common formats
         dwebpsupports = ['png', 'tif']
-        if files.getext(infile) == 'webp' and dwebpsupports.index(files.getext(outfile)) != -1:
+        if files.getext(infile) == 'webp' and files.getext(outfile) in dwebpsupports:
             saveWebpToBmpOrPng(infile, outfile)
             return
             
         # shortcut: cwebp natively can save from common formats
         cwebpsupports = ['bmp', 'png', 'tif']
-        if files.getext(outfile) == 'webp' and cwebpsupports.index(files.getext(infile)) != -1:
+        if files.getext(outfile) == 'webp' and files.getext(infile) in cwebpsupports:
             saveBmpOrPngToWebp(infile, outfile)
             return
             
@@ -93,7 +93,7 @@ def loadImageFromFile(infile, outfile):
     # discard the transparency channel if saving to jpg
     if im.mode == 'RGBA' and (outfile.lower().endswith('jpg') or outfile.lower().endswith('bmp')):
         newimg = Image.new("RGB", im.size, (255, 255, 255))
-        newimg.paste(im, mask=im.split()[3]) # 3 is the alpha channel
+        newimg.paste(im, mask=im.split()[3])  # 3 is the alpha channel
         im = newimg
         
     return im, memoryStream
@@ -105,7 +105,7 @@ def loadImageFromWebp(infile):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=False, captureoutput=True)
     if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
 
     # read the png directly from memory
     from cStringIO import StringIO
@@ -116,7 +116,7 @@ def runExeShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=True, captureoutput=True)
     if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
         
 def runExeWithStdIn(args, sendToStdIn):
     import subprocess
@@ -124,12 +124,11 @@ def runExeWithStdIn(args, sendToStdIn):
     sp = subprocess.Popen(args, shell=False, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=showNoWindow)
     comm = sp.communicate(input=sendToStdIn)
-    stdout = comm[0]
     stderr = comm[1]
     retcode = sp.returncode
-    if retcode!=0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr='+stderr)
-     
+    if retcode != 0:
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
+
 def getTempFilename(ext):
     tempdir = readoptions.getTempLocation()
     return files.join(tempdir, getRandomString() + '.' + ext)
@@ -201,16 +200,16 @@ def getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext):
             if smallestDimensionTarget >= height:
                 # if asked to enlarge, return the original
                 return 0, 0
-            newWidth = int((float(width)/height) * smallestDimensionTarget) 
+            newWidth = int((float(width) / height) * smallestDimensionTarget)
             newHeight = smallestDimensionTarget
         else:
             if smallestDimensionTarget >= width:
                 # if asked to enlarge, return the original
                 return 0, 0
-            newHeight = int((float(height)/width) * smallestDimensionTarget) 
+            newHeight = int((float(height) / width) * smallestDimensionTarget)
             newWidth = smallestDimensionTarget
         
-        assertTrue(newWidth % 16 == 0 and newHeight % 16 == 0, 
+        assertTrue(newWidth % 16 == 0 and newHeight % 16 == 0,
             '%s %d %d %d %d'%(loggingContext, width, height, newWidth, newHeight))
         return newWidth, newHeight
     else:
@@ -222,5 +221,5 @@ def resizeImage(im, resizeSpec, loggingContext):
         return im
     else:
         # if enlarging, consider Image.BICUBIC
-        ret = im.resize((newWidth, newHeight), Image.ANTIALIAS) 
+        ret = im.resize((newWidth, newHeight), Image.ANTIALIAS)
         return ret
