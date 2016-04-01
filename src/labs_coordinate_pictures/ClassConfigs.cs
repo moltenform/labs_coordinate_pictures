@@ -29,6 +29,7 @@ namespace labs_coordinate_pictures
         FilepathMp3DirectCut,
         FilepathExifTool,
         CategoriesModeCategorizeAndRename,
+        CategoriesModeResizeKeepExif,
         CategoriesModeCheckFilesizes,
         GalleryViewCategories,
         MRUOpenImageDirectory,

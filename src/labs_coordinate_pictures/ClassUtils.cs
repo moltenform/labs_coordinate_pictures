@@ -512,8 +512,9 @@ namespace labs_coordinate_pictures
         {
             Func<string, bool> includeFile = (path) =>
             {
-                if ((includeMarked || !_excludeMarked) && path.Contains(FilenameUtils.MarkerString))
+                if (!includeMarked && _excludeMarked && path.Contains(FilenameUtils.MarkerString))
                     return false;
+ 
                 if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
                     return false;
                 return true;

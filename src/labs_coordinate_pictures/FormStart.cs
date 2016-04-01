@@ -50,6 +50,8 @@ namespace labs_coordinate_pictures
                 OpenForm(new ModeCategorizeAndRename());
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeCheckFilesizes());
+            this.resizePhotosKeepingExifsToolStripMenuItem.Click += (sender, e) =>
+                OpenForm(new ModeResizeKeepExif());
 
             if (Utils.Debug)
             {

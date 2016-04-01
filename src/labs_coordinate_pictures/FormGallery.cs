@@ -80,6 +80,7 @@ namespace labs_coordinate_pictures
                     showResized, nOrigW, nOrigH);
             }
 
+            renameToolStripMenuItem.Visible = _mode.SupportsRename();
             _zoomed = false;
         }
 
@@ -133,6 +134,7 @@ namespace labs_coordinate_pictures
 
         void RefreshCustomCommands()
         {
+            labelView.Text = "\r\n\r\n";
             if (_mode.GetDisplayCustomCommands().Length > 0)
             {
                 editToolStripMenuItem.DropDownItems.Clear();
@@ -140,7 +142,6 @@ namespace labs_coordinate_pictures
                     editToolStripMenuItem.DropDownItems.Add(item);
 
                 editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-                labelView.Text = "\r\n\r\n";
                 foreach (var tuple in _mode.GetDisplayCustomCommands())
                 {
                     var menuItem = new ToolStripMenuItem(tuple.Item2);
@@ -311,8 +312,13 @@ namespace labs_coordinate_pictures
             }
             else if (e.Shift && !e.Control && !e.Alt)
             {
-                if (_categoryShortcuts.ContainsKey(e.KeyCode.ToString()))
-                    AssignCategory(_categoryShortcuts[e.KeyCode.ToString()]);
+                var keystring = e.KeyCode.ToString();
+                if (keystring.Length == 1 || (keystring.Length == 2 && keystring[0] == 'D'))
+                {
+                    keystring = keystring.Substring(keystring.Length - 1);
+                    if (_categoryShortcuts.ContainsKey(keystring))
+                        AssignCategory(_categoryShortcuts[keystring]);
+                }
             }
             else if (e.Shift && e.Control && !e.Alt)
             {
@@ -359,7 +365,7 @@ namespace labs_coordinate_pictures
                     RenameFile(true);
             }
 
-            _mode.OnCustomCommand(this, e.Shift, e.Control, e.Alt, e.KeyCode);
+            _mode.OnCustomCommand(this, e.Shift, e.Alt, e.Control, e.KeyCode);
         }
 
         void AssignCategory(string categoryId)
@@ -377,7 +383,7 @@ namespace labs_coordinate_pictures
 
         public void RenameFile(bool overwriteNumberedPrefix)
         {
-            if (!_mode.SupportsRename() || nav.Current == null)
+            if (nav.Current == null || !_mode.SupportsRename())
                 return;
 
             InputBoxHistory key = FilenameUtils.LooksLikeImage(nav.Current) ?
@@ -494,7 +500,7 @@ namespace labs_coordinate_pictures
         {
             int nAddedPrefix = 0, nSkippedPrefix = 0, nFailedToRename = 0;
             int i = 0;
-            if (Utils.AskToConfirm("Add numbered prefix?"))
+            if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
                 foreach (var path in nav.GetList())
                 {
@@ -519,7 +525,7 @@ namespace labs_coordinate_pictures
         private void removeNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int nRemovedPrefix = 0, nSkippedAlready = 0, nFailedToRename = 0;
-            if (Utils.AskToConfirm("Remove numbered prefix?"))
+            if (_mode.SupportsRename() && Utils.AskToConfirm("Remove numbered prefix?"))
             {
                 foreach (var path in nav.GetList())
                 {
@@ -542,7 +548,7 @@ namespace labs_coordinate_pictures
 
         private void replaceInFilenameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null)
+            if (nav.Current == null || !_mode.SupportsRename())
                 return;
 
             var filename = Path.GetFileName(nav.Current);
@@ -591,7 +597,7 @@ namespace labs_coordinate_pictures
             if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
                 return;
 
-            var more = new string[] { "50%", "70%", "100%" };
+            var more = new string[] { "50%", "100%", "70%" };
             var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):", null, more: more, useClipboard: false);
             if (string.IsNullOrEmpty(resize))
                 return;
@@ -726,6 +732,8 @@ namespace labs_coordinate_pictures
                     else
                         _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
                 }
+
+                OnOpenItem();
             }
         }
 

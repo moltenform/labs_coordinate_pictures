@@ -17,14 +17,16 @@ namespace labs_coordinate_pictures
                 return ret.ToArray();
 
             var categories = s.Split(new char[] { '|' });
-            string explain = "category must be in form A/categoryReadable/categoryId, where A is a single capital letter, but got ";
+            string explain = "category must be in form A/categoryReadable/categoryId, where A is a single numeral or capital letter, but got ";
             foreach (var category in categories)
             {
                 var parts = category.Split(new char[] { '/' });
                 if (parts.Length != 3)
                     throw new CoordinatePicturesException(explain + category);
 
-                if (parts[0].Length != 1 || parts[0][0] < 'A' || parts[0][0] > 'Z')
+                var validDigit = (parts[0][0] >= 'A' && parts[0][0] <= 'Z') ||
+                    (parts[0][0] >= '0' && parts[0][0] <= '9');
+                if (parts[0].Length != 1 || !validDigit)
                     throw new CoordinatePicturesException(explain + category);
 
                 if (parts[1].Length == 0 || parts[2].Length == 0)
@@ -111,22 +113,46 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public class ModeResizeKeepExif : ModeCategorizeAndRenameBase
+    {
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeResizeKeepExif;
+        }
+        public override string GetDefaultCategories()
+        {
+            return "Q/288 typ 10%/288h|W/432 typ 15%/432h|E/576 typ 20%/576h|1/720 typ 25%/720h|3/864 typ 35%/864h|4/1008 typ 40%/1008h|5/1152 typ 45%/1152h|6/1296 typ 50%/1296h|7/1440 typ 55%/1440h|8/1584 typ 60%/1584h|9/1728 typ 65%/1728h|P/1872 typ 75%/1872h|0/100%/100%";
+        }
+        public override bool SupportsRename()
+        {
+            return false;
+        }
+        public override bool SupportsCompletionAction()
+        {
+            MessageBox.Show("Currently, resize+keep exif is done manually by running a python script, ./tools/ben_python_img/img_convert_resize.py");
+            return false;
+        }
+    }
+
     public class ModeCheckFilesizes : ModeCategorizeAndRenameBase
     {
         public override ConfigKey GetCategories()
         {
             return ConfigKey.CategoriesModeCheckFilesizes;
         }
+
         public override string GetDefaultCategories()
         {
             return "A/size is good/size is good";
         }
+
         public override Tuple<string, string>[] GetDisplayCustomCommands()
         {
             return new Tuple<string, string>[] {
                 new Tuple<string, string>("Ctrl-2", "Mark small files as finished")
             };
         }
+
         public override void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)
         {
             if (!shift && control && !alt && keys == Keys.D2)
@@ -134,8 +160,50 @@ namespace labs_coordinate_pictures
                 AutoAcceptSmall(form);
             }
         }
+
         void AutoAcceptSmall(FormGallery form)
         {
+            const int autoAcceptibleSize = 1024 * 45;
+            // first, check for duplicate names
+            var list = form.nav.GetList();
+            bool hasMiddleName;
+            string newname;
+            foreach (var path in list)
+            {
+                var similar = FilenameFindSimilarFilenames.FindSimilarNames(path, GetFileTypes(), list, out hasMiddleName, out newname);
+                if (similar.Count != 0)
+                {
+                    MessageBox.Show("the file " + path + " has similar name(s) " + string.Join("\r\n", similar));
+                    return;
+                }
+            }
+
+            // then, accept the small files
+            int nAccepted = 0;
+            foreach (var path in list)
+            {
+                if ((path.EndsWith(".webp") || path.EndsWith(".jpg"))
+                    && new FileInfo(path).Length < autoAcceptibleSize)
+                {
+                    nAccepted++;
+                    var sNewName = FilenameUtils.AddMarkToFilename(path, "size is good");
+                    form.WrapMoveFile(path, sNewName);
+                }
+            }
+            MessageBox.Show("Accepted for " + nAccepted + " images.");
+        }
+
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        {
+            // just remove the mark from the file, don't need to do anything else.
+            if (File.Exists(sPathNoMark))
+            {
+                MessageBox.Show("File already exists + " + sPathNoMark);
+            }
+            else
+            {
+                File.Move(sPath, sPathNoMark);
+            }
         }
     }
 }
