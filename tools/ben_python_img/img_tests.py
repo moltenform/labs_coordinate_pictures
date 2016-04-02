@@ -1,6 +1,7 @@
 from ben_python_common import *
 import img_utils
 import img_convert_resize
+import img_resize_keep_exif
 
 def img_utils_testGetMarkFromFilename():
     assertEq(('/test/file.jpg', '123'), img_utils.getMarkFromFilename('/test/file__MARKAS__123.jpg'))
@@ -62,10 +63,61 @@ def img_convert_testGetNewSizeFromResizeSpec():
     assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('101h', 100, 200))
     assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('101h', 200, 100))
 
+def img_resize_keep_exif_testActualFiles(tmpDir):
+    tmpDir = files.join(tmpDir, 'testResizeKeepExif')
+    files.makedirs(tmpDir)
+    
+    # create initial files
+    im = createTestImage(96, 144, 1)
+    filenames = [files.join(tmpDir, 'a100p__MARKAS__100%.jpg'),
+        files.join(tmpDir, 'a50p__MARKAS__50%.jpg'),
+        files.join(tmpDir, 'a32h__MARKAS__32h.jpg'),
+        files.join(tmpDir, 'a200h__MARKAS__200h.jpg')]
+    for filename in filenames:
+        im.save(filename)
+    del im
+       
+    for index, filename in enumerate(filenames):
+        assertEq((96, 144), img_utils.getImageDims(filename))
+        # set an obscure tag that won't be transferred
+        img_utils.setExifField(filename, 'ProfileCopyright', 'ObscureTagSet' + str(index))
+        assertEq('ObscureTagSet' + str(index), img_utils.readExifField(filename, 'ProfileCopyright'))
+        # set a common tag that will be transferred
+        img_utils.setExifField(filename, 'Make', 'TestingMake' + str(index))
+        assertEq('TestingMake' + str(index), img_utils.readExifField(filename, 'Make'))
+        
+    img_resize_keep_exif.resizeAllAndKeepExif(tmpDir,
+        recurse=False, storeOriginalFilename=True, storeExifFromOriginal=True, jpgHighQualityChromaSampling=False)
+    
+    # check dimensions
+    assertEq((96, 144), img_utils.getImageDims(files.join(tmpDir, 'a100p.jpg')))
+    assertEq((48, 72), img_utils.getImageDims(files.join(tmpDir, 'a50p.jpg')))
+    assertEq((32, 48), img_utils.getImageDims(files.join(tmpDir, 'a32h.jpg')))
+    assertEq((96, 144), img_utils.getImageDims(files.join(tmpDir, 'a200h.jpg')))
+    
+    # check sizes, if the mozjpeg version changes, these might need to be updated
+    # assertEq(10261, files.getsize(files.join(tmpDir, 'a100p.jpg')))
+    # assertEq(1234, files.getsize(files.join(tmpDir, 'a50p.jpg')))
+    # assertEq(1234, files.getsize(files.join(tmpDir, 'a32h.jpg')))
+    # assertEq(1234, files.getsize(files.join(tmpDir, 'a200h.jpg')))
+    
+    # check common tag, should be transferred
+    assertEq('TestingMake0', img_utils.readExifField(files.join(tmpDir, 'a100p.jpg'), 'Make'))
+    assertEq('TestingMake1', img_utils.readExifField(files.join(tmpDir, 'a50p.jpg'), 'Make'))
+    assertEq('TestingMake2', img_utils.readExifField(files.join(tmpDir, 'a32h.jpg'), 'Make'))
+    assertEq('TestingMake3', img_utils.readExifField(files.join(tmpDir, 'a200h.jpg'), 'Make'))
+    
+    # check uncommon tag, should only be present for the ones moved instead of resized
+    assertEq('ObscureTagSet0', img_utils.readExifField(files.join(tmpDir, 'a100p.jpg'), 'ProfileCopyright'))
+    assertEq('', img_utils.readExifField(files.join(tmpDir, 'a50p.jpg'), 'ProfileCopyright'))
+    assertEq('', img_utils.readExifField(files.join(tmpDir, 'a32h.jpg'), 'ProfileCopyright'))
+    assertEq('ObscureTagSet3', img_utils.readExifField(files.join(tmpDir, 'a200h.jpg'), 'ProfileCopyright'))
+    
+
 def createTestImage(width, height, seed):
+    from PIL import Image
     import random
     random.seed(seed)
-    from PIL import Image
     im = Image.new("RGB", (width, height))
     for y in xrange(height):
         for x in xrange(width):
@@ -95,7 +147,7 @@ def combinatoricImageConversionTest(im, tmpDir):
                 img_convert_resize.convertOrResizeImage(startfile, outfile, jpgQuality=jpgQuality)
                 assertTrue(files.exists(outfile))
                 
-    # if the PIL version changes, these might need to be updated
+    # if the PIL/webp/mozjpeg version changes, these might need to be updated
     expectedSizes = '''start.bmp|43254
 start.bmp.jpg|16960
 start.bmp.png|4526
@@ -150,6 +202,7 @@ if __name__ == '__main__':
     try:
         img_utils_testGetMarkFromFilename()
         img_utils_testGetFilesWithWrongExtension(tmpDir)
+        img_resize_keep_exif_testActualFiles(tmpDir)
         img_convert_testGetNewSizeFromResizeSpec()
         img_convert_resize_tests(tmpDir)
     finally:

@@ -1,6 +1,6 @@
 from ben_python_common import *
 
-# field to store original title in. There's an exif tag OriginalRawFileName, but isn't shown in UI.
+# field to store original title in. There's an exif tag OriginalRawFileName AKA OriginalFilename, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"
 MarkerString = "__MARKAS__"
 
@@ -42,6 +42,12 @@ def getTempLocation():
     if not files.exists(dir):
         files.makedirs(dir)
     return dir
+    
+def getImageDims(path):
+    from PIL import Image
+    with Image.open(path) as im:
+        ret = im.size
+    return ret
 
 def exiftool():
     return getExifToolLocation()
@@ -52,12 +58,13 @@ class PythonImgExifException(Exception):
         trace('PythonImgExifException created.')
 
 def readExifField(filename, exifField):
-    args = "{0}|-S|-{1}|{2}".format(exiftool(), ExifFieldForOriginalTitle, filename)
+    args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)
     args = args.split('|')
     ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifException)
     sres = stdout.strip()
     if sres:
-        assertTrue(sres.startswith(exifField + ': '))
+        if not sres.startswith(exifField + ': '):
+            raise PythonImgExifException('expected ' + exifField + ': but got ' + sres)
         return sres[len(exifField + ': '):]
     else:
         return ''
@@ -119,7 +126,7 @@ def transferMostUsefulExifTags(src, dest):
     Also, if we copied all exif metadata, modern cameras add quite a bit of exif+xmp, at least 15kb.
     And the thumbnail is often at least 20kb.
     So, use an allow-list to copy over only the most useful exif tags.
-    There's a list of fields at http://www.sno.phy.queensu.ca/~phil/exiftool()/TagNames/EXIF.html'''
+    There's a list of fields at http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html'''
     
     # to get everything except xmp and thumbnail, use
     # [exiftool(), '-tagsFromFile', src, '-XMP:All=', '-ThumbnailImage=', '-m', dest]
