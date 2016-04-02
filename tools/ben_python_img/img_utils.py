@@ -5,6 +5,7 @@ ExifFieldForOriginalTitle = "Copyright"
 MarkerString = "__MARKAS__"
 
 def readOption(key):
+    # since ben_python_img is usually called by coordinate_pictures, we'll read from its options file for simplicity.
     fname = '../options.ini'
     if not files.exists(fname):
         raise RuntimeError('cannot locate options.ini file.')
@@ -52,19 +53,17 @@ def getImageDims(path):
 def exiftool():
     return getExifToolLocation()
 
-class PythonImgExifException(Exception):
-    def __init__(self, txt=''):
-        trace(txt)
-        trace('PythonImgExifException created.')
+class PythonImgExifError(Exception):
+    pass
 
 def readExifField(filename, exifField):
     args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)
     args = args.split('|')
-    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifException)
+    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
     sres = stdout.strip()
     if sres:
         if not sres.startswith(exifField + ': '):
-            raise PythonImgExifException('expected ' + exifField + ': but got ' + sres)
+            raise PythonImgExifError('expected ' + exifField + ': but got ' + sres)
         return sres[len(exifField + ': '):]
     else:
         return ''
@@ -74,7 +73,7 @@ def setExifField(filename, exifField, value):
     args = "{0}|-{1}={2}|-overwrite_original|-m|{3}".format(
         exiftool(), exifField, value, filename)
     args = args.split('|')
-    files.run(args, shell=False, throwOnFailure=PythonImgExifException)
+    files.run(args, shell=False, throwOnFailure=PythonImgExifError)
 
 def readThumbnails(dirname, removeThumbnails, outputDir=None):
     if outputDir and not files.isdir(outputDir):
@@ -91,7 +90,7 @@ def readThumbnails(dirname, removeThumbnails, outputDir=None):
                 args = "{0}|-overwrite_original|-ThumbnailImage=|{1}".format(exiftool(), filename)
             
             trace(short)
-            ret, stdout, stderr = files.run(args.split('|'), shell=True, throwOnFailure=PythonImgExifException)
+            ret, stdout, stderr = files.run(args.split('|'), shell=True, throwOnFailure=PythonImgExifError)
             trace(stdout)
             
 def readOriginalFilename(filename):
@@ -106,7 +105,7 @@ def removeResolutionTags(filename):
     args = "{0}|-XResolution=1|-YResolution=1|-ResolutionUnit=None|-overwrite_original|-m|{1}".format(
         exiftool(), filename)
     args = args.split('|')
-    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifException)
+    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
 
 def removeAllExifTags(filename):
     args = "{0}|-all=|-overwrite_original|{1}".format(
@@ -156,7 +155,7 @@ def transferMostUsefulExifTags(src, dest):
     cmd.append('-overwrite_original')
     cmd.append('-m')  # ignore minor errors
     cmd.append(dest)
-    files.run(cmd, shell=False, throwOnFailure=PythonImgExifException)
+    files.run(cmd, shell=False, throwOnFailure=PythonImgExifError)
     
 def getFilesWrongExtension(root, fnGetFiles, inputExt):
     return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=[inputExt]))
@@ -179,4 +178,3 @@ def getMarkFromFilename(pathAndCategory):
     category = partsAfterMarker[0]
     pathWithoutCategory = parts[0] + "." + partsAfterMarker[1]
     return pathWithoutCategory, category
-

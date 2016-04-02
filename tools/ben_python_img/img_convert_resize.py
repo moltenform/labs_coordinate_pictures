@@ -55,12 +55,9 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             
         # shortcut: mozjpeg takes a bmp, we have a bmp.
         if files.getext(infile) == 'bmp' and files.getext(outfile) == 'jpg':
-            saveToMozJpeg(False, infile, outfile, 
+            saveToMozJpeg(False, infile, outfile,
                 jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
             return ConvertResult.SuccessConverted
-        
-        # mozjpeg does not accept most bmp written by dwebp,
-        # so we can't use a shortcut for that case.
             
     # PIL can't work directly with webp so convert to png first.
     im = None
@@ -89,6 +86,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             assertTrue(files.exists(outfile))
             
     finally:
+        im.close()
         del im
         if tmpPngOut:
             files.deletesure(tmpPngOut)
@@ -113,20 +111,6 @@ def loadImageFromFile(infile, outfile):
         im = newimg
         
     return im, memoryStream
-    
-def loadImageFromWebp(infile):
-    # dwebp sends a png to stdout, we'll read it from stdout.
-    dwebp = img_utils.getDwebpLocation()
-    args = [dwebp, infile, '-o', '-']
-    retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
-        throwOnFailure=None, stripText=False, captureoutput=True)
-    if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
-
-    # read the png directly from memory
-    from cStringIO import StringIO
-    memoryStream = StringIO(stdout)
-    return Image.open(memoryStream), memoryStream
 
 def runExeShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
@@ -149,11 +133,27 @@ def getTempFilename(ext):
     tempdir = img_utils.getTempLocation()
     return files.join(tempdir, getRandomString() + '.' + ext)
     
+def loadImageFromWebp(infile):
+    # Pillow supports webp, but since we already depend on official tools, may as well use them here.
+    # dwebp sends a png to stdout, we'll read it from stdout.
+    dwebp = img_utils.getDwebpLocation()
+    args = [dwebp, infile, '-o', '-']
+    retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
+        throwOnFailure=None, stripText=False, captureoutput=True)
+    if retcode != 0:
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
+
+    # read the png directly from memory
+    from cStringIO import StringIO
+    memoryStream = StringIO(stdout)
+    return Image.open(memoryStream), memoryStream
+
 def saveWebpToBmpOrPng(infile, outfile):
     dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', outfile]
     if files.getext(outfile) == 'bmp':
-        args.append('-bmp')
+        # the bmp written by dwebp does not seem to be readable by mozjpeg.
+        raise ValueError('Format not supported')
     elif files.getext(outfile) == 'tif':
         args.append('-tiff')
     runExeShowErr(args)
@@ -163,7 +163,7 @@ def saveWebpToBmpOrPng(infile, outfile):
     return outfile
 
 def saveBmpOrPngToWebp(infile, outfile):
-    # according to docs, specifying both -lossless and -q 100 results in smaller file sizes.
+    # specifying -q 100 even when mode is -lossless results in smaller files (at expense of time).
     cwebp = img_utils.getCwebpLocation()
     args = [cwebp, infile, '-lossless', '-m', '6', '-q', '100', '-o', outfile]
     runExeShowErr(args)
@@ -173,6 +173,8 @@ def saveBmpOrPngToWebp(infile, outfile):
     return outfile
 
 def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChromaSample, jpgCorrectResolution):
+    # cjpeg cannot convert from png or tif, it needs a bmp.
+    # we used to write a temporary bmp to disk, but it's better to write the bmp to memory and send it via stdin.
     assertTrue(isinstance(quality, int))
     args = [img_utils.getMozjpegLocation()]
     args.extend(['-quality', str(quality), '-optimize'])
@@ -181,9 +183,11 @@ def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChrom
         
     args.extend(['-outfile', outfile])
     if not infileIsMemoryStream:
+        # input provided by file on disk
         args.extend([infile])
         runExeShowErr(args)
     else:
+        # input provided through stdin
         runExeWithStdIn(args, infile)
         
     if not files.exists(outfile):

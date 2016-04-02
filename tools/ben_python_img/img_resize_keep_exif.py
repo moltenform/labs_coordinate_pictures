@@ -2,8 +2,12 @@ from ben_python_common import *
 import img_utils
 import img_convert_resize
 
-def cleanup(dir, recurse, informat='jpg'):
-    if not getInputBool('run cleanup?'):
+# Refer to README.md for more documentation.
+
+def cleanup(dir, recurse, informat='jpg', prompt=True):
+    '''when the user has reviewed that the conversion looks correct, they'll run cleanup()
+    which will discard the previous files with __MARKAS__.'''
+    if prompt and not getInputBool('run cleanup?'):
         return
     
     fnGetFiles = files.recursefiles if recurse else files.listfiles
@@ -37,7 +41,7 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
             img_utils.stampJpgWithOriginalFilename(pathWithoutCategory, files.getname(pathWithoutCategory))
         if storeExifFromOriginal and needTransferTags:
             img_utils.transferMostUsefulExifTags(fullpath, pathWithoutCategory)
-    except img_utils.PythonImgExifException as e:
+    except img_utils.PythonImgExifError as e:
         # upon exception, move it back to the original spot.
         trace('Exif exception occurred ' + str(e) + 'for file ' + fullpath)
         if fileWasMovedNotCopied:
@@ -69,6 +73,5 @@ if __name__ == '__main__':
     storeExifFromOriginal = True
     jpgHighQualityChromaSampling = False
     
-    # resizeAllAndKeepExif(root, recurse, inputExt, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
+    # resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
     # cleanup(root, recurse)
-    
