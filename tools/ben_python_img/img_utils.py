@@ -47,7 +47,8 @@ def exiftool():
     return getExifToolLocation()
 
 class PythonImgExifException(Exception):
-    def __init__(self, *args):
+    def __init__(self, txt=''):
+        trace(txt)
         trace('PythonImgExifException created.')
 
 def readExifField(filename, exifField):
@@ -80,7 +81,7 @@ def readThumbnails(dirname, removeThumbnails, outputDir=None):
                 args = "{0}|-b|-ThumbnailImage|{1}|>|{2}".format(
                     exiftool(), filename, outFile)
             else:
-                args = "{0}|-PreviewImage=|{1}".format(exiftool(), filename)
+                args = "{0}|-overwrite_original|-ThumbnailImage=|{1}".format(exiftool(), filename)
             
             trace(short)
             ret, stdout, stderr = files.run(args.split('|'), shell=True, throwOnFailure=PythonImgExifException)
@@ -89,8 +90,8 @@ def readThumbnails(dirname, removeThumbnails, outputDir=None):
 def readOriginalFilename(filename):
     return readExifField(filename, ExifFieldForOriginalTitle)
 
-def stampJpgWithOriginalFilename(shortFilename, filename):
-    setExifField(filename, ExifFieldForOriginalTitle, shortFilename)
+def stampJpgWithOriginalFilename(filename, originalFilename):
+    setExifField(filename, ExifFieldForOriginalTitle, originalFilename)
     
 def removeResolutionTags(filename):
     # -m flag lets exiftool() ignores minor errors
@@ -103,6 +104,7 @@ def removeResolutionTags(filename):
 def removeAllExifTags(filename):
     args = "{0}|-all=|-overwrite_original|{1}".format(
         exiftool(), filename)
+    args = args.split('|')
     files.run(args, shell=False)
     
 def removeAllExifTagsInDirectory(dirname):
@@ -115,6 +117,7 @@ def removeAllExifTagsInDirectory(dirname):
 def transferMostUsefulExifTags(src, dest):
     '''When resizing a jpg file, all exif data is lost, since we convert to raw as an intermediate step.
     Also, if we copied all exif metadata, modern cameras add quite a bit of exif+xmp, at least 15kb.
+    And the thumbnail is often at least 20kb.
     So, use an allow-list to copy over only the most useful exif tags.
     There's a list of fields at http://www.sno.phy.queensu.ca/~phil/exiftool()/TagNames/EXIF.html'''
     
@@ -148,6 +151,9 @@ def transferMostUsefulExifTags(src, dest):
     cmd.append(dest)
     files.run(cmd, shell=False, throwOnFailure=PythonImgExifException)
     
+def getFilesWrongExtension(root, fnGetFiles, inputExt):
+    return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=[inputExt]))
+    
 def getMarkFromFilename(pathAndCategory):
     '''returns tuple pathWithoutCategory, category'''
     
@@ -166,3 +172,4 @@ def getMarkFromFilename(pathAndCategory):
     category = partsAfterMarker[0]
     pathWithoutCategory = parts[0] + "." + partsAfterMarker[1]
     return pathWithoutCategory, category
+

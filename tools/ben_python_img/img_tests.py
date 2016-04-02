@@ -2,7 +2,7 @@ from ben_python_common import *
 import img_utils
 import img_convert_resize
 
-def img_utils_tests():
+def img_utils_testGetMarkFromFilename():
     assertEq(('/test/file.jpg', '123'), img_utils.getMarkFromFilename('/test/file__MARKAS__123.jpg'))
     assertEq(('/test/file.also.jpg', '123'), img_utils.getMarkFromFilename('/test/file.also__MARKAS__123.jpg'))
     assertEq(('/test/file.jpg', ''), img_utils.getMarkFromFilename('/test/file__MARKAS__.jpg'))
@@ -16,6 +16,51 @@ def img_utils_tests():
         '/test/file.jpg'), ValueError, 'exactly one marker')
     assertException(lambda: img_utils.getMarkFromFilename(
         '/test/file__MARKAS__123.foo.jpg'), ValueError, 'after the marker')
+        
+def img_utils_testGetFilesWithWrongExtension(tmpDir):
+    tmpDirExt = files.join(tmpDir, 'testWrongExtension')
+    files.makedirs(tmpDirExt)
+    files.writeall(files.join(tmpDirExt, 'a.jpg'), 'content')
+    files.writeall(files.join(tmpDirExt, 'B.JPG'), 'content')
+    files.writeall(files.join(tmpDirExt, 'c.jpg'), 'content')
+    files.writeall(files.join(tmpDirExt, 'd.txt'), 'content')
+    files.writeall(files.join(tmpDirExt, 'e'), 'content')
+    files.makedirs(tmpDirExt+'/subdir')
+    fnGetFiles = files.listfiles
+    setRet = img_utils.getFilesWrongExtension(tmpDirExt, fnGetFiles, 'jpg')
+    expected = [files.join(tmpDirExt, 'd.txt'), files.join(tmpDirExt, 'e')]
+    assertEq(expected, list(sorted(f[0] for f in setRet)))
+        
+def img_convert_testGetNewSizeFromResizeSpec():
+    # common valid cases
+    assertEq((50, 100), img_convert_resize.getNewSizeFromResizeSpec('50%', 100, 200))
+    assertEq((90, 180), img_convert_resize.getNewSizeFromResizeSpec('90%', 101, 201))
+    assertEq((80, 160), img_convert_resize.getNewSizeFromResizeSpec('80h', 100, 200))
+    assertEq((160, 80), img_convert_resize.getNewSizeFromResizeSpec('80h', 200, 100))
+    assertEq((5, 10), img_convert_resize.getNewSizeFromResizeSpec('5%', 100, 200))
+    
+    # invalid spec
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('50x', 100, 200), ValueError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('50', 100, 200), ValueError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('0.5%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec(' 50%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('50% ', 100, 200), ValueError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('50%%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('50%50%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('0%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('00%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('h', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('1a0%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('1a0h', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('110%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('-10%', 100, 200), AssertionError)
+    assertException(lambda: img_convert_resize.getNewSizeFromResizeSpec('-10h', 100, 200), AssertionError)
+    
+    # cases not to resize
+    assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('100%', 100, 200))
+    assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('101h', 100, 200))
+    assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('101h', 200, 100))
 
 def createTestImage(width, height, seed):
     import random
@@ -33,6 +78,8 @@ def combinatoricImageConversionTest(im, tmpDir):
     # go from each format to every other format!
     formats = ['bmp', 'png', 'jpg', 'webp']  # bmp should be first in the list
     jpgQuality = 100
+    if not getInputBool('run combinatoricImageConversionTest?'):
+        return
     
     for format in formats:
         startfile = files.join(tmpDir, 'start.' + format)
@@ -101,7 +148,9 @@ if __name__ == '__main__':
     files.makedirs(tmpDir)
         
     try:
-        img_utils_tests()
+        img_utils_testGetMarkFromFilename()
+        img_utils_testGetFilesWithWrongExtension(tmpDir)
+        img_convert_testGetNewSizeFromResizeSpec()
         img_convert_resize_tests(tmpDir)
     finally:
         files.rmtree(tmpDir)
