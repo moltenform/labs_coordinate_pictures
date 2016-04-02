@@ -64,9 +64,9 @@ def img_convert_testGetNewSizeFromResizeSpec():
     assertEq((0, 0), img_convert_resize.getNewSizeFromResizeSpec('101h', 200, 100))
 
 def img_resize_keep_exif_testActualFiles(tmpDir):
+    trace('img_resize_keep_exif_testActualFiles started.')
     tmpDir = files.join(tmpDir, 'testResizeKeepExif')
     files.makedirs(tmpDir)
-    
     # create initial files
     im = createTestImage(96, 144, 1)
     filenames = [files.join(tmpDir, 'a100p__MARKAS__100%.jpg'),
@@ -85,7 +85,7 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
         # set a common tag that will be transferred
         img_utils.setExifField(filename, 'Make', 'TestingMake' + str(index))
         assertEq('TestingMake' + str(index), img_utils.readExifField(filename, 'Make'))
-        
+    
     img_resize_keep_exif.resizeAllAndKeepExif(tmpDir,
         recurse=False, storeOriginalFilename=True, storeExifFromOriginal=True, jpgHighQualityChromaSampling=False)
     
@@ -94,12 +94,6 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
     assertEq((48, 72), img_utils.getImageDims(files.join(tmpDir, 'a50p.jpg')))
     assertEq((32, 48), img_utils.getImageDims(files.join(tmpDir, 'a32h.jpg')))
     assertEq((96, 144), img_utils.getImageDims(files.join(tmpDir, 'a200h.jpg')))
-    
-    # check sizes, if the mozjpeg version changes, these might need to be updated
-    # assertEq(10261, files.getsize(files.join(tmpDir, 'a100p.jpg')))
-    # assertEq(1234, files.getsize(files.join(tmpDir, 'a50p.jpg')))
-    # assertEq(1234, files.getsize(files.join(tmpDir, 'a32h.jpg')))
-    # assertEq(1234, files.getsize(files.join(tmpDir, 'a200h.jpg')))
     
     # check common tag, should be transferred
     assertEq('TestingMake0', img_utils.readExifField(files.join(tmpDir, 'a100p.jpg'), 'Make'))
@@ -112,7 +106,20 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
     assertEq('', img_utils.readExifField(files.join(tmpDir, 'a50p.jpg'), 'ProfileCopyright'))
     assertEq('', img_utils.readExifField(files.join(tmpDir, 'a32h.jpg'), 'ProfileCopyright'))
     assertEq('ObscureTagSet3', img_utils.readExifField(files.join(tmpDir, 'a200h.jpg'), 'ProfileCopyright'))
+        
+    # check sizes, if the mozjpeg version changes, these might need to be updated
+    expectedSizes = '''a100p.jpg|10261
+a200h.jpg|10261
+a200h__MARKAS__200h.jpg|10239
+a32h.jpg|1485
+a32h__MARKAS__32h.jpg|10239
+a50p.jpg|2864
+a50p__MARKAS__50%.jpg|10239'''.replace('\r\n', '\n')
+    resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
+        for file, short in sorted(files.listfiles(tmpDir))])
+    assertEq(expectedSizes, resultSizes)
     
+    trace('img_resize_keep_exif_testActualFiles passed.')
 
 def createTestImage(width, height, seed):
     from PIL import Image
@@ -165,7 +172,7 @@ start.webp.bmp|43254
 start.webp.jpg|16960
 start.webp.png|5786'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
-        for file, short in files.listfiles(tmpDir) if short.startswith('start')])
+        for file, short in sorted(files.listfiles(tmpDir)) if short.startswith('start')])
     assertEq(expectedSizes, resultSizes)
     
     # are bmps equivalent

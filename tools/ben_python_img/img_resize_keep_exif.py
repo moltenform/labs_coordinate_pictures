@@ -17,25 +17,31 @@ def cleanup(dir, recurse, informat='jpg'):
                 trace('not deleting', short, 'has not yet been processed')
 
 def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling):
+    '''The filenames tell us what action to take. File named a__MARKAS__50%.jpg becomes a.jpg resized by 50%.'''
     trace(fullpath)
     pathWithoutCategory, category = img_utils.getMarkFromFilename(fullpath)
     assertTrue(not files.exists(pathWithoutCategory), 'file already exists ' + pathWithoutCategory)
     if category == '100%':
         files.move(fullpath, pathWithoutCategory, False)
+        needTransferTags = False
+        fileWasMovedNotCopied = True
     else:
-        img_convert_resize.convertOrResizeImage(fullpath, pathWithoutCategory, resizeSpec=category, jpgQuality=None)
+        ret = img_convert_resize.convertOrResizeImage(fullpath, pathWithoutCategory, resizeSpec=category, jpgQuality=None)
+        needTransferTags = ret != img_convert_resize.ConvertResult.SuccessCopied
+        fileWasMovedNotCopied = False
     
     assertTrue(files.exists(pathWithoutCategory))
     
     try:
         if storeOriginalFilename:
             img_utils.stampJpgWithOriginalFilename(pathWithoutCategory, files.getname(pathWithoutCategory))
-        if storeExifFromOriginal and category != '100%':
+        if storeExifFromOriginal and needTransferTags:
             img_utils.transferMostUsefulExifTags(fullpath, pathWithoutCategory)
     except img_utils.PythonImgExifException as e:
         # upon exception, move it back to the original spot.
         trace('Exif exception occurred ' + str(e) + 'for file ' + fullpath)
-        if category == '100%':
+        if fileWasMovedNotCopied:
+            assertTrue(not files.exists(fullpath))
             files.move(pathWithoutCategory, fullpath, False)
         else:
             assertTrue(files.exists(fullpath))

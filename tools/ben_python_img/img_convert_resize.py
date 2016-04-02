@@ -3,9 +3,13 @@ from ben_python_common import *
 from PIL import Image
 import img_utils
 import sys
-    
+
+ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
+
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False):
+    ''' returns a bool, True means that the file was rewritten, False means that it was just moved or copied.
+    either True or False are a successful result; exceptions raised on error.'''
     
     if files.getext(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
         raise ValueError('only jpg files can have a quality less than 100.')
@@ -13,8 +17,11 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         useMozJpeg = True
         jpgQuality = 94 if useMozJpeg else 93
             
-    if infile.lower() == outfile.lower():
-        raise ValueError('writing to itself.')
+    if sys.platform == 'win32' and infile.lower() == outfile.lower():
+        return ConvertResult.SuccessCopied
+    
+    if infile == outfile:
+        return ConvertResult.SuccessCopied
         
     if files.exists(outfile):
         raise ValueError('output file already exists.')
@@ -22,28 +29,35 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
     if not files.exists(infile):
         raise ValueError('input file not found.')
         
-    if resizeSpec == '100%':
+    needsNoResize = resizeSpec == '100%'
+    if resizeSpec.endswith('h'):
+        width, height = img_utils.getImageDims(infile)
+        if getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext=infile) == (0, 0):
+            needsNoResize = True
+        
+    if needsNoResize:
         # shortcut: just copy the file if no format conversion or resize
         if files.getext(infile) == files.getext(outfile):
             files.copy(infile, outfile, False)
-            return
+            return ConvertResult.SuccessCopied
         
         # shortcut: dwebp natively can save to common formats
         dwebpsupports = ['png', 'tif']
         if files.getext(infile) == 'webp' and files.getext(outfile) in dwebpsupports:
             saveWebpToBmpOrPng(infile, outfile)
-            return
+            return ConvertResult.SuccessConverted
             
         # shortcut: cwebp natively can save from common formats
         cwebpsupports = ['bmp', 'png', 'tif']
         if files.getext(outfile) == 'webp' and files.getext(infile) in cwebpsupports:
             saveBmpOrPngToWebp(infile, outfile)
-            return
+            return ConvertResult.SuccessConverted
             
         # shortcut: mozjpeg takes a bmp, we have a bmp.
         if files.getext(infile) == 'bmp' and files.getext(outfile) == 'jpg':
-            saveToMozJpeg(False, infile, outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
-            return
+            saveToMozJpeg(False, infile, outfile, 
+                jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
+            return ConvertResult.SuccessConverted
         
         # mozjpeg does not accept most bmp written by dwebp,
         # so we can't use a shortcut for that case.
@@ -56,8 +70,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
     try:
         # load and resize image
         im, memoryStreamIn = loadImageFromFile(infile, outfile)
-        if resizeSpec != '100%':
-            im = resizeImage(im, resizeSpec, outfile)
+        im = resizeImage(im, resizeSpec, outfile)
             
         # save image
         if files.getext(outfile) == 'jpg':
@@ -83,6 +96,8 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             memoryStreamIn.close()
         if memoryStreamOut:
             memoryStreamOut.close()
+            
+    return ConvertResult.SuccessConverted
 
 def loadImageFromFile(infile, outfile):
     memoryStream = None
@@ -211,7 +226,8 @@ def getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext=''):
             newWidth = smallestDimensionTarget
         
         assertTrue(newWidth % 16 == 0 and newHeight % 16 == 0,
-            '%s %d %d %d %d'%(loggingContext, width, height, newWidth, newHeight))
+            '%s %d %d %d %d'%(loggingContext, width, height, newWidth, newHeight) +
+            'warning: we\'d like height and width to both be a multiple of 16.')
         return newWidth, newHeight
     else:
         raise ValueError('unknown resizeSpec')
