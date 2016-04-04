@@ -55,6 +55,8 @@
 
         #endregion
 
+#pragma warning disable CA2213
         private System.Windows.Forms.Label label1;
+#pragma warning restore CA2213
     }
 }

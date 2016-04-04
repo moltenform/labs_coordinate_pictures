@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -52,6 +55,23 @@ namespace labs_coordinate_pictures
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
             RefreshCategories();
             OnOpenItem();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                    components.Dispose();
+                if (nav != null)
+                    nav.Dispose();
+                if (imcache != null)
+                    imcache.Dispose();
+                if (_bitmapBlank != null)
+                    _bitmapBlank.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         void OnOpenItem()
@@ -571,7 +591,6 @@ namespace labs_coordinate_pictures
 
         private void FormGallery_FormClosed(object sender, FormClosedEventArgs e)
         {
-            RefreshImageCache();
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)

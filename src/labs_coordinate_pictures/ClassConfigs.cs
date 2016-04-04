@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,8 +11,8 @@ namespace labs_coordinate_pictures
 {
     public enum ConfigKey
     {
-        /* nb: unlike a C++ enum, it's changing the names and 
-        not the order that will cause compat issues. */
+        // nb: unlike a C++ enum, it's changing the names and
+        // not the order that will cause compat issues.
         None,
         Version,
         EnablePersonalFeatures,
@@ -76,22 +79,20 @@ namespace labs_coordinate_pictures
 
     public class Configs
     {
+        private static Configs _instance;
+        private static object locker = new object();
         public static ConfigKey ConfigsPersistedKeysFromString(string s)
         {
             ConfigKey e = ConfigKey.None;
             return Enum.TryParse(s, out e) ? e : ConfigKey.None;
         }
 
-        private static Configs _instance;
-        private static object locker = new Object();
-        internal Configs(string path) { _path = path; }
-        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
-        string _path;
         public static void Init(string path)
         {
             _instance = new Configs(path);
             _instance.Directory = Path.GetDirectoryName(path);
         }
+
         public static Configs Current
         {
             get
@@ -100,12 +101,19 @@ namespace labs_coordinate_pictures
             }
         }
 
+        string _path;
+        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
+        internal Configs(string path)
+        {
+            this._path = path;
+        }
+
         public void LoadPersisted()
         {
-            if (!File.Exists(_path))
+            if (!File.Exists(this._path))
                 return;
 
-            var lines = File.ReadAllLines(_path);
+            var lines = File.ReadAllLines(this._path);
             for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
@@ -125,16 +133,16 @@ namespace labs_coordinate_pictures
                     continue;
                 }
 
-                _persisted[key] = split[1];
+                this._persisted[key] = split[1];
             }
         }
 
         void SavePersisted()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var key in (from key in _persisted.Keys orderby key select key))
+            foreach (var key in (from key in this._persisted.Keys orderby key select key))
             {
-                var value = _persisted[key];
+                var value = this._persisted[key];
                 if (value != null && value != "")
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
@@ -142,12 +150,13 @@ namespace labs_coordinate_pictures
                     sb.AppendLine(key.ToString() + "=" + value);
                 }
             }
-            File.WriteAllText(_path, sb.ToString());
+
+            File.WriteAllText(this._path, sb.ToString());
         }
 
         public void Set(ConfigKey key, string s)
         {
-            _persisted[key] = s;
+            this._persisted[key] = s;
             SavePersisted();
         }
 
@@ -159,7 +168,7 @@ namespace labs_coordinate_pictures
         public string Get(ConfigKey key)
         {
             string s;
-            return _persisted.TryGetValue(key, out s) ? s : "";
+            return this._persisted.TryGetValue(key, out s) ? s : "";
         }
 
         public bool GetBool(ConfigKey key)

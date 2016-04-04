@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -80,11 +83,16 @@ namespace labs_coordinate_pictures
         public static bool isDigits(string s)
         {
             if (s == null || s.Length == 0)
+            {
                 return false;
+            }
+
             foreach (var c in s)
             {
                 if (!"0123456789".Contains(c))
+                {
                     return false;
+                }
             }
             return true;
         }
@@ -385,24 +393,24 @@ namespace labs_coordinate_pictures
 #endif
     }
 
-    public class FileListAutoUpdated
+    public class FileListAutoUpdated : IDisposable
     {
         bool _dirty = true;
         string[] _list = new string[] { };
-        FileSystemWatcher m_watcher;
+        FileSystemWatcher _watcher;
         string _root;
         public bool Recurse { get; private set; }
         public FileListAutoUpdated(string root, bool recurse)
         {
             _root = root;
             Recurse = recurse;
-            m_watcher = new FileSystemWatcher(root);
-            m_watcher.IncludeSubdirectories = recurse;
-            m_watcher.Created += m_watcher_Created;
-            m_watcher.Renamed += m_watcher_Renamed;
-            m_watcher.Deleted += m_watcher_Deleted;
-            m_watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            m_watcher.EnableRaisingEvents = true;
+            _watcher = new FileSystemWatcher(root);
+            _watcher.IncludeSubdirectories = recurse;
+            _watcher.Created += m_watcher_Created;
+            _watcher.Renamed += m_watcher_Renamed;
+            _watcher.Deleted += m_watcher_Deleted;
+            _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            _watcher.EnableRaisingEvents = true;
         }
         private void m_watcher_Created(object sender, FileSystemEventArgs e)
         {
@@ -433,9 +441,13 @@ namespace labs_coordinate_pictures
 
             return _list;
         }
+        public void Dispose()
+        {
+            _watcher.Dispose();
+        }
     }
 
-    public class FileListNavigation
+    public class FileListNavigation : IDisposable
     {
         string[] _extensionsAllowed;
         bool _excludeMarked;
@@ -569,6 +581,11 @@ namespace labs_coordinate_pictures
             };
 
             return _list.GetList().Where(includeFile).ToArray();
+        }
+
+        public void Dispose()
+        {
+            _list.Dispose();
         }
     }
 

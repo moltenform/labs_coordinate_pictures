@@ -286,6 +286,7 @@
 
         #endregion
 
+#pragma warning disable CA2213
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem filesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem picturesToolStripMenuItem;
@@ -314,6 +315,7 @@
         private System.Windows.Forms.ToolStripMenuItem setDropqpyLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setMp3DirectCutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setExiftoolLocationToolStripMenuItem;
+#pragma warning restore CA2213
     }
 }
 

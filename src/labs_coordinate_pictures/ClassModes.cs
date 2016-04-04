@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -12,7 +15,9 @@ namespace labs_coordinate_pictures
         {
             var ret = new List<Tuple<string, string, string>>();
             if (string.IsNullOrWhiteSpace(s))
+            {
                 return ret.ToArray();
+            }
 
             var categories = s.Split(new char[] { '|' });
             string explain = "category must be in form A/categoryReadable/categoryId, where A is a single numeral or capital letter, but got ";
@@ -20,15 +25,21 @@ namespace labs_coordinate_pictures
             {
                 var parts = category.Split(new char[] { '/' });
                 if (parts.Length != 3)
+                {
                     throw new CoordinatePicturesException(explain + category);
+                }
 
                 var validDigit = (parts[0][0] >= 'A' && parts[0][0] <= 'Z') ||
                     (parts[0][0] >= '0' && parts[0][0] <= '9');
                 if (parts[0].Length != 1 || !validDigit)
+                {
                     throw new CoordinatePicturesException(explain + category);
+                }
 
                 if (parts[1].Length == 0 || parts[2].Length == 0)
+                {
                     throw new CoordinatePicturesException(explain + category);
+                }
 
                 ret.Add(new Tuple<string, string, string>(parts[0], parts[1], parts[2]));
             }

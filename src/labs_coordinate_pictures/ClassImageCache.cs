@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -269,8 +272,8 @@ namespace labs_coordinate_pictures
                 // find where the user clicked, and then show that place in the center at full resolution.
                 var xcenter = (int)(fullImage.Width * (clickX / ((double)wasWidth)));
                 var ycenter = (int)(fullImage.Height * (clickY / ((double)wasHeight)));
-                var shiftx = xcenter - MaxWidth / 2;
-                var shifty = ycenter - MaxHeight / 2;
+                var shiftx = xcenter - (MaxWidth / 2);
+                var shifty = ycenter - (MaxHeight / 2);
 
                 // draw the entire image, but pushed off to the side
                 using (Graphics gr = Graphics.FromImage(Bmp))
