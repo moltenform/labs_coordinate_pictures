@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -22,7 +21,7 @@ namespace labs_coordinate_pictures
 
         public static void SelectFileInExplorer(string path)
         {
-            Process.Start("explorer.exe", "/select,\"" + path+"\"");
+            Process.Start("explorer.exe", "/select,\"" + path + "\"");
         }
 
         public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
@@ -65,7 +64,7 @@ namespace labs_coordinate_pictures
             {
                 process.WaitForExit();
             }
-            
+
             outStdout = sout;
             outStderr = serr;
 
@@ -234,7 +233,7 @@ namespace labs_coordinate_pictures
 
             if (!File.Exists(pyScript))
             {
-                MessageBox.Show("Script not found "+pyScript);
+                MessageBox.Show("Script not found " + pyScript);
                 return "Script not found";
             }
 
@@ -291,7 +290,7 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                var pathOutput = Path.GetDirectoryName(path) + "\\" + 
+                var pathOutput = Path.GetDirectoryName(path) + "\\" +
                     Path.GetFileNameWithoutExtension(path) + (qualitySpec == "flac" ? ".flac" : ".m4a");
                 var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) + "\\dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
@@ -392,7 +391,7 @@ namespace labs_coordinate_pictures
         string[] _list = new string[] { };
         FileSystemWatcher m_watcher;
         string _root;
-        public bool Recurse {get; private set;}
+        public bool Recurse { get; private set; }
         public FileListAutoUpdated(string root, bool recurse)
         {
             _root = root;
@@ -421,7 +420,7 @@ namespace labs_coordinate_pictures
         {
             _dirty = true;
         }
-        public string[] GetList(bool forceRefresh=false)
+        public string[] GetList(bool forceRefresh = false)
         {
             if (_dirty || forceRefresh)
             {
@@ -498,7 +497,7 @@ namespace labs_coordinate_pictures
             return index;
         }
 
-        public void GoNextOrPrev(bool isNext, List<string> neighbors=null, int retrieveNeighbors=0)
+        public void GoNextOrPrev(bool isNext, List<string> neighbors = null, int retrieveNeighbors = 0)
         {
             TryAgainIfFileIsMissing((list) =>
             {
@@ -535,6 +534,7 @@ namespace labs_coordinate_pictures
                 return list[0];
             });
         }
+
         public void GoLast()
         {
             TryAgainIfFileIsMissing((list) =>
@@ -562,7 +562,7 @@ namespace labs_coordinate_pictures
             {
                 if (!includeMarked && _excludeMarked && path.Contains(FilenameUtils.MarkerString))
                     return false;
- 
+
                 if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
                     return false;
                 return true;
@@ -578,10 +578,12 @@ namespace labs_coordinate_pictures
         {
             return IsExtensionInList(s, new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
         }
+
         public static bool LooksLikeEditableAudio(string s)
         {
             return IsExtensionInList(s, new string[] { ".wav", ".flac", ".mp3", ".m4a", ".mp4" });
         }
+
         public static bool IsExtensionInList(string s, string[] sExts)
         {
             var sLower = s.ToLowerInvariant();
@@ -592,10 +594,12 @@ namespace labs_coordinate_pictures
             }
             return false;
         }
+
         public static bool IsExt(string s, string ext)
         {
-            return s.ToLowerInvariant().EndsWith("."+ ext);
+            return s.ToLowerInvariant().EndsWith("." + ext);
         }
+
         public static string AddNumberedPrefix(string path, int n)
         {
             var nameOnly = Path.GetFileName(path);
@@ -611,6 +615,7 @@ namespace labs_coordinate_pictures
                     "\\([" + n.ToString("D3") + "0])" + nameOnly;
             }
         }
+
         public static string GetFileNameWithoutNumberedPrefix(string path)
         {
             var nameOnly = Path.GetFileName(path);
@@ -687,6 +692,7 @@ namespace labs_coordinate_pictures
         {
             _instance = new SimpleLog(path);
         }
+
         public static SimpleLog Current
         {
             get
@@ -694,6 +700,7 @@ namespace labs_coordinate_pictures
                 return _instance;
             }
         }
+
         public void WriteLog(string s)
         {
             try
@@ -707,14 +714,17 @@ namespace labs_coordinate_pictures
                     Environment.Exit(1);
             }
         }
+
         public void WriteWarning(string s)
         {
             WriteLog("[warning] " + s);
         }
+
         public void WriteError(string s)
         {
             WriteLog("[error] " + s);
         }
+
         public void WriteVerbose(string s)
         {
             if (Configs.Current.GetBool(ConfigKey.EnableVerboseLogging))
@@ -771,9 +781,9 @@ namespace labs_coordinate_pictures
                 {
                     string nameMiddleRemoved;
                     if (FilenameUtils.SameExceptExtension(root, otherfile) ||
-                        (FindMiddleOfName(otherfile, types, out nameMiddleRemoved) && 
+                        (FindMiddleOfName(otherfile, types, out nameMiddleRemoved) &&
                         FilenameUtils.SameExceptExtension(root, nameMiddleRemoved)))
-                            ret.Add(otherfile);
+                        ret.Add(otherfile);
                 }
             }
             return ret;

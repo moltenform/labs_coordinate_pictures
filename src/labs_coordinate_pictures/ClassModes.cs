@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -108,7 +105,7 @@ namespace labs_coordinate_pictures
                 return;
 
             if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by running a python script,"
-                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n"+sBaseDir+"?"))
+                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n" + sBaseDir + "?"))
             {
                 var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_resize_keep_exif.py");
                 if (File.Exists(script))

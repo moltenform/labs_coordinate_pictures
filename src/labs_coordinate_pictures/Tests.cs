@@ -5,8 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace labs_coordinate_pictures
 {
@@ -172,7 +170,8 @@ namespace labs_coordinate_pictures
             testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "");
             TestUtil.AssertEqual(@"c:\foo\test\b b.aaa__MARKAS__.jpg", testAdd);
 
-            Func<string, string> testGetMark = (input) => {
+            Func<string, string> testGetMark = (input) =>
+            {
                 string pathWithoutCategory, category;
                 FilenameUtils.GetMarkFromFilename(input, out pathWithoutCategory, out category);
                 return pathWithoutCategory + "|" + category;
@@ -198,12 +197,12 @@ namespace labs_coordinate_pictures
             TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
             cfg.Set(ConfigKey.EnablePersonalFeatures, "data=with=equals=");
             cfg.Set(ConfigKey.FilepathPython, " data\twith\t tabs");
-            
+
             /* from memory */
             TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
             TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
             TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
-            
+
             /* from disk */
             cfg = new Configs(path);
             cfg.LoadPersisted();
@@ -400,7 +399,7 @@ namespace labs_coordinate_pictures
                 (bmp) => { removedFromCache.Add(bmp); return true; };
             Func<Action, bool> callbackOnUiThread =
                 (act) => { act(); return true; };
-            
+
 
             { // standard lookup
                 var imcache = new ImageCache(20, 20, 3 /*cache size*/,
@@ -416,7 +415,7 @@ namespace labs_coordinate_pictures
                 var bmp1Same = imcache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
                 TestUtil.AssertEqual(1, gotW);
                 TestUtil.AssertEqual(1, gotH);
-                TestUtil.AssertEqual((object) bmp1, (object)bmp1Same);
+                TestUtil.AssertEqual((object)bmp1, (object)bmp1Same);
 
                 // however, if lmt has changed, cached copy should be refreshed.
                 var wasTime = File.GetLastWriteTime(Path.Combine(dir, "a1.png"));

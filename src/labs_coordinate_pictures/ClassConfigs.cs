@@ -106,7 +106,7 @@ namespace labs_coordinate_pictures
                 return;
 
             var lines = File.ReadAllLines(_path);
-            for (int i=0; i<lines.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
                 var split = line.Split(new char[] { '=' }, 2, StringSplitOptions.None);
@@ -138,7 +138,7 @@ namespace labs_coordinate_pictures
                 if (value != null && value != "")
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
-                        throw new CoordinatePicturesException("config values cannot contain newline, for key "+key);
+                        throw new CoordinatePicturesException("config values cannot contain newline, for key " + key);
                     sb.AppendLine(key.ToString() + "=" + value);
                 }
             }
@@ -150,6 +150,7 @@ namespace labs_coordinate_pictures
             _persisted[key] = s;
             SavePersisted();
         }
+
         public void SetBool(ConfigKey key, bool b)
         {
             Set(key, b ? "true" : "");
@@ -160,6 +161,7 @@ namespace labs_coordinate_pictures
             string s;
             return _persisted.TryGetValue(key, out s) ? s : "";
         }
+
         public bool GetBool(ConfigKey key)
         {
             return !string.IsNullOrEmpty(Get(key));

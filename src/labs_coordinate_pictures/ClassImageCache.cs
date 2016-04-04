@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -13,7 +10,6 @@ namespace labs_coordinate_pictures
 {
     public class ImageCache : IDisposable
     {
-        public static Bitmap BitmapBlank = new Bitmap(1, 1);
         public ImageViewExcerpt Excerpt { get; private set; }
         public int MaxHeight { get; private set; }
         public int MaxWidth { get; private set; }
@@ -22,7 +18,7 @@ namespace labs_coordinate_pictures
         int _cacheSize;
         Func<Action, bool> _callbackOnUiThread;
         Func<Bitmap, bool> _canDisposeBitmap;
-        
+
         public ImageCache(int maxwidth, int maxheight, int cacheSize,
             Func<Action, bool> callbackOnUiThread, Func<Bitmap, bool> canDisposeBitmap)
         {
@@ -169,7 +165,7 @@ namespace labs_coordinate_pictures
                     imFromFile.SetResolution(96.0f, 96.0f);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (!Configs.Current.SupressDialogs)
                 {
@@ -264,7 +260,7 @@ namespace labs_coordinate_pictures
             Bmp = new Bitmap(MaxWidth, MaxHeight);
             if (path == null || !FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
                 return;
-            
+
             using (Bitmap fullImage = ImageCache.GetBitmap(path))
             {
                 if (fullImage.Width == 1 || fullImage.Height == 1)

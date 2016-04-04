@@ -20,6 +20,7 @@ namespace labs_coordinate_pictures
         List<ToolStripItem> _originalEditMenu;
         Dictionary<string, string> _categoryShortcuts;
         List<string> _pathsToCache = new List<string>();
+        Bitmap _bitmapBlank = new Bitmap(1, 1);
         internal FileListNavigation nav;
         internal ImageCache imcache;
         const int imagecachesize = 15;
@@ -36,7 +37,7 @@ namespace labs_coordinate_pictures
             _originalCategoriesMenu = new List<ToolStripItem>(categoriesToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
             _originalEditMenu = new List<ToolStripItem>(editToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
             pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
-            
+
             // event handlers
             movePrevMenuItem.Click += (sender, e) => MoveOne(false);
             moveNextMenuItem.Click += (sender, e) => MoveOne(true);
@@ -56,7 +57,7 @@ namespace labs_coordinate_pictures
         void OnOpenItem()
         {
             // if the user resized the window, create a new cache for the new size
-            pictureBox1.Image = ImageCache.BitmapBlank;
+            pictureBox1.Image = _bitmapBlank;
             if (imcache == null || imcache.MaxWidth != pictureBox1.Width || imcache.MaxHeight != pictureBox1.Height)
             {
                 RefreshImageCache();
@@ -65,7 +66,7 @@ namespace labs_coordinate_pictures
             if (nav.Current == null)
             {
                 label.Text = "looks done.";
-                pictureBox1.Image = ImageCache.BitmapBlank;
+                pictureBox1.Image = _bitmapBlank;
             }
             else
             {
@@ -92,11 +93,11 @@ namespace labs_coordinate_pictures
                 imcache.Dispose();
             }
 
-            Func<Bitmap, bool> canDisposeBitmap = 
+            Func<Bitmap, bool> canDisposeBitmap =
                 (bmp) => (bmp as object) != (pictureBox1.Image as object);
             Func<Action, bool> callbackOnUiThread =
                 (act) => { this.Invoke((MethodInvoker)(() => act.Invoke())); return true; };
-            imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height, 
+            imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height,
                 imagecachesize, callbackOnUiThread, canDisposeBitmap);
         }
 
@@ -118,7 +119,7 @@ namespace labs_coordinate_pictures
 
         void MoveMany(bool forwardDirection)
         {
-            for (int i=0; i<15; i++)
+            for (int i = 0; i < 15; i++)
                 nav.GoNextOrPrev(forwardDirection);
             OnOpenItem();
         }
@@ -153,7 +154,6 @@ namespace labs_coordinate_pictures
                 }
             }
         }
-
 
         void RefreshCategories()
         {
@@ -353,11 +353,11 @@ namespace labs_coordinate_pictures
                     convertResizeImageToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D1)
                     convertAllPngToWebpToolStripMenuItem_Click(null, null);
-                 else if (e.KeyCode == Keys.OemCloseBrackets)
+                else if (e.KeyCode == Keys.OemCloseBrackets)
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Enter)
                     finishedCategorizingToolStripMenuItem_Click(null, null);
-                
+
             }
             else if (!e.Shift && !e.Control && e.Alt)
             {
@@ -390,8 +390,8 @@ namespace labs_coordinate_pictures
                 InputBoxHistory.RenameImage : (FilenameUtils.IsExt(nav.Current, "wav") ?
                 InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
 
-            var current = overwriteNumberedPrefix ? 
-                Path.GetFileName(nav.Current):
+            var current = overwriteNumberedPrefix ?
+                Path.GetFileName(nav.Current) :
                 FilenameUtils.GetFileNameWithoutNumberedPrefix(nav.Current);
 
             var currentNoext = Path.GetFileNameWithoutExtension(current);
@@ -610,7 +610,7 @@ namespace labs_coordinate_pictures
             }
 
             more = new string[] { "png|100", "jpg|90", "webp|100" };
-            var fmt = InputBoxForm.GetStrInput("Convert to format|quality:", null, InputBoxHistory.EditConvertResizeImage, more, useClipboard:false);
+            var fmt = InputBoxForm.GetStrInput("Convert to format|quality:", null, InputBoxHistory.EditConvertResizeImage, more, useClipboard: false);
             if (string.IsNullOrEmpty(fmt))
                 return;
 
@@ -637,8 +637,8 @@ namespace labs_coordinate_pictures
             var newlist = new List<string>();
             foreach (var path in list)
             {
-                if (new FileInfo(path).Length < 1024 * 500 || 
-                    Utils.AskToConfirm("include the large file " + 
+                if (new FileInfo(path).Length < 1024 * 500 ||
+                    Utils.AskToConfirm("include the large file " +
                         Path.GetFileName(path) + "\r\n" + Utils.FormatFilesize(path) + "?"))
                     newlist.Add(path);
             }
@@ -754,7 +754,8 @@ namespace labs_coordinate_pictures
                 }
                 finally
                 {
-                    this.Invoke((MethodInvoker) delegate {
+                    this.Invoke((MethodInvoker)delegate
+                    {
                         UIEnable();
                         OnOpenItem();
                     });

@@ -50,7 +50,7 @@ namespace labs_coordinate_pictures
         public static int? GetInteger(string strPrompt, int nDefault = 0, InputBoxHistory history = InputBoxHistory.None)
         {
             int fromClipboard = 0;
-            string s = GetStrInput(strPrompt, nDefault.ToString(), history, 
+            string s = GetStrInput(strPrompt, nDefault.ToString(), history,
                 useClipboard: int.TryParse(Utils.GetClipboard(), out fromClipboard));
 
             int result = 0;

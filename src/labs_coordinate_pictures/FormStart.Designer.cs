@@ -55,8 +55,8 @@
             this.setCoordmusicLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setDropqpyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMp3DirectCutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.setExiftoolLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -247,6 +247,12 @@
             this.setMp3DirectCutToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.setMp3DirectCutToolStripMenuItem.Text = "Set mp3DirectCut location...";
             // 
+            // setExiftoolLocationToolStripMenuItem
+            // 
+            this.setExiftoolLocationToolStripMenuItem.Name = "setExiftoolLocationToolStripMenuItem";
+            this.setExiftoolLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.setExiftoolLocationToolStripMenuItem.Text = "Set exiftool location...";
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -255,12 +261,6 @@
             this.label1.Size = new System.Drawing.Size(201, 52);
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
-            // 
-            // setExiftoolLocationToolStripMenuItem
-            // 
-            this.setExiftoolLocationToolStripMenuItem.Name = "setExiftoolLocationToolStripMenuItem";
-            this.setExiftoolLocationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.setExiftoolLocationToolStripMenuItem.Text = "Set exiftool location...";
             // 
             // FormStart
             // 
