@@ -208,21 +208,12 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeWavToM4a : ModeBase
+    public abstract class ModeAudioBase : ModeBase
     {
         public override bool SupportsRename() { return false; }
-        public override bool SupportsCompletionAction() { return true; }
-        public override ConfigKey GetCategories()
-        {
-            return ConfigKey.CategoriesModeWavToM4a;
-        }
         public override string GetDefaultCategories()
         {
             return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
-        }
-        public override string[] GetFileTypes()
-        {
-            return new string[] { ".wav" };
         }
         public override void OnBeforeAssignCategory()
         {
@@ -233,14 +224,54 @@ namespace labs_coordinate_pictures
         {
             Utils.PlayMedia(sPath);
         }
+    }
+
+    public class ModeMarkWavQuality : ModeAudioBase
+    {
+        public override bool SupportsCompletionAction() { return true; }
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeMarkWavQuality;
+        }
+        public override string[] GetFileTypes()
+        {
+            return new string[] { ".wav" };
+        }
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
         {
             if (sPath.ToLowerInvariant().EndsWith(".wav"))
             {
                 var newfile = Utils.RunQaacConversion(sPath, chosen.Item3);
-                // todo: rename newfile, delete old file
-                // todo: retcode, not presence of stderr, should indicate failure
+                if (!string.IsNullOrEmpty(newfile))
+                {
+                    var newname = Path.GetDirectoryName(sPathNoMark) + "\\" + Path.GetFileNameWithoutExtension(sPathNoMark) + ".m4a";
+                    if (File.Exists(newname))
+                    {
+                        MessageBox.Show("already exists. could not move " + newfile + " to " + newname);
+                    }
+                    else
+                    {
+                        File.Move(newfile, newname);
+                        Utils.SoftDelete(sPath);
+                    }
+                }
             }
+        }
+    }
+
+    public class ModeMarkMp3Quality : ModeAudioBase
+    {
+        public override bool SupportsCompletionAction() { return false; }
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeMarkMp3Quality;
+        }
+        public override string[] GetFileTypes()
+        {
+            return new string[] { ".wav", ".mp3", ".mp4", ".m4a", ".wma", ".flac" };
+        }
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        {
         }
     }
  }

@@ -47,13 +47,15 @@ namespace labs_coordinate_pictures
             this.setExiftoolLocationToolStripMenuItem.Click += (sender, e) =>
                OnSetConfigsFile(sender, "(Optional) Locate exiftool.exe.", ConfigKey.FilepathExifTool);
             this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
-                OpenForm(new ModeCategorizeAndRename());
+                OpenForm(new ModeCategorizeAndRename(), InputBoxHistory.OpenImageDirectory);
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
-                OpenForm(new ModeCheckFilesizes());
+                OpenForm(new ModeCheckFilesizes(), InputBoxHistory.OpenImageDirectory);
             this.resizePhotosKeepingExifsToolStripMenuItem.Click += (sender, e) =>
-                OpenForm(new ModeResizeKeepExif());
+                OpenForm(new ModeResizeKeepExif(), InputBoxHistory.OpenImageKeepExifDirectory);
             this.markwavQualityToolStripMenuItem.Click += (sender, e) =>
-                OpenForm(new ModeWavToM4a());
+                OpenForm(new ModeMarkWavQuality(), InputBoxHistory.OpenWavAudioDirectory);
+            this.markmp3QualityToolStripMenuItem.Click += (sender, e) =>
+                OpenForm(new ModeMarkMp3Quality(), InputBoxHistory.OpenAudioDirectory);
 
             if (Utils.Debug)
             {
@@ -70,19 +72,15 @@ namespace labs_coordinate_pictures
             throw new NotImplementedException();
         }
 
-        string AskUserForDirectory(ModeBase mode)
+        string AskUserForDirectory(ModeBase mode, InputBoxHistory mruKey)
         {
-            // save separate mru histories for images vs music
-            var mruKey = ((mode as ModeCategorizeAndRenameBase) != null || (mode as ModeCategorizeAndRenameBase) != null) ?
-                InputBoxHistory.OpenImageDirectory : InputBoxHistory.OpenMusicDirectory;
-
             return InputBoxForm.GetStrInput("Enter directory:", null, mruKey, mustBeDirectory: true);
         }
 
-        void OpenForm(ModeBase mode)
+        void OpenForm(ModeBase mode, InputBoxHistory mruKey)
         {
             VerifyProgramChecksums();
-            var dir = AskUserForDirectory(mode);
+            var dir = AskUserForDirectory(mode, mruKey);
             if (dir == null)
                 return;
 

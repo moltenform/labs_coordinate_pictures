@@ -171,7 +171,7 @@ namespace labs_coordinate_pictures
                 menuItem.ShortcutKeyDisplayString = tuple.Item1;
                 menuItem.Click += (sender, e) => AssignCategory(tuple.Item3);
                 categoriesToolStripMenuItem.DropDownItems.Add(menuItem);
-                labelView.Text += tuple.Item1 + "=" + tuple.Item2 + "\r\n\r\n";
+                labelView.Text += tuple.Item1 + "    " + tuple.Item2 + "\r\n\r\n";
                 this._categoryShortcuts[tuple.Item1] = tuple.Item3;
             }
 
@@ -728,13 +728,13 @@ namespace labs_coordinate_pictures
                     {
                         if (path.Contains(FilenameUtils.MarkerString))
                         {
-                            string sPathNoMark, sMark;
-                            FilenameUtils.GetMarkFromFilename(path, out sPathNoMark, out sMark);
-                            var tupleFound = tuples.Where((item) => item.Item3 == sMark).ToArray();
+                            string pathWithoutCategory, category;
+                            FilenameUtils.GetMarkFromFilename(path, out pathWithoutCategory, out category);
+                            var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
                             if (tupleFound.Length == 0)
                                 MessageBox.Show("Invalid mark for file " + path);
                             else
-                                _mode.OnCompletionAction(nav.BaseDirectory, path, sPathNoMark, tupleFound[0]);
+                                _mode.OnCompletionAction(nav.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
                         }
                     }
 
@@ -754,9 +754,17 @@ namespace labs_coordinate_pictures
                 }
                 finally
                 {
-                    this.Invoke((MethodInvoker) delegate { UIEnable(); OnOpenItem(); });
+                    this.Invoke((MethodInvoker) delegate {
+                        UIEnable();
+                        OnOpenItem();
+                    });
                 }
             });
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

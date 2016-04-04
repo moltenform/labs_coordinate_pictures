@@ -65,6 +65,8 @@
             this.label = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -95,7 +97,9 @@
             this.toolStripMenuItem1,
             this.showInExplorerToolStripMenuItem,
             this.toolStripMenuItem3,
-            this.moveToTrashToolStripMenuItem});
+            this.moveToTrashToolStripMenuItem,
+            this.toolStripMenuItem5,
+            this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -261,7 +265,7 @@
             this.keepAndDeleteOthersToolStripMenuItem.Text = "Keep this jpg and delete others with different qualities...";
             this.keepAndDeleteOthersToolStripMenuItem.Click += new System.EventHandler(this.keepAndDeleteOthersToolStripMenuItem_Click);
             // 
-            // renameToolStripMenuItem1
+            // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameItemToolStripMenuItem,
@@ -269,13 +273,13 @@
             this.toolStripMenuItem4,
             this.addNumberedPrefixToolStripMenuItem,
             this.removeNumberedPrefixToolStripMenuItem});
-            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem1";
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             this.renameToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.renameToolStripMenuItem.Text = "Rename";
             // 
-            // renameToolStripMenuItem
+            // renameItemToolStripMenuItem
             // 
-            this.renameItemToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
             this.renameItemToolStripMenuItem.ShortcutKeyDisplayString = "H";
             this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
             this.renameItemToolStripMenuItem.Text = "Rename...";
@@ -392,6 +396,19 @@
             this.labelView.TabIndex = 2;
             this.labelView.Text = "label1";
             // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(203, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
             // FormGallery
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -454,5 +471,7 @@
         private System.Windows.Forms.ToolStripMenuItem renameItemToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.Label labelView;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }

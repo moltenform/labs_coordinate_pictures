@@ -25,18 +25,18 @@ namespace labs_coordinate_pictures
             Process.Start("explorer.exe", "/select,\"" + path+"\"");
         }
 
-        public static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
+        public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
         {
             string stdout, stderr;
-            Run(exe, args, shell, waitForExit, hideWindow, false, out stdout, out stderr);
+            return Run(exe, args, shell, waitForExit, hideWindow, false, out stdout, out stderr);
         }
 
-        public static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, out string stdout, out string stderr)
+        public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, out string stdout, out string stderr)
         {
-            Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
+            return Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
         }
 
-        static void Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr, string workingDir = null)
+        static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr, string workingDir = null)
         {
             var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = hideWindow;
@@ -48,6 +48,7 @@ namespace labs_coordinate_pictures
             {
                 startInfo.RedirectStandardError = true;
                 startInfo.RedirectStandardOutput = true;
+                waitForExit = true;
             }
 
             string serr = "", sout = "";
@@ -59,13 +60,16 @@ namespace labs_coordinate_pictures
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
             }
-            if (waitForExit || getStdout)
+
+            if (waitForExit)
             {
                 process.WaitForExit();
             }
             
             outStdout = sout;
             outStderr = serr;
+
+            return waitForExit ? process.ExitCode : 0;
         }
 
         public static bool AskToConfirm(string s)
@@ -244,11 +248,14 @@ namespace labs_coordinate_pictures
             var args = new List<string> { pyScript };
             args.AddRange(listArgs);
             string stdout, stderr;
-            Run(python, args.ToArray(), false, true, !createWindow, true, out stdout, out stderr, workingDir: workingDir);
-            if (warnIfStdErr && !String.IsNullOrEmpty(stderr))
+            int exitCode = Run(python, args.ToArray(), shell: false,
+                waitForExit: true, hideWindow: !createWindow, getStdout: true,
+                outStdout: out stdout, outStderr: out stderr, workingDir: workingDir);
+            if (warnIfStdErr && exitCode != 0)
             {
-                MessageBox.Show("warning, error from script: " + stderr);
+                MessageBox.Show("warning, error from script: " + stderr ?? "");
             }
+
             return stderr;
         }
 
@@ -284,19 +291,19 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                var pathoutexpected = Path.GetDirectoryName(path) + "\\" + 
+                var pathOutput = Path.GetDirectoryName(path) + "\\" + 
                     Path.GetFileNameWithoutExtension(path) + (qualitySpec == "flac" ? ".flac" : ".m4a");
                 var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) + "\\dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
                 var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false);
-                if (!File.Exists(pathoutexpected))
+                if (!File.Exists(pathOutput))
                 {
                     MessageBox.Show("RunQaacConversion failed, stderr = " + stderr);
                     return null;
                 }
                 else
                 {
-                    return pathoutexpected;
+                    return pathOutput;
                 }
             }
         }
