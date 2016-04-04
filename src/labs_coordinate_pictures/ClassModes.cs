@@ -91,7 +91,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeResizeKeepExif : ModeCategorizeAndRenameBase
+    public sealed class ModeResizeKeepExif : ModeCategorizeAndRenameBase
     {
         bool _hasRunCompletionAction = false;
         public override ConfigKey GetCategories()
@@ -143,7 +143,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
+    public sealed class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
     {
         public override ConfigKey GetCategories()
         {
@@ -173,7 +173,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeCheckFilesizes : ModeCategorizeAndRenameBase
+    public sealed class ModeCheckFilesizes : ModeCategorizeAndRenameBase
     {
         public override ConfigKey GetCategories()
         {
@@ -265,7 +265,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeMarkWavQuality : ModeAudioBase
+    public sealed class ModeMarkWavQuality : ModeAudioBase
     {
         public override bool SupportsCompletionAction() { return true; }
         public override ConfigKey GetCategories()
@@ -299,7 +299,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ModeMarkMp3Quality : ModeAudioBase
+    public sealed class ModeMarkMp3Quality : ModeAudioBase
     {
         public override bool SupportsCompletionAction() { return false; }
         public override ConfigKey GetCategories()

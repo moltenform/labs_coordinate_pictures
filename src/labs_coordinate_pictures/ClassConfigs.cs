@@ -77,7 +77,7 @@ namespace labs_coordinate_pictures
         EditCategoriesString,
     }
 
-    public class Configs
+    public sealed class Configs
     {
         private static Configs _instance;
         private static object locker = new object();

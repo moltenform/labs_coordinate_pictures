@@ -393,7 +393,7 @@ namespace labs_coordinate_pictures
 #endif
     }
 
-    public class FileListAutoUpdated : IDisposable
+    public sealed class FileListAutoUpdated : IDisposable
     {
         bool _dirty = true;
         string[] _list = new string[] { };
@@ -402,8 +402,8 @@ namespace labs_coordinate_pictures
         public bool Recurse { get; private set; }
         public FileListAutoUpdated(string root, bool recurse)
         {
-            _root = root;
             Recurse = recurse;
+            _root = root;
             _watcher = new FileSystemWatcher(root);
             _watcher.IncludeSubdirectories = recurse;
             _watcher.Created += m_watcher_Created;
@@ -443,11 +443,20 @@ namespace labs_coordinate_pictures
         }
         public void Dispose()
         {
-            _watcher.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_watcher != null)
+                _watcher.Dispose();
+            }
         }
     }
 
-    public class FileListNavigation : IDisposable
+    public sealed class FileListNavigation : IDisposable
     {
         string[] _extensionsAllowed;
         bool _excludeMarked;
@@ -585,7 +594,17 @@ namespace labs_coordinate_pictures
 
         public void Dispose()
         {
-            _list.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_list != null)
+                    _list.Dispose();
+            }
         }
     }
 
@@ -642,7 +661,7 @@ namespace labs_coordinate_pictures
                 return nameOnly;
         }
 
-        public static string MarkerString = "__MARKAS__";
+        public readonly static string MarkerString = "__MARKAS__";
         public static string AddMarkToFilename(string path, string category)
         {
             if (path.Contains(MarkerString))
@@ -683,7 +702,7 @@ namespace labs_coordinate_pictures
         {
             var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));
             var rootNoExtension2 = Path.Combine(Path.GetDirectoryName(s2), Path.GetFileNameWithoutExtension(s2));
-            return rootNoExtension1.ToLowerInvariant() == rootNoExtension2.ToLowerInvariant();
+            return rootNoExtension1.ToUpperInvariant() == rootNoExtension2.ToUpperInvariant();
         }
 
         public static bool IsPathRooted(string s)
@@ -699,7 +718,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class SimpleLog
+    public sealed class SimpleLog
     {
         private static SimpleLog _instance;
         private SimpleLog(string path) { _path = path; }
@@ -794,7 +813,7 @@ namespace labs_coordinate_pictures
             List<string> ret = new List<string>();
             foreach (var otherfile in otherfiles)
             {
-                if (otherfile.ToLowerInvariant() != path.ToLowerInvariant())
+                if (otherfile.ToUpperInvariant() != path.ToUpperInvariant())
                 {
                     string nameMiddleRemoved;
                     if (FilenameUtils.SameExceptExtension(root, otherfile) ||
@@ -807,6 +826,7 @@ namespace labs_coordinate_pictures
         }
     }
 
+    [Serializable]
     public class CoordinatePicturesException : ApplicationException
     {
         public CoordinatePicturesException(string message) : base("CoordinatePictures " + message) { }

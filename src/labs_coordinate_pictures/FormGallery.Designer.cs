@@ -421,7 +421,6 @@
 
         #endregion
 
-#pragma warning disable CA2213
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
@@ -461,6 +460,5 @@
         private System.Windows.Forms.Label labelView;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-#pragma warning restore CA2213
     }
 }

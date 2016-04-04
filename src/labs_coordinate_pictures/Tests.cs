@@ -11,6 +11,7 @@ using System.Reflection;
 
 namespace labs_coordinate_pictures
 {
+    [Serializable]
     public class CoordinatePicturesTestException : ApplicationException
     {
         public CoordinatePicturesTestException(string message) : base(message) { }

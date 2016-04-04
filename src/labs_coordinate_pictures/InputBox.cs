@@ -63,13 +63,11 @@ namespace labs_coordinate_pictures
                 return result;
         }
 
-#pragma warning disable CA2213
-        private System.ComponentModel.Container components;
+        private System.ComponentModel.Container components = null;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOK;
         private ComboBox comboBox1;
         private System.Windows.Forms.Label label1;
-#pragma warning restore CA2213
 
         HistorySaver saver;
         public InputBoxForm(InputBoxHistory currentKey)

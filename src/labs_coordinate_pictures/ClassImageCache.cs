@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    public class ImageCache : IDisposable
+    public sealed class ImageCache : IDisposable
     {
         public ImageViewExcerpt Excerpt { get; private set; }
         public int MaxHeight { get; private set; }
@@ -245,7 +245,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class ImageViewExcerpt : IDisposable
+    public sealed class ImageViewExcerpt : IDisposable
     {
         public int MaxWidth { get; private set; }
         public int MaxHeight { get; private set; }
