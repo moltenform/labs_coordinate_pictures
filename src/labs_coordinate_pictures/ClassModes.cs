@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -84,6 +85,7 @@ namespace labs_coordinate_pictures
 
     public class ModeResizeKeepExif : ModeCategorizeAndRenameBase
     {
+        bool _hasRunCompletionAction = false;
         public override ConfigKey GetCategories()
         {
             return ConfigKey.CategoriesModeResizeKeepExif;
@@ -98,10 +100,39 @@ namespace labs_coordinate_pictures
         }
         public override bool SupportsCompletionAction()
         {
-            MessageBox.Show("Currently, resize+keep exif is done manually by running a python script, ./tools/ben_python_img/img_convert_resize.py");
-            return false;
+            return true;
         }
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen) { }
+        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        {
+            if (_hasRunCompletionAction)
+                return;
+
+            if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by running a python script,"
+                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n"+sBaseDir+"?"))
+            {
+                var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_resize_keep_exif.py");
+                if (File.Exists(script))
+                {
+                    var parts = Regex.Split(File.ReadAllText(script), Regex.Escape("###template"));
+                    if (parts.Length == 3)
+                    {
+                        var result = parts[0] + "###template\r\n    root = r'" + sBaseDir + "'\r\n    ###template" + parts[2];
+                        File.WriteAllText(script, result);
+                        MessageBox.Show("img_resize_keep_exif.py modified successfully.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Could not find ###template in script.");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Could not find img_resize_keep_exif.py.");
+                }
+            }
+
+            _hasRunCompletionAction = true;
+        }
     }
 
     public class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
@@ -244,7 +275,8 @@ namespace labs_coordinate_pictures
                 var newfile = Utils.RunQaacConversion(sPath, chosen.Item3);
                 if (!string.IsNullOrEmpty(newfile))
                 {
-                    var newname = Path.GetDirectoryName(sPathNoMark) + "\\" + Path.GetFileNameWithoutExtension(sPathNoMark) + ".m4a";
+                    var newname = Path.GetDirectoryName(sPathNoMark) + "\\" + Path.GetFileNameWithoutExtension(sPathNoMark) +
+                        Path.GetExtension(newfile);
                     if (File.Exists(newname))
                     {
                         MessageBox.Show("already exists. could not move " + newfile + " to " + newname);
@@ -274,4 +306,4 @@ namespace labs_coordinate_pictures
         {
         }
     }
- }
+}
