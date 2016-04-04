@@ -92,7 +92,18 @@ def readThumbnails(dirname, removeThumbnails, outputDir=None):
             trace(short)
             ret, stdout, stderr = files.run(args.split('|'), shell=True, throwOnFailure=PythonImgExifError)
             trace(stdout)
-            
+
+def readExifCreationTime(filename):
+    for field in ('-CreateDate', '-DateTimeOriginal'):
+        args = "{0}|{1}|{2}|-T".format(
+            exiftool(), field, filename)
+        args = args.split('|')
+        ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+        sres = stdout.strip()
+        if sres:
+            return sres
+    return ''
+
 def readOriginalFilename(filename):
     return readExifField(filename, ExifFieldForOriginalTitle)
 

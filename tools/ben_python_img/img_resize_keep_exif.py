@@ -58,6 +58,7 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
     if len(filesWithWrongExtension) > 0:
         warn('files seen with wrong extension: ' + str(filesWithWrongExtension))
     
+    # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
     allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))
     for fullpath, short in allfiles:
         if img_utils.MarkerString not in fullpath:
@@ -65,9 +66,28 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
         
         resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
 
+def simpleResize(root, recursive, inputformat='png', outputformat='jpg', resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):
+    # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
+    fnGetFiles = files.recursefiles if recurse else files.listfiles
+    allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))
+    for fullpath, short in allfiles:
+        if files.getext(fullpath) == inputformat:
+            trace(short)
+            outname = files.getparent(fullpath) + files.sep + addPrefix + files.splitext(short)[0] + '.' + outputformat
+            if files.exists(outname):
+                trace('already exists', outname)
+            else:
+                img_convert_resize.convertOrResizeImage(fullpath, outname, resizeSpec=resizeSpec, jpgQuality=jpgQuality)
+                assertTrue(files.exists(outname))
+                if softDeleteOriginals:
+                    softDeleteFile(fullpath)
+
 
 if __name__ == '__main__':
-    root = r'C:\test'
+    # code within the template section will be overwritten by coordinate_pictures.
+    ###template
+    root = r'C:\Users\Mf\Documents\temp\music'
+    ###template
     recurse = False
     storeOriginalFilename = getInputBool('store original filename in exif data?')
     storeExifFromOriginal = True
