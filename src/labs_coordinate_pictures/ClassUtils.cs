@@ -391,11 +391,14 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public static bool IsDebug()
+        {
 #if DEBUG
-        public static readonly bool Debug = true;
+            return true;
 #else
-        public static readonly bool Debug = false;
+            return false;
 #endif
+        }
     }
 
     public sealed class FileListAutoUpdated : IDisposable
@@ -465,8 +468,6 @@ namespace labs_coordinate_pictures
         string[] _extensionsAllowed;
         bool _excludeMarked;
         FileListAutoUpdated _list;
-        public string Current { get; private set; }
-        public string BaseDirectory { get; private set; }
         public FileListNavigation(string basedir, string[] extensionsAllowed, bool fRecurse, bool excludeMarked = true, string sCurrent = "")
         {
             BaseDirectory = basedir;
@@ -475,6 +476,9 @@ namespace labs_coordinate_pictures
             _excludeMarked = excludeMarked;
             TrySetPath(sCurrent);
         }
+
+        public string Current { get; private set; }
+        public string BaseDirectory { get; private set; }
 
         public void Refresh(bool justPokeUpdates = false)
         {
@@ -614,6 +618,8 @@ namespace labs_coordinate_pictures
 
     public static class FilenameUtils
     {
+        public static readonly string MarkerString = "__MARKAS__";
+
         public static bool LooksLikeImage(string s)
         {
             return IsExtensionInList(s, new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
@@ -666,7 +672,6 @@ namespace labs_coordinate_pictures
                 return nameOnly;
         }
 
-        public static readonly string MarkerString = "__MARKAS__";
         public static string AddMarkToFilename(string path, string category)
         {
             if (path.Contains(MarkerString))
@@ -732,17 +737,17 @@ namespace labs_coordinate_pictures
             _path = path;
         }
 
-        public static void Init(string path)
-        {
-            _instance = new SimpleLog(path);
-        }
-
         public static SimpleLog Current
         {
             get
             {
                 return _instance;
             }
+        }
+
+        public static void Init(string path)
+        {
+            _instance = new SimpleLog(path);
         }
 
         public void WriteLog(string s)

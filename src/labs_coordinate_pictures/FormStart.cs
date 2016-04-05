@@ -60,7 +60,7 @@ namespace labs_coordinate_pictures
             this.markmp3QualityToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeMarkMp3Quality(), InputBoxHistory.OpenAudioDirectory);
 
-            if (Utils.Debug)
+            if (Utils.IsDebug())
             {
                 CoordinatePicturesTests.RunTests();
             }

@@ -13,9 +13,6 @@ namespace labs_coordinate_pictures
 {
     public sealed class ImageCache : IDisposable
     {
-        public ImageViewExcerpt Excerpt { get; private set; }
-        public int MaxHeight { get; private set; }
-        public int MaxWidth { get; private set; }
         List<Tuple<string, Bitmap, int, int, DateTime>> _cache;
         object _lock = new object();
         int _cacheSize;
@@ -33,6 +30,10 @@ namespace labs_coordinate_pictures
             _cache = new List<Tuple<string, Bitmap, int, int, DateTime>>();
             Excerpt = new ImageViewExcerpt(maxwidth, maxheight);
         }
+
+        public ImageViewExcerpt Excerpt { get; private set; }
+        public int MaxHeight { get; private set; }
+        public int MaxWidth { get; private set; }
 
         public void Dispose()
         {
@@ -253,16 +254,16 @@ namespace labs_coordinate_pictures
 
     public sealed class ImageViewExcerpt : IDisposable
     {
-        public int MaxWidth { get; private set; }
-        public int MaxHeight { get; private set; }
-        public Bitmap Bmp { get; private set; }
-
         public ImageViewExcerpt(int maxwidth, int maxheight)
         {
             MaxWidth = maxwidth;
             MaxHeight = maxheight;
             Bmp = new Bitmap(1, 1);
         }
+
+        public int MaxWidth { get; private set; }
+        public int MaxHeight { get; private set; }
+        public Bitmap Bmp { get; private set; }
 
         public void MakeBmp(string path, int clickX, int clickY, int wasWidth, int wasHeight)
         {

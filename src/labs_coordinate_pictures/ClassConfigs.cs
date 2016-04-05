@@ -79,8 +79,19 @@ namespace labs_coordinate_pictures
 
     public sealed class Configs
     {
-        private static Configs _instance;
-        private static object locker = new object();
+        static Configs _instance;
+        string _path;
+        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
+
+        internal Configs(string path)
+        {
+            this._path = path;
+        }
+
+        // in-memory non-persisted settings
+        public string Directory { get; private set; }
+
+        public bool SupressDialogs { get; set; }
 
         public static Configs Current
         {
@@ -100,14 +111,6 @@ namespace labs_coordinate_pictures
         {
             _instance = new Configs(path);
             _instance.Directory = Path.GetDirectoryName(path);
-        }
-
-        string _path;
-        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
-
-        internal Configs(string path)
-        {
-            this._path = path;
         }
 
         public void LoadPersisted()
@@ -179,10 +182,5 @@ namespace labs_coordinate_pictures
         {
             return !string.IsNullOrEmpty(Get(key));
         }
-
-        // in-memory non-persisted settings
-        public string Directory { get; private set; }
-
-        public bool SupressDialogs { get; set; }
     }
 }

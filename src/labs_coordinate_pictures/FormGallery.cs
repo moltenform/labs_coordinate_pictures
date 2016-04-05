@@ -15,24 +15,46 @@ namespace labs_coordinate_pictures
 {
     public partial class FormGallery : Form
     {
+        // the 'mode' specifies filetypes, and can add custom commands
         ModeBase _mode;
-        bool _enabled = true;
-        bool _zoomed = false;
+
+        // is this a large image that needed to be resized
         bool _currentImageResized = false;
+
+        // if user control-clicks on a large image, we'll show a zoomed portion of image.
+        bool _zoomed = false;
+
+        // during long-running operations on bg threads, we block most UI input
+        bool _enabled = true;
+
+        // user can add custom categories; we store the original menu in order to restore later
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
+
+        // shortcut key bindings from letter, to category.
         Dictionary<string, string> _categoryShortcuts;
         List<string> _pathsToCache = new List<string>();
+
+        // placeholder image
         Bitmap _bitmapBlank = new Bitmap(1, 1);
-        internal FileListNavigation nav;
-        internal ImageCache imcache;
-        const int imagecachesize = 15;
-        const int imagecachebatch = 8;
+
+        // smart directory-list object that updates itself if filenames are changed.
+        FileListNavigation _filelist;
+
+        // cache of images; we'll prefetch images into the cache on a bg thread.
+        ImageCache _imagecache;
+
+        // how many images to store in cache.
+        const int ImageCacheSize = 15;
+
+        // how many images to prefetch after the user moves to the next image.
+        const int ImageCacheBatch = 8;
+
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
 
-            for (int i = 0; i < imagecachebatch; i++)
+            for (int i = 0; i < ImageCacheBatch; i++)
                 _pathsToCache.Add(null);
 
             SimpleLog.Current.WriteLog("Starting session in " + initialDirectory + "|" + initialFilepath);
@@ -51,10 +73,20 @@ namespace labs_coordinate_pictures
             moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
             renameItemToolStripMenuItem.Click += (sender, e) => RenameFile(false);
 
-            nav = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
+            _filelist = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
             RefreshCategories();
             OnOpenItem();
+        }
+
+        public FileListNavigation GetFilelist()
+        {
+            return _filelist;
+        }
+
+        public ImageCache GetImageCache()
+        {
+            return _imagecache;
         }
 
         protected override void Dispose(bool disposing)
@@ -63,10 +95,10 @@ namespace labs_coordinate_pictures
             {
                 if (components != null)
                     components.Dispose();
-                if (nav != null)
-                    nav.Dispose();
-                if (imcache != null)
-                    imcache.Dispose();
+                if (_filelist != null)
+                    _filelist.Dispose();
+                if (_imagecache != null)
+                    _imagecache.Dispose();
                 if (_bitmapBlank != null)
                     _bitmapBlank.Dispose();
             }
@@ -78,12 +110,12 @@ namespace labs_coordinate_pictures
         {
             // if the user resized the window, create a new cache for the new size
             pictureBox1.Image = _bitmapBlank;
-            if (imcache == null || imcache.MaxWidth != pictureBox1.Width || imcache.MaxHeight != pictureBox1.Height)
+            if (_imagecache == null || _imagecache.MaxWidth != pictureBox1.Width || _imagecache.MaxHeight != pictureBox1.Height)
             {
                 RefreshImageCache();
             }
 
-            if (nav.Current == null)
+            if (_filelist.Current == null)
             {
                 label.Text = "looks done.";
                 pictureBox1.Image = _bitmapBlank;
@@ -91,13 +123,13 @@ namespace labs_coordinate_pictures
             else
             {
                 // tell the mode we've opened something
-                _mode.OnOpenItem(nav.Current, this);
+                _mode.OnOpenItem(_filelist.Current, this);
                 int nOrigW = 0, nOrigH = 0;
-                pictureBox1.Image = imcache.Get(nav.Current, out nOrigW, out nOrigH);
-                _currentImageResized = nOrigW > imcache.MaxWidth || nOrigH > imcache.MaxHeight;
+                pictureBox1.Image = _imagecache.Get(_filelist.Current, out nOrigW, out nOrigH);
+                _currentImageResized = nOrigW > _imagecache.MaxWidth || nOrigH > _imagecache.MaxHeight;
                 var showResized = _currentImageResized ? "s" : "";
-                label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", nav.Current,
-                    Utils.FormatFilesize(nav.Current), Path.GetFileName(nav.Current),
+                label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", _filelist.Current,
+                    Utils.FormatFilesize(_filelist.Current), Path.GetFileName(_filelist.Current),
                     showResized, nOrigW, nOrigH);
             }
 
@@ -107,10 +139,10 @@ namespace labs_coordinate_pictures
 
         void RefreshImageCache()
         {
-            if (imcache != null)
+            if (_imagecache != null)
             {
                 pictureBox1.Image = null;
-                imcache.Dispose();
+                _imagecache.Dispose();
             }
 
             Func<Bitmap, bool> canDisposeBitmap =
@@ -121,13 +153,13 @@ namespace labs_coordinate_pictures
                     this.Invoke((MethodInvoker)(() => act.Invoke()));
                     return true;
                 };
-            imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height,
-                imagecachesize, callbackOnUiThread, canDisposeBitmap);
+            _imagecache = new ImageCache(pictureBox1.Width, pictureBox1.Height,
+                ImageCacheSize, callbackOnUiThread, canDisposeBitmap);
         }
 
         void RefreshFilelist()
         {
-            nav.Refresh();
+            _filelist.Refresh();
             MoveFirst(false);
         }
 
@@ -136,24 +168,24 @@ namespace labs_coordinate_pictures
             for (int i = 0; i < _pathsToCache.Count; i++)
                 _pathsToCache[i] = null;
 
-            nav.GoNextOrPrev(forwardDirection, _pathsToCache, _pathsToCache.Count);
+            _filelist.GoNextOrPrev(forwardDirection, _pathsToCache, _pathsToCache.Count);
             OnOpenItem();
-            imcache.AddAsync(_pathsToCache, pictureBox1);
+            _imagecache.AddAsync(_pathsToCache, pictureBox1);
         }
 
         void MoveMany(bool forwardDirection)
         {
             for (int i = 0; i < 15; i++)
-                nav.GoNextOrPrev(forwardDirection);
+                _filelist.GoNextOrPrev(forwardDirection);
             OnOpenItem();
         }
 
         void MoveFirst(bool forwardDirection)
         {
             if (forwardDirection)
-                nav.GoLast();
+                _filelist.GoLast();
             else
-                nav.GoFirst();
+                _filelist.GoFirst();
             OnOpenItem();
         }
 
@@ -238,8 +270,8 @@ namespace labs_coordinate_pictures
             }
         }
 
-        internal List<Tuple<string, string>> m_undoStack = new List<Tuple<string, string>>();
-        internal int m_undoIndex = 0;
+        List<Tuple<string, string>> _undoStack = new List<Tuple<string, string>>();
+        int _undoIndex = 0;
         public bool WrapMoveFile(string src, string target, bool fAddToUndoStack = true)
         {
             const int millisecondsToRetryMoving = 3000;
@@ -276,8 +308,8 @@ namespace labs_coordinate_pictures
 
             if (fAddToUndoStack)
             {
-                m_undoStack.Add(new Tuple<string, string>(src, target));
-                m_undoIndex = m_undoStack.Count - 1;
+                _undoStack.Add(new Tuple<string, string>(src, target));
+                _undoIndex = _undoStack.Count - 1;
             }
 
             return true;
@@ -285,24 +317,24 @@ namespace labs_coordinate_pictures
 
         internal void undoMoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (m_undoIndex < 0)
+            if (_undoIndex < 0)
             {
                 MessageBox.Show("nothing to undo");
             }
-            else if (m_undoIndex >= m_undoStack.Count)
+            else if (_undoIndex >= _undoStack.Count)
             {
                 MessageBox.Show("invalid undo index");
-                m_undoIndex = m_undoStack.Count - 1;
+                _undoIndex = _undoStack.Count - 1;
             }
             else
             {
-                var newdest = m_undoStack[m_undoIndex].Item1;
-                var newsrc = m_undoStack[m_undoIndex].Item2;
+                var newdest = _undoStack[_undoIndex].Item1;
+                var newsrc = _undoStack[_undoIndex].Item2;
                 if (Utils.AskToConfirm("move " + newsrc + " back to " + newdest + "?"))
                 {
                     if (WrapMoveFile(newsrc, newdest, fAddToUndoStack: false))
                     {
-                        m_undoIndex--;
+                        _undoIndex--;
                     }
                 }
             }
@@ -397,11 +429,11 @@ namespace labs_coordinate_pictures
         void AssignCategory(string categoryId)
         {
             _mode.OnBeforeAssignCategory();
-            if (nav.Current == null)
+            if (_filelist.Current == null)
                 return;
 
-            var newname = FilenameUtils.AddMarkToFilename(nav.Current, categoryId);
-            if (WrapMoveFile(nav.Current, newname))
+            var newname = FilenameUtils.AddMarkToFilename(_filelist.Current, categoryId);
+            if (WrapMoveFile(_filelist.Current, newname))
             {
                 MoveOne(true);
             }
@@ -409,29 +441,29 @@ namespace labs_coordinate_pictures
 
         public void RenameFile(bool overwriteNumberedPrefix)
         {
-            if (nav.Current == null || !_mode.SupportsRename())
+            if (_filelist.Current == null || !_mode.SupportsRename())
                 return;
 
-            InputBoxHistory key = FilenameUtils.LooksLikeImage(nav.Current) ?
-                InputBoxHistory.RenameImage : (FilenameUtils.IsExt(nav.Current, "wav") ?
+            InputBoxHistory key = FilenameUtils.LooksLikeImage(_filelist.Current) ?
+                InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, "wav") ?
                 InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
 
             var current = overwriteNumberedPrefix ?
-                Path.GetFileName(nav.Current) :
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(nav.Current);
+                Path.GetFileName(_filelist.Current) :
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(_filelist.Current);
 
             var currentNoext = Path.GetFileNameWithoutExtension(current);
             var newname = InputBoxForm.GetStrInput("Enter a new name:", currentNoext, key);
             if (!string.IsNullOrEmpty(newname))
             {
-                var fullnewname = Path.GetDirectoryName(nav.Current) + "\\" +
-                    (current != Path.GetFileName(nav.Current) ? Path.GetFileName(nav.Current).Substring(0, 8) : "") +
-                    newname + Path.GetExtension(nav.Current);
+                var fullnewname = Path.GetDirectoryName(_filelist.Current) + "\\" +
+                    (current != Path.GetFileName(_filelist.Current) ? Path.GetFileName(_filelist.Current).Substring(0, 8) : "") +
+                    newname + Path.GetExtension(_filelist.Current);
 
-                if (WrapMoveFile(nav.Current, fullnewname))
+                if (WrapMoveFile(_filelist.Current, fullnewname))
                 {
-                    nav.NotifyFileChanges();
-                    nav.TrySetPath(fullnewname);
+                    _filelist.NotifyFileChanges();
+                    _filelist.TrySetPath(fullnewname);
                     OnOpenItem();
                 }
             }
@@ -439,10 +471,10 @@ namespace labs_coordinate_pictures
 
         void KeyDelete()
         {
-            if (nav.Current != null)
+            if (_filelist.Current != null)
             {
                 _mode.OnBeforeAssignCategory();
-                if (UndoableSoftDelete(nav.Current))
+                if (UndoableSoftDelete(_filelist.Current))
                 {
                     MoveOne(true);
                 }
@@ -473,15 +505,15 @@ namespace labs_coordinate_pictures
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null)
-                Utils.OpenDirInExplorer(nav.BaseDirectory);
+            if (_filelist.Current == null)
+                Utils.OpenDirInExplorer(_filelist.BaseDirectory);
             else
-                Utils.SelectFileInExplorer(nav.Current);
+                Utils.SelectFileInExplorer(_filelist.Current);
         }
 
         private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(nav.Current ?? "");
+            Clipboard.SetText(_filelist.Current ?? "");
         }
 
         static void LaunchEditor(string exe, string path)
@@ -494,32 +526,32 @@ namespace labs_coordinate_pictures
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(nav.Current, "webp"))
-                Process.Start(nav.Current); // open in default viewer
-            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
+            if (FilenameUtils.IsExt(_filelist.Current, "webp"))
+                Process.Start(_filelist.Current); // open in default viewer
+            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
             else
-                LaunchEditor(@"C:\Windows\System32\mspaint.exe", nav.Current);
+                LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
         }
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(nav.Current, "webp"))
-                LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", nav.Current);
-            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), nav.Current);
+            if (FilenameUtils.IsExt(_filelist.Current, "webp"))
+                LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", _filelist.Current);
+            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
             else
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathAltEditorImage), nav.Current);
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathAltEditorImage), _filelist.Current);
         }
 
         private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(nav.Current, "jpg"))
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), nav.Current);
-            else if (FilenameUtils.LooksLikeEditableAudio(nav.Current))
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), nav.Current);
+            if (FilenameUtils.IsExt(_filelist.Current, "jpg"))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
+            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), _filelist.Current);
             else
-                LaunchEditor(@"C:\Windows\System32\mspaint.exe", nav.Current);
+                LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
         }
 
         private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
@@ -528,7 +560,7 @@ namespace labs_coordinate_pictures
             int i = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
-                foreach (var path in nav.GetList())
+                foreach (var path in _filelist.GetList())
                 {
                     i++;
                     if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
@@ -555,7 +587,7 @@ namespace labs_coordinate_pictures
             int nRemovedPrefix = 0, nSkippedAlready = 0, nFailedToRename = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Remove numbered prefix?"))
             {
-                foreach (var path in nav.GetList())
+                foreach (var path in _filelist.GetList())
                 {
                     if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
                     {
@@ -578,21 +610,21 @@ namespace labs_coordinate_pictures
 
         private void replaceInFilenameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null || !_mode.SupportsRename())
+            if (_filelist.Current == null || !_mode.SupportsRename())
                 return;
 
-            var filename = Path.GetFileName(nav.Current);
+            var filename = Path.GetFileName(_filelist.Current);
             var search = InputBoxForm.GetStrInput("Search for this in filename (not directory name):", filename, InputBoxHistory.RenameReplaceInName);
             if (!string.IsNullOrEmpty(search))
             {
                 var replace = InputBoxForm.GetStrInput("Replace with this:", filename, InputBoxHistory.RenameReplaceInName);
                 if (replace != null && filename.Contains(search))
                 {
-                    var newfilename = Path.GetDirectoryName(nav.Current) + "\\" + filename.Replace(search, replace);
-                    if (WrapMoveFile(nav.Current, newfilename))
+                    var newfilename = Path.GetDirectoryName(_filelist.Current) + "\\" + filename.Replace(search, replace);
+                    if (WrapMoveFile(_filelist.Current, newfilename))
                     {
-                        nav.NotifyFileChanges();
-                        nav.TrySetPath(newfilename);
+                        _filelist.NotifyFileChanges();
+                        _filelist.TrySetPath(newfilename);
                         OnOpenItem();
                     }
                 }
@@ -613,9 +645,9 @@ namespace labs_coordinate_pictures
                 }
                 else if (_currentImageResized)
                 {
-                    imcache.Excerpt.MakeBmp(
-                        nav.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
-                    pictureBox1.Image = imcache.Excerpt.Bmp;
+                    _imagecache.Excerpt.MakeBmp(
+                        _filelist.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
+                    pictureBox1.Image = _imagecache.Excerpt.Bmp;
                     _zoomed = true;
                 }
             }
@@ -623,7 +655,7 @@ namespace labs_coordinate_pictures
 
         private void convertResizeImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+            if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
                 return;
 
             var more = new string[] { "50%", "100%", "70%" };
@@ -656,13 +688,13 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            var outFile = Path.GetDirectoryName(nav.Current) + "\\" + Path.GetFileNameWithoutExtension(nav.Current) + "_out." + parts[0];
-            Utils.RunImageConversion(nav.Current, outFile, resize, nQual);
+            var outFile = Path.GetDirectoryName(_filelist.Current) + "\\" + Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
+            Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
         private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var list = nav.GetList().Where((item) => item.EndsWith(".png"));
+            var list = _filelist.GetList().Where((item) => item.EndsWith(".png"));
             var newlist = new List<string>();
             foreach (var path in list)
             {
@@ -701,7 +733,7 @@ namespace labs_coordinate_pictures
 
         private void convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+            if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
                 return;
 
             RunLongActionInThread(new Action(() =>
@@ -709,20 +741,20 @@ namespace labs_coordinate_pictures
                 var qualities = new int[] { 96, 94, 92, 90, 85, 80, 75, 70, 60 };
                 foreach (var qual in qualities)
                 {
-                    var outFile = nav.Current + qual.ToString() + ".jpg";
-                    Utils.RunImageConversion(nav.Current, outFile, "100%", qual);
+                    var outFile = _filelist.Current + qual.ToString() + ".jpg";
+                    Utils.RunImageConversion(_filelist.Current, outFile, "100%", qual);
                 }
             }));
         }
 
         private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (nav.Current == null || !FilenameUtils.LooksLikeImage(nav.Current))
+            if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
                 return;
 
             bool fHasMiddleName;
             string sNewname;
-            var toDelete = FilenameFindSimilarFilenames.FindSimilarNames(nav.Current, _mode.GetFileTypes(), nav.GetList(),
+            var toDelete = FilenameFindSimilarFilenames.FindSimilarNames(_filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
                 out fHasMiddleName, out sNewname);
 
             if (Utils.AskToConfirm("Delete the extra files \r\n" + string.Join("\r\n", toDelete) + "\r\n?"))
@@ -731,10 +763,10 @@ namespace labs_coordinate_pictures
                     UndoableSoftDelete(sFile);
 
                 // rename this file to be better
-                if (fHasMiddleName && WrapMoveFile(nav.Current, sNewname))
+                if (fHasMiddleName && WrapMoveFile(_filelist.Current, sNewname))
                 {
-                    nav.NotifyFileChanges();
-                    nav.TrySetPath(sNewname);
+                    _filelist.NotifyFileChanges();
+                    _filelist.TrySetPath(sNewname);
                     OnOpenItem();
                 }
             }
@@ -753,7 +785,7 @@ namespace labs_coordinate_pictures
                 RunLongActionInThread(new Action(() =>
                 {
                     var tuples = ModeUtils.ModeToTuples(_mode);
-                    foreach (var path in nav.GetList(includeMarked: true))
+                    foreach (var path in _filelist.GetList(includeMarked: true))
                     {
                         if (path.Contains(FilenameUtils.MarkerString))
                         {
@@ -763,7 +795,7 @@ namespace labs_coordinate_pictures
                             if (tupleFound.Length == 0)
                                 MessageBox.Show("Invalid mark for file " + path);
                             else
-                                _mode.OnCompletionAction(nav.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
+                                _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
                         }
                     }
 

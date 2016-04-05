@@ -235,7 +235,7 @@ namespace labs_coordinate_pictures
         void AutoAcceptSmall(FormGallery form)
         {
             const int autoAcceptibleSize = 1024 * 45;
-            var list = form.nav.GetList();
+            var list = form.GetFilelist().GetList();
             bool hasMiddleName;
             string newname;
 

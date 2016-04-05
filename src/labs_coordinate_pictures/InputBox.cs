@@ -18,6 +18,16 @@ namespace labs_coordinate_pictures
         System.Windows.Forms.Label label1;
         HistorySaver saver;
 
+        public InputBoxForm(InputBoxHistory currentKey)
+        {
+            InitializeComponent();
+            saver = new HistorySaver(currentKey);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.Text = " ";
+            this.comboBox1.Focus();
+            this.AllowDrop = true;
+        }
+
         public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
         {
             InputBoxForm myForm = new InputBoxForm(history);
@@ -68,16 +78,6 @@ namespace labs_coordinate_pictures
                 return null;
             else
                 return result;
-        }
-
-        public InputBoxForm(InputBoxHistory currentKey)
-        {
-            InitializeComponent();
-            saver = new HistorySaver(currentKey);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.Text = " ";
-            this.comboBox1.Focus();
-            this.AllowDrop = true;
         }
 
         protected override void Dispose(bool disposing)
@@ -179,8 +179,8 @@ namespace labs_coordinate_pictures
 
     public class HistorySaver
     {
-        public const int cMaxHistoryEntries = 10;
-        public const int cMaxEntryLength = 300;
+        public const int MaxHistoryEntries = 10;
+        public const int MaxEntryLength = 300;
         InputBoxHistory _historyKey = InputBoxHistory.None;
         ConfigKey _configsKey = ConfigKey.None;
         string[] _returned;
@@ -217,7 +217,7 @@ namespace labs_coordinate_pictures
                     Get();
 
                 var index = Array.IndexOf(_returned, s);
-                if (!string.IsNullOrEmpty(s) && index != 0 && s.Length < cMaxEntryLength && !s.Contains("||||"))
+                if (!string.IsNullOrEmpty(s) && index != 0 && s.Length < MaxEntryLength && !s.Contains("||||"))
                 {
                     List<string> listNext = new List<string>(_returned);
 
@@ -229,7 +229,7 @@ namespace labs_coordinate_pictures
                     listNext.Insert(0, s);
 
                     // if we've reached the limit, cut out the extra ones
-                    while (listNext.Count > cMaxHistoryEntries)
+                    while (listNext.Count > MaxHistoryEntries)
                         listNext.RemoveAt(listNext.Count - 1);
 
                     // reset our cached list

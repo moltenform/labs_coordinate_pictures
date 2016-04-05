@@ -31,15 +31,20 @@ namespace labs_coordinate_pictures
             }
 
             // find best directory for logging and configs.
-            string dir;
+            string dir = null;
             if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "silence.flac")))
                 dir = AppDomain.CurrentDomain.BaseDirectory;
             else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools\silence.flac")))
                 dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools");
             else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools\silence.flac")))
                 dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools");
-            else
-                throw new CoordinatePicturesException("cannot find silence.flac");
+
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                MessageBox.Show("We could not find the file silence.flac. Please run this " +
+                    "program from the same directory as silence.flac. We will now exit.");
+                Environment.Exit(1);
+            }
 
             // initialize logging and configs
             SimpleLog.Init(Path.Combine(dir, "log.txt"));
