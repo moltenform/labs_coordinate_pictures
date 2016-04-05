@@ -81,6 +81,15 @@ namespace labs_coordinate_pictures
     {
         private static Configs _instance;
         private static object locker = new object();
+
+        public static Configs Current
+        {
+            get
+            {
+                return _instance;
+            }
+        }
+
         public static ConfigKey ConfigsPersistedKeysFromString(string s)
         {
             ConfigKey e = ConfigKey.None;
@@ -93,16 +102,9 @@ namespace labs_coordinate_pictures
             _instance.Directory = Path.GetDirectoryName(path);
         }
 
-        public static Configs Current
-        {
-            get
-            {
-                return _instance;
-            }
-        }
-
         string _path;
         Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
+
         internal Configs(string path)
         {
             this._path = path;
@@ -124,8 +126,10 @@ namespace labs_coordinate_pictures
                     {
                         SimpleLog.Current.WriteWarning("malformed config, missing = on line " + i);
                     }
+
                     continue;
                 }
+
                 ConfigKey key = ConfigsPersistedKeysFromString(split[0]);
                 if (key == ConfigKey.None)
                 {
@@ -140,7 +144,7 @@ namespace labs_coordinate_pictures
         void SavePersisted()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (var key in (from key in this._persisted.Keys orderby key select key))
+            foreach (var key in from key in this._persisted.Keys orderby key select key)
             {
                 var value = this._persisted[key];
                 if (value != null && value != "")
@@ -178,6 +182,7 @@ namespace labs_coordinate_pictures
 
         // in-memory non-persisted settings
         public string Directory { get; private set; }
+
         public bool SupressDialogs { get; set; }
     }
 }

@@ -64,6 +64,7 @@ namespace labs_coordinate_pictures
             {
                 CoordinatePicturesTests.RunTests();
             }
+
             if (Environment.GetCommandLineArgs().Length > 1 && Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
                 OpenAudioFileInGallery(Environment.GetCommandLineArgs()[1]);
@@ -94,7 +95,7 @@ namespace labs_coordinate_pictures
         {
             var prompt = (sender as ToolStripItem).Text;
             var res = InputBoxForm.GetStrInput(prompt + Environment.NewLine + info, Configs.Current.Get(key), mustBeDirectory: true);
-            if (!String.IsNullOrEmpty(res))
+            if (!string.IsNullOrEmpty(res))
             {
                 Configs.Current.Set(key, res);
                 VerifyProgramChecksums();
@@ -140,7 +141,8 @@ namespace labs_coordinate_pictures
 
         void HideOrShowMenus()
         {
-            ToolStripItem[] menusPersonalOnly = new ToolStripItem[] {
+            ToolStripItem[] menusPersonalOnly = new ToolStripItem[]
+            {
                 this.toolStripMenuItem1,
                 this.toolStripMenuItem2,
                 this.resizePhotosKeepingExifsToolStripMenuItem,
@@ -161,7 +163,6 @@ namespace labs_coordinate_pictures
 
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
         }
 
         private void FormStart_DragEnter(object sender, DragEventArgs e)
@@ -182,9 +183,9 @@ namespace labs_coordinate_pictures
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
                 {
-                    string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
+                    string[] filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
                     string filePath = filePaths[0];
-                    if (!String.IsNullOrEmpty(filePath))
+                    if (!string.IsNullOrEmpty(filePath))
                     {
                         OnStartSpotify(filePath);
                     }

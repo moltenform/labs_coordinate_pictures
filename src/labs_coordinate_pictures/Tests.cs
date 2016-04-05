@@ -14,7 +14,10 @@ namespace labs_coordinate_pictures
     [Serializable]
     public class CoordinatePicturesTestException : ApplicationException
     {
-        public CoordinatePicturesTestException(string message) : base(message) { }
+        public CoordinatePicturesTestException(string message)
+            : base(message)
+        {
+        }
     }
 
     public static class TestUtil
@@ -74,7 +77,7 @@ namespace labs_coordinate_pictures
             {
                 if (methodInfo.Name.StartsWith("TestMethod_"))
                 {
-                    Debug.Assert(methodInfo.GetParameters().Length == 0);
+                    TestUtil.AssertTrue(methodInfo.GetParameters().Length == 0);
                     methodInfo.Invoke(null, arParams);
                 }
             }
@@ -102,28 +105,37 @@ namespace labs_coordinate_pictures
         {
             TestUtil.AssertEqual(1, 1);
         }
+
         static void TestMethod_Asserts_EqualStringsShouldCompareEqual()
         {
             TestUtil.AssertEqual("abcd", "abcd");
         }
+
         static void TestMethod_Asserts_EqualBoolsShouldCompareEqual()
         {
             TestUtil.AssertEqual(true, true);
             TestUtil.AssertEqual(false, false);
         }
+
         static void TestMethod_Asserts_CheckAssertMessage()
         {
-            Action fn = delegate () { throw new CoordinatePicturesTestException("test123"); };
+            Action fn = () =>
+            {
+                throw new CoordinatePicturesTestException("test123");
+            };
             TestUtil.AssertExceptionMessage(fn, "test123");
         }
+
         static void TestMethod_Asserts_NonEqualIntsShouldCompareNonEqual()
         {
             TestUtil.AssertExceptionMessage(() => TestUtil.AssertEqual(1, 2), "expected 1 but got 2");
         }
+
         static void TestMethod_Asserts_NonEqualStrsShouldCompareNonEqual()
         {
             TestUtil.AssertExceptionMessage(() => TestUtil.AssertEqual("abcd", "abce"), "expected abcd but got abce");
         }
+
         static void TestMethod_Asserts_NonEqualBoolsShouldCompareNonEqual()
         {
             TestUtil.AssertExceptionMessage(() => TestUtil.AssertEqual(true, false), "expected True but got False");
@@ -167,6 +179,7 @@ namespace labs_coordinate_pictures
             TestUtil.AssertEqual("\"C:\\Program Files\\\\\"", Utils.CombineProcessArguments(new string[] { "C:\\Program Files\\" }));
             TestUtil.AssertEqual("\"dafc\\\"\\\"\\\"a\"", Utils.CombineProcessArguments(new string[] { "dafc\"\"\"a" }));
         }
+
         static void TestMethod_UtilsAddMark()
         {
             var testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "mk");
@@ -400,10 +413,17 @@ namespace labs_coordinate_pictures
             File.WriteAllText(Path.Combine(dir, "b1.png"), "fake image2");
             List<object> removedFromCache = new List<object>();
             Func<Bitmap, bool> canDisposeBitmap =
-                (bmp) => { removedFromCache.Add(bmp); return true; };
+                (bmp) =>
+                {
+                    removedFromCache.Add(bmp);
+                    return true;
+                };
             Func<Action, bool> callbackOnUiThread =
-                (act) => { act(); return true; };
-
+                (act) =>
+                {
+                    act();
+                    return true;
+                };
 
             { // standard lookup
                 var imcache = new ImageCache(20, 20, 3 /*cache size*/,
@@ -479,7 +499,6 @@ namespace labs_coordinate_pictures
                 TestUtil.AssertEqual((object)bmp5, (object)removedFromCache[2]);
             }
         }
-
 
         public static void RunTests()
         {

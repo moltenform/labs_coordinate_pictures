@@ -11,6 +11,13 @@ namespace labs_coordinate_pictures
 {
     public class InputBoxForm : Form
     {
+        System.ComponentModel.Container components = null;
+        System.Windows.Forms.Button btnCancel;
+        System.Windows.Forms.Button btnOK;
+        ComboBox comboBox1;
+        System.Windows.Forms.Label label1;
+        HistorySaver saver;
+
         public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
         {
             InputBoxForm myForm = new InputBoxForm(history);
@@ -63,13 +70,6 @@ namespace labs_coordinate_pictures
                 return result;
         }
 
-        private System.ComponentModel.Container components = null;
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnOK;
-        private ComboBox comboBox1;
-        private System.Windows.Forms.Label label1;
-
-        HistorySaver saver;
         public InputBoxForm(InputBoxHistory currentKey)
         {
             InitializeComponent();
@@ -89,6 +89,7 @@ namespace labs_coordinate_pictures
                     components.Dispose();
                 }
             }
+
             base.Dispose(disposing);
         }
 
@@ -101,43 +102,38 @@ namespace labs_coordinate_pictures
             this.btnCancel = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
-            // 
+
             // label1
-            // 
             this.label1.Location = new System.Drawing.Point(12, 8);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(410, 187);
             this.label1.TabIndex = 6;
             this.label1.Text = "Type in your message.";
-            // 
+
             // btnOK
-            // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOK.Location = new System.Drawing.Point(259, 246);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(70, 24);
             this.btnOK.TabIndex = 2;
             this.btnOK.Text = "OK";
-            // 
+
             // btnCancel
-            // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Location = new System.Drawing.Point(335, 246);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(70, 24);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
-            // 
+
             // comboBox1
-            // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(22, 208);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(383, 21);
             this.comboBox1.TabIndex = 1;
-            // 
+
             // InputBoxForm
-            // 
             this.AcceptButton = this.btnOK;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.CancelButton = this.btnCancel;
@@ -156,7 +152,6 @@ namespace labs_coordinate_pictures
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragEnter);
             this.ResumeLayout(false);
-
         }
         #endregion
 
@@ -172,16 +167,15 @@ namespace labs_coordinate_pictures
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
             {
-                string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
+                string[] filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 string filePath = filePaths[0];
-                if (!String.IsNullOrEmpty(filePath))
+                if (!string.IsNullOrEmpty(filePath))
                 {
                     comboBox1.Text = filePath;
                 }
             }
         }
     }
-
 
     public class HistorySaver
     {

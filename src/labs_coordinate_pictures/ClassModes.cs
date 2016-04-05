@@ -43,6 +43,7 @@ namespace labs_coordinate_pictures
 
                 ret.Add(new Tuple<string, string, string>(parts[0], parts[1], parts[2]));
             }
+
             return ret.ToArray();
         }
 
@@ -71,8 +72,16 @@ namespace labs_coordinate_pictures
         public abstract void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen);
         public abstract string[] GetFileTypes();
         public abstract void OnBeforeAssignCategory();
-        public virtual Tuple<string, string>[] GetDisplayCustomCommands() { return new Tuple<string, string>[] { }; }
-        public virtual void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys) { }
+
+        public virtual Tuple<string, string>[] GetDisplayCustomCommands()
+        {
+            return new Tuple<string, string>[] { };
+        }
+
+        public virtual void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)
+        {
+        }
+
         public virtual bool SupportsFileType(string s)
         {
             return FilenameUtils.IsExtensionInList(s, GetFileTypes());
@@ -81,10 +90,24 @@ namespace labs_coordinate_pictures
 
     public abstract class ModeCategorizeAndRenameBase : ModeBase
     {
-        public override bool SupportsRename() { return true; }
-        public override bool SupportsCompletionAction() { return true; }
-        public override void OnBeforeAssignCategory() { }
-        public override void OnOpenItem(string sPath, FormGallery obj) { }
+        public override bool SupportsRename()
+        {
+            return true;
+        }
+
+        public override bool SupportsCompletionAction()
+        {
+            return true;
+        }
+
+        public override void OnBeforeAssignCategory()
+        {
+        }
+
+        public override void OnOpenItem(string sPath, FormGallery obj)
+        {
+        }
+
         public override string[] GetFileTypes()
         {
             return new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp" };
@@ -94,22 +117,27 @@ namespace labs_coordinate_pictures
     public sealed class ModeResizeKeepExif : ModeCategorizeAndRenameBase
     {
         bool _hasRunCompletionAction = false;
+
         public override ConfigKey GetCategories()
         {
             return ConfigKey.CategoriesModeResizeKeepExif;
         }
+
         public override string GetDefaultCategories()
         {
             return "Q/288 typ 10%/288h|W/432 typ 15%/432h|E/576 typ 20%/576h|1/720 typ 25%/720h|3/864 typ 35%/864h|4/1008 typ 40%/1008h|5/1152 typ 45%/1152h|6/1296 typ 50%/1296h|7/1440 typ 55%/1440h|8/1584 typ 60%/1584h|9/1728 typ 65%/1728h|P/1872 typ 75%/1872h|0/100%/100%";
         }
+
         public override bool SupportsRename()
         {
             return false;
         }
+
         public override bool SupportsCompletionAction()
         {
             return true;
         }
+
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
         {
             if (_hasRunCompletionAction)
@@ -149,10 +177,12 @@ namespace labs_coordinate_pictures
         {
             return ConfigKey.CategoriesModeCategorizeAndRename;
         }
+
         public override string GetDefaultCategories()
         {
             return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
         }
+
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
         {
             // create a directory <base>/<categoryname>
@@ -169,6 +199,7 @@ namespace labs_coordinate_pictures
                 MessageBox.Show("File already exists " + newpath);
                 return;
             }
+
             File.Move(sPath, newpath);
         }
     }
@@ -187,7 +218,8 @@ namespace labs_coordinate_pictures
 
         public override Tuple<string, string>[] GetDisplayCustomCommands()
         {
-            return new Tuple<string, string>[] {
+            return new Tuple<string, string>[]
+            {
                 new Tuple<string, string>("Ctrl-2", "Mark small files as finished")
             };
         }
@@ -230,6 +262,7 @@ namespace labs_coordinate_pictures
                     form.WrapMoveFile(path, sNewName);
                 }
             }
+
             MessageBox.Show("Accepted for " + nAccepted + " images.");
         }
 
@@ -249,16 +282,22 @@ namespace labs_coordinate_pictures
 
     public abstract class ModeAudioBase : ModeBase
     {
-        public override bool SupportsRename() { return false; }
+        public override bool SupportsRename()
+        {
+            return false;
+        }
+
         public override string GetDefaultCategories()
         {
             return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
         }
+
         public override void OnBeforeAssignCategory()
         {
             // must play another song so that file can be renamed.
             Utils.PlayMedia(null /*silence*/);
         }
+
         public override void OnOpenItem(string sPath, FormGallery obj)
         {
             Utils.PlayMedia(sPath);
@@ -267,15 +306,21 @@ namespace labs_coordinate_pictures
 
     public sealed class ModeMarkWavQuality : ModeAudioBase
     {
-        public override bool SupportsCompletionAction() { return true; }
+        public override bool SupportsCompletionAction()
+        {
+            return true;
+        }
+
         public override ConfigKey GetCategories()
         {
             return ConfigKey.CategoriesModeMarkWavQuality;
         }
+
         public override string[] GetFileTypes()
         {
             return new string[] { ".wav" };
         }
+
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
         {
             if (sPath.ToLowerInvariant().EndsWith(".wav"))
@@ -301,15 +346,21 @@ namespace labs_coordinate_pictures
 
     public sealed class ModeMarkMp3Quality : ModeAudioBase
     {
-        public override bool SupportsCompletionAction() { return false; }
+        public override bool SupportsCompletionAction()
+        {
+            return false;
+        }
+
         public override ConfigKey GetCategories()
         {
             return ConfigKey.CategoriesModeMarkMp3Quality;
         }
+
         public override string[] GetFileTypes()
         {
             return new string[] { ".wav", ".mp3", ".mp4", ".m4a", ".wma", ".flac" };
         }
+
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
         {
         }

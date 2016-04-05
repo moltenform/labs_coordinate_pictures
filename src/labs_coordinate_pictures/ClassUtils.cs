@@ -94,6 +94,7 @@ namespace labs_coordinate_pictures
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -105,7 +106,7 @@ namespace labs_coordinate_pictures
         public static string GetSoftDeleteDestination(string s)
         {
             var trashdir = Configs.Current.Get(ConfigKey.FilepathTrash);
-            if (String.IsNullOrEmpty(trashdir) ||
+            if (string.IsNullOrEmpty(trashdir) ||
                 !Directory.Exists(trashdir))
             {
                 MessageBox.Show("Trash directory not found. Go to the main screen and to the option menu and click Options->Set trash directory...");
@@ -134,16 +135,17 @@ namespace labs_coordinate_pictures
                 return "";
 
             StringBuilder arguments = new StringBuilder();
-            Regex invalidChar = new Regex("[\x00\x0a\x0d]");//  these can not be escaped
-            Regex needsQuotes = new Regex(@"\s|""");//          contains whitespace or two quote characters
-            Regex escapeQuote = new Regex(@"(\\*)(""|$)");//    one or more '\' followed with a quote or end of string
+            Regex invalidChar = new Regex("[\x00\x0a\x0d]"); // these can not be escaped
+            Regex needsQuotes = new Regex(@"\s|"""); //         contains whitespace or two quote characters
+            Regex escapeQuote = new Regex(@"(\\*)(""|$)"); //   one or more '\' followed with a quote or end of string
             for (int carg = 0; carg < args.Length; carg++)
             {
                 if (invalidChar.IsMatch(args[carg]))
                 {
                     throw new ArgumentOutOfRangeException("invalid character (" + carg + ")");
                 }
-                if (args[carg] == String.Empty)
+
+                if (args[carg] == string.Empty)
                 {
                     arguments.Append("\"\"");
                 }
@@ -156,15 +158,16 @@ namespace labs_coordinate_pictures
                     arguments.Append('"');
                     arguments.Append(escapeQuote.Replace(args[carg], m =>
                         m.Groups[1].Value + m.Groups[1].Value +
-                        (m.Groups[2].Value == "\"" ? "\\\"" : "")
-                        ));
+                        (m.Groups[2].Value == "\"" ? "\\\"" : "")));
                     arguments.Append('"');
                 }
+
                 if (carg + 1 < args.Length)
                 {
                     arguments.Append(' ');
                 }
             }
+
             return arguments.ToString();
         }
 
@@ -178,6 +181,7 @@ namespace labs_coordinate_pictures
 
                 Thread.Sleep(milliseconds);
             }
+
             return false;
         }
 
@@ -210,8 +214,8 @@ namespace labs_coordinate_pictures
 
             var len = new FileInfo(path).Length;
             return (len > 1024 * 1024) ?
-                String.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
-                String.Format(" ({0}k)", (len / 1024));
+                string.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
+                string.Format(" ({0}k)", len / 1024);
         }
 
         public static void CloseOtherProcessesByName(string name)
@@ -246,7 +250,7 @@ namespace labs_coordinate_pictures
             }
 
             var python = Configs.Current.Get(ConfigKey.FilepathPython);
-            if (String.IsNullOrEmpty(python) || !File.Exists(python))
+            if (string.IsNullOrEmpty(python) || !File.Exists(python))
             {
                 MessageBox.Show("Python exe not found. Go to the main screen and to the option menu and click Options->Set python location...");
                 return "Python exe not found.";
@@ -279,7 +283,7 @@ namespace labs_coordinate_pictures
             var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_convert_resize.py");
             var args = new string[] { "convert_resize", pathin, pathout, resizeSpec, jpgQuality.ToString() };
             var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false, workingDir: scriptcurdir);
-            if (!String.IsNullOrEmpty(stderr) || !File.Exists(pathout))
+            if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathout))
             {
                 MessageBox.Show("RunImageConversion failed, stderr = " + stderr);
             }
@@ -321,7 +325,7 @@ namespace labs_coordinate_pictures
                 path = Path.Combine(Configs.Current.Directory, "silence.flac");
 
             var player = Configs.Current.Get(ConfigKey.FilepathMediaPlayer);
-            if (String.IsNullOrEmpty(player) || !File.Exists(player))
+            if (string.IsNullOrEmpty(player) || !File.Exists(player))
             {
                 MessageBox.Show("Media player not found. Go to the main screen and to the option menu and click Options->Set media player location...");
                 return;
@@ -351,6 +355,7 @@ namespace labs_coordinate_pictures
             {
                 return ((Match)match).ToString();
             }
+
             return null;
         }
 
@@ -399,35 +404,32 @@ namespace labs_coordinate_pictures
         string[] _list = new string[] { };
         FileSystemWatcher _watcher;
         string _root;
-        public bool Recurse { get; private set; }
+
         public FileListAutoUpdated(string root, bool recurse)
         {
             Recurse = recurse;
             _root = root;
             _watcher = new FileSystemWatcher(root);
             _watcher.IncludeSubdirectories = recurse;
-            _watcher.Created += m_watcher_Created;
-            _watcher.Renamed += m_watcher_Renamed;
-            _watcher.Deleted += m_watcher_Deleted;
+            _watcher.Created += SetDirty;
+            _watcher.Renamed += SetDirty;
+            _watcher.Deleted += SetDirty;
             _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             _watcher.EnableRaisingEvents = true;
         }
-        private void m_watcher_Created(object sender, FileSystemEventArgs e)
+
+        public bool Recurse { get; private set; }
+
+        private void SetDirty(object sender, FileSystemEventArgs e)
         {
             _dirty = true;
         }
-        private void m_watcher_Renamed(object sender, RenamedEventArgs e)
-        {
-            _dirty = true;
-        }
-        private void m_watcher_Deleted(object sender, FileSystemEventArgs e)
-        {
-            _dirty = true;
-        }
+
         public void Dirty()
         {
             _dirty = true;
         }
+
         public string[] GetList(bool forceRefresh = false)
         {
             if (_dirty || forceRefresh)
@@ -441,11 +443,13 @@ namespace labs_coordinate_pictures
 
             return _list;
         }
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         private void Dispose(bool disposing)
         {
             if (disposing)
@@ -628,6 +632,7 @@ namespace labs_coordinate_pictures
                 if (sLower.EndsWith(item))
                     return true;
             }
+
             return false;
         }
 
@@ -661,7 +666,7 @@ namespace labs_coordinate_pictures
                 return nameOnly;
         }
 
-        public readonly static string MarkerString = "__MARKAS__";
+        public static readonly string MarkerString = "__MARKAS__";
         public static string AddMarkToFilename(string path, string category)
         {
             if (path.Contains(MarkerString))
@@ -721,8 +726,11 @@ namespace labs_coordinate_pictures
     public sealed class SimpleLog
     {
         private static SimpleLog _instance;
-        private SimpleLog(string path) { _path = path; }
         string _path;
+        private SimpleLog(string path)
+        {
+            _path = path;
+        }
 
         public static void Init(string path)
         {
@@ -795,10 +803,11 @@ namespace labs_coordinate_pictures
                 {
                     var list = new List<string>(filenameParts);
                     list.RemoveAt(list.Count - 2);
-                    pathWithMiddleRemoved = Path.GetDirectoryName(path) + "\\" + String.Join(".", list);
+                    pathWithMiddleRemoved = Path.GetDirectoryName(path) + "\\" + string.Join(".", list);
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -822,6 +831,7 @@ namespace labs_coordinate_pictures
                         ret.Add(otherfile);
                 }
             }
+
             return ret;
         }
     }
@@ -829,6 +839,9 @@ namespace labs_coordinate_pictures
     [Serializable]
     public class CoordinatePicturesException : ApplicationException
     {
-        public CoordinatePicturesException(string message) : base("CoordinatePictures " + message) { }
+        public CoordinatePicturesException(string message)
+            : base("CoordinatePictures " + message)
+        {
+        }
     }
 }

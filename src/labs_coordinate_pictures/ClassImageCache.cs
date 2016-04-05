@@ -40,8 +40,12 @@ namespace labs_coordinate_pictures
             {
                 Excerpt.Dispose();
                 foreach (var tuple in _cache)
+                {
                     if (tuple.Item2 != null)
+                    {
                         tuple.Item2.Dispose();
+                    }
+                }
             }
         }
 
@@ -61,7 +65,7 @@ namespace labs_coordinate_pictures
             if (index != -1)
             {
                 // is it up to date though? if it's been written to, invalidate cache.
-                var dtNow = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : new System.DateTime();
+                var dtNow = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : System.DateTime.MaxValue;
                 if (dtNow != _cache[index].Item5)
                 {
                     _cache.RemoveAt(index);
@@ -109,7 +113,7 @@ namespace labs_coordinate_pictures
                     // could get the bitmap out of lock... but that risks redundant work
                     int nOrigW = 0, nOrigH = 0;
                     var b = GetResizedBitmap(path, out nOrigW, out nOrigH);
-                    var lastModified = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : new System.DateTime();
+                    var lastModified = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : DateTime.MaxValue;
                     _cache.Add(new Tuple<string, Bitmap, int, int, DateTime>(
                         path, b, nOrigW, nOrigH, lastModified));
                     checkTooBig = _cache.Count > _cacheSize;
@@ -141,10 +145,11 @@ namespace labs_coordinate_pictures
 
         public void AddAsync(List<string> arList, PictureBox mainThread)
         {
-            ThreadPool.QueueUserWorkItem(delegate
+            ThreadPool.QueueUserWorkItem(
+            delegate
             {
                 Add(arList.ToArray());
-            }, null);
+            });
         }
 
         public static Bitmap GetBitmap(string path)
@@ -174,6 +179,7 @@ namespace labs_coordinate_pictures
                 {
                     MessageBox.Show("Could not show the image " + path);
                 }
+
                 if (imFromFile != null)
                     imFromFile.Dispose();
                 imFromFile = new Bitmap(1, 1);
@@ -250,6 +256,7 @@ namespace labs_coordinate_pictures
         public int MaxWidth { get; private set; }
         public int MaxHeight { get; private set; }
         public Bitmap Bmp { get; private set; }
+
         public ImageViewExcerpt(int maxwidth, int maxheight)
         {
             MaxWidth = maxwidth;

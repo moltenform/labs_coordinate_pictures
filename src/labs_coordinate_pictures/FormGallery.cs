@@ -116,7 +116,11 @@ namespace labs_coordinate_pictures
             Func<Bitmap, bool> canDisposeBitmap =
                 (bmp) => (bmp as object) != (pictureBox1.Image as object);
             Func<Action, bool> callbackOnUiThread =
-                (act) => { this.Invoke((MethodInvoker)(() => act.Invoke())); return true; };
+                (act) =>
+                {
+                    this.Invoke((MethodInvoker)(() => act.Invoke()));
+                    return true;
+                };
             imcache = new ImageCache(pictureBox1.Width, pictureBox1.Height,
                 imagecachesize, callbackOnUiThread, canDisposeBitmap);
         }
@@ -210,9 +214,11 @@ namespace labs_coordinate_pictures
 
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var suggestions = new string[] {
+            var suggestions = new string[]
+            {
                 Configs.Current.Get(_mode.GetCategories()),
-                _mode.GetDefaultCategories() };
+                _mode.GetDefaultCategories()
+            };
             var text = "Please enter a list of category strings separated by |. Each category string must be in the form A/categoryReadable/categoryId, where A is a single capital letter, categoryReadable will be the human-readable label, and categoryID will be the unique ID (when an image is given this ID, the ID will be added to the filename as a suffix).";
             var nextCategories = InputBoxForm.GetStrInput(text, null, InputBoxHistory.EditCategoriesString, suggestions);
             if (!string.IsNullOrEmpty(nextCategories))
@@ -273,6 +279,7 @@ namespace labs_coordinate_pictures
                 m_undoStack.Add(new Tuple<string, string>(src, target));
                 m_undoIndex = m_undoStack.Count - 1;
             }
+
             return true;
         }
 
@@ -377,7 +384,6 @@ namespace labs_coordinate_pictures
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Enter)
                     finishedCategorizingToolStripMenuItem_Click(null, null);
-
             }
             else if (!e.Shift && !e.Control && e.Alt)
             {
@@ -537,8 +543,10 @@ namespace labs_coordinate_pictures
                         nSkippedPrefix++;
                     }
                 }
+
                 MoveFirst(false);
             }
+
             MessageBox.Show(string.Format("{0} files skipped because they already have a prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedPrefix, nFailedToRename, nAddedPrefix));
         }
 
@@ -561,8 +569,10 @@ namespace labs_coordinate_pictures
                             nFailedToRename++;
                     }
                 }
+
                 MoveFirst(false);
             }
+
             MessageBox.Show(string.Format("{0} files skipped because they have no prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedAlready, nFailedToRename, nRemovedPrefix));
         }
 
@@ -715,7 +725,7 @@ namespace labs_coordinate_pictures
             var toDelete = FilenameFindSimilarFilenames.FindSimilarNames(nav.Current, _mode.GetFileTypes(), nav.GetList(),
                 out fHasMiddleName, out sNewname);
 
-            if (Utils.AskToConfirm("Delete the extra files \r\n" + String.Join("\r\n", toDelete) + "\r\n?"))
+            if (Utils.AskToConfirm("Delete the extra files \r\n" + string.Join("\r\n", toDelete) + "\r\n?"))
             {
                 foreach (var sFile in toDelete)
                     UndoableSoftDelete(sFile);
@@ -773,11 +783,11 @@ namespace labs_coordinate_pictures
                 }
                 finally
                 {
-                    this.Invoke((MethodInvoker)delegate
+                    this.Invoke((MethodInvoker)(() =>
                     {
                         UIEnable();
                         OnOpenItem();
-                    });
+                    }));
                 }
             });
         }
