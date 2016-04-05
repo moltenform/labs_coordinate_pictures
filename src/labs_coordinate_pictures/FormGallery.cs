@@ -33,7 +33,6 @@ namespace labs_coordinate_pictures
 
         // shortcut key bindings from letter, to category.
         Dictionary<string, string> _categoryShortcuts;
-        List<string> _pathsToCache = new List<string>();
 
         // placeholder image
         Bitmap _bitmapBlank = new Bitmap(1, 1);
@@ -53,9 +52,6 @@ namespace labs_coordinate_pictures
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
-
-            for (int i = 0; i < ImageCacheBatch; i++)
-                _pathsToCache.Add(null);
 
             SimpleLog.Current.WriteLog("Starting session in " + initialDirectory + "|" + initialFilepath);
             _mode = mode;
@@ -165,12 +161,13 @@ namespace labs_coordinate_pictures
 
         void MoveOne(bool forwardDirection)
         {
-            for (int i = 0; i < _pathsToCache.Count; i++)
-                _pathsToCache[i] = null;
+            var pathsToCache = new List<string>();
+            for (int i = 0; i < ImageCacheBatch; i++)
+                pathsToCache.Add(null);
 
-            _filelist.GoNextOrPrev(forwardDirection, _pathsToCache, _pathsToCache.Count);
+            _filelist.GoNextOrPrev(forwardDirection, pathsToCache, pathsToCache.Count);
             OnOpenItem();
-            _imagecache.AddAsync(_pathsToCache, pictureBox1);
+            _imagecache.AddAsync(pathsToCache, pictureBox1);
         }
 
         void MoveMany(bool forwardDirection)

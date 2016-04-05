@@ -49,6 +49,12 @@ namespace labs_coordinate_pictures
                 OnSetConfigsFile(sender, "(Optional) Locate mp3directcut.exe.", ConfigKey.FilepathMp3DirectCut);
             this.setExiftoolLocationToolStripMenuItem.Click += (sender, e) =>
                OnSetConfigsFile(sender, "(Optional) Locate exiftool.exe.", ConfigKey.FilepathExifTool);
+            this.setSortmusicStagingLocationToolStripMenuItem.Click += (sender, e) =>
+               OnSetConfigsDir(sender, "(Optional) Set sortmusic staging directory.", ConfigKey.FilepathSortMusicToLibraryStagingDirectory);
+            this.setSorttwitterSourceLocationToolStripMenuItem.Click += (sender, e) =>
+               OnSetConfigsDir(sender, "(Optional) Set sorttwitter input directory.", ConfigKey.FilepathSortTwitterImagesSourceDirectory);
+            this.setSorttwitterDestinationLocationToolStripMenuItem.Click += (sender, e) =>
+               OnSetConfigsDir(sender, "(Optional) Set sorttwitter output directory.", ConfigKey.FilepathSortTwitterImagesDestinationDirectory);
             this.categorizeAndRenamePicturesToolStripMenuItem.Click += (sender, e) =>
                 OpenForm(new ModeCategorizeAndRename(), InputBoxHistory.OpenImageDirectory);
             this.checkFilesizesToolStripMenuItem.Click += (sender, e) =>
