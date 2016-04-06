@@ -241,9 +241,8 @@ namespace labs_coordinate_pictures
             }
         }
 
-        void AutoAcceptSmallFiles(FormGallery form)
+        public void AutoAcceptSmallFiles(FormGallery form, int acceptFilesSmallerThan = 1024 * 45)
         {
-            const int autoAcceptibleSize = 1024 * 45;
             var list = form.GetFilelist().GetList();
             bool hasMiddleName;
             string newname;
@@ -264,7 +263,7 @@ namespace labs_coordinate_pictures
             foreach (var path in list)
             {
                 if ((path.EndsWith(".webp") || path.EndsWith(".jpg"))
-                    && new FileInfo(path).Length < autoAcceptibleSize)
+                    && new FileInfo(path).Length < acceptFilesSmallerThan)
                 {
                     nAccepted++;
                     var sNewName = FilenameUtils.AddMarkToFilename(path, "size is good");
@@ -272,7 +271,8 @@ namespace labs_coordinate_pictures
                 }
             }
 
-            MessageBox.Show("Accepted for " + nAccepted + " images.");
+            if (!Configs.Current.SupressDialogs)
+                MessageBox.Show("Accepted for " + nAccepted + " images.");
         }
 
         public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)

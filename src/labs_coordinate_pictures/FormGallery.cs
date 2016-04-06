@@ -35,6 +35,9 @@ namespace labs_coordinate_pictures
         // shortcut key bindings from letter, to category.
         Dictionary<string, string> _categoryShortcuts;
 
+        // support undoing file moves
+        UndoStack<Tuple<string, string>> _undoFileMoves = new UndoStack<Tuple<string, string>>();
+
         // placeholder image
         Bitmap _bitmapBlank = new Bitmap(1, 1);
 
@@ -69,6 +72,8 @@ namespace labs_coordinate_pictures
             moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
             moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
             renameItemToolStripMenuItem.Click += (sender, e) => RenameFile();
+            undoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(true);
+            redoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(false);
 
             _filelist = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
@@ -280,8 +285,6 @@ namespace labs_coordinate_pictures
             }
         }
 
-        List<Tuple<string, string>> _undoFileMoves = new List<Tuple<string, string>>();
-        int _undoFileMovesIndex = 0;
         public bool WrapMoveFile(string src, string target, bool fAddToUndoStack = true)
         {
             const int millisecondsToRetryMoving = 3000;
@@ -318,33 +321,36 @@ namespace labs_coordinate_pictures
 
             if (fAddToUndoStack)
             {
-                _undoFileMoves.Add(new Tuple<string, string>(src, target));
-                _undoFileMovesIndex = _undoFileMoves.Count - 1;
+                _undoFileMoves.Add(Tuple.Create(src, target));
             }
 
             return true;
         }
 
-        internal void undoMoveToolStripMenuItem_Click(object sender, EventArgs e)
+        public void UndoOrRedo(bool isUndo)
         {
-            if (_undoFileMovesIndex < 0)
+            var moveConsidered = isUndo ?
+                _undoFileMoves.PeekUndo() :
+                _undoFileMoves.PeekRedo();
+
+            if (moveConsidered == null)
             {
-                MessageBox.Show("nothing to undo");
-            }
-            else if (_undoFileMovesIndex >= _undoFileMoves.Count)
-            {
-                MessageBox.Show("invalid undo index");
-                _undoFileMovesIndex = _undoFileMoves.Count - 1;
+                if (!Configs.Current.SupressDialogs)
+                    MessageBox.Show("nothing to undo");
             }
             else
             {
-                var newdest = _undoFileMoves[_undoFileMovesIndex].Item1;
-                var newsrc = _undoFileMoves[_undoFileMovesIndex].Item2;
-                if (Utils.AskToConfirm("move " + newsrc + " back to " + newdest + "?"))
+                var newdest = isUndo ? moveConsidered.Item1 : moveConsidered.Item2;
+                var newsrc = isUndo ? moveConsidered.Item2 : moveConsidered.Item1;
+                if (Configs.Current.SupressDialogs ||
+                    Utils.AskToConfirm("move " + newsrc + " back to " + newdest + "?"))
                 {
                     if (WrapMoveFile(newsrc, newdest, fAddToUndoStack: false))
                     {
-                        _undoFileMovesIndex--;
+                        if (isUndo)
+                            _undoFileMoves.Undo();
+                        else
+                            _undoFileMoves.Redo();
                     }
                 }
             }
@@ -418,7 +424,9 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.D3)
                     addNumberedPrefixToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Z)
-                    undoMoveToolStripMenuItem_Click(null, null);
+                    UndoOrRedo(true);
+                else if (e.KeyCode == Keys.Y)
+                    UndoOrRedo(false);
                 else if (e.KeyCode == Keys.OemOpenBrackets)
                     convertResizeImageToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D1)
@@ -796,23 +804,27 @@ namespace labs_coordinate_pictures
             {
                 RunLongActionInThread(new Action(() =>
                 {
-                    var tuples = ModeUtils.ModeToTuples(_mode);
-                    foreach (var path in _filelist.GetList(includeMarked: true))
-                    {
-                        if (path.Contains(FilenameUtils.MarkerString))
-                        {
-                            string pathWithoutCategory, category;
-                            FilenameUtils.GetMarkFromFilename(path, out pathWithoutCategory, out category);
-                            var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
-                            if (tupleFound.Length == 0)
-                                MessageBox.Show("Invalid mark for file " + path);
-                            else
-                                _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
-                        }
-                    }
-
+                    CallCompletionAction();
                     OnOpenItem();
                 }));
+            }
+        }
+
+        public void CallCompletionAction()
+        {
+            var tuples = ModeUtils.ModeToTuples(_mode);
+            foreach (var path in _filelist.GetList(includeMarked: true))
+            {
+                if (path.Contains(FilenameUtils.MarkerString))
+                {
+                    string pathWithoutCategory, category;
+                    FilenameUtils.GetMarkFromFilename(path, out pathWithoutCategory, out category);
+                    var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
+                    if (tupleFound.Length == 0)
+                        MessageBox.Show("Invalid mark for file " + path);
+                    else
+                        _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
+                }
             }
         }
 

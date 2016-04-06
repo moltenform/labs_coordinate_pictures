@@ -864,6 +864,50 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public class UndoStack<T>
+    {
+        List<T> _list = new List<T>();
+        int _position = -1;
+
+        public void Add(T current)
+        {
+            // if we are here after having called undo,
+            // invalidate items higher on the stack
+            _list.RemoveRange(_position + 1, (_list.Count - _position) - 1);
+
+            _list.Add(current);
+            _position = _list.Count - 1;
+        }
+
+        public T PeekUndo()
+        {
+            if (_position >= 0)
+                return _list[_position];
+            else
+                return default(T);
+        }
+
+        public void Undo()
+        {
+            if (_position >= 0)
+                --_position;
+        }
+
+        public T PeekRedo()
+        {
+            if (_position + 1 <= _list.Count - 1)
+                return _list[_position + 1];
+            else
+                return default(T);
+        }
+
+        public void Redo()
+        {
+            if (_position + 1 <= _list.Count - 1)
+                ++_position;
+        }
+    }
+
     [Serializable]
     public class CoordinatePicturesException : ApplicationException
     {

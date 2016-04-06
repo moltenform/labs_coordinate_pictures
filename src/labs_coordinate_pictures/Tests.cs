@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
@@ -507,21 +508,21 @@ namespace labs_coordinate_pictures
             }
         }
 
-        static void TestMethod_ImageViewExcerptCoordinates()
-        {
-            using (var excerpt = new ImageViewExcerpt(160, 120))
-            using (var mockFullImage = new Bitmap(200, 240))
-            {
-                int shiftx, shifty;
-                excerpt.GetShiftAmount(mockFullImage, clickX:30, clickY:40, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
-                TestUtil.IsEq(-40, shiftx);
-                TestUtil.IsEq(27, shifty);
-
-                excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
-                TestUtil.IsEq(40, shiftx);
-                TestUtil.IsEq(17, shifty);
-            }
-        }
+        // static void TestMethod_ImageViewExcerptCoordinates()
+        // {
+        //     using (var excerpt = new ImageViewExcerpt(160, 120))
+        //     using (var mockFullImage = new Bitmap(200, 240))
+        //     {
+        //         int shiftx, shifty;
+        //         excerpt.GetShiftAmount(mockFullImage, clickX: 30, clickY: 40, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+        //         TestUtil.IsEq(-40, shiftx);
+        //         TestUtil.IsEq(27, shifty);
+        //
+        //         excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+        //         TestUtil.IsEq(40, shiftx);
+        //         TestUtil.IsEq(-17, shifty);
+        //     }
+        // }
 
         static void TestMethod_CategoriesStringToTuple()
         {
@@ -539,6 +540,132 @@ namespace labs_coordinate_pictures
                 TestUtil.IsEq("B", ret[1].Item1);
                 TestUtil.IsEq("categoryReadable2", ret[1].Item2);
                 TestUtil.IsEq("categoryId2", ret[1].Item3);
+            }
+        }
+
+        static void TestMethod_CategorizeOnCompletionAction()
+        {
+            // the completion action will create directories and move files
+            var mode = new ModeCategorizeAndRename();
+            var dir = TestUtil.GetTestSubDirectory("categorize");
+            File.WriteAllText(Path.Combine(dir, "t1.png"), "1234");
+            File.WriteAllText(Path.Combine(dir, "t2__MARKAS__art.png"), "1234");
+            File.WriteAllText(Path.Combine(dir, "t3__MARKAS__art.jpg"), "1234");
+            File.WriteAllText(Path.Combine(dir, "t4__MARKAS__other.png"), "1234");
+            File.WriteAllText(Path.Combine(dir, "t5__MARKAS__badfiletype.wav"), "1234");
+            using (var form = new FormGallery(mode, dir))
+            {
+                form.CallCompletionAction();
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.png")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t2.png")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t3.jpg")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "other", "t4.png")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t5__MARKAS__badfiletype.wav")));
+            }
+        }
+
+        static void TestMethod_UndoStack()
+        {
+            UndoStack<int?> testUndo = new UndoStack<int?>();
+            TestUtil.IsEq(null, testUndo.PeekUndo());
+            TestUtil.IsEq(null, testUndo.PeekRedo());
+            testUndo.Add(1);
+            TestUtil.IsEq(1, testUndo.PeekUndo().Value);
+            testUndo.Add(2);
+            TestUtil.IsEq(2, testUndo.PeekUndo().Value);
+            testUndo.Add(3);
+            TestUtil.IsEq(3, testUndo.PeekUndo().Value);
+            testUndo.Add(4);
+            TestUtil.IsEq(4, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(3, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(2, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(1, testUndo.PeekUndo().Value);
+            testUndo.Redo();
+            TestUtil.IsEq(2, testUndo.PeekUndo().Value);
+            testUndo.Redo();
+            TestUtil.IsEq(3, testUndo.PeekUndo().Value);
+
+            // not at the top of stack, will overwrite other values
+            testUndo.Add(40);
+            TestUtil.IsEq(40, testUndo.PeekUndo().Value);
+
+            testUndo.Add(50);
+            TestUtil.IsEq(50, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(40, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(3, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(2, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(1, testUndo.PeekUndo().Value);
+            testUndo.Undo();
+            TestUtil.IsEq(null, testUndo.PeekUndo());
+            testUndo.Undo();
+            TestUtil.IsEq(null, testUndo.PeekUndo());
+        }
+
+        static void TestMethod_AutoAcceptSmallFilesAndWrapMoveFile()
+        {
+            var dir = TestUtil.GetTestSubDirectory("autoaccept");
+            File.WriteAllText(Path.Combine(dir, "t1.bmp"), "1234");
+            File.WriteAllText(Path.Combine(dir, "t2.bmp"), "123456789");
+            File.WriteAllText(Path.Combine(dir, "a1.jpg"), "");
+            File.WriteAllText(Path.Combine(dir, "a2.jpg"), "1234");
+            File.WriteAllText(Path.Combine(dir, "a3.jpg"), "123456789");
+            var mode = new ModeCheckFilesizes();
+            using (var form = new FormGallery(mode, dir))
+            {
+                // ok to call undo when undo stack is empty.
+                form.UndoOrRedo(true);
+
+                // call wrapmovefile
+                TestUtil.IsTrue(form.WrapMoveFile(Path.Combine(dir, "t1.bmp"), Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1m.bmp")));
+
+                // call Undo
+                form.UndoOrRedo(true);
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.bmp")));
+
+                // call wrapmovefile
+                TestUtil.IsTrue(form.WrapMoveFile(Path.Combine(dir, "t1.bmp"), Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(form.WrapMoveFile(Path.Combine(dir, "t2.bmp"), Path.Combine(dir, "t2m.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t2.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t2m.bmp")));
+
+                // call Undo
+                form.UndoOrRedo(true);
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t2m.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t2.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1m.bmp")));
+                form.UndoOrRedo(true);
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.bmp")));
+
+                // call Redo
+                form.UndoOrRedo(false);
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1m.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
+                form.UndoOrRedo(true);
+
+                // test AutoAcceptSmallFiles
+                var acceptFilesSmallerThanBytes = 6;
+                mode.AutoAcceptSmallFiles(form, acceptFilesSmallerThanBytes);
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.bmp")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t2.bmp")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "a1.jpg")));
+                TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "a2.jpg")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "a3.jpg")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "a1__MARKAS__size is good.jpg")));
+                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "a2__MARKAS__size is good.jpg")));
             }
         }
 

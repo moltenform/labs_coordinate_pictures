@@ -27,6 +27,8 @@
             this.showInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.moveToTrashToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,8 +54,7 @@
             this.label = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -158,10 +159,24 @@
             this.moveToTrashToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.moveToTrashToolStripMenuItem.Text = "Move to Trash";
             // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(203, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undoMoveToolStripMenuItem,
+            this.redoMoveToolStripMenuItem,
             this.copyPathToolStripMenuItem,
             this.toolStripMenuItem2,
             this.editFileToolStripMenuItem,
@@ -181,7 +196,6 @@
             this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
             this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
-            this.undoMoveToolStripMenuItem.Click += new System.EventHandler(this.undoMoveToolStripMenuItem_Click);
             // 
             // copyPathToolStripMenuItem
             // 
@@ -383,18 +397,12 @@
             this.labelView.TabIndex = 2;
             this.labelView.Text = "label1";
             // 
-            // toolStripMenuItem5
+            // redoMoveToolStripMenuItem
             // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(203, 6);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.redoMoveToolStripMenuItem.Name = "redoMoveToolStripMenuItem";
+            this.redoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Y";
+            this.redoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.redoMoveToolStripMenuItem.Text = "Redo Move...";
             // 
             // FormGallery
             // 
@@ -459,5 +467,6 @@
         private System.Windows.Forms.Label labelView;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redoMoveToolStripMenuItem;
     }
 }
