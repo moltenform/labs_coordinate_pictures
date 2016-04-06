@@ -326,7 +326,35 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(hasMiddleName);
             TestUtil.IsEq("c:\\a\\a.jpg", newname);
         }
-        
+
+        static void TestMethod_Logging()
+        {
+            var path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testlog.txt");
+            var log = new SimpleLog(path, 1024);
+            log.WriteError("test e");
+            log.WriteWarning("test w");
+            log.WriteLog("test l");
+            TestUtil.IsEq("\n[error] test e\n[warning] test w\ntest l", File.ReadAllText(path).Replace("\r\n", "\n"));
+
+            // add until over the limit
+            for (int i = 0; i < 60; i++)
+            {
+                log.WriteLog("123456789012345");
+            }
+
+            // it's over the limit, but hasn't reached the period yet, so still a large file
+            TestUtil.IsTrue(new FileInfo(path).Length > 1024);
+
+            // reach the period
+            for (int i = 0; i < 10; i++)
+            {
+                log.WriteLog("123456789012345");
+            }
+
+            // now the file will have been reset
+            TestUtil.IsTrue(new FileInfo(path).Length < 1024);
+        }
+
         static void TestMethod_ClassConfigsPersistedCommonUsage()
         {
             string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "test.ini");

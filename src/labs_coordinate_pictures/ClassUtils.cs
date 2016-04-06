@@ -752,11 +752,15 @@ namespace labs_coordinate_pictures
     // Simple logging class, writes synchronously to a text file.
     public sealed class SimpleLog
     {
+        private const int CheckFileSizePeriod = 32;
         private static SimpleLog _instance;
         string _path;
-        private SimpleLog(string path)
+        int _maxFileSize;
+        int _counter;
+        public SimpleLog(string path, int maxFileSize = 4 * 1024 * 1024)
         {
             _path = path;
+            _maxFileSize = maxFileSize;
         }
 
         public static SimpleLog Current
@@ -774,6 +778,18 @@ namespace labs_coordinate_pictures
 
         public void WriteLog(string s)
         {
+            // rather than cycling logging, delete previous logs for simplicity.
+            _counter++;
+            if (_counter > CheckFileSizePeriod)
+            {
+                if (File.Exists(_path) && new FileInfo(_path).Length > _maxFileSize)
+                {
+                    File.Delete(_path);
+                }
+
+                _counter = 0;
+            }
+
             try
             {
                 File.AppendAllText(_path, Environment.NewLine + s);
