@@ -30,16 +30,20 @@ namespace labs_coordinate_pictures
         Func<Action, bool> _callbackOnUiThread;
         Func<Bitmap, bool> _canDisposeBitmap;
 
-        public ImageCache(int maxwidth, int maxheight, int cacheSize,
-            Func<Action, bool> callbackOnUiThread, Func<Bitmap, bool> canDisposeBitmap)
+        public ImageCache(
+            int maxWidth,
+            int maxHeight,
+            int cacheSize,
+            Func<Action, bool> callbackOnUiThread,
+            Func<Bitmap, bool> canDisposeBitmap)
         {
-            MaxWidth = maxwidth;
-            MaxHeight = maxheight;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             _cacheSize = cacheSize;
             _callbackOnUiThread = callbackOnUiThread;
             _canDisposeBitmap = canDisposeBitmap;
             _cache = new List<Tuple<string, Bitmap, int, int, DateTime>>();
-            Excerpt = new ImageViewExcerpt(maxwidth, maxheight);
+            Excerpt = new ImageViewExcerpt(maxWidth, maxHeight);
         }
 
         public ImageViewExcerpt Excerpt { get; private set; }
@@ -80,8 +84,10 @@ namespace labs_coordinate_pictures
                 if (index != -1)
                 {
                     // is it up to date though? if it's been written to, invalidate cache.
-                    var dtNow = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : System.DateTime.MaxValue;
-                    if (dtNow != _cache[index].Item5)
+                    var isCurrent = File.Exists(path) ?
+                        new FileInfo(path).LastWriteTimeUtc == _cache[index].Item5 :
+                        false;
+                    if (!isCurrent)
                     {
                         _cache.RemoveAt(index);
                         index = -1;
@@ -106,7 +112,9 @@ namespace labs_coordinate_pictures
                     index = SearchForUpToDateCacheEntry(path);
                     if (index == -1)
                     {
-                        throw new CoordinatePicturesException("did not find image that was just cached");
+                        MessageBox.Show("did not find image that was just cached. this can happen if an image is changed very quickly");
+                        nOrigW = nOrigH = 0;
+                        return null;
                     }
                 }
 
@@ -302,11 +310,8 @@ namespace labs_coordinate_pictures
                 if (fullImage.Width == 1 || fullImage.Height == 1)
                     return;
 
-                // find where the user clicked, and then show that place in the center at full resolution.
-                var xcenter = (int)(fullImage.Width * (clickX / ((double)wasWidth)));
-                var ycenter = (int)(fullImage.Height * (clickY / ((double)wasHeight)));
-                var shiftx = xcenter - (MaxWidth / 2);
-                var shifty = ycenter - (MaxHeight / 2);
+                int shiftx, shifty;
+                GetShiftAmount(fullImage, clickX, clickY, wasWidth, wasHeight, out shiftx, out shifty);
 
                 // draw the entire image, but pushed off to the side
                 using (Graphics gr = Graphics.FromImage(Bmp))
@@ -315,6 +320,15 @@ namespace labs_coordinate_pictures
                     gr.DrawImageUnscaled(fullImage, -shiftx, -shifty);
                 }
             }
+        }
+
+        public void GetShiftAmount(Bitmap fullImage, int clickX, int clickY, int wasWidth, int wasHeight, out int shiftx, out int shifty)
+        {
+            // find where the user clicked, and then show that place in the center at full resolution.
+            var xcenter = (int)(fullImage.Width * (clickX / ((double)wasWidth)));
+            var ycenter = (int)(fullImage.Height * (clickY / ((double)wasHeight)));
+            shiftx = xcenter - (MaxWidth / 2);
+            shifty = ycenter - (MaxHeight / 2);
         }
 
         public void Dispose()

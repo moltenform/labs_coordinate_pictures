@@ -61,13 +61,20 @@ namespace labs_coordinate_pictures
             IsEq(true, actual);
         }
 
-        public static void AreStringArrayEq(string strexpected, IList<string> actual)
+        public static void IsStringArrayEq(string strexpected, IList<string> actual)
         {
-            var expected = strexpected.Split(new char[] { '|' });
-            IsEq(expected.Length, actual.Count);
-            for (int i = 0; i < expected.Length; i++)
+            if (strexpected == null)
             {
-                IsEq(expected[i], actual[i]);
+                IsTrue(actual == null || actual.Count == 0);
+            }
+            else
+            {
+                var expected = strexpected.Split(new char[] { '|' });
+                IsEq(expected.Length, actual.Count);
+                for (int i = 0; i < expected.Length; i++)
+                {
+                    IsEq(expected[i], actual[i]);
+                }
             }
         }
 
@@ -120,12 +127,23 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(false, false);
         }
 
+        static void TestMethod_Asserts_IsStringArrayEq()
+        {
+            TestUtil.IsStringArrayEq(null, null);
+            TestUtil.IsStringArrayEq(null, new string[] { });
+            TestUtil.IsStringArrayEq("", new string[] { "" });
+            TestUtil.IsStringArrayEq("|", new string[] { "", "" });
+            TestUtil.IsStringArrayEq("||", new string[] { "", "", "" });
+            TestUtil.IsStringArrayEq("aa|bb|cc", new string[] { "aa", "bb", "cc" });
+        }
+
         static void TestMethod_Asserts_CheckAssertMessage()
         {
             Action fn = () =>
             {
                 throw new CoordinatePicturesTestException("test123");
             };
+
             TestUtil.AssertExceptionMessage(fn, "test123");
         }
 
@@ -156,6 +174,17 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(!FilenameUtils.SameExceptExtension("b\\aa.jpg.test6.jpg", "b\\aa.bmp.test6.jpg"));
         }
 
+        static void TestMethod_UtilsIsDigits()
+        {
+            TestUtil.IsTrue(!Utils.IsDigits(null));
+            TestUtil.IsTrue(!Utils.IsDigits(""));
+            TestUtil.IsTrue(Utils.IsDigits("0"));
+            TestUtil.IsTrue(Utils.IsDigits("0123"));
+            TestUtil.IsTrue(Utils.IsDigits("456789"));
+            TestUtil.IsTrue(!Utils.IsDigits("456789a"));
+            TestUtil.IsTrue(!Utils.IsDigits("a456789a"));
+        }
+
         static void TestMethod_UtilsLastTwoChars()
         {
             TestUtil.IsEq("", Utils.FirstTwoChars(""));
@@ -183,12 +212,75 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq("\"dafc\\\"\\\"\\\"a\"", Utils.CombineProcessArguments(new string[] { "dafc\"\"\"a" }));
         }
 
+        static void TestMethod_UtilsGetFirstHttpLink()
+        {
+            TestUtil.IsEq(null, Utils.GetFirstHttpLink(""));
+            TestUtil.IsEq(null, Utils.GetFirstHttpLink("no urls present http none"));
+            TestUtil.IsEq("http://www.ok.com", Utils.GetFirstHttpLink("http://www.ok.com"));
+            TestUtil.IsEq("http://www.ok.com", Utils.GetFirstHttpLink("http://www.ok.com a b c http://www.second.com"));
+            TestUtil.IsEq("http://www.ok.com", Utils.GetFirstHttpLink("a b c http://www.ok.com a b c http://www.second.com"));
+        }
+
+        static void TestMethod_ArrayAt()
+        {
+            var arr = new int[] { 1, 2, 3 };
+            TestUtil.IsEq(1, Utils.ArrayAt(arr, -100));
+            TestUtil.IsEq(1, Utils.ArrayAt(arr, -1));
+            TestUtil.IsEq(1, Utils.ArrayAt(arr, 0));
+            TestUtil.IsEq(2, Utils.ArrayAt(arr, 1));
+            TestUtil.IsEq(3, Utils.ArrayAt(arr, 2));
+            TestUtil.IsEq(3, Utils.ArrayAt(arr, 3));
+            TestUtil.IsEq(3, Utils.ArrayAt(arr, 100));
+        }
+
+        static void TestMethod_SplitByString()
+        {
+            TestUtil.IsStringArrayEq("", Utils.SplitByString("", "delim"));
+            TestUtil.IsStringArrayEq("|", Utils.SplitByString("delim", "delim"));
+            TestUtil.IsStringArrayEq("||", Utils.SplitByString("delimdelim", "delim"));
+            TestUtil.IsStringArrayEq("a||b", Utils.SplitByString("adelimdelimb", "delim"));
+            TestUtil.IsStringArrayEq("a|bb|c", Utils.SplitByString("adelimbbdelimc", "delim"));
+
+            // make sure regex special characters are treated as normal chars
+            TestUtil.IsStringArrayEq("a|bb|c", Utils.SplitByString("a**bb**c", "**"));
+            TestUtil.IsStringArrayEq("a|bb|c", Utils.SplitByString("a?bb?c", "?"));
+        }
+
+        static void TestMethod_IsExtensionInList()
+        {
+            var exts = new string[] { ".jpg", ".png" };
+            TestUtil.IsTrue(!FilenameUtils.IsExtensionInList("", exts));
+            TestUtil.IsTrue(!FilenameUtils.IsExtensionInList("png", exts));
+            TestUtil.IsTrue(!FilenameUtils.IsExtensionInList("a.bmp", exts));
+            TestUtil.IsTrue(FilenameUtils.IsExtensionInList("a.png", exts));
+            TestUtil.IsTrue(FilenameUtils.IsExtensionInList("a.PNG", exts));
+            TestUtil.IsTrue(FilenameUtils.IsExtensionInList("a.jpg", exts));
+            TestUtil.IsTrue(FilenameUtils.IsExtensionInList("a.bmp.jpg", exts));
+            TestUtil.IsTrue(FilenameUtils.IsExt("a.png", ".png"));
+            TestUtil.IsTrue(FilenameUtils.IsExt("a.PNG", ".png"));
+            TestUtil.IsTrue(!FilenameUtils.IsExt("apng", ".png"));
+            TestUtil.IsTrue(!FilenameUtils.IsExt("a.png", ".jpg"));
+        }
+
+        static void TestMethod_NumberedPrefix()
+        {
+            TestUtil.IsEq(@"c:\test\([0000])abc.jpg", FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 0));
+            TestUtil.IsEq(@"c:\test\([0010])abc.jpg", FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 1));
+            TestUtil.IsEq(@"c:\test\([1230])abc.jpg", FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 123));
+            TestUtil.IsEq(@"c:\test\([1230])abc.jpg", FilenameUtils.AddNumberedPrefix(@"c:\test\([1230])abc.jpg", 123));
+            TestUtil.IsEq(@"c:\test\([9999])abc.jpg", FilenameUtils.AddNumberedPrefix(@"c:\test\([9999])abc.jpg", 123));
+            TestUtil.IsEq(@"a.jpg", FilenameUtils.GetFileNameWithoutNumberedPrefix(@"a.jpg"));
+            TestUtil.IsEq(@"abc.jpg", FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([9999])abc.jpg"));
+            TestUtil.IsEq(@"abc.jpg", FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([0000])abc.jpg"));
+            TestUtil.IsEq(@"abc.jpg", FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([1230])abc.jpg"));
+        }
+
         static void TestMethod_UtilsAddMark()
         {
-            var testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "mk");
-            TestUtil.IsEq(@"c:\foo\test\b b.aaa__MARKAS__mk.jpg", testAdd);
-            testAdd = FilenameUtils.AddMarkToFilename(@"c:\foo\test\b b.aaa.jpg", "");
-            TestUtil.IsEq(@"c:\foo\test\b b.aaa__MARKAS__.jpg", testAdd);
+            var testAdd = FilenameUtils.AddMarkToFilename(@"c:\dir\test\b b.aaa.jpg", "mk");
+            TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__mk.jpg", testAdd);
+            testAdd = FilenameUtils.AddMarkToFilename(@"c:\dir\test\b b.aaa.jpg", "");
+            TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__.jpg", testAdd);
 
             Func<string, string> testGetMark = (input) =>
             {
@@ -197,16 +289,44 @@ namespace labs_coordinate_pictures
                 return pathWithoutCategory + "|" + category;
             };
 
-            TestUtil.IsEq(@"C:\foo\test\file.jpg|123", testGetMark(@"C:\foo\test\file__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\foo\test\file.also.jpg|123", testGetMark(@"C:\foo\test\file.also__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\foo\test\file.jpg|", testGetMark(@"C:\foo\test\file__MARKAS__.jpg"));
-            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\dirmark__MARKAS__b\file__MARKAS__123.jpg"), "Directories");
-            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\dirmark__MARKAS__b\file.jpg"), "Directories");
-            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file__MARKAS__123__MARKAS__123.jpg"), "exactly 1");
-            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file.jpg"), "exactly 1");
-            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\foo\test\file__MARKAS__123.foo.jpg"), "after the marker");
+            TestUtil.IsEq(@"C:\dir\test\file.jpg|123", testGetMark(@"C:\dir\test\file__MARKAS__123.jpg"));
+            TestUtil.IsEq(@"C:\dir\test\file.also.jpg|123", testGetMark(@"C:\dir\test\file.also__MARKAS__123.jpg"));
+            TestUtil.IsEq(@"C:\dir\test\file.jpg|", testGetMark(@"C:\dir\test\file__MARKAS__.jpg"));
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\dir\test\dirmark__MARKAS__b\file__MARKAS__123.jpg"), "Directories");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\dir\test\dirmark__MARKAS__b\file.jpg"), "Directories");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\dir\test\file__MARKAS__123__MARKAS__123.jpg"), "exactly 1");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\dir\test\file.jpg"), "exactly 1");
+            TestUtil.AssertExceptionMessage(() => testGetMark(@"C:\dir\test\file__MARKAS__123.dir.jpg"), "after the marker");
         }
 
+        static void TestMethod_FindSimilarFilenames()
+        {
+            var mode = new ModeCategorizeAndRename();
+            bool hasMiddleName;
+            string newname;
+            var allfiles = new string[] { "c:\\a\\a.png", "c:\\a\\b.png", "c:\\a\\ab.png", "c:\\a\\b_out.png", "c:\\a\\a_out.png", "c:\\a\\a.png60.jpg", "c:\\a\\a.png80.jpg", "c:\\b\\a.png90.jpg" };
+
+            // alone with no middlename
+            TestUtil.IsStringArrayEq(null, FilenameFindSimilarFilenames.FindSimilarNames("c:\\a\\b.png", mode.GetFileTypes(), allfiles, out hasMiddleName, out newname));
+            TestUtil.IsTrue(!hasMiddleName);
+            TestUtil.IsEq(null, newname);
+
+            // alone with a middlename
+            TestUtil.IsStringArrayEq(null, FilenameFindSimilarFilenames.FindSimilarNames("c:\\b\\a.png90.jpg", mode.GetFileTypes(), allfiles, out hasMiddleName, out newname));
+            TestUtil.IsTrue(hasMiddleName);
+            TestUtil.IsEq("c:\\b\\a.jpg", newname);
+
+            // has similar names with no middlename
+            TestUtil.IsStringArrayEq("c:\\a\\a.png60.jpg|c:\\a\\a.png80.jpg", FilenameFindSimilarFilenames.FindSimilarNames("c:\\a\\a.png", mode.GetFileTypes(), allfiles, out hasMiddleName, out newname));
+            TestUtil.IsTrue(!hasMiddleName);
+            TestUtil.IsEq(null, newname);
+
+            // has similar names with a middlename
+            TestUtil.IsStringArrayEq("c:\\a\\a.png|c:\\a\\a.png80.jpg", FilenameFindSimilarFilenames.FindSimilarNames("c:\\a\\a.png60.jpg", mode.GetFileTypes(), allfiles, out hasMiddleName, out newname));
+            TestUtil.IsTrue(hasMiddleName);
+            TestUtil.IsEq("c:\\a\\a.jpg", newname);
+        }
+        
         static void TestMethod_ClassConfigsPersistedCommonUsage()
         {
             string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "test.ini");
@@ -281,16 +401,16 @@ namespace labs_coordinate_pictures
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoFirst();
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
             }
@@ -302,16 +422,16 @@ namespace labs_coordinate_pictures
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
             }
 
             { // gonext when file is missing
@@ -320,7 +440,7 @@ namespace labs_coordinate_pictures
                 nav.TrySetPath(Path.Combine(dir, "().png"), false);
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
 
                 nav.GoLast();
                 nav.TrySetPath(Path.Combine(dir, "ab.png"), false);
@@ -359,7 +479,7 @@ namespace labs_coordinate_pictures
                 nav.TrySetPath(Path.Combine(dir, "zz.png"), false);
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
-                TestUtil.AreStringArrayEq("%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                TestUtil.IsStringArrayEq("%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
             }
 
             { // gonext and goprev after deleted file
@@ -508,21 +628,21 @@ namespace labs_coordinate_pictures
             }
         }
 
-        // static void TestMethod_ImageViewExcerptCoordinates()
-        // {
-        //     using (var excerpt = new ImageViewExcerpt(160, 120))
-        //     using (var mockFullImage = new Bitmap(200, 240))
-        //     {
-        //         int shiftx, shifty;
-        //         excerpt.GetShiftAmount(mockFullImage, clickX: 30, clickY: 40, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
-        //         TestUtil.IsEq(-40, shiftx);
-        //         TestUtil.IsEq(27, shifty);
-        //
-        //         excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
-        //         TestUtil.IsEq(40, shiftx);
-        //         TestUtil.IsEq(-17, shifty);
-        //     }
-        // }
+        static void TestMethod_ImageViewExcerptCoordinates()
+        {
+            using (var excerpt = new ImageViewExcerpt(160, 120))
+            using (var mockFullImage = new Bitmap(200, 240))
+            {
+                int shiftx, shifty;
+                excerpt.GetShiftAmount(mockFullImage, clickX: 30, clickY: 40, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+                TestUtil.IsEq(-40, shiftx);
+                TestUtil.IsEq(27, shifty);
+
+                excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+                TestUtil.IsEq(40, shiftx);
+                TestUtil.IsEq(-17, shifty);
+            }
+        }
 
         static void TestMethod_CategoriesStringToTuple()
         {
