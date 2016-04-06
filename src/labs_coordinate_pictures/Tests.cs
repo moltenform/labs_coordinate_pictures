@@ -233,6 +233,16 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(3, Utils.ArrayAt(arr, 100));
         }
 
+        static void TestMethod_TestSha512()
+        {
+            var path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testhash.txt");
+            File.WriteAllText(path, "12345678");
+            TestUtil.IsEq("filenotfound", Utils.GetSha512(null));
+            TestUtil.IsEq("filenotfound", Utils.GetSha512("notexist"));
+            TestUtil.IsEq("+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWK" +
+                "T8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==", Utils.GetSha512(path));
+        }
+
         static void TestMethod_SplitByString()
         {
             TestUtil.IsStringArrayEq("", Utils.SplitByString("", "delim"));
@@ -780,7 +790,7 @@ namespace labs_coordinate_pictures
                 TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1m.bmp")));
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.bmp")));
 
-                // call wrapmovefile
+                // call WrapMoveFile
                 TestUtil.IsTrue(form.WrapMoveFile(Path.Combine(dir, "t1.bmp"), Path.Combine(dir, "t1m.bmp")));
                 TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1m.bmp")));
@@ -815,6 +825,56 @@ namespace labs_coordinate_pictures
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "a1__MARKAS__size is good.jpg")));
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "a2__MARKAS__size is good.jpg")));
             }
+        }
+
+        static void TestMethod_PersistMostRecentlyUsedList()
+        {
+            string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "testmru.ini");
+            Configs cfg = new Configs(path);
+
+            // using None should be a no-op
+            var mruNone = new PersistMostRecentlyUsedList(InputBoxHistory.None, cfg);
+            TestUtil.IsStringArrayEq(null, mruNone.Get());
+            mruNone.AddToHistory("abcd");
+            TestUtil.IsStringArrayEq(null, mruNone.Get());
+
+            // try to set invalid data
+            var mruTestInvalid = new PersistMostRecentlyUsedList(InputBoxHistory.RenameImage, cfg);
+            TestUtil.IsStringArrayEq(null, mruTestInvalid.Get());
+            mruTestInvalid.AddToHistory("contains||||");
+            TestUtil.IsStringArrayEq(null, mruTestInvalid.Get());
+            mruTestInvalid.AddToHistory("");
+            TestUtil.IsStringArrayEq(null, mruTestInvalid.Get());
+            var longText = Enumerable.Range(0, 500).Select(x => x.ToString());
+            mruTestInvalid.AddToHistory(string.Join("a", longText));
+            TestUtil.IsStringArrayEq(null, mruTestInvalid.Get());
+
+            // add, without first calling Get
+            var mruTestAddingFirst = new PersistMostRecentlyUsedList(InputBoxHistory.RenameImage, cfg);
+            mruTestAddingFirst.AddToHistory("abc");
+            TestUtil.IsStringArrayEq("abc", mruTestAddingFirst.Get());
+
+            // set valid data
+            var mruTest = new PersistMostRecentlyUsedList(InputBoxHistory.RenameImage, cfg);
+            TestUtil.IsStringArrayEq("abc", mruTest.Get());
+            mruTest.AddToHistory("def");
+            TestUtil.IsStringArrayEq("def|abc", mruTest.Get());
+            mruTest.AddToHistory("ghi");
+            TestUtil.IsStringArrayEq("ghi|def|abc", mruTest.Get());
+
+            // redundant should not be additional, but still moved to top
+            mruTest.AddToHistory("abc");
+            TestUtil.IsStringArrayEq("abc|ghi|def", mruTest.Get());
+            mruTest.AddToHistory("def");
+            TestUtil.IsStringArrayEq("def|abc|ghi", mruTest.Get());
+
+            // length should be capped at 10.
+            for (int i = 0; i <= 10; i++)
+            {
+                mruTest.AddToHistory(i.ToString());
+            }
+
+            TestUtil.IsStringArrayEq("10|9|8|7|6|5|4|3|2|1", mruTest.Get());
         }
 
         public static void RunTests()

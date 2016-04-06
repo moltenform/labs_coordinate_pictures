@@ -11,25 +11,25 @@ namespace labs_coordinate_pictures
 {
     public class InputBoxForm : Form
     {
-        System.ComponentModel.Container components = null;
-        Button btnCancel;
-        Button btnOK;
-        ComboBox comboBox1;
-        Label label1;
-        HistorySaver saver;
+        System.ComponentModel.Container _components = null;
+        Button _btnCancel;
+        Button _btnOK;
+        ComboBox _comboBox;
+        Label _label;
+        PersistMostRecentlyUsedList _mru;
 
         public InputBoxForm(InputBoxHistory currentKey)
         {
             InitializeComponent();
-            saver = new HistorySaver(currentKey);
+            _mru = new PersistMostRecentlyUsedList(currentKey);
             this.StartPosition = FormStartPosition.CenterParent;
             this.Text = " ";
-            this.comboBox1.Focus();
+            this._comboBox.Focus();
             this.AllowDrop = true;
         }
 
         // add MRU history, suggestions, and clipboard contents to the list of examples.
-        public static IEnumerable<string> GetInputSuggestions(string strCurrent, InputBoxHistory history, HistorySaver saver, bool useClipboard, bool mustBeDirectory, string[] more)
+        public static IEnumerable<string> GetInputSuggestions(string strCurrent, InputBoxHistory history, PersistMostRecentlyUsedList saver, bool useClipboard, bool mustBeDirectory, string[] more)
         {
             List<string> comboEntries = new List<string>();
             if (!string.IsNullOrEmpty(strCurrent))
@@ -52,31 +52,31 @@ namespace labs_coordinate_pictures
         {
             using (InputBoxForm form = new InputBoxForm(history))
             {
-                form.label1.Text = strPrompt;
+                form._label.Text = strPrompt;
 
-                var entries = GetInputSuggestions(strCurrent, history, form.saver, useClipboard, mustBeDirectory, more).ToArray();
-                form.comboBox1.Items.Clear();
+                var entries = GetInputSuggestions(strCurrent, history, form._mru, useClipboard, mustBeDirectory, more).ToArray();
+                form._comboBox.Items.Clear();
                 foreach (var s in entries)
                 {
-                    form.comboBox1.Items.Add(s);
+                    form._comboBox.Items.Add(s);
                 }
 
-                form.comboBox1.Text = entries.Length > 0 ? entries[0] : "";
+                form._comboBox.Text = entries.Length > 0 ? entries[0] : "";
                 form.ShowDialog();
                 if (form.DialogResult != DialogResult.OK)
                 {
                     return null;
                 }
 
-                if (mustBeDirectory && !Directory.Exists(form.comboBox1.Text))
+                if (mustBeDirectory && !Directory.Exists(form._comboBox.Text))
                 {
                     MessageBox.Show("Directory does not exist");
                     return null;
                 }
 
                 // save to history
-                form.saver.AddToHistory(form.comboBox1.Text);
-                return form.comboBox1.Text;
+                form._mru.AddToHistory(form._comboBox.Text);
+                return form._comboBox.Text;
             }
         }
 
@@ -98,9 +98,9 @@ namespace labs_coordinate_pictures
         {
             if (disposing)
             {
-                if (components != null)
+                if (_components != null)
                 {
-                    components.Dispose();
+                    _components.Dispose();
                 }
             }
 
@@ -111,52 +111,52 @@ namespace labs_coordinate_pictures
         #region Windows Form Designer generated code
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.btnOK = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this._label = new System.Windows.Forms.Label();
+            this._btnOK = new System.Windows.Forms.Button();
+            this._btnCancel = new System.Windows.Forms.Button();
+            this._comboBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
 
-            // label1
-            this.label1.Location = new System.Drawing.Point(12, 8);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(410, 187);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "Type in your message.";
+            // _label
+            this._label.Location = new System.Drawing.Point(12, 8);
+            this._label.Name = "_label";
+            this._label.Size = new System.Drawing.Size(410, 187);
+            this._label.TabIndex = 6;
+            this._label.Text = "Type in your message.";
 
-            // btnOK
-            this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(259, 246);
-            this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(70, 24);
-            this.btnOK.TabIndex = 2;
-            this.btnOK.Text = "OK";
+            // _btnOK
+            this._btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this._btnOK.Location = new System.Drawing.Point(259, 246);
+            this._btnOK.Name = "_btnOK";
+            this._btnOK.Size = new System.Drawing.Size(70, 24);
+            this._btnOK.TabIndex = 2;
+            this._btnOK.Text = "OK";
 
-            // btnCancel
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(335, 246);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(70, 24);
-            this.btnCancel.TabIndex = 3;
-            this.btnCancel.Text = "Cancel";
+            // _btnCancel
+            this._btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this._btnCancel.Location = new System.Drawing.Point(335, 246);
+            this._btnCancel.Name = "_btnCancel";
+            this._btnCancel.Size = new System.Drawing.Size(70, 24);
+            this._btnCancel.TabIndex = 3;
+            this._btnCancel.Text = "Cancel";
 
-            // comboBox1
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(22, 208);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(383, 21);
-            this.comboBox1.TabIndex = 1;
+            // _comboBox
+            this._comboBox.FormattingEnabled = true;
+            this._comboBox.Location = new System.Drawing.Point(22, 208);
+            this._comboBox.Name = "_comboBox";
+            this._comboBox.Size = new System.Drawing.Size(383, 21);
+            this._comboBox.TabIndex = 1;
 
             // InputBoxForm
-            this.AcceptButton = this.btnOK;
+            this.AcceptButton = this._btnOK;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.CancelButton = this.btnCancel;
+            this.CancelButton = this._btnCancel;
             this.ClientSize = new System.Drawing.Size(434, 287);
             this.ControlBox = false;
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this._comboBox);
+            this.Controls.Add(this._btnCancel);
+            this.Controls.Add(this._btnOK);
+            this.Controls.Add(this._label);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -185,24 +185,27 @@ namespace labs_coordinate_pictures
                 string filePath = filePaths[0];
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    comboBox1.Text = filePath;
+                    _comboBox.Text = filePath;
                 }
             }
         }
     }
 
     // save MRU history, limits number of entries with a queue structure.
-    public class HistorySaver
+    public class PersistMostRecentlyUsedList
     {
         public const int MaxHistoryEntries = 10;
         public const int MaxEntryLength = 300;
         readonly string _delimiter = "||||";
         InputBoxHistory _historyKey = InputBoxHistory.None;
         ConfigKey _configsKey = ConfigKey.None;
+        Configs _configs;
         string[] _currentItems;
-        public HistorySaver(InputBoxHistory historyKey)
+        public PersistMostRecentlyUsedList(InputBoxHistory historyKey,
+            Configs configs = null)
         {
             _historyKey = historyKey;
+            _configs = configs ?? Configs.Current;
             if (_historyKey != InputBoxHistory.None)
             {
                 var strKey = "MRU" + _historyKey.ToString();
@@ -215,7 +218,7 @@ namespace labs_coordinate_pictures
         {
             if (_historyKey != InputBoxHistory.None)
             {
-                _currentItems = Configs.Current.Get(_configsKey).Split(
+                _currentItems = _configs.Get(_configsKey).Split(
                     new string[] { _delimiter }, StringSplitOptions.RemoveEmptyEntries);
                 return _currentItems;
             }
@@ -249,8 +252,10 @@ namespace labs_coordinate_pictures
                     while (listNext.Count > MaxHistoryEntries)
                         listNext.RemoveAt(listNext.Count - 1);
 
-                    // reset our cached list
-                    Configs.Current.Set(_configsKey, string.Join(_delimiter, listNext));
+                    // save to configs
+                    _configs.Set(_configsKey, string.Join(_delimiter, listNext));
+
+                    // refresh in-memory cache
                     Get();
                 }
             }
