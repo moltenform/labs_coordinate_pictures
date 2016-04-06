@@ -665,7 +665,7 @@ namespace labs_coordinate_pictures
 
         public static bool IsExt(string s, string ext)
         {
-            return s.ToLowerInvariant().EndsWith("." + ext);
+            return s.ToLowerInvariant().EndsWith(ext);
         }
 
         public static string AddNumberedPrefix(string path, int n)

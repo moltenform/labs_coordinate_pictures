@@ -460,7 +460,7 @@ namespace labs_coordinate_pictures
                 return;
 
             InputBoxHistory key = FilenameUtils.LooksLikeImage(_filelist.Current) ?
-                InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, "wav") ?
+                InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, ".wav") ?
                 InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
 
             // for convenience, don't include the numbered prefix or file extension.
@@ -541,7 +541,7 @@ namespace labs_coordinate_pictures
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, "webp"))
+            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
                 Process.Start(_filelist.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
@@ -551,7 +551,7 @@ namespace labs_coordinate_pictures
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, "webp"))
+            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
                 LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", _filelist.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
@@ -561,7 +561,7 @@ namespace labs_coordinate_pictures
 
         private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, "jpg"))
+            if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), _filelist.Current);
