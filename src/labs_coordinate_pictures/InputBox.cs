@@ -2,20 +2,20 @@
 // Licensed under GPLv3. See LICENSE in the project root for license information.
 
 using System;
-using System.Windows.Forms;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
     public class InputBoxForm : Form
     {
         System.ComponentModel.Container components = null;
-        System.Windows.Forms.Button btnCancel;
-        System.Windows.Forms.Button btnOK;
+        Button btnCancel;
+        Button btnOK;
         ComboBox comboBox1;
-        System.Windows.Forms.Label label1;
+        Label label1;
         HistorySaver saver;
 
         public InputBoxForm(InputBoxHistory currentKey)
@@ -28,11 +28,9 @@ namespace labs_coordinate_pictures
             this.AllowDrop = true;
         }
 
-        public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
+        // add MRU history, suggestions, and clipboard contents to the list of examples.
+        public static IEnumerable<string> GetInputSuggestions(string strCurrent, InputBoxHistory history, HistorySaver saver, bool useClipboard, bool mustBeDirectory, string[] more)
         {
-            InputBoxForm myForm = new InputBoxForm(history);
-            myForm.label1.Text = strPrompt;
-
             List<string> comboEntries = new List<string>();
             if (!string.IsNullOrEmpty(strCurrent))
                 comboEntries.Add(strCurrent);
@@ -41,37 +39,53 @@ namespace labs_coordinate_pictures
                 comboEntries.Add(Utils.GetClipboard());
 
             if (history != InputBoxHistory.None)
-                comboEntries.AddRange(myForm.saver.Get());
+                comboEntries.AddRange(saver.Get());
 
             if (more != null)
                 comboEntries.AddRange(more);
 
-            comboEntries = comboEntries.Where(entry => FilenameUtils.IsPathRooted(entry) || !mustBeDirectory).ToList();
-            myForm.comboBox1.Items.Clear();
-            foreach (var s in comboEntries)
-                myForm.comboBox1.Items.Add(s);
+            return comboEntries.Where(entry => FilenameUtils.IsPathRooted(entry) || !mustBeDirectory);
+        }
 
-            myForm.comboBox1.Text = comboEntries.Count > 0 ? comboEntries[0] : "";
-            myForm.ShowDialog(new Form());
-            if (myForm.DialogResult != DialogResult.OK)
-                return null;
-
-            if (mustBeDirectory && !Directory.Exists(myForm.comboBox1.Text))
+        // ask user for string input.
+        public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
+        {
+            using (InputBoxForm form = new InputBoxForm(history))
             {
-                MessageBox.Show("Directory does not exist");
-                return null;
-            }
+                form.label1.Text = strPrompt;
 
-            // save to history
-            myForm.saver.AddToHistory(myForm.comboBox1.Text);
-            return myForm.comboBox1.Text;
+                var entries = GetInputSuggestions(strCurrent, history, form.saver, useClipboard, mustBeDirectory, more).ToArray();
+                form.comboBox1.Items.Clear();
+                foreach (var s in entries)
+                {
+                    form.comboBox1.Items.Add(s);
+                }
+
+                form.comboBox1.Text = entries.Length > 0 ? entries[0] : "";
+                form.ShowDialog();
+                if (form.DialogResult != DialogResult.OK)
+                {
+                    return null;
+                }
+
+                if (mustBeDirectory && !Directory.Exists(form.comboBox1.Text))
+                {
+                    MessageBox.Show("Directory does not exist");
+                    return null;
+                }
+
+                // save to history
+                form.saver.AddToHistory(form.comboBox1.Text);
+                return form.comboBox1.Text;
+            }
         }
 
         public static int? GetInteger(string strPrompt, int nDefault = 0, InputBoxHistory history = InputBoxHistory.None)
         {
             int fromClipboard = 0;
+            var clipboardContainsInt = int.TryParse(Utils.GetClipboard(), out fromClipboard);
             string s = GetStrInput(strPrompt, nDefault.ToString(), history,
-                useClipboard: int.TryParse(Utils.GetClipboard(), out fromClipboard));
+                useClipboard: clipboardContainsInt);
 
             int result = 0;
             if (s == null || s == "" || !int.TryParse(s, out result))
@@ -177,13 +191,15 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // save MRU history, limits number of entries with a queue structure.
     public class HistorySaver
     {
         public const int MaxHistoryEntries = 10;
         public const int MaxEntryLength = 300;
+        readonly string _delimiter = "||||";
         InputBoxHistory _historyKey = InputBoxHistory.None;
         ConfigKey _configsKey = ConfigKey.None;
-        string[] _returned;
+        string[] _currentItems;
         public HistorySaver(InputBoxHistory historyKey)
         {
             _historyKey = historyKey;
@@ -199,9 +215,9 @@ namespace labs_coordinate_pictures
         {
             if (_historyKey != InputBoxHistory.None)
             {
-                _returned = Configs.Current.Get(_configsKey).Split(
-                    new string[] { "||||" }, StringSplitOptions.RemoveEmptyEntries);
-                return _returned;
+                _currentItems = Configs.Current.Get(_configsKey).Split(
+                    new string[] { _delimiter }, StringSplitOptions.RemoveEmptyEntries);
+                return _currentItems;
             }
             else
             {
@@ -213,13 +229,14 @@ namespace labs_coordinate_pictures
         {
             if (_historyKey != InputBoxHistory.None)
             {
-                if (_returned == null)
+                if (_currentItems == null)
                     Get();
 
-                var index = Array.IndexOf(_returned, s);
-                if (!string.IsNullOrEmpty(s) && index != 0 && s.Length < MaxEntryLength && !s.Contains("||||"))
+                // only add if it's not already in the list, and s does not contain _delimiter.
+                var index = Array.IndexOf(_currentItems, s);
+                if (!string.IsNullOrEmpty(s) && index != 0 && s.Length < MaxEntryLength && !s.Contains(_delimiter))
                 {
-                    List<string> listNext = new List<string>(_returned);
+                    List<string> listNext = new List<string>(_currentItems);
 
                     // if it's also elsewhere in the list, remove that one
                     if (index != -1)
@@ -233,7 +250,7 @@ namespace labs_coordinate_pictures
                         listNext.RemoveAt(listNext.Count - 1);
 
                     // reset our cached list
-                    Configs.Current.Set(_configsKey, string.Join("||||", listNext));
+                    Configs.Current.Set(_configsKey, string.Join(_delimiter, listNext));
                     Get();
                 }
             }

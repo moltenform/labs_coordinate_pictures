@@ -27,17 +27,20 @@ namespace labs_coordinate_pictures
             Process.Start("explorer.exe", "/select,\"" + path + "\"");
         }
 
+        // returns exit code.
         public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
         {
             string stdout, stderr;
             return Run(exe, args, shell, waitForExit, hideWindow, false, out stdout, out stderr);
         }
 
+        // returns exit code. reading stdout implies waiting for exit.
         public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, out string stdout, out string stderr)
         {
             return Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
         }
 
+        // returns exit code. reading stdout implies waiting for exit.
         static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr, string workingDir = null)
         {
             var startInfo = new ProcessStartInfo();
@@ -80,7 +83,7 @@ namespace labs_coordinate_pictures
             return res == DialogResult.Yes;
         }
 
-        public static bool isDigits(string s)
+        public static bool IsDigits(string s)
         {
             if (s == null || s.Length == 0)
             {
@@ -103,6 +106,7 @@ namespace labs_coordinate_pictures
             return s.Substring(0, Math.Min(2, s.Length));
         }
 
+        // "soft delete" just means moving to a designated 'trash' location.
         public static string GetSoftDeleteDestination(string s)
         {
             var trashdir = Configs.Current.Get(ConfigKey.FilepathTrash);
@@ -173,13 +177,13 @@ namespace labs_coordinate_pictures
 
         public static bool RepeatWhileFileLocked(string sFilename, int timeout)
         {
-            int milliseconds = 250;
-            for (int i = 0; i < timeout; i += milliseconds)
+            int millisecondsBeforeRetry = 250;
+            for (int i = 0; i < timeout; i += millisecondsBeforeRetry)
             {
                 if (!IsFileLocked(sFilename))
                     return true;
 
-                Thread.Sleep(milliseconds);
+                Thread.Sleep(millisecondsBeforeRetry);
             }
 
             return false;
@@ -207,6 +211,7 @@ namespace labs_coordinate_pictures
             return false;
         }
 
+        // pretty-print a filesize as "1.24Mb" or "32k".
         public static string FormatFilesize(string path)
         {
             if (!File.Exists(path))
@@ -278,7 +283,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            // send a good working directory for the script so that it can find options.ini
+            // send the working directory for the script so that it can find options.ini
             var scriptcurdir = Path.Combine(Configs.Current.Directory, "ben_python_img");
             var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_convert_resize.py");
             var args = new string[] { "convert_resize", pathin, pathout, resizeSpec, jpgQuality.ToString() };
@@ -289,7 +294,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static string RunQaacConversion(string path, string qualitySpec)
+        public static string RunM4aConversion(string path, string qualitySpec)
         {
             var qualities = new string[] { "16", "24", "96", "128", "144", "160", "192", "224", "256", "288", "320", "640", "flac" };
             if (Array.IndexOf(qualities, qualitySpec) == -1)
@@ -359,6 +364,7 @@ namespace labs_coordinate_pictures
             return null;
         }
 
+        // starts website in default browser.
         public static void LaunchUrl(string s)
         {
             s = GetFirstHttpLink(s);
@@ -366,14 +372,15 @@ namespace labs_coordinate_pictures
                 Process.Start(s);
         }
 
+        // get item from array, clamps index / does not overflow
         public static T ArrayAt<T>(T[] arr, int index)
         {
             if (index < 0)
                 return arr[0];
-            if (index >= arr.Length - 1)
+            else if (index >= arr.Length - 1)
                 return arr[arr.Length - 1];
-
-            return arr[index];
+            else
+                return arr[index];
         }
 
         public static string GetSha512(string path)
@@ -391,6 +398,11 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public static string[] SplitByString(string s, string delim)
+        {
+            return Regex.Split(s, Regex.Escape(delim));
+        }
+
         public static bool IsDebug()
         {
 #if DEBUG
@@ -401,6 +413,7 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // file list that updates itself when file names are changed.
     public sealed class FileListAutoUpdated : IDisposable
     {
         bool _dirty = true;
@@ -463,6 +476,9 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // navigates a FileListAutoUpdated in alphabetical order.
+    // gracefully handles the case when navigating to a file that was just deleted,
+    // but FileListAutoUpdated has not yet received the notification event.
     public sealed class FileListNavigation : IDisposable
     {
         string[] _extensionsAllowed;
@@ -491,6 +507,8 @@ namespace labs_coordinate_pictures
             _list.Dirty();
         }
 
+        // try operations twice. if the file doesn't exist, FileListAutoUpdated might
+        // have not received the notification event yet, so mark it as dirty and retry once more.
         void TryAgainIfFileIsMissing(Func<string[], string> fn)
         {
             var list = GetList();
@@ -503,7 +521,8 @@ namespace labs_coordinate_pictures
             string firstTry = fn(list);
             if (firstTry != null && !File.Exists(firstTry))
             {
-                list = GetList(true /*refresh the list*/);
+                // refresh the list and try again
+                list = GetList(true);
                 if (list.Length == 0)
                 {
                     Current = null;
@@ -533,6 +552,7 @@ namespace labs_coordinate_pictures
                 var index = GetLessThanOrEqual(list, Current ?? "");
                 if (isNext)
                 {
+                    // caller has asked us to return adjacent items
                     for (int i = 0; i < retrieveNeighbors; i++)
                     {
                         neighbors[i] = Utils.ArrayAt(list, index + i + 2);
@@ -546,6 +566,7 @@ namespace labs_coordinate_pictures
                     if (index > 0 && Current == list[index])
                         index--;
 
+                    // caller has asked us to return adjacent items
                     for (int i = 0; i < retrieveNeighbors; i++)
                     {
                         neighbors[i] = Utils.ArrayAt(list, index - i - 1);
@@ -591,10 +612,10 @@ namespace labs_coordinate_pictures
             {
                 if (!includeMarked && _excludeMarked && path.Contains(FilenameUtils.MarkerString))
                     return false;
-
-                if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
+                else if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
                     return false;
-                return true;
+                else
+                    return true;
             };
 
             return _list.GetList().Where(includeFile).ToArray();
@@ -691,7 +712,7 @@ namespace labs_coordinate_pictures
             if (Path.GetDirectoryName(pathAndCategory).Contains(MarkerString))
                 throw new CoordinatePicturesException("Directories should not have marker");
 
-            var parts = Regex.Split(pathAndCategory, Regex.Escape(MarkerString));
+            var parts = Utils.SplitByString(pathAndCategory, MarkerString);
             if (parts.Length != 2)
             {
                 if (!Configs.Current.SupressDialogs)
@@ -728,6 +749,7 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // Simple logging class, writes synchronously to a text file.
     public sealed class SimpleLog
     {
         private static SimpleLog _instance;
@@ -783,7 +805,8 @@ namespace labs_coordinate_pictures
         }
     }
 
-    // takes example.png90.jpg and notices that example.pmg, example_out.png and example.png60.jpg are related files.
+    // finds similar filenames, especially those created by FormGallery::convertToSeveralJpgs.
+    // e.g., given example.png90.jpg, will see that example.png, example_out.png and example.png60.jpg are related files.
     public static class FilenameFindSimilarFilenames
     {
         public static bool FindMiddleOfName(string path, string[] types, out string pathWithMiddleRemoved)
@@ -797,7 +820,7 @@ namespace labs_coordinate_pictures
                 foreach (var fileext in types)
                 {
                     var type = fileext.Replace(".", "");
-                    if (middle.StartsWith(type) && Utils.isDigits(middle.Replace(type, "")))
+                    if (middle.StartsWith(type) && Utils.IsDigits(middle.Replace(type, "")))
                     {
                         found = true;
                         break;

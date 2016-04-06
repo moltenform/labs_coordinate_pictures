@@ -22,6 +22,7 @@ namespace labs_coordinate_pictures
 
     public static class TestUtil
     {
+        // expect an exception to occur when running the action, the exception should have the string in its message.
         public static void AssertExceptionMessage(Action fn, string strExpect)
         {
             string strException = null;
@@ -43,7 +44,7 @@ namespace labs_coordinate_pictures
 
         public static void AssertEqual(object expected, object actual)
         {
-            // the nullToken compares equal to itself, but nothing else.
+            // use a specific token to make sure that AssertEqual(null, null) works.
             object nullToken = new object();
             expected = expected ?? nullToken;
             actual = actual ?? nullToken;
@@ -69,6 +70,7 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // use reflection to call all methods that start with TestMethod_
         public static void CallAllTestMethods(Type t, object[] arParams)
         {
             MethodInfo[] methodInfos = t.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
@@ -215,12 +217,12 @@ namespace labs_coordinate_pictures
             cfg.Set(ConfigKey.EnablePersonalFeatures, "data=with=equals=");
             cfg.Set(ConfigKey.FilepathPython, " data\twith\t tabs");
 
-            /* from memory */
+            // from memory
             TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
             TestUtil.AssertEqual(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
             TestUtil.AssertEqual("", cfg.Get(ConfigKey.FilepathTrash));
 
-            /* from disk */
+            // from disk
             cfg = new Configs(path);
             cfg.LoadPersisted();
             TestUtil.AssertEqual("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
@@ -265,7 +267,7 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_FileListNavigation()
         {
-            /* setup */
+            // setup
             var dir = TestUtil.GetTestSubDirectory("filelist");
             File.WriteAllText(Path.Combine(dir, "dd.png"), "content");
             File.WriteAllText(Path.Combine(dir, "cc.png"), "content");
@@ -412,6 +414,7 @@ namespace labs_coordinate_pictures
             File.WriteAllText(Path.Combine(dir, "a1.png"), "fake image1");
             File.WriteAllText(Path.Combine(dir, "b1.png"), "fake image2");
             List<object> removedFromCache = new List<object>();
+            const int cachesize = 3;
             Func<Bitmap, bool> canDisposeBitmap =
                 (bmp) =>
                 {
@@ -426,7 +429,7 @@ namespace labs_coordinate_pictures
                 };
 
             { // standard lookup
-                var imcache = new ImageCache(20, 20, 3 /*cache size*/,
+                var imcache = new ImageCache(20, 20, cachesize,
                     callbackOnUiThread, canDisposeBitmap);
 
                 // retrieve from the cache
@@ -465,7 +468,7 @@ namespace labs_coordinate_pictures
             }
 
             { // add past the limit
-                var imcache = new ImageCache(20, 20, 3 /*cache size*/,
+                var imcache = new ImageCache(20, 20, cachesize,
                     callbackOnUiThread, canDisposeBitmap);
 
                 // fill up cache

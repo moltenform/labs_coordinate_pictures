@@ -15,13 +15,14 @@ namespace labs_coordinate_pictures
 {
     public partial class FormGallery : Form
     {
+        // see SortingImages.md for a description of modes and categories.
         // the 'mode' specifies filetypes, and can add custom commands
         ModeBase _mode;
 
         // is this a large image that needed to be resized
         bool _currentImageResized = false;
 
-        // if user control-clicks on a large image, we'll show a zoomed portion of image.
+        // if user control-clicks on a large image, we'll show a zoomed portion of image
         bool _zoomed = false;
 
         // during long-running operations on bg threads, we block most UI input
@@ -37,16 +38,16 @@ namespace labs_coordinate_pictures
         // placeholder image
         Bitmap _bitmapBlank = new Bitmap(1, 1);
 
-        // smart directory-list object that updates itself if filenames are changed.
+        // smart directory-list object that updates itself if filenames are changed
         FileListNavigation _filelist;
 
-        // cache of images; we'll prefetch images into the cache on a bg thread.
+        // cache of images; we'll prefetch images into the cache on a bg thread
         ImageCache _imagecache;
 
-        // how many images to store in cache.
+        // how many images to store in cache
         const int ImageCacheSize = 15;
 
-        // how many images to prefetch after the user moves to the next image.
+        // how many images to prefetch after the user moves to the next image
         const int ImageCacheBatch = 8;
 
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
@@ -67,22 +68,12 @@ namespace labs_coordinate_pictures
             moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
             moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
             moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
-            renameItemToolStripMenuItem.Click += (sender, e) => RenameFile(false);
+            renameItemToolStripMenuItem.Click += (sender, e) => RenameFile();
 
             _filelist = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
             RefreshCategories();
             OnOpenItem();
-        }
-
-        public FileListNavigation GetFilelist()
-        {
-            return _filelist;
-        }
-
-        public ImageCache GetImageCache()
-        {
-            return _imagecache;
         }
 
         protected override void Dispose(bool disposing)
@@ -100,6 +91,16 @@ namespace labs_coordinate_pictures
             }
 
             base.Dispose(disposing);
+        }
+
+        public FileListNavigation GetFilelist()
+        {
+            return _filelist;
+        }
+
+        public ImageCache GetImageCache()
+        {
+            return _imagecache;
         }
 
         void OnOpenItem()
@@ -120,6 +121,8 @@ namespace labs_coordinate_pictures
             {
                 // tell the mode we've opened something
                 _mode.OnOpenItem(_filelist.Current, this);
+
+                // show the current image
                 int nOrigW = 0, nOrigH = 0;
                 pictureBox1.Image = _imagecache.Get(_filelist.Current, out nOrigW, out nOrigH);
                 _currentImageResized = nOrigW > _imagecache.MaxWidth || nOrigH > _imagecache.MaxHeight;
@@ -141,6 +144,7 @@ namespace labs_coordinate_pictures
                 _imagecache.Dispose();
             }
 
+            // provide callbacks for ImageCache to see if it can dispose an image.
             Func<Bitmap, bool> canDisposeBitmap =
                 (bmp) => (bmp as object) != (pictureBox1.Image as object);
             Func<Action, bool> callbackOnUiThread =
@@ -161,6 +165,7 @@ namespace labs_coordinate_pictures
 
         void MoveOne(bool forwardDirection)
         {
+            // make a list of length ImageCacheBatch
             var pathsToCache = new List<string>();
             for (int i = 0; i < ImageCacheBatch; i++)
                 pathsToCache.Add(null);
@@ -191,10 +196,12 @@ namespace labs_coordinate_pictures
             labelView.Text = "\r\n\r\n";
             if (_mode.GetDisplayCustomCommands().Length > 0)
             {
+                // restore original Edit menu
                 editToolStripMenuItem.DropDownItems.Clear();
                 foreach (var item in _originalEditMenu)
                     editToolStripMenuItem.DropDownItems.Add(item);
 
+                // add items to the Edit menu and to labelView.Text.
                 editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
                 foreach (var tuple in _mode.GetDisplayCustomCommands())
                 {
@@ -211,10 +218,13 @@ namespace labs_coordinate_pictures
         void RefreshCategories()
         {
             RefreshCustomCommands();
+
+            // restore original Categories menu
             categoriesToolStripMenuItem.DropDownItems.Clear();
             foreach (var item in _originalCategoriesMenu)
                 categoriesToolStripMenuItem.DropDownItems.Add(item);
 
+            // add items to the Categories menu and to labelView.Text.
             categoriesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
             _categoryShortcuts = new Dictionary<string, string>();
             var tuples = ModeUtils.ModeToTuples(_mode);
@@ -228,6 +238,7 @@ namespace labs_coordinate_pictures
                 this._categoryShortcuts[tuple.Item1] = tuple.Item3;
             }
 
+            // only show categories in the UI if enabled.
             if (!Configs.Current.GetBool(ConfigKey.GalleryViewCategories))
             {
                 labelView.Text = "";
@@ -243,11 +254,13 @@ namespace labs_coordinate_pictures
 
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // in the input box, suggest category strings.
             var suggestions = new string[]
             {
                 Configs.Current.Get(_mode.GetCategories()),
                 _mode.GetDefaultCategories()
             };
+
             var text = "Please enter a list of category strings separated by |. Each category string must be in the form A/categoryReadable/categoryId, where A is a single capital letter, categoryReadable will be the human-readable label, and categoryID will be the unique ID (when an image is given this ID, the ID will be added to the filename as a suffix).";
             var nextCategories = InputBoxForm.GetStrInput(text, null, InputBoxHistory.EditCategoriesString, suggestions);
             if (!string.IsNullOrEmpty(nextCategories))
@@ -267,8 +280,8 @@ namespace labs_coordinate_pictures
             }
         }
 
-        List<Tuple<string, string>> _undoStack = new List<Tuple<string, string>>();
-        int _undoIndex = 0;
+        List<Tuple<string, string>> _undoFileMoves = new List<Tuple<string, string>>();
+        int _undoFileMovesIndex = 0;
         public bool WrapMoveFile(string src, string target, bool fAddToUndoStack = true)
         {
             const int millisecondsToRetryMoving = 3000;
@@ -305,8 +318,8 @@ namespace labs_coordinate_pictures
 
             if (fAddToUndoStack)
             {
-                _undoStack.Add(new Tuple<string, string>(src, target));
-                _undoIndex = _undoStack.Count - 1;
+                _undoFileMoves.Add(new Tuple<string, string>(src, target));
+                _undoFileMovesIndex = _undoFileMoves.Count - 1;
             }
 
             return true;
@@ -314,30 +327,30 @@ namespace labs_coordinate_pictures
 
         internal void undoMoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_undoIndex < 0)
+            if (_undoFileMovesIndex < 0)
             {
                 MessageBox.Show("nothing to undo");
             }
-            else if (_undoIndex >= _undoStack.Count)
+            else if (_undoFileMovesIndex >= _undoFileMoves.Count)
             {
                 MessageBox.Show("invalid undo index");
-                _undoIndex = _undoStack.Count - 1;
+                _undoFileMovesIndex = _undoFileMoves.Count - 1;
             }
             else
             {
-                var newdest = _undoStack[_undoIndex].Item1;
-                var newsrc = _undoStack[_undoIndex].Item2;
+                var newdest = _undoFileMoves[_undoFileMovesIndex].Item1;
+                var newsrc = _undoFileMoves[_undoFileMovesIndex].Item2;
                 if (Utils.AskToConfirm("move " + newsrc + " back to " + newdest + "?"))
                 {
                     if (WrapMoveFile(newsrc, newdest, fAddToUndoStack: false))
                     {
-                        _undoIndex--;
+                        _undoFileMovesIndex--;
                     }
                 }
             }
         }
 
-        internal void FormGallery_KeyUp(object sender, KeyEventArgs e)
+        public void FormGallery_KeyUp(object sender, KeyEventArgs e)
         {
             if (!_enabled)
                 return;
@@ -347,7 +360,7 @@ namespace labs_coordinate_pictures
             // 2) ShortcutKeys uses KeyDown which fires many times if you hold the key
             if (!e.Shift && !e.Control && !e.Alt)
             {
-                if (e.KeyCode == Keys.F5) // not in menus, shouldn't be needed
+                if (e.KeyCode == Keys.F5)
                     RefreshFilelist();
                 else if (e.KeyCode == Keys.Left)
                     MoveOne(false);
@@ -364,10 +377,11 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.Delete)
                     KeyDelete();
                 else if (e.KeyCode == Keys.H)
-                    RenameFile(false);
+                    RenameFile();
             }
             else if (e.Shift && !e.Control && !e.Alt)
             {
+                // see if this is a category shortcut
                 var keystring = e.KeyCode.ToString();
                 if (keystring.Length == 1 || (keystring.Length == 2 && keystring[0] == 'D'))
                 {
@@ -414,15 +428,11 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.Enter)
                     finishedCategorizingToolStripMenuItem_Click(null, null);
             }
-            else if (!e.Shift && !e.Control && e.Alt)
-            {
-                if (e.KeyCode == Keys.H) // not in menus, not comonly used
-                    RenameFile(true);
-            }
 
             _mode.OnCustomCommand(this, e.Shift, e.Alt, e.Control, e.KeyCode);
         }
 
+        // add a file to a category (appends to the filename and it won't show up in formgallery anymore)
         void AssignCategory(string categoryId)
         {
             _mode.OnBeforeAssignCategory();
@@ -436,7 +446,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void RenameFile(bool overwriteNumberedPrefix)
+        public void RenameFile()
         {
             if (_filelist.Current == null || !_mode.SupportsRename())
                 return;
@@ -445,11 +455,10 @@ namespace labs_coordinate_pictures
                 InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, "wav") ?
                 InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
 
-            var current = overwriteNumberedPrefix ?
-                Path.GetFileName(_filelist.Current) :
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(_filelist.Current);
-
+            // for convenience, don't include the numbered prefix or file extension.
+            var current = FilenameUtils.GetFileNameWithoutNumberedPrefix(_filelist.Current);
             var currentNoext = Path.GetFileNameWithoutExtension(current);
+
             var newname = InputBoxForm.GetStrInput("Enter a new name:", currentNoext, key);
             if (!string.IsNullOrEmpty(newname))
             {
@@ -484,6 +493,7 @@ namespace labs_coordinate_pictures
             return WrapMoveFile(path, dest);
         }
 
+        // during long-running operations on bg threads, we block most UI input
         public void UIEnable()
         {
             this.label.ForeColor = Color.Black;
@@ -524,7 +534,7 @@ namespace labs_coordinate_pictures
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (FilenameUtils.IsExt(_filelist.Current, "webp"))
-                Process.Start(_filelist.Current); // open in default viewer
+                Process.Start(_filelist.Current);
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
             else
@@ -551,12 +561,13 @@ namespace labs_coordinate_pictures
                 LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
         }
 
+        // add a prefix to files, useful when renaming and you want to maintain the order
         private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
         {
             int nAddedPrefix = 0, nSkippedPrefix = 0, nFailedToRename = 0;
-            int i = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
+                int i = 0;
                 foreach (var path in _filelist.GetList())
                 {
                     i++;
@@ -605,6 +616,7 @@ namespace labs_coordinate_pictures
             MessageBox.Show(string.Format("{0} files skipped because they have no prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedAlready, nFailedToRename, nRemovedPrefix));
         }
 
+        // replace one string with another within a filename.
         private void replaceInFilenameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !_mode.SupportsRename())
@@ -628,10 +640,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void FormGallery_FormClosed(object sender, FormClosedEventArgs e)
-        {
-        }
-
+        // ctrl-clicking a large image will show a zoomed-in view.
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             if ((ModifierKeys & Keys.Control) == Keys.Control)
@@ -650,6 +659,7 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // calls a Python script to convert or resize an image.
         private void convertResizeImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
@@ -661,7 +671,7 @@ namespace labs_coordinate_pictures
                 return;
 
             if ((!resize.EndsWith("h") && !resize.EndsWith("%")) ||
-                !Utils.isDigits(resize.Substring(0, resize.Length - 1)))
+                !Utils.IsDigits(resize.Substring(0, resize.Length - 1)))
             {
                 MessageBox.Show("invalid resize spec.");
                 return;
@@ -691,6 +701,7 @@ namespace labs_coordinate_pictures
 
         private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // webp converter can be slow for large images, so ask the user first.
             var list = _filelist.GetList().Where((item) => item.EndsWith(".png"));
             var newlist = new List<string>();
             foreach (var path in list)
@@ -709,6 +720,7 @@ namespace labs_coordinate_pictures
                     var newname = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + ".webp";
                     if (!File.Exists(newname))
                     {
+                        // convert png to webp, then delete the larger of the resulting pair of images.
                         Utils.RunImageConversion(path, newname, "100%", 100);
                         if (new FileInfo(newname).Length < new FileInfo(path).Length)
                         {
@@ -728,6 +740,7 @@ namespace labs_coordinate_pictures
             }));
         }
 
+        // makes several images at different jpg qualities.
         private void convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
@@ -744,6 +757,7 @@ namespace labs_coordinate_pictures
             }));
         }
 
+        // after making several images at different jpg qualities, keeps the current image and removes the rest.
         private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
@@ -769,6 +783,7 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // each mode can specify a 'completion action' that is called for each file that was given a category.
         private void finishedCategorizingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!_mode.SupportsCompletionAction())

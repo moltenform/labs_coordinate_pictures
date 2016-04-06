@@ -407,7 +407,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormGallery";
             this.Text = "FormGallery";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormGallery_FormClosed);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

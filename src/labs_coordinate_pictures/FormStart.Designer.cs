@@ -35,8 +35,8 @@
             this.findDuplicateFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.checkFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,10 +56,10 @@
             this.setDropqpyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMp3DirectCutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setExiftoolLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
             this.setSortmusicStagingLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterSourceLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterDestinationLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -101,8 +101,8 @@
             // 
             this.picturesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.categorizeAndRenamePicturesToolStripMenuItem,
-            this.toolStripMenuItem1,
             this.checkFilesizesToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.resizePhotosKeepingExifsToolStripMenuItem,
             this.markwavQualityToolStripMenuItem,
             this.markmp3QualityToolStripMenuItem});
@@ -116,16 +116,16 @@
             this.categorizeAndRenamePicturesToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.categorizeAndRenamePicturesToolStripMenuItem.Text = "&Categorize and Rename Pictures...";
             // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(254, 6);
-            // 
             // checkFilesizesToolStripMenuItem
             // 
             this.checkFilesizesToolStripMenuItem.Name = "checkFilesizesToolStripMenuItem";
             this.checkFilesizesToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.checkFilesizesToolStripMenuItem.Text = "Check file&sizes...";
+            this.checkFilesizesToolStripMenuItem.Text = "Check File&sizes...";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(254, 6);
             // 
             // resizePhotosKeepingExifsToolStripMenuItem
             // 
@@ -259,15 +259,6 @@
             this.setExiftoolLocationToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
             this.setExiftoolLocationToolStripMenuItem.Text = "Set exiftool location...";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 38);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(201, 52);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
-            // 
             // setSortmusicStagingLocationToolStripMenuItem
             // 
             this.setSortmusicStagingLocationToolStripMenuItem.Name = "setSortmusicStagingLocationToolStripMenuItem";
@@ -285,6 +276,15 @@
             this.setSorttwitterDestinationLocationToolStripMenuItem.Name = "setSorttwitterDestinationLocationToolStripMenuItem";
             this.setSorttwitterDestinationLocationToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
             this.setSorttwitterDestinationLocationToolStripMenuItem.Text = "Set sorttwitter output location...";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 38);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(201, 52);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
             // FormStart
             // 

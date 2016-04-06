@@ -9,10 +9,12 @@ using System.Text;
 
 namespace labs_coordinate_pictures
 {
+    // Keys for storing persisted settings.
+    // Unlike a C++ enum, numeric values aren't used at all,
+    // it's the names that are important. Changing the names
+    // here will cause loss of compatibility.
     public enum ConfigKey
     {
-        // nb: unlike a C++ enum, it's changing the names and
-        // not the order that will cause compat issues.
         None,
         Version,
         EnablePersonalFeatures,
@@ -65,6 +67,9 @@ namespace labs_coordinate_pictures
         MRUEditCategoriesString,
     }
 
+    // The inputbox dialog keeps a MRU list of recently used strings.
+    // Each item here requires a corresponding item in ConfigKey
+    // (which is verified in a test).
     public enum InputBoxHistory
     {
         None,
@@ -80,6 +85,10 @@ namespace labs_coordinate_pictures
         EditCategoriesString,
     }
 
+    // Class for storing settings.
+    // Persisted settings are saved to a simple ini text file.
+    // Currently saves to disk synchronously on every change to a persisted setting
+    // which is acceptible for current usage.
     public sealed class Configs
     {
         static Configs _instance;
@@ -93,7 +102,6 @@ namespace labs_coordinate_pictures
 
         // in-memory non-persisted settings
         public string Directory { get; private set; }
-
         public bool SupressDialogs { get; set; }
 
         public static Configs Current

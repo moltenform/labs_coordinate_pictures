@@ -21,6 +21,7 @@ namespace labs_coordinate_pictures
             InitializeComponent();
             HideOrShowMenus();
 
+            // provide Click events for menu items.
             this.setTrashDirectoryToolStripMenuItem.Click += (sender, e) =>
                 OnSetConfigsDir(sender, "When pressing Delete to 'move to trash', files will be moved to this directory.", ConfigKey.FilepathTrash);
             this.setAltImageEditorDirectoryToolStripMenuItem.Click += (sender, e) =>
@@ -147,20 +148,25 @@ namespace labs_coordinate_pictures
 
         void HideOrShowMenus()
         {
-            ToolStripItem[] menusPersonalOnly = new ToolStripItem[]
+            var menusPersonalOnly = new ToolStripItem[]
             {
                 this.toolStripMenuItem1,
                 this.toolStripMenuItem2,
                 this.resizePhotosKeepingExifsToolStripMenuItem,
-                this.checkFilesizesToolStripMenuItem,
                 this.markwavQualityToolStripMenuItem,
                 this.markmp3QualityToolStripMenuItem,
                 this.setMediaEditorDirectoryToolStripMenuItem,
                 this.setMediaPlayerDirectoryToolStripMenuItem,
                 this.setCreateSyncDirectoryToolStripMenuItem,
                 this.setCoordmusicLocationToolStripMenuItem,
-                this.setDropqpyLocationToolStripMenuItem
+                this.setDropqpyLocationToolStripMenuItem,
+                this.setMp3DirectCutToolStripMenuItem,
+                this.setExiftoolLocationToolStripMenuItem,
+                this.setSortmusicStagingLocationToolStripMenuItem,
+                this.setSorttwitterSourceLocationToolStripMenuItem,
+                this.setSorttwitterDestinationLocationToolStripMenuItem,
             };
+
             foreach (var item in menusPersonalOnly)
             {
                 item.Visible = Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
@@ -169,6 +175,7 @@ namespace labs_coordinate_pictures
 
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            throw new NotImplementedException();
         }
 
         private void FormStart_DragEnter(object sender, DragEventArgs e)
@@ -216,7 +223,7 @@ namespace labs_coordinate_pictures
                 }
                 else
                 {
-                    Utils.RunPythonScriptOnSeparateThread(script, new string[] { "startspotify", path }, true /*create window*/);
+                    Utils.RunPythonScriptOnSeparateThread(script, new string[] { "startspotify", path }, createWindow: true);
                 }
             }
             else
@@ -225,6 +232,10 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // verify checksums.
+        // the second item of the tuple can be in the format
+        // .example.exe, which uses a file named example.exe existing the same directory as the target,
+        // /example.exe, which when the target is a directory, uses the file example.exe in this directory
         static Tuple<ConfigKey, string, ConfigKey>[] verifyChecksumsKeys = new Tuple<ConfigKey, string, ConfigKey>[]
         {
             Tuple.Create(ConfigKey.FilepathAltEditorImage, "", ConfigKey.FilepathChecksumAltEditorImage),
@@ -248,18 +259,19 @@ namespace labs_coordinate_pictures
             {
                 if (!string.IsNullOrEmpty(Configs.Current.Get(tuple.Item1)))
                 {
+                    // adds second item of the tuple to filename as described above.
                     var path = Configs.Current.Get(tuple.Item1);
                     if (tuple.Item2.StartsWith("."))
                         path = Path.GetDirectoryName(path) + "\\" + tuple.Item2.Substring(1);
                     else if (tuple.Item2.StartsWith("/"))
                         path = path + "\\" + tuple.Item2.Substring(1);
 
-                    var hashNow = Utils.GetSha512(path);
+                    var hash = Utils.GetSha512(path);
                     var hashExpected = Configs.Current.Get(tuple.Item3);
-                    if (hashExpected != hashNow)
+                    if (hashExpected != hash)
                     {
-                        if (Utils.AskToConfirm("Checksum does not match for file " + path + "\r\nwas:" + hashExpected + "\r\nnow: " + hashNow + "\r\nDid you recently upgrade or change this program? If so, click Yes. Otherwise, click No to exit."))
-                            Configs.Current.Set(tuple.Item3, hashNow);
+                        if (Utils.AskToConfirm("Checksum does not match for file " + path + "\r\nwas:" + hashExpected + "\r\nnow: " + hash + "\r\nDid you recently upgrade or change this program? If so, click Yes. Otherwise, click No to exit."))
+                            Configs.Current.Set(tuple.Item3, hash);
                         else
                             Environment.Exit(1);
                     }

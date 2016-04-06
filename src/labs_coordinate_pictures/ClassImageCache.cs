@@ -13,9 +13,20 @@ namespace labs_coordinate_pictures
 {
     public sealed class ImageCache : IDisposable
     {
+        // cache of images, one entry per file.
+        // all images are owned by and disposed from the cache.
+        // tuple of path/image/width/height/modified-time.
         List<Tuple<string, Bitmap, int, int, DateTime>> _cache;
+
+        // lock protecting _cache. doesn't need to be a RW lock,
+        // as there won't usually be multiple readers.
         object _lock = new object();
+
+        // not a hard constraint but rough limit on length of _cache.
         int _cacheSize;
+
+        // when removing an entry from the cache, we can't remove the
+        // entry that is currently shown by a form.
         Func<Action, bool> _callbackOnUiThread;
         Func<Bitmap, bool> _canDisposeBitmap;
 
@@ -50,33 +61,38 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // returns index into _cache if found and up to date, or otherwise -1.
         int SearchForUpToDateCacheEntry(string path)
         {
-            int index = -1;
-            for (int i = 0; i < _cache.Count; i++)
+            lock (_lock)
             {
-                // linear search is fine as we only have a few entries.
-                if (_cache[i].Item1 == path)
+                int index = -1;
+                for (int i = 0; i < _cache.Count; i++)
                 {
-                    index = i;
-                    break;
+                    // linear search is fine as we only have a few entries.
+                    if (_cache[i].Item1 == path)
+                    {
+                        index = i;
+                        break;
+                    }
                 }
-            }
 
-            if (index != -1)
-            {
-                // is it up to date though? if it's been written to, invalidate cache.
-                var dtNow = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : System.DateTime.MaxValue;
-                if (dtNow != _cache[index].Item5)
+                if (index != -1)
                 {
-                    _cache.RemoveAt(index);
-                    index = -1;
+                    // is it up to date though? if it's been written to, invalidate cache.
+                    var dtNow = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : System.DateTime.MaxValue;
+                    if (dtNow != _cache[index].Item5)
+                    {
+                        _cache.RemoveAt(index);
+                        index = -1;
+                    }
                 }
-            }
 
-            return index;
+                return index;
+            }
         }
 
+        // get image for this path. an image is created synchronously if not in the cache.
         public Bitmap Get(string path, out int nOrigW, out int nOrigH)
         {
             lock (_lock)
@@ -89,7 +105,9 @@ namespace labs_coordinate_pictures
                     Add(new string[] { path });
                     index = SearchForUpToDateCacheEntry(path);
                     if (index == -1)
-                        throw new CoordinatePicturesException("did not find image we just cached");
+                    {
+                        throw new CoordinatePicturesException("did not find image that was just cached");
+                    }
                 }
 
                 nOrigW = _cache[index].Item3;
@@ -98,6 +116,7 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // add paths to cache, and then checks for images to remove.
         public void Add(string[] paths)
         {
             bool checkTooBig = false;
@@ -108,27 +127,31 @@ namespace labs_coordinate_pictures
 
                 lock (_lock)
                 {
+                    // skip if it's already in the cache
                     if (SearchForUpToDateCacheEntry(path) != -1)
                         continue;
 
-                    // could get the bitmap out of lock... but that risks redundant work
+                    // reading and resizing the bitmap can be done outside the lock,
+                    // but this might do redundant work.
                     int nOrigW = 0, nOrigH = 0;
                     var b = GetResizedBitmap(path, out nOrigW, out nOrigH);
-                    var lastModified = File.Exists(path) ? new FileInfo(path).LastWriteTimeUtc : DateTime.MaxValue;
+                    var lastModified = File.Exists(path) ?
+                        new FileInfo(path).LastWriteTimeUtc :
+                        DateTime.MaxValue;
                     _cache.Add(new Tuple<string, Bitmap, int, int, DateTime>(
                         path, b, nOrigW, nOrigH, lastModified));
                     checkTooBig = _cache.Count > _cacheSize;
                 }
             }
 
-            // we don't want to Dispose() the currently shown image.
-            // note that since checkTooBig is outside the lock, it might have false negatives, but that's ok.
             if (checkTooBig)
             {
+                // ask our owner before we call Dispose() in case the owner is currently using this image.
                 _callbackOnUiThread.Invoke(new Action(() =>
                 {
                     lock (_lock)
                     {
+                        // now that we've acquired the lock it's possible there is no work left to do.
                         // iterate backwards, since RemoveAt repositions subsequent elements
                         var howManyToRemove = _cache.Count - _cacheSize;
                         for (int i = howManyToRemove - 1; i >= 0; i--)
@@ -170,7 +193,7 @@ namespace labs_coordinate_pictures
                     imFromFile = new Bitmap(path);
 
                     // some image files, especially jpgs from a scanner, have custom resolutions,
-                    // I've found that I get best results when overriding the resolution here.
+                    // I prefer overriding the resolution.
                     imFromFile.SetResolution(96.0f, 96.0f);
                 }
             }
@@ -207,7 +230,8 @@ namespace labs_coordinate_pictures
                 nOrigH = imFromFile.Height;
                 if (imFromFile.Width > MaxWidth || imFromFile.Height > MaxHeight)
                 {
-                    var ratio = Math.Min((double)MaxWidth / imFromFile.Width, (double)MaxHeight / imFromFile.Height);
+                    var ratio = Math.Min((double)MaxWidth / imFromFile.Width,
+                        (double)MaxHeight / imFromFile.Height);
                     int newwidth = (int)(imFromFile.Width * ratio);
                     int newheight = (int)(imFromFile.Height * ratio);
                     return ResizeImage(imFromFile, newwidth, newheight, path);
@@ -223,8 +247,8 @@ namespace labs_coordinate_pictures
         public static Bitmap ResizeImage(Bitmap srcImage, int newWidth, int newHeight, string pathForLogging)
         {
             // Kris Erickson, stackoverflow 87753.
-            // use pixelformat, System.Drawing.Imaging.PixelFormat.Format32bppPArgb
-            // unfortunately, GDI seems to have a lock, so we don't get great concurrency.
+            // also considered pixelformat Imaging.PixelFormat.Format32bppPArgb
+            // GDI seems to have a lock, so we don't get great concurrency.
             Bitmap newImage = new Bitmap(newWidth, newHeight);
             using (Graphics gr = Graphics.FromImage(newImage))
             {
@@ -252,6 +276,7 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // show a full-resolution excerpt of a large image
     public sealed class ImageViewExcerpt : IDisposable
     {
         public ImageViewExcerpt(int maxwidth, int maxheight)
