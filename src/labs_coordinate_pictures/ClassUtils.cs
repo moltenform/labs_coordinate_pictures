@@ -136,7 +136,9 @@ namespace labs_coordinate_pictures
         {
             // By Roger Knapp, http://csharptest.net/529/how-to-correctly-escape-command-line-arguments-in-c/
             if (args == null || args.Length == 0)
+            {
                 return "";
+            }
 
             StringBuilder arguments = new StringBuilder();
             Regex invalidChar = new Regex("[\x00\x0a\x0d]"); // these can not be escaped
@@ -376,17 +378,25 @@ namespace labs_coordinate_pictures
         public static T ArrayAt<T>(T[] arr, int index)
         {
             if (index < 0)
+            {
                 return arr[0];
+            }
             else if (index >= arr.Length - 1)
+            {
                 return arr[arr.Length - 1];
+            }
             else
+            {
                 return arr[index];
+            }
         }
 
         public static string GetSha512(string path)
         {
             if (path == null || !File.Exists(path))
+            {
                 return "filenotfound";
+            }
 
             using (SHA512Managed sha512 = new SHA512Managed())
             {
@@ -471,7 +481,9 @@ namespace labs_coordinate_pictures
             if (disposing)
             {
                 if (_watcher != null)
-                _watcher.Dispose();
+                {
+                    _watcher.Dispose();
+                }
             }
         }
     }
@@ -539,9 +551,12 @@ namespace labs_coordinate_pictures
 
         static int GetLessThanOrEqual(string[] list, string search)
         {
-            var index = Array.BinarySearch<string>(list, search);
+            var index = Array.BinarySearch(list, search);
             if (index < 0)
+            {
                 index = ~index - 1;
+            }
+
             return index;
         }
 
@@ -632,7 +647,9 @@ namespace labs_coordinate_pictures
             if (disposing)
             {
                 if (_list != null)
+                {
                     _list.Dispose();
+                }
             }
         }
     }
@@ -657,7 +674,9 @@ namespace labs_coordinate_pictures
             foreach (var item in sExts)
             {
                 if (sLower.EndsWith(item))
+                {
                     return true;
+                }
             }
 
             return false;
@@ -688,12 +707,16 @@ namespace labs_coordinate_pictures
         {
             var nameOnly = Path.GetFileName(path);
             if (nameOnly.Length > 8 && nameOnly.StartsWith("([") && nameOnly.Substring(6, 2) == "])")
+            {
                 return nameOnly.Substring(8);
+            }
             else
+            {
                 return nameOnly;
+            }
         }
 
-        public static string AddMarkToFilename(string path, string category)
+        public static string AddCategoryToFilename(string path, string category)
         {
             if (path.Contains(MarkerString))
             {
@@ -706,24 +729,30 @@ namespace labs_coordinate_pictures
             return Path.Combine(Path.GetDirectoryName(path), before) + MarkerString + category + ext;
         }
 
-        public static void GetMarkFromFilename(string pathAndCategory, out string pathWithoutCategory, out string category)
+        public static void GetCategoryFromFilename(string pathAndCategory, out string pathWithoutCategory, out string category)
         {
             // check nothing in path has mark
             if (Path.GetDirectoryName(pathAndCategory).Contains(MarkerString))
+            {
                 throw new CoordinatePicturesException("Directories should not have marker");
+            }
 
             var parts = Utils.SplitByString(pathAndCategory, MarkerString);
             if (parts.Length != 2)
             {
                 if (!Configs.Current.SupressDialogs)
+                {
                     MessageBox.Show("Path " + pathAndCategory + " should contain exactly 1 marker.");
+                }
 
                 throw new CoordinatePicturesException("Path " + pathAndCategory + " should contain exactly 1 marker.");
             }
 
             var partsAfterMarker = parts[1].Split(new char[] { '.' });
             if (partsAfterMarker.Length != 2)
+            {
                 throw new CoordinatePicturesException("Parts after the marker shouldn't have another .");
+            }
 
             category = partsAfterMarker[0];
             pathWithoutCategory = parts[0] + "." + partsAfterMarker[1];
@@ -872,7 +901,9 @@ namespace labs_coordinate_pictures
                     if (FilenameUtils.SameExceptExtension(root, otherfile) ||
                         (FindMiddleOfName(otherfile, types, out nameMiddleRemoved) &&
                         FilenameUtils.SameExceptExtension(root, nameMiddleRemoved)))
+                    {
                         ret.Add(otherfile);
+                    }
                 }
             }
 
@@ -891,6 +922,7 @@ namespace labs_coordinate_pictures
             // invalidate items higher on the stack
             _list.RemoveRange(_position + 1, (_list.Count - _position) - 1);
 
+            // add to stack
             _list.Add(current);
             _position = _list.Count - 1;
         }

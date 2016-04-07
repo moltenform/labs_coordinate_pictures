@@ -8,7 +8,9 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    // see SortingImages.md for a description of modes and categories.
+    // a 'category' is a string and associated keyboard shortcut, the string can be
+    // appended to a filename to indicate that the file belongs to the category.
+    // see SortingImages.md to read more about modes and categories.
     public static class ModeUtils
     {
         // parse from "A/categoryReadable/categoryId" to Tuple("A", "categoryReadable", "categoryId")
@@ -18,11 +20,11 @@ namespace labs_coordinate_pictures
         // categoryId will be appended to the filename.
         public static Tuple<string, string, string>[] CategoriesStringToTuple(string s)
         {
-            var ret = new List<Tuple<string, string, string>>();
+            var tuples = new List<Tuple<string, string, string>>();
             if (string.IsNullOrWhiteSpace(s))
             {
                 // valid to have no categories defined
-                return ret.ToArray();
+                return tuples.ToArray();
             }
 
             var categories = s.Split(new char[] { '|' });
@@ -31,27 +33,31 @@ namespace labs_coordinate_pictures
                 var parts = category.Split(new char[] { '/' });
                 string explain = "category must be in form A/categoryReadable/categoryId, where " +
                     "A is a single numeral or capital letter, but got " + category;
+
+                // there should be three parts separated by /
                 if (parts.Length != 3)
                 {
                     throw new CoordinatePicturesException(explain);
                 }
 
-                var validDigit = (parts[0][0] >= 'A' && parts[0][0] <= 'Z') ||
+                // first part must be one digit
+                var isValidDigit = (parts[0][0] >= 'A' && parts[0][0] <= 'Z') ||
                     (parts[0][0] >= '0' && parts[0][0] <= '9');
-                if (parts[0].Length != 1 || !validDigit)
+                if (parts[0].Length != 1 || !isValidDigit)
                 {
                     throw new CoordinatePicturesException(explain);
                 }
 
+                // second and third parts must be non-empty
                 if (parts[1].Length == 0 || parts[2].Length == 0)
                 {
                     throw new CoordinatePicturesException(explain);
                 }
 
-                ret.Add(new Tuple<string, string, string>(parts[0], parts[1], parts[2]));
+                tuples.Add(Tuple.Create(parts[0], parts[1], parts[2]));
             }
 
-            return ret.ToArray();
+            return tuples.ToArray();
         }
 
         public static Tuple<string, string, string>[] ModeToTuples(ModeBase mode)
@@ -69,30 +75,37 @@ namespace labs_coordinate_pictures
         }
     }
 
-    // a 'mode' specifies supported file extensions and can provide custom features.
+    // a 'mode' specifies a list of supported file extensions and can provide custom features.
     // for example a mode for sorting images would have different actions than a mode for sorting audio.
-    // see SortingImages.md for a description of modes and categories.
+    // the user can start "completion" by pressing Ctrl+Enter, and the mode provides the code to run.
+    // see SortingImages.md to read more about modes and categories.
+    // these are essentially callbacks provided to a FormGallery form.
     public abstract class ModeBase
     {
         public abstract bool SupportsRename();
         public abstract bool SupportsCompletionAction();
-        public abstract void OnOpenItem(string sPath, FormGallery obj);
+        public abstract void OnOpenItem(string path, FormGallery obj);
         public abstract ConfigKey GetCategories();
         public abstract string GetDefaultCategories();
-        public abstract void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen);
         public abstract string[] GetFileTypes();
         public abstract void OnBeforeAssignCategory();
+        public abstract void OnCompletionAction(string baseDirectory, string path,
+            string pathWithoutCategory, Tuple<string, string, string> category);
 
+        // list of (keyboard shortcut, label text).
+        // shortcut is not automatically bound, must be implemented in OnCustomCommand.
         public virtual Tuple<string, string>[] GetDisplayCustomCommands()
         {
             return new Tuple<string, string>[] { };
         }
 
+        // modes can perform actions on keyup events in FormGallery.
         public virtual void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)
         {
         }
     }
 
+    // modes that support rename and view image files.
     public abstract class ModeCategorizeAndRenameBase : ModeBase
     {
         public override bool SupportsRename()
@@ -109,7 +122,7 @@ namespace labs_coordinate_pictures
         {
         }
 
-        public override void OnOpenItem(string sPath, FormGallery obj)
+        public override void OnOpenItem(string path, FormGallery obj)
         {
         }
 
@@ -119,6 +132,41 @@ namespace labs_coordinate_pictures
         }
     }
 
+    // a mode that simply moves images into subdirectories when complete.
+    public sealed class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
+    {
+        public override ConfigKey GetCategories()
+        {
+            return ConfigKey.CategoriesModeCategorizeAndRename;
+        }
+
+        public override string GetDefaultCategories()
+        {
+            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
+        }
+
+        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
+        {
+            // create a directory <baseDirectory>/<categoryname>
+            var targetDir = Path.Combine(baseDirectory, category.Item3);
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            // simply move the file to <baseDirectory>/<categoryname>/file.jpg
+            var newPath = Path.Combine(targetDir, Path.GetFileName(pathWithoutCategory));
+            if (File.Exists(newPath))
+            {
+                MessageBox.Show("File already exists " + newPath);
+                return;
+            }
+
+            File.Move(path, newPath);
+        }
+    }
+
+    // a mode that prepares files for img_resize_keep_exif.py.
     public sealed class ModeResizeKeepExif : ModeCategorizeAndRenameBase
     {
         bool _hasRunCompletionAction = false;
@@ -130,7 +178,7 @@ namespace labs_coordinate_pictures
 
         public override string GetDefaultCategories()
         {
-            // these are the filename suffixes that img_resize_keep_exif.py recognizes
+            // filename suffixes that img_resize_keep_exif.py will recognize
             return "Q/288 typ 10%/288h|W/432 typ 15%/432h|E/576 typ 20%/576h|1/720 typ 25%/720h|3/864 typ 35%/864h|4/1008 typ 40%/1008h|5/1152 typ 45%/1152h|6/1296 typ 50%/1296h|7/1440 typ 55%/1440h|8/1584 typ 60%/1584h|9/1728 typ 65%/1728h|P/1872 typ 75%/1872h|0/100%/100%";
         }
 
@@ -144,16 +192,18 @@ namespace labs_coordinate_pictures
             return true;
         }
 
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             if (_hasRunCompletionAction)
+            {
                 return;
+            }
 
-            // we could launch the script from here, but I currently prefer the old workflow of
+            // we certainly could start the script directly, but I currently prefer the traditional workflow of
             // manually running the python script.
             // all we do here is write the current directory onto the python script.
             if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by running a python script,"
-                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n" + sBaseDir + "?"))
+                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n" + baseDirectory + "?"))
             {
                 var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_resize_keep_exif.py");
                 if (File.Exists(script))
@@ -161,7 +211,7 @@ namespace labs_coordinate_pictures
                     var parts = Utils.SplitByString(File.ReadAllText(script), "###template");
                     if (parts.Length == 3)
                     {
-                        var result = parts[0] + "###template\r\n    root = r'" + sBaseDir + "'\r\n    ###template" + parts[2];
+                        var result = parts[0] + "###template\r\n    baseDirectory = r'" + baseDirectory + "'\r\n    ###template" + parts[2];
                         File.WriteAllText(script, result);
                         MessageBox.Show("img_resize_keep_exif.py modified successfully.");
                     }
@@ -180,39 +230,8 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public sealed class ModeCategorizeAndRename : ModeCategorizeAndRenameBase
-    {
-        public override ConfigKey GetCategories()
-        {
-            return ConfigKey.CategoriesModeCategorizeAndRename;
-        }
-
-        public override string GetDefaultCategories()
-        {
-            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
-        }
-
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
-        {
-            // create a directory <base>/<categoryname>
-            var targetdir = Path.Combine(sBaseDir, chosen.Item3);
-            if (!Directory.Exists(targetdir))
-            {
-                Directory.CreateDirectory(targetdir);
-            }
-
-            // simply move the file to <base>/<categoryname>/file.jpg
-            var newpath = Path.Combine(targetdir, Path.GetFileName(sPathNoMark));
-            if (File.Exists(newpath))
-            {
-                MessageBox.Show("File already exists " + newpath);
-                return;
-            }
-
-            File.Move(sPath, newpath);
-        }
-    }
-
+    // a mode that simply stamps 'size is good' on files when the user presses Shift+A.
+    // when complete, user presses Ctrl+Enter and the 'size is good' is removed from filenames.
     public sealed class ModeCheckFilesizes : ModeCategorizeAndRenameBase
     {
         public override ConfigKey GetCategories()
@@ -259,32 +278,35 @@ namespace labs_coordinate_pictures
             }
 
             // then, accept the small files
-            int nAccepted = 0;
+            int countAccepted = 0;
+            var sizeIsGoodCategory = GetDefaultCategories().Split(new char[] { '/' })[2];
             foreach (var path in list)
             {
                 if ((path.EndsWith(".webp") || path.EndsWith(".jpg"))
                     && new FileInfo(path).Length < acceptFilesSmallerThan)
                 {
-                    nAccepted++;
-                    var sNewName = FilenameUtils.AddMarkToFilename(path, "size is good");
-                    form.WrapMoveFile(path, sNewName);
+                    countAccepted++;
+                    var newPath = FilenameUtils.AddCategoryToFilename(path, sizeIsGoodCategory);
+                    form.WrapMoveFile(path, newPath);
                 }
             }
 
             if (!Configs.Current.SupressDialogs)
-                MessageBox.Show("Accepted for " + nAccepted + " images.");
+            {
+                MessageBox.Show("Accepted for " + countAccepted + " images.");
+            }
         }
 
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             // just remove the mark from the file, don't need to do anything else.
-            if (File.Exists(sPathNoMark))
+            if (File.Exists(pathWithoutCategory))
             {
-                MessageBox.Show("File already exists + " + sPathNoMark);
+                MessageBox.Show("File already exists + " + pathWithoutCategory);
             }
             else
             {
-                File.Move(sPath, sPathNoMark);
+                File.Move(path, pathWithoutCategory);
             }
         }
     }
@@ -296,6 +318,7 @@ namespace labs_coordinate_pictures
             return false;
         }
 
+        // for every category there is a corresponding dropq*.py script.
         public override string GetDefaultCategories()
         {
             return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
@@ -308,9 +331,9 @@ namespace labs_coordinate_pictures
             Utils.PlayMedia(null);
         }
 
-        public override void OnOpenItem(string sPath, FormGallery obj)
+        public override void OnOpenItem(string path, FormGallery obj)
         {
-            Utils.PlayMedia(sPath);
+            Utils.PlayMedia(path);
         }
     }
 
@@ -332,23 +355,28 @@ namespace labs_coordinate_pictures
         }
 
         // use dropq*.py scripts to convert wav to m4a.
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
-            if (sPath.ToLowerInvariant().EndsWith(".wav"))
+            if (path.ToLowerInvariant().EndsWith(".wav"))
             {
-                var newfile = Utils.RunM4aConversion(sPath, chosen.Item3);
-                if (!string.IsNullOrEmpty(newfile))
+                // 1) convert song__MARKAS__144.wav to song__MARKAS__144.m4a
+                var pathM4a = Utils.RunM4aConversion(path, category.Item3);
+                if (!string.IsNullOrEmpty(pathM4a))
                 {
-                    var newname = Path.GetDirectoryName(sPathNoMark) + "\\" + Path.GetFileNameWithoutExtension(sPathNoMark) +
-                        Path.GetExtension(newfile);
-                    if (File.Exists(newname))
+                    // 2) see that song__MARKAS__144.m4a should be renamed to song.m4a
+                    var newPathM4a = Path.GetDirectoryName(pathWithoutCategory) + "\\" + Path.GetFileNameWithoutExtension(pathWithoutCategory) +
+                        Path.GetExtension(pathM4a);
+
+                    if (File.Exists(newPathM4a))
                     {
-                        MessageBox.Show("already exists. could not move " + newfile + " to " + newname);
+                        MessageBox.Show("already exists. could not move " + pathM4a + " to " + newPathM4a);
                     }
                     else
                     {
-                        File.Move(newfile, newname);
-                        Utils.SoftDelete(sPath);
+                        // 3) move song__MARKAS__144.m4a to song.m4a
+                        // 4) delete song__MARKAS__144.wav
+                        File.Move(pathM4a, newPathM4a);
+                        Utils.SoftDelete(path);
                     }
                 }
             }
@@ -372,7 +400,7 @@ namespace labs_coordinate_pictures
             return new string[] { ".wav", ".mp3", ".mp4", ".m4a", ".wma", ".flac" };
         }
 
-        public override void OnCompletionAction(string sBaseDir, string sPath, string sPathNoMark, Tuple<string, string, string> chosen)
+        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
         }
     }

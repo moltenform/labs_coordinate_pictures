@@ -452,7 +452,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            var newname = FilenameUtils.AddMarkToFilename(_filelist.Current, categoryId);
+            var newname = FilenameUtils.AddCategoryToFilename(_filelist.Current, categoryId);
             if (WrapMoveFile(_filelist.Current, newname))
             {
                 MoveOne(true);
@@ -875,7 +875,7 @@ namespace labs_coordinate_pictures
                 if (path.Contains(FilenameUtils.MarkerString))
                 {
                     string pathWithoutCategory, category;
-                    FilenameUtils.GetMarkFromFilename(path, out pathWithoutCategory, out category);
+                    FilenameUtils.GetCategoryFromFilename(path, out pathWithoutCategory, out category);
                     var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
                     if (tupleFound.Length == 0)
                     {

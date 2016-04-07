@@ -287,15 +287,15 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_UtilsAddMark()
         {
-            var testAdd = FilenameUtils.AddMarkToFilename(@"c:\dir\test\b b.aaa.jpg", "mk");
+            var testAdd = FilenameUtils.AddCategoryToFilename(@"c:\dir\test\b b.aaa.jpg", "mk");
             TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__mk.jpg", testAdd);
-            testAdd = FilenameUtils.AddMarkToFilename(@"c:\dir\test\b b.aaa.jpg", "");
+            testAdd = FilenameUtils.AddCategoryToFilename(@"c:\dir\test\b b.aaa.jpg", "");
             TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__.jpg", testAdd);
 
             Func<string, string> testGetMark = (input) =>
             {
                 string pathWithoutCategory, category;
-                FilenameUtils.GetMarkFromFilename(input, out pathWithoutCategory, out category);
+                FilenameUtils.GetCategoryFromFilename(input, out pathWithoutCategory, out category);
                 return pathWithoutCategory + "|" + category;
             };
 
@@ -672,11 +672,11 @@ namespace labs_coordinate_pictures
             using (var mockFullImage = new Bitmap(200, 240))
             {
                 int shiftx, shifty;
-                excerpt.GetShiftAmount(mockFullImage, clickX: 30, clickY: 40, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+                excerpt.GetShiftAmount(mockFullImage, clickX: 30, clickY: 40, widthOfResizedImage: 150, heightOfResizedImage: 110, shiftX: out shiftx, shiftY: out shifty);
                 TestUtil.IsEq(-40, shiftx);
                 TestUtil.IsEq(27, shifty);
 
-                excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, wasWidth: 150, wasHeight: 110, shiftx: out shiftx, shifty: out shifty);
+                excerpt.GetShiftAmount(mockFullImage, clickX: 90, clickY: 20, widthOfResizedImage: 150, heightOfResizedImage: 110, shiftX: out shiftx, shiftY: out shifty);
                 TestUtil.IsEq(40, shiftx);
                 TestUtil.IsEq(-17, shifty);
             }
