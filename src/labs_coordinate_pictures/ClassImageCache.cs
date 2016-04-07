@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -13,16 +14,15 @@ namespace labs_coordinate_pictures
 {
     public sealed class ImageCache : IDisposable
     {
-        // cache of images, one entry per file.
-        // all images are owned by and disposed from the cache.
-        // tuple of path/image/width/height/modified-time.
-        List<Tuple<string, Bitmap, int, int, DateTime>> _cache;
+        // list of images, one entry per file.
+        // all images are owned by and disposed from this cache.
+        ListOfCachedImages _list = new ListOfCachedImages();
 
         // lock protecting _cache. doesn't need to be a RW lock,
         // as there won't usually be multiple readers.
         object _lock = new object();
 
-        // not a hard constraint but rough limit on length of _cache.
+        // rough limit on length of _cache.
         int _cacheSize;
 
         // when removing an entry from the cache, we can't remove the
@@ -42,7 +42,6 @@ namespace labs_coordinate_pictures
             _cacheSize = cacheSize;
             _callbackOnUiThread = callbackOnUiThread;
             _canDisposeBitmap = canDisposeBitmap;
-            _cache = new List<Tuple<string, Bitmap, int, int, DateTime>>();
             Excerpt = new ImageViewExcerpt(maxWidth, maxHeight);
         }
 
@@ -55,104 +54,71 @@ namespace labs_coordinate_pictures
             lock (_lock)
             {
                 Excerpt.Dispose();
-                foreach (var tuple in _cache)
-                {
-                    if (tuple.Item2 != null)
-                    {
-                        tuple.Item2.Dispose();
-                    }
-                }
-            }
-        }
-
-        // returns index into _cache if found and up to date, or otherwise -1.
-        int SearchForUpToDateCacheEntry(string path)
-        {
-            lock (_lock)
-            {
-                int index = -1;
-                for (int i = 0; i < _cache.Count; i++)
-                {
-                    // linear search is fine as we only have a few entries.
-                    if (_cache[i].Item1 == path)
-                    {
-                        index = i;
-                        break;
-                    }
-                }
-
-                if (index != -1)
-                {
-                    // is it up to date though? if it's been written to, invalidate cache.
-                    var isCurrent = File.Exists(path) ?
-                        new FileInfo(path).LastWriteTimeUtc == _cache[index].Item5 :
-                        false;
-                    if (!isCurrent)
-                    {
-                        _cache.RemoveAt(index);
-                        index = -1;
-                    }
-                }
-
-                return index;
+                _list.Dispose();
             }
         }
 
         // get image for this path. an image is created synchronously if not in the cache.
-        public Bitmap Get(string path, out int nOrigW, out int nOrigH)
+        public Bitmap Get(string path, out int originalWidth, out int originalHeight)
         {
             lock (_lock)
             {
-                int index = SearchForUpToDateCacheEntry(path);
+                int index = _list.SearchForUpToDateCacheEntry(path);
                 if (index == -1)
                 {
                     SimpleLog.Current.WriteVerbose("adding to cache " + path);
 
                     Add(new string[] { path });
-                    index = SearchForUpToDateCacheEntry(path);
+                    index = _list.SearchForUpToDateCacheEntry(path);
                     if (index == -1)
                     {
                         MessageBox.Show("did not find image that was just cached. this can happen if an image is changed very quickly");
-                        nOrigW = nOrigH = 0;
+                        originalWidth = originalHeight = 0;
                         return null;
                     }
                 }
 
-                nOrigW = _cache[index].Item3;
-                nOrigH = _cache[index].Item4;
-                return _cache[index].Item2;
+                originalWidth = _list[index].Item3;
+                originalHeight = _list[index].Item4;
+                return _list[index].Item2;
             }
         }
 
         // add paths to cache, and then checks for images to remove.
         public void Add(string[] paths)
         {
-            bool checkTooBig = false;
+            bool checkIfTooManyInCache = false;
             foreach (var path in paths)
             {
                 if (path == null)
+                {
                     continue;
+                }
 
                 lock (_lock)
                 {
                     // skip if it's already in the cache
-                    if (SearchForUpToDateCacheEntry(path) != -1)
+                    if (_list.SearchForUpToDateCacheEntry(path) != -1)
+                    {
                         continue;
+                    }
 
                     // reading and resizing the bitmap can be done outside the lock,
                     // but this might do redundant work.
-                    int nOrigW = 0, nOrigH = 0;
-                    var b = GetResizedBitmap(path, out nOrigW, out nOrigH);
+                    int originalWidth = 0, originalHeight = 0;
+                    var bitmap = GetResizedBitmap(path, out originalWidth, out originalHeight);
                     var lastModified = File.Exists(path) ?
                         new FileInfo(path).LastWriteTimeUtc :
-                        DateTime.MaxValue;
-                    _cache.Add(new Tuple<string, Bitmap, int, int, DateTime>(
-                        path, b, nOrigW, nOrigH, lastModified));
-                    checkTooBig = _cache.Count > _cacheSize;
+                        DateTime.MinValue;
+
+                    _list.Add(new Tuple<string, Bitmap, int, int, DateTime>(
+                        path, bitmap, originalWidth, originalHeight, lastModified));
+
+                    checkIfTooManyInCache = _list.Count > _cacheSize;
                 }
             }
 
-            if (checkTooBig)
+            if (checkIfTooManyInCache)
             {
                 // ask our owner before we call Dispose() in case the owner is currently using this image.
                 _callbackOnUiThread.Invoke(new Action(() =>
@@ -161,13 +127,13 @@ namespace labs_coordinate_pictures
                     {
                         // now that we've acquired the lock it's possible there is no work left to do.
                         // iterate backwards, since RemoveAt repositions subsequent elements
-                        var howManyToRemove = _cache.Count - _cacheSize;
+                        var howManyToRemove = _list.Count - _cacheSize;
                         for (int i = howManyToRemove - 1; i >= 0; i--)
                         {
-                            if (i <= _cache.Count - 1 && _canDisposeBitmap(_cache[i].Item2))
+                            if (i <= _list.Count - 1 && _canDisposeBitmap(_list[i].Item2))
                             {
-                                _cache[i].Item2.Dispose();
-                                _cache.RemoveAt(i);
+                                _list[i].Item2.Dispose();
+                                _list.RemoveAt(i);
                             }
                         }
                     }
@@ -175,111 +141,120 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void AddAsync(List<string> arList, PictureBox mainThread)
+        public void AddAsync(List<string> listPaths)
         {
             ThreadPool.QueueUserWorkItem(
             delegate
             {
-                Add(arList.ToArray());
+                Add(listPaths.ToArray());
             });
         }
 
-        public static Bitmap GetBitmap(string path)
+        // indicates in bitmapWillLockFile whether holding onto the Bitmap will hold lock on a file.
+        public static Bitmap GetBitmap(string path, out bool bitmapWillLockFile)
         {
-            // load from disk
-            Bitmap imFromFile = null;
+            Bitmap bitmap = null;
             try
             {
                 if (path.ToLowerInvariant().EndsWith(".webp"))
                 {
                     byte[] bytesData = File.ReadAllBytes(path);
                     var decoder = new Imazen.WebP.SimpleDecoder();
-                    imFromFile = decoder.DecodeFromBytes(bytesData, bytesData.LongLength);
+                    bitmap = decoder.DecodeFromBytes(bytesData, bytesData.LongLength);
+                    bitmapWillLockFile = false;
                 }
                 else
                 {
-                    imFromFile = new Bitmap(path);
+                    bitmap = new Bitmap(path);
+                    bitmapWillLockFile = true;
 
-                    // some image files, especially jpgs from a scanner, have custom resolutions,
-                    // I prefer overriding the resolution.
-                    imFromFile.SetResolution(96.0f, 96.0f);
+                    // some image files have custom resolutions,
+                    // I prefer seeing all files at the same resolution.
+                    bitmap.SetResolution(96.0f, 96.0f);
                 }
             }
             catch (Exception)
             {
                 if (!Configs.Current.SupressDialogs)
                 {
-                    MessageBox.Show("Could not show the image " + path);
+                    MessageBox.Show("Could not load the image " + path);
                 }
 
-                if (imFromFile != null)
-                    imFromFile.Dispose();
-                imFromFile = new Bitmap(1, 1);
+                if (bitmap != null)
+                {
+                    bitmap.Dispose();
+                }
+
+                bitmapWillLockFile = false;
+                bitmap = new Bitmap(1, 1);
             }
 
-            return imFromFile;
+            return bitmap;
         }
 
-        public Bitmap GetResizedBitmap(string path, out int nOrigW, out int nOrigH)
+        public Bitmap GetResizedBitmap(string path, out int originalWidth, out int originalHeight)
         {
             if (!FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
             {
-                nOrigW = 0;
-                nOrigH = 0;
+                originalWidth = 0;
+                originalHeight = 0;
                 return new Bitmap(1, 1);
             }
 
-            Bitmap imFromFile = GetBitmap(path);
+            bool bitmapWillLockFile;
+            Bitmap bitmapFull = GetBitmap(path, out bitmapWillLockFile);
 
             // resize and preserve ratio
-            using (imFromFile)
+            originalWidth = bitmapFull.Width;
+            originalHeight = bitmapFull.Height;
+            if (bitmapFull.Width > MaxWidth || bitmapFull.Height > MaxHeight)
             {
-                nOrigW = imFromFile.Width;
-                nOrigH = imFromFile.Height;
-                if (imFromFile.Width > MaxWidth || imFromFile.Height > MaxHeight)
+                using (bitmapFull)
                 {
-                    var ratio = Math.Min((double)MaxWidth / imFromFile.Width,
-                        (double)MaxHeight / imFromFile.Height);
-                    int newwidth = (int)(imFromFile.Width * ratio);
-                    int newheight = (int)(imFromFile.Height * ratio);
-                    return ResizeImage(imFromFile, newwidth, newheight, path);
+                    var ratio = Math.Min((double)MaxWidth / bitmapFull.Width,
+                        (double)MaxHeight / bitmapFull.Height);
+
+                    int newWidth = (int)(bitmapFull.Width * ratio);
+                    int newHeight = (int)(bitmapFull.Height * ratio);
+                    return ResizeImage(bitmapFull, newWidth, newHeight, path);
                 }
-                else
-                {
-                    // make a copy of the bitmap, otherwise the file remains locked
-                    return new Bitmap(imFromFile);
-                }
+            }
+            else
+            {
+                // make a copy of the bitmap, otherwise the file remains locked
+                return bitmapWillLockFile ?
+                    new Bitmap(bitmapFull) : bitmapFull;
             }
         }
 
-        public static Bitmap ResizeImage(Bitmap srcImage, int newWidth, int newHeight, string pathForLogging)
+        public static Bitmap ResizeImage(Bitmap bitmapFull, int newWidth, int newHeight, string pathForLogging)
         {
             // Kris Erickson, stackoverflow 87753.
             // also considered pixelformat Imaging.PixelFormat.Format32bppPArgb
             // GDI seems to have a lock, so we don't get great concurrency.
-            Bitmap newImage = new Bitmap(newWidth, newHeight);
-            using (Graphics gr = Graphics.FromImage(newImage))
+            Bitmap bitmapResized = new Bitmap(newWidth, newHeight);
+            using (Graphics g = Graphics.FromImage(bitmapResized))
             {
-                if (newWidth != srcImage.Width || newHeight != srcImage.Height)
+                if (newWidth != bitmapFull.Width || newHeight != bitmapFull.Height)
                 {
-                    gr.SmoothingMode = SmoothingMode.HighQuality;
-                    gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    gr.DrawImage(srcImage, new Rectangle(0, 0, newWidth, newHeight));
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.DrawImage(bitmapFull, new Rectangle(0, 0, newWidth, newHeight));
                 }
                 else
                 {
-                    gr.DrawImageUnscaled(srcImage, 0, 0);
+                    g.DrawImageUnscaled(bitmapFull, 0, 0);
                 }
             }
 
-            if (newImage == null)
+            if (bitmapResized == null)
             {
                 throw new CoordinatePicturesException("do not expect newImage to be null. " + pathForLogging);
             }
             else
             {
-                return newImage;
+                return bitmapResized;
             }
         }
     }
@@ -287,10 +262,10 @@ namespace labs_coordinate_pictures
     // show a full-resolution excerpt of a large image
     public sealed class ImageViewExcerpt : IDisposable
     {
-        public ImageViewExcerpt(int maxwidth, int maxheight)
+        public ImageViewExcerpt(int maxWidth, int maxHeight)
         {
-            MaxWidth = maxwidth;
-            MaxHeight = maxheight;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             Bmp = new Bitmap(1, 1);
         }
 
@@ -298,42 +273,114 @@ namespace labs_coordinate_pictures
         public int MaxHeight { get; private set; }
         public Bitmap Bmp { get; private set; }
 
-        public void MakeBmp(string path, int clickX, int clickY, int wasWidth, int wasHeight)
+        public void MakeBmp(string path, int clickX, int clickY, int widthOfResizedImage, int heightOfResizedImage)
         {
             Bmp.Dispose();
             Bmp = new Bitmap(MaxWidth, MaxHeight);
             if (path == null || !FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
-                return;
-
-            using (Bitmap fullImage = ImageCache.GetBitmap(path))
             {
-                if (fullImage.Width == 1 || fullImage.Height == 1)
-                    return;
+                return;
+            }
 
-                int shiftx, shifty;
-                GetShiftAmount(fullImage, clickX, clickY, wasWidth, wasHeight, out shiftx, out shifty);
+            // we can disregard bitmapWillLockFile because we'll quickly dispose bitmapFull.
+            bool bitmapWillLockFile;
+            using (Bitmap bitmapFull = ImageCache.GetBitmap(path, out bitmapWillLockFile))
+            {
+                if (bitmapFull.Width == 1 || bitmapFull.Height == 1)
+                {
+                    return;
+                }
+
+                int shiftX, shiftY;
+                GetShiftAmount(bitmapFull, clickX, clickY,
+                    widthOfResizedImage, heightOfResizedImage, out shiftX, out shiftY);
 
                 // draw the entire image, but pushed off to the side
-                using (Graphics gr = Graphics.FromImage(Bmp))
+                using (Graphics g = Graphics.FromImage(Bmp))
                 {
-                    gr.FillRectangle(Brushes.White, 0, 0, MaxWidth, MaxHeight);
-                    gr.DrawImageUnscaled(fullImage, -shiftx, -shifty);
+                    g.FillRectangle(Brushes.White, 0, 0, MaxWidth, MaxHeight);
+                    g.DrawImageUnscaled(bitmapFull, -shiftX, -shiftY);
                 }
             }
         }
 
-        public void GetShiftAmount(Bitmap fullImage, int clickX, int clickY, int wasWidth, int wasHeight, out int shiftx, out int shifty)
+        public void GetShiftAmount(Bitmap fullImage, int clickX, int clickY,
+            int widthOfResizedImage, int heightOfResizedImage, out int shiftX, out int shiftY)
         {
             // find where the user clicked, and then show that place in the center at full resolution.
-            var xcenter = (int)(fullImage.Width * (clickX / ((double)wasWidth)));
-            var ycenter = (int)(fullImage.Height * (clickY / ((double)wasHeight)));
-            shiftx = xcenter - (MaxWidth / 2);
-            shifty = ycenter - (MaxHeight / 2);
+            var centerX = (int)(fullImage.Width * (clickX / ((double)widthOfResizedImage)));
+            var centerY = (int)(fullImage.Height * (clickY / ((double)heightOfResizedImage)));
+            shiftX = centerX - (MaxWidth / 2);
+            shiftY = centerY - (MaxHeight / 2);
         }
 
         public void Dispose()
         {
             Bmp.Dispose();
+        }
+    }
+
+    // enforces that Dispose() when removing images from the cache.
+    public sealed class ListOfCachedImages : IDisposable
+    {
+        // tuple of path/image/width/height/modified-time.
+        List<Tuple<string, Bitmap, int, int, DateTime>> _cache =
+            new List<Tuple<string, Bitmap, int, int, DateTime>>();
+
+        public int Count
+        {
+            get { return _cache.Count; }
+        }
+
+        public Tuple<string, Bitmap, int, int, DateTime> this[int index]
+        {
+            get { return _cache[index]; }
+        }
+
+        // returns index into _cache if found and up to date, or otherwise -1.
+        public int SearchForUpToDateCacheEntry(string path)
+        {
+            // linear search is fine as we only have a few entries.
+            int indexFound = _cache.FindIndex((tuple) => tuple.Item1 == path);
+            if (indexFound != -1)
+            {
+                // is it up to date though? if it is out of date, invalidate the cached entry.
+                var isCurrent = File.Exists(path) ?
+                    new FileInfo(path).LastWriteTimeUtc == _cache[indexFound].Item5 :
+                    false;
+
+                if (!isCurrent)
+                {
+                    _cache.RemoveAt(indexFound);
+                    indexFound = -1;
+                }
+            }
+
+            return indexFound;
+        }
+
+        public void Add(Tuple<string, Bitmap, int, int, DateTime> tuple)
+        {
+            _cache.Add(tuple);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _cache[index].Item2.Dispose();
+            _cache.RemoveAt(index);
+        }
+
+        public void Dispose()
+        {
+            foreach (var tuple in _cache)
+            {
+                if (tuple.Item2 != null)
+                {
+                    tuple.Item2.Dispose();
+                }
+            }
+
+            _cache.Clear();
         }
     }
 }
