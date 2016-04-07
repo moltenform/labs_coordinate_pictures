@@ -112,10 +112,10 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static ConfigKey ConfigsPersistedKeysFromString(string s)
+        public static ConfigKey ConfigsPersistedKeysFromString(string keyname)
         {
-            ConfigKey e = ConfigKey.None;
-            return Enum.TryParse(s, out e) ? e : ConfigKey.None;
+            var key = ConfigKey.None;
+            return Enum.TryParse(keyname, out key) ? key : ConfigKey.None;
         }
 
         public static void Init(string path)
@@ -126,55 +126,67 @@ namespace labs_coordinate_pictures
 
         public void LoadPersisted()
         {
-            if (!File.Exists(this._path))
-                return;
-
-            var lines = File.ReadAllLines(this._path);
-            for (int i = 0; i < lines.Length; i++)
+            if (!File.Exists(_path))
             {
-                var line = lines[i];
+                return;
+            }
+
+            var lines = File.ReadAllLines(_path);
+            for (int lineNumber = 0; lineNumber < lines.Length; lineNumber++)
+            {
+                var line = lines[lineNumber];
+
+                // skip sections and comments
+                if (line.StartsWith("[") || line.StartsWith("#"))
+                {
+                    continue;
+                }
+
                 var split = line.Split(new char[] { '=' }, 2, StringSplitOptions.None);
                 if (split.Length != 2)
                 {
                     if (line.Trim() != "")
                     {
-                        SimpleLog.Current.WriteWarning("malformed config, missing = on line " + i);
+                        SimpleLog.Current.WriteWarning("malformed config, missing = on line " + lineNumber);
                     }
 
                     continue;
                 }
 
-                ConfigKey key = ConfigsPersistedKeysFromString(split[0]);
+                var key = ConfigsPersistedKeysFromString(split[0]);
                 if (key == ConfigKey.None)
                 {
-                    SimpleLog.Current.WriteWarning("unrecognized config key on line " + i + ", might occur if using config from future version.");
+                    SimpleLog.Current.WriteWarning("unrecognized config key on line " + lineNumber + ", might occur if using config from future version.");
                     continue;
                 }
 
-                this._persisted[key] = split[1];
+                _persisted[key] = split[1];
             }
         }
 
         void SavePersisted()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var key in from key in this._persisted.Keys orderby key select key)
+            var sb = new StringBuilder();
+            foreach (var key in from key in _persisted.Keys orderby key select key)
             {
-                var value = this._persisted[key];
-                if (value != null && value != "")
+                var value = _persisted[key];
+                if (!string.IsNullOrEmpty(value))
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
+                    {
                         throw new CoordinatePicturesException("config values cannot contain newline, for key " + key);
+                    }
+
                     sb.AppendLine(key.ToString() + "=" + value);
                 }
             }
 
-            File.WriteAllText(this._path, sb.ToString());
+            File.WriteAllText(_path, sb.ToString());
         }
 
         public void Set(ConfigKey key, string s)
         {
-            this._persisted[key] = s;
+            _persisted[key] = s;
             SavePersisted();
         }
 
@@ -186,7 +198,7 @@ namespace labs_coordinate_pictures
         public string Get(ConfigKey key)
         {
             string s;
-            return this._persisted.TryGetValue(key, out s) ? s : "";
+            return _persisted.TryGetValue(key, out s) ? s : "";
         }
 
         public bool GetBool(ConfigKey key)

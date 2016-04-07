@@ -81,23 +81,6 @@ namespace labs_coordinate_pictures
             OnOpenItem();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                    components.Dispose();
-                if (_filelist != null)
-                    _filelist.Dispose();
-                if (_imagecache != null)
-                    _imagecache.Dispose();
-                if (_bitmapBlank != null)
-                    _bitmapBlank.Dispose();
-            }
-
-            base.Dispose(disposing);
-        }
-
         public FileListNavigation GetFilelist()
         {
             return _filelist;
@@ -128,13 +111,13 @@ namespace labs_coordinate_pictures
                 _mode.OnOpenItem(_filelist.Current, this);
 
                 // show the current image
-                int nOrigW = 0, nOrigH = 0;
-                pictureBox1.Image = _imagecache.Get(_filelist.Current, out nOrigW, out nOrigH);
-                _currentImageResized = nOrigW > _imagecache.MaxWidth || nOrigH > _imagecache.MaxHeight;
+                int originalWidth = 0, originalHeight = 0;
+                pictureBox1.Image = _imagecache.Get(_filelist.Current, out originalWidth, out originalHeight);
+                _currentImageResized = originalWidth > _imagecache.MaxWidth || originalHeight > _imagecache.MaxHeight;
                 var showResized = _currentImageResized ? "s" : "";
                 label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", _filelist.Current,
                     Utils.FormatFilesize(_filelist.Current), Path.GetFileName(_filelist.Current),
-                    showResized, nOrigW, nOrigH);
+                    showResized, originalWidth, originalHeight);
             }
 
             renameToolStripMenuItem.Visible = _mode.SupportsRename();
@@ -173,26 +156,36 @@ namespace labs_coordinate_pictures
             // make a list of length ImageCacheBatch
             var pathsToCache = new List<string>();
             for (int i = 0; i < ImageCacheBatch; i++)
+            {
                 pathsToCache.Add(null);
+            }
 
             _filelist.GoNextOrPrev(forwardDirection, pathsToCache, pathsToCache.Count);
             OnOpenItem();
-            _imagecache.AddAsync(pathsToCache, pictureBox1);
+            _imagecache.AddAsync(pathsToCache);
         }
 
         void MoveMany(bool forwardDirection)
         {
             for (int i = 0; i < 15; i++)
+            {
                 _filelist.GoNextOrPrev(forwardDirection);
+            }
+
             OnOpenItem();
         }
 
         void MoveFirst(bool forwardDirection)
         {
             if (forwardDirection)
+            {
                 _filelist.GoLast();
+            }
             else
+            {
                 _filelist.GoFirst();
+            }
+
             OnOpenItem();
         }
 
@@ -204,7 +197,9 @@ namespace labs_coordinate_pictures
                 // restore original Edit menu
                 editToolStripMenuItem.DropDownItems.Clear();
                 foreach (var item in _originalEditMenu)
+                {
                     editToolStripMenuItem.DropDownItems.Add(item);
+                }
 
                 // add items to the Edit menu and to labelView.Text.
                 editToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
@@ -227,7 +222,9 @@ namespace labs_coordinate_pictures
             // restore original Categories menu
             categoriesToolStripMenuItem.DropDownItems.Clear();
             foreach (var item in _originalCategoriesMenu)
+            {
                 categoriesToolStripMenuItem.DropDownItems.Add(item);
+            }
 
             // add items to the Categories menu and to labelView.Text.
             categoriesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
@@ -348,9 +345,13 @@ namespace labs_coordinate_pictures
                     if (WrapMoveFile(newsrc, newdest, fAddToUndoStack: false))
                     {
                         if (isUndo)
+                        {
                             _undoFileMoves.Undo();
+                        }
                         else
+                        {
                             _undoFileMoves.Redo();
+                        }
                     }
                 }
             }
@@ -359,7 +360,9 @@ namespace labs_coordinate_pictures
         public void FormGallery_KeyUp(object sender, KeyEventArgs e)
         {
             if (!_enabled)
+            {
                 return;
+            }
 
             // Use custom shortcut strings instead of ShortcutKeys
             // 1) allows shortcuts without Ctrl or Alt
@@ -445,7 +448,9 @@ namespace labs_coordinate_pictures
         {
             _mode.OnBeforeAssignCategory();
             if (_filelist.Current == null)
+            {
                 return;
+            }
 
             var newname = FilenameUtils.AddMarkToFilename(_filelist.Current, categoryId);
             if (WrapMoveFile(_filelist.Current, newname))
@@ -457,7 +462,9 @@ namespace labs_coordinate_pictures
         public void RenameFile()
         {
             if (_filelist.Current == null || !_mode.SupportsRename())
+            {
                 return;
+            }
 
             InputBoxHistory key = FilenameUtils.LooksLikeImage(_filelist.Current) ?
                 InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, ".wav") ?
@@ -521,9 +528,13 @@ namespace labs_coordinate_pictures
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null)
+            {
                 Utils.OpenDirInExplorer(_filelist.BaseDirectory);
+            }
             else
+            {
                 Utils.SelectFileInExplorer(_filelist.Current);
+            }
         }
 
         private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
@@ -534,39 +545,61 @@ namespace labs_coordinate_pictures
         static void LaunchEditor(string exe, string path)
         {
             if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
+            {
                 MessageBox.Show("Could not find the application '" + exe + "'. The location can be set in the Options menu.");
+            }
             else
+            {
                 Utils.Run(exe, new string[] { path }, shell: false, waitForExit: false, hideWindow: false);
+            }
         }
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            {
                 Process.Start(_filelist.Current);
+            }
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
+            }
             else
+            {
                 LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
+            }
         }
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            {
                 LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", _filelist.Current);
+            }
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
+            }
             else
+            {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathAltEditorImage), _filelist.Current);
+            }
         }
 
         private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
+            {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
+            }
             else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), _filelist.Current);
+            }
             else
+            {
                 LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
+            }
         }
 
         // add a prefix to files, useful when renaming and you want to maintain the order
@@ -582,9 +615,13 @@ namespace labs_coordinate_pictures
                     if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
                     {
                         if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, i)))
+                        {
                             nAddedPrefix++;
+                        }
                         else
+                        {
                             nFailedToRename++;
+                        }
                     }
                     else
                     {
@@ -612,9 +649,13 @@ namespace labs_coordinate_pictures
                     else
                     {
                         if (WrapMoveFile(path, Path.GetDirectoryName(path) + "\\" + FilenameUtils.GetFileNameWithoutNumberedPrefix(path)))
+                        {
                             nRemovedPrefix++;
+                        }
                         else
+                        {
                             nFailedToRename++;
+                        }
                     }
                 }
 
@@ -628,7 +669,9 @@ namespace labs_coordinate_pictures
         private void replaceInFilenameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !_mode.SupportsRename())
+            {
                 return;
+            }
 
             var filename = Path.GetFileName(_filelist.Current);
             var search = InputBoxForm.GetStrInput("Search for this in filename (not directory name):", filename, InputBoxHistory.RenameReplaceInName);
@@ -671,12 +714,16 @@ namespace labs_coordinate_pictures
         private void convertResizeImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
+            {
                 return;
+            }
 
             var more = new string[] { "50%", "100%", "70%" };
             var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):", null, more: more, useClipboard: false);
             if (string.IsNullOrEmpty(resize))
+            {
                 return;
+            }
 
             if ((!resize.EndsWith("h") && !resize.EndsWith("%")) ||
                 !Utils.IsDigits(resize.Substring(0, resize.Length - 1)))
@@ -688,7 +735,9 @@ namespace labs_coordinate_pictures
             more = new string[] { "png|100", "jpg|90", "webp|100" };
             var fmt = InputBoxForm.GetStrInput("Convert to format|quality:", null, InputBoxHistory.EditConvertResizeImage, more, useClipboard: false);
             if (string.IsNullOrEmpty(fmt))
+            {
                 return;
+            }
 
             var parts = fmt.Split(new char[] { '|' });
             int nQual = 0;
@@ -717,7 +766,9 @@ namespace labs_coordinate_pictures
                 if (new FileInfo(path).Length < 1024 * 500 ||
                     Utils.AskToConfirm("include the large file " +
                         Path.GetFileName(path) + "\r\n" + Utils.FormatFilesize(path) + "?"))
+                {
                     newlist.Add(path);
+                }
             }
 
             RunLongActionInThread(new Action(() =>
@@ -752,7 +803,9 @@ namespace labs_coordinate_pictures
         private void convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
+            {
                 return;
+            }
 
             RunLongActionInThread(new Action(() =>
             {
@@ -769,7 +822,9 @@ namespace labs_coordinate_pictures
         private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
+            {
                 return;
+            }
 
             bool fHasMiddleName;
             string sNewname;
@@ -779,7 +834,9 @@ namespace labs_coordinate_pictures
             if (Utils.AskToConfirm("Delete the extra files \r\n" + string.Join("\r\n", toDelete) + "\r\n?"))
             {
                 foreach (var sFile in toDelete)
+                {
                     UndoableSoftDelete(sFile);
+                }
 
                 // rename this file to be better
                 if (fHasMiddleName && WrapMoveFile(_filelist.Current, sNewname))
@@ -821,9 +878,13 @@ namespace labs_coordinate_pictures
                     FilenameUtils.GetMarkFromFilename(path, out pathWithoutCategory, out category);
                     var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
                     if (tupleFound.Length == 0)
+                    {
                         MessageBox.Show("Invalid mark for file " + path);
+                    }
                     else
+                    {
                         _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
+                    }
                 }
             }
         }
@@ -851,6 +912,34 @@ namespace labs_coordinate_pictures
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+
+                if (_filelist != null)
+                {
+                    _filelist.Dispose();
+                }
+
+                if (_imagecache != null)
+                {
+                    _imagecache.Dispose();
+                }
+
+                if (_bitmapBlank != null)
+                {
+                    _bitmapBlank.Dispose();
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
