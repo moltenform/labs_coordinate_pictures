@@ -142,12 +142,14 @@ namespace labs_coordinate_pictures
                     continue;
                 }
 
+                // split with count=2, to ignore subsequent = characters in the string.
                 var split = line.Split(new char[] { '=' }, 2, StringSplitOptions.None);
                 if (split.Length != 2)
                 {
                     if (line.Trim() != "")
                     {
-                        SimpleLog.Current.WriteWarning("malformed config, missing = on line " + lineNumber);
+                        SimpleLog.Current.WriteWarning(
+                            "malformed config, missing = on line " + lineNumber);
                     }
 
                     continue;
@@ -156,7 +158,9 @@ namespace labs_coordinate_pictures
                 var key = ConfigsPersistedKeysFromString(split[0]);
                 if (key == ConfigKey.None)
                 {
-                    SimpleLog.Current.WriteWarning("unrecognized config key on line " + lineNumber + ", might occur if using config from future version.");
+                    SimpleLog.Current.WriteWarning(
+                        "unrecognized config key on line " +
+                        lineNumber + ", might occur if using config from future version.");
                     continue;
                 }
 
@@ -174,7 +178,8 @@ namespace labs_coordinate_pictures
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
                     {
-                        throw new CoordinatePicturesException("config values cannot contain newline, for key " + key);
+                        throw new CoordinatePicturesException(
+                            "config values cannot contain newline, for key " + key);
                     }
 
                     sb.AppendLine(key.ToString() + "=" + value);

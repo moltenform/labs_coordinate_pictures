@@ -72,7 +72,8 @@ namespace labs_coordinate_pictures
                     index = _list.SearchForUpToDateCacheEntry(path);
                     if (index == -1)
                     {
-                        MessageBox.Show("did not find image that was just cached. this can happen if an image is changed very quickly");
+                        MessageBox.Show("did not find image that was just cached. " +
+                            " this can happen if an image is changed very quickly");
                         originalWidth = originalHeight = 0;
                         return null;
                     }
@@ -120,12 +121,12 @@ namespace labs_coordinate_pictures
 
             if (checkIfTooManyInCache)
             {
-                // ask our owner before we call Dispose() in case the owner is currently using this image.
+                // ask form before we call Dispose() in case form is currently using this image.
                 _callbackOnUiThread.Invoke(new Action(() =>
                 {
                     lock (_lock)
                     {
-                        // now that we've acquired the lock it's possible there is no work left to do.
+                        // note that it's possible there is no work left to do, due to another thread.
                         // iterate backwards, since RemoveAt repositions subsequent elements
                         var howManyToRemove = _list.Count - _cacheSize;
                         for (int i = howManyToRemove - 1; i >= 0; i--)
@@ -150,7 +151,7 @@ namespace labs_coordinate_pictures
             });
         }
 
-        // indicates in bitmapWillLockFile whether holding onto the Bitmap will hold lock on a file.
+        // bitmapWillLockFile indicates whether holding onto Bitmap will hold lock on a file.
         public static Bitmap GetBitmap(string path, out bool bitmapWillLockFile)
         {
             Bitmap bitmap = null;
@@ -227,7 +228,8 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static Bitmap ResizeImage(Bitmap bitmapFull, int newWidth, int newHeight, string pathForLogging)
+        public static Bitmap ResizeImage(Bitmap bitmapFull,
+            int newWidth, int newHeight, string pathForLogging)
         {
             // Kris Erickson, stackoverflow 87753.
             // also considered pixelformat Imaging.PixelFormat.Format32bppPArgb
@@ -250,7 +252,8 @@ namespace labs_coordinate_pictures
 
             if (bitmapResized == null)
             {
-                throw new CoordinatePicturesException("do not expect newImage to be null. " + pathForLogging);
+                throw new CoordinatePicturesException(
+                    "do not expect newImage to be null. " + pathForLogging);
             }
             else
             {
@@ -273,7 +276,8 @@ namespace labs_coordinate_pictures
         public int MaxHeight { get; private set; }
         public Bitmap Bmp { get; private set; }
 
-        public void MakeBmp(string path, int clickX, int clickY, int widthOfResizedImage, int heightOfResizedImage)
+        public void MakeBmp(string path, int clickX, int clickY,
+            int widthOfResizedImage, int heightOfResizedImage)
         {
             Bmp.Dispose();
             Bmp = new Bitmap(MaxWidth, MaxHeight);

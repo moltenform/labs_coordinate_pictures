@@ -16,7 +16,8 @@ namespace labs_coordinate_pictures
 {
     public static class Utils
     {
-        static Random rand = new Random();
+        static Random random = new Random();
+
         public static void OpenDirInExplorer(string sDir)
         {
             Process.Start("explorer.exe", "\"" + sDir + "\"");
@@ -28,25 +29,31 @@ namespace labs_coordinate_pictures
         }
 
         // returns exit code.
-        public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow)
+        public static int Run(string executable, string[] args, bool shell, bool waitForExit,
+            bool hideWindow)
         {
             string stdout, stderr;
-            return Run(exe, args, shell, waitForExit, hideWindow, false, out stdout, out stderr);
+            return Run(executable, args, shell, waitForExit,
+                hideWindow, false, out stdout, out stderr);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
-        public static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, out string stdout, out string stderr)
+        public static int Run(string executable, string[] args, bool shell, bool waitForExit,
+            bool hideWindow, out string stdout, out string stderr)
         {
-            return Run(exe, args, shell, waitForExit, hideWindow, true, out stdout, out stderr);
+            return Run(executable, args, shell, waitForExit,
+                hideWindow, true, out stdout, out stderr);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
-        static int Run(string exe, string[] args, bool shell, bool waitForExit, bool hideWindow, bool getStdout, out string outStdout, out string outStderr, string workingDir = null)
+        static int Run(string executable, string[] args, bool shell, bool waitForExit,
+            bool hideWindow, bool getStdout, out string outStdout,
+            out string outStderr, string workingDir = null)
         {
             var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = hideWindow;
             startInfo.UseShellExecute = shell;
-            startInfo.FileName = exe;
+            startInfo.FileName = executable;
             startInfo.Arguments = CombineProcessArguments(args);
             startInfo.WorkingDirectory = workingDir;
             if (getStdout)
@@ -56,12 +63,12 @@ namespace labs_coordinate_pictures
                 waitForExit = true;
             }
 
-            string serr = "", sout = "";
+            string stderr = "", stdout = "";
             var process = Process.Start(startInfo);
             if (getStdout)
             {
-                process.OutputDataReceived += (sender, errordataargs) => sout += errordataargs.Data;
-                process.ErrorDataReceived += (sender, errordataargs) => serr += errordataargs.Data;
+                process.OutputDataReceived += (sender, dataReceived) => stdout += dataReceived.Data;
+                process.ErrorDataReceived += (sender, dataReceived) => stderr += dataReceived.Data;
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
             }
@@ -71,16 +78,16 @@ namespace labs_coordinate_pictures
                 process.WaitForExit();
             }
 
-            outStdout = sout;
-            outStderr = serr;
+            outStdout = stdout;
+            outStderr = stderr;
 
             return waitForExit ? process.ExitCode : 0;
         }
 
-        public static bool AskToConfirm(string s)
+        public static bool AskToConfirm(string message)
         {
-            var res = MessageBox.Show(s, "", MessageBoxButtons.YesNo);
-            return res == DialogResult.Yes;
+            var result = MessageBox.Show(message, "", MessageBoxButtons.YesNo);
+            return result == DialogResult.Yes;
         }
 
         public static bool IsDigits(string s)
@@ -107,43 +114,52 @@ namespace labs_coordinate_pictures
         }
 
         // "soft delete" just means moving to a designated 'trash' location.
-        public static string GetSoftDeleteDestination(string s)
+        public static string GetSoftDeleteDestination(string path)
         {
-            var trashdir = Configs.Current.Get(ConfigKey.FilepathTrash);
-            if (string.IsNullOrEmpty(trashdir) ||
-                !Directory.Exists(trashdir))
+            var trashDir = Configs.Current.Get(ConfigKey.FilepathTrash);
+            if (string.IsNullOrEmpty(trashDir) ||
+                !Directory.Exists(trashDir))
             {
-                MessageBox.Show("Trash directory not found. Go to the main screen and to the option menu and click Options->Set trash directory...");
+                MessageBox.Show("Trash directory not found. Go to the main screen and to the " +
+                    "option menu and click Options->Set trash directory...");
                 return null;
             }
 
             // as a prefix, the first 2 chars of the parent directory
-            var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(s))) + "_";
-            return Path.Combine(trashdir, prefix + Path.GetFileName(s) + rand.Next());
+            var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(path))) + "_";
+            return Path.Combine(trashDir, prefix + Path.GetFileName(path) + random.Next());
         }
 
-        public static void SoftDelete(string s)
+        public static void SoftDelete(string path)
         {
-            var newname = GetSoftDeleteDestination(s);
-            if (newname != null)
+            var newPath = GetSoftDeleteDestination(path);
+            if (newPath != null)
             {
-                SimpleLog.Current.WriteLog("Moving [" + s + "] to [" + newname + "]");
-                File.Move(s, newname);
+                SimpleLog.Current.WriteLog("Moving (" + path + ") to (" + newPath + ")");
+                File.Move(path, newPath);
             }
         }
 
         public static string CombineProcessArguments(string[] args)
         {
-            // By Roger Knapp, http://csharptest.net/529/how-to-correctly-escape-command-line-arguments-in-c/
+            // By Roger Knapp
+            // http://csharptest.net/529/how-to-correctly-escape-command-line-arguments-in-c/
             if (args == null || args.Length == 0)
             {
                 return "";
             }
 
             StringBuilder arguments = new StringBuilder();
-            Regex invalidChar = new Regex("[\x00\x0a\x0d]"); // these can not be escaped
-            Regex needsQuotes = new Regex(@"\s|"""); //         contains whitespace or two quote characters
-            Regex escapeQuote = new Regex(@"(\\*)(""|$)"); //   one or more '\' followed with a quote or end of string
+
+            // these can not be escaped
+            Regex invalidChar = new Regex("[\x00\x0a\x0d]");
+
+            // contains whitespace or two quote characters
+            Regex needsQuotes = new Regex(@"\s|""");
+
+            // one or more '\' followed with a quote or end of string
+            Regex escapeQuote = new Regex(@"(\\*)(""|$)");
+
             for (int carg = 0; carg < args.Length; carg++)
             {
                 if (invalidChar.IsMatch(args[carg]))
@@ -177,12 +193,12 @@ namespace labs_coordinate_pictures
             return arguments.ToString();
         }
 
-        public static bool RepeatWhileFileLocked(string sFilename, int timeout)
+        public static bool RepeatWhileFileLocked(string filepath, int timeout)
         {
             int millisecondsBeforeRetry = 250;
             for (int i = 0; i < timeout; i += millisecondsBeforeRetry)
             {
-                if (!IsFileLocked(sFilename))
+                if (!IsFileLocked(filepath))
                     return true;
 
                 Thread.Sleep(millisecondsBeforeRetry);
@@ -191,9 +207,9 @@ namespace labs_coordinate_pictures
             return false;
         }
 
-        public static bool IsFileLocked(string sFile)
+        public static bool IsFileLocked(string filepath)
         {
-            FileInfo file = new FileInfo(sFile);
+            FileInfo file = new FileInfo(filepath);
             FileStream stream = null;
 
             try
@@ -214,28 +230,29 @@ namespace labs_coordinate_pictures
         }
 
         // pretty-print a filesize as "1.24Mb" or "32k".
-        public static string FormatFilesize(string path)
+        public static string FormatFilesize(string filepath)
         {
-            if (!File.Exists(path))
+            if (!File.Exists(filepath))
                 return " file not found";
 
-            var len = new FileInfo(path).Length;
+            var len = new FileInfo(filepath).Length;
             return (len > 1024 * 1024) ?
                 string.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
                 string.Format(" ({0}k)", len / 1024);
         }
 
-        public static void CloseOtherProcessesByName(string name)
+        public static void CloseOtherProcessesByName(string processName)
         {
             var thisId = Process.GetCurrentProcess().Id;
-            foreach (var process in Process.GetProcessesByName(name))
+            foreach (var process in Process.GetProcessesByName(processName))
             {
                 if (process.Id != thisId)
                     process.Kill();
             }
         }
 
-        public static void RunPythonScriptOnSeparateThread(string pyScript, string[] listArgs, bool createWindow = false)
+        public static void RunPythonScriptOnSeparateThread(string pyScript,
+            string[] listArgs, bool createWindow = false)
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
@@ -243,7 +260,9 @@ namespace labs_coordinate_pictures
             });
         }
 
-        public static string RunPythonScript(string pyScript, string[] listArgs, bool createWindow = false, bool warnIfStdErr = true, string workingDir = null)
+        public static string RunPythonScript(string pyScript,
+            string[] listArgs, bool createWindow = false,
+            bool warnIfStdErr = true, string workingDir = null)
         {
             if (!pyScript.Contains("/") && !pyScript.Contains("\\"))
             {
@@ -259,7 +278,8 @@ namespace labs_coordinate_pictures
             var python = Configs.Current.Get(ConfigKey.FilepathPython);
             if (string.IsNullOrEmpty(python) || !File.Exists(python))
             {
-                MessageBox.Show("Python exe not found. Go to the main screen and to the option menu and click Options->Set python location...");
+                MessageBox.Show("Python exe not found. Go to the main screen and to the " +
+                    "option menu and click Options->Set python location...");
                 return "Python exe not found.";
             }
 
@@ -269,6 +289,7 @@ namespace labs_coordinate_pictures
             int exitCode = Run(python, args.ToArray(), shell: false,
                 waitForExit: true, hideWindow: !createWindow, getStdout: true,
                 outStdout: out stdout, outStderr: out stderr, workingDir: workingDir);
+
             if (warnIfStdErr && exitCode != 0)
             {
                 MessageBox.Show("warning, error from script: " + stderr ?? "");
@@ -277,20 +298,26 @@ namespace labs_coordinate_pictures
             return stderr;
         }
 
-        public static void RunImageConversion(string pathin, string pathout, string resizeSpec, int jpgQuality)
+        public static void RunImageConversion(string pathInput, string pathOutput,
+            string resizeSpec, int jpgQuality)
         {
-            if (File.Exists(pathout))
+            if (File.Exists(pathOutput))
             {
-                MessageBox.Show("File already exists, " + pathout);
+                MessageBox.Show("File already exists, " + pathOutput);
                 return;
             }
 
             // send the working directory for the script so that it can find options.ini
-            var scriptcurdir = Path.Combine(Configs.Current.Directory, "ben_python_img");
-            var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_convert_resize.py");
-            var args = new string[] { "convert_resize", pathin, pathout, resizeSpec, jpgQuality.ToString() };
-            var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false, workingDir: scriptcurdir);
-            if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathout))
+            var workingDir = Path.Combine(Configs.Current.Directory,
+                "ben_python_img");
+            var script = Path.Combine(Configs.Current.Directory,
+                "ben_python_img", "img_convert_resize.py");
+            var args = new string[] { "convert_resize",
+                pathInput, pathOutput, resizeSpec, jpgQuality.ToString() };
+            var stderr = RunPythonScript(script, args,
+                createWindow: false, warnIfStdErr: false, workingDir: workingDir);
+
+            if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathOutput))
             {
                 MessageBox.Show("RunImageConversion failed, stderr = " + stderr);
             }
@@ -298,7 +325,8 @@ namespace labs_coordinate_pictures
 
         public static string RunM4aConversion(string path, string qualitySpec)
         {
-            var qualities = new string[] { "16", "24", "96", "128", "144", "160", "192", "224", "256", "288", "320", "640", "flac" };
+            var qualities = new string[] { "16", "24", "96", "128", "144",
+                "160", "192", "224", "256", "288", "320", "640", "flac" };
             if (Array.IndexOf(qualities, qualitySpec) == -1)
             {
                 throw new CoordinatePicturesException("Unsupported bitrate.");
@@ -310,13 +338,15 @@ namespace labs_coordinate_pictures
             else
             {
                 var pathOutput = Path.GetDirectoryName(path) + "\\" +
-                    Path.GetFileNameWithoutExtension(path) + (qualitySpec == "flac" ? ".flac" : ".m4a");
-                var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) + "\\dropq" + qualitySpec + ".py";
+                    Path.GetFileNameWithoutExtension(path) +
+                    (qualitySpec == "flac" ? ".flac" : ".m4a");
+                var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) +
+                    "\\dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
                 var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false);
                 if (!File.Exists(pathOutput))
                 {
-                    MessageBox.Show("RunQaacConversion failed, stderr = " + stderr);
+                    MessageBox.Show("RunM4aConversion failed, stderr = " + stderr);
                     return null;
                 }
                 else
@@ -334,7 +364,8 @@ namespace labs_coordinate_pictures
             var player = Configs.Current.Get(ConfigKey.FilepathMediaPlayer);
             if (string.IsNullOrEmpty(player) || !File.Exists(player))
             {
-                MessageBox.Show("Media player not found. Go to the main screen and to the option menu and click Options->Set media player location...");
+                MessageBox.Show("Media player not found. Go to the main screen " +
+                    "and to the option menu and click Options->Set media player location...");
                 return;
             }
 
@@ -367,11 +398,11 @@ namespace labs_coordinate_pictures
         }
 
         // starts website in default browser.
-        public static void LaunchUrl(string s)
+        public static void LaunchUrl(string url)
         {
-            s = GetFirstHttpLink(s);
-            if (s != null && s.StartsWith("http"))
-                Process.Start(s);
+            url = GetFirstHttpLink(url);
+            if (url != null && url.StartsWith("http"))
+                Process.Start(url);
         }
 
         // get item from array, clamps index / does not overflow
@@ -398,9 +429,10 @@ namespace labs_coordinate_pictures
                 return "filenotfound";
             }
 
+            const int bufSize = 64 * 1024;
             using (SHA512Managed sha512 = new SHA512Managed())
             {
-                using (var stream = new BufferedStream(File.OpenRead(path), 64 * 1024))
+                using (var stream = new BufferedStream(File.OpenRead(path), bufSize))
                 {
                     byte[] hash = sha512.ComputeHash(stream);
                     return Convert.ToBase64String(hash);
@@ -410,6 +442,7 @@ namespace labs_coordinate_pictures
 
         public static string[] SplitByString(string s, string delim)
         {
+            // do not parse delim as a regular expression, use as a normal string.
             return Regex.Split(s, Regex.Escape(delim));
         }
 
@@ -429,18 +462,19 @@ namespace labs_coordinate_pictures
         bool _dirty = true;
         string[] _list = new string[] { };
         FileSystemWatcher _watcher;
-        string _root;
+        string _baseDir;
 
-        public FileListAutoUpdated(string root, bool recurse)
+        public FileListAutoUpdated(string baseDir, bool recurse)
         {
             Recurse = recurse;
-            _root = root;
-            _watcher = new FileSystemWatcher(root);
+            _baseDir = baseDir;
+            _watcher = new FileSystemWatcher(baseDir);
             _watcher.IncludeSubdirectories = recurse;
             _watcher.Created += SetDirty;
             _watcher.Renamed += SetDirty;
             _watcher.Deleted += SetDirty;
-            _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName
+                | NotifyFilters.DirectoryName;
             _watcher.EnableRaisingEvents = true;
         }
 
@@ -460,10 +494,12 @@ namespace labs_coordinate_pictures
         {
             if (_dirty || forceRefresh)
             {
-                // DirectoryInfo takes about 13ms, Directory.EnumerateFiles takes about 12ms, for a 900 file directory
-                var enumerator = Directory.EnumerateFiles(_root, "*", Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                // DirectoryInfo takes about 13ms, for a 900 file directory
+                // Directory.EnumerateFiles takes about 12ms
+                var enumerator = Directory.EnumerateFiles(_baseDir, "*",
+                    Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                 _list = enumerator.ToArray();
-                Array.Sort<string>(_list, StringComparer.OrdinalIgnoreCase);
+                Array.Sort(_list, StringComparer.OrdinalIgnoreCase);
                 _dirty = false;
             }
 
@@ -489,18 +525,19 @@ namespace labs_coordinate_pictures
     }
 
     // navigates a FileListAutoUpdated in alphabetical order.
-    // gracefully handles the case when navigating to a file that was just deleted,
-    // but FileListAutoUpdated has not yet received the notification event.
+    // gracefully handles the case when navigating to a file that was just deleted, and
+    // FileListAutoUpdated has not yet received the notification event.
     public sealed class FileListNavigation : IDisposable
     {
         string[] _extensionsAllowed;
         bool _excludeMarked;
         FileListAutoUpdated _list;
-        public FileListNavigation(string basedir, string[] extensionsAllowed, bool fRecurse, bool excludeMarked = true, string sCurrent = "")
+        public FileListNavigation(string baseDir, string[] extensionsAllowed,
+             bool recurse, bool excludeMarked = true, string sCurrent = "")
         {
-            BaseDirectory = basedir;
+            BaseDirectory = baseDir;
             _extensionsAllowed = extensionsAllowed;
-            _list = new FileListAutoUpdated(basedir, fRecurse);
+            _list = new FileListAutoUpdated(baseDir, recurse);
             _excludeMarked = excludeMarked;
             TrySetPath(sCurrent);
         }
@@ -508,7 +545,7 @@ namespace labs_coordinate_pictures
         public string Current { get; private set; }
         public string BaseDirectory { get; private set; }
 
-        public void Refresh(bool justPokeUpdates = false)
+        public void Refresh()
         {
             _list = new FileListAutoUpdated(BaseDirectory, _list.Recurse);
             TrySetPath("");
@@ -519,8 +556,10 @@ namespace labs_coordinate_pictures
             _list.Dirty();
         }
 
-        // try operations twice. if the file doesn't exist, FileListAutoUpdated might
-        // have not received the notification event yet, so mark it as dirty and retry once more.
+        // try an action twice if necessary.
+        // if the filepath we are given no longer exists,
+        // FileListAutoUpdated might have not received the notification event yet,
+        // so tell it to refresh and retry once more.
         void TryAgainIfFileIsMissing(Func<string[], string> fn)
         {
             var list = GetList();
@@ -560,7 +599,8 @@ namespace labs_coordinate_pictures
             return index;
         }
 
-        public void GoNextOrPrev(bool isNext, List<string> neighbors = null, int retrieveNeighbors = 0)
+        public void GoNextOrPrev(bool isNext, List<string> neighbors = null,
+            int retrieveNeighbors = 0)
         {
             TryAgainIfFileIsMissing((list) =>
             {
@@ -577,9 +617,12 @@ namespace labs_coordinate_pictures
                 }
                 else
                 {
-                    // index is LessThanOrEqual, but we want just LessThan, so move prev if equal.
+                    // index is LessThanOrEqual, but we want strictly LessThan
+                    // so move prev if equal.
                     if (index > 0 && Current == list[index])
+                    {
                         index--;
+                    }
 
                     // caller has asked us to return adjacent items
                     for (int i = 0; i < retrieveNeighbors; i++)
@@ -608,9 +651,9 @@ namespace labs_coordinate_pictures
             });
         }
 
-        public void TrySetPath(string sCurrent, bool verify = true)
+        public void TrySetPath(string current, bool verify = true)
         {
-            Current = sCurrent;
+            Current = current;
             if (verify)
             {
                 TryAgainIfFileIsMissing((list) =>
@@ -658,22 +701,24 @@ namespace labs_coordinate_pictures
     {
         public static readonly string MarkerString = "__MARKAS__";
 
-        public static bool LooksLikeImage(string s)
+        public static bool LooksLikeImage(string filepath)
         {
-            return IsExtensionInList(s, new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
+            return IsExtensionInList(filepath, new string[] { ".jpg", ".png",
+                ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
         }
 
-        public static bool LooksLikeEditableAudio(string s)
+        public static bool LooksLikeEditableAudio(string filepath)
         {
-            return IsExtensionInList(s, new string[] { ".wav", ".flac", ".mp3", ".m4a", ".mp4" });
+            return IsExtensionInList(filepath, new string[] { ".wav", ".flac",
+                ".mp3", ".m4a", ".mp4" });
         }
 
-        public static bool IsExtensionInList(string s, string[] sExts)
+        public static bool IsExtensionInList(string filepath, string[] extensions)
         {
-            var sLower = s.ToLowerInvariant();
-            foreach (var item in sExts)
+            var filepathLower = filepath.ToLowerInvariant();
+            foreach (var item in extensions)
             {
-                if (sLower.EndsWith(item))
+                if (filepathLower.EndsWith(item))
                 {
                     return true;
                 }
@@ -682,31 +727,32 @@ namespace labs_coordinate_pictures
             return false;
         }
 
-        public static bool IsExt(string s, string ext)
+        public static bool IsExt(string filepath, string extension)
         {
-            return s.ToLowerInvariant().EndsWith(ext);
+            return filepath.ToLowerInvariant().EndsWith(extension);
         }
 
-        public static string AddNumberedPrefix(string path, int n)
+        public static string AddNumberedPrefix(string filepath, int number)
         {
-            var nameOnly = Path.GetFileName(path);
-            if (nameOnly != GetFileNameWithoutNumberedPrefix(path))
+            var nameOnly = Path.GetFileName(filepath);
+            if (nameOnly != GetFileNameWithoutNumberedPrefix(filepath))
             {
                 // already has one
-                return path;
+                return filepath;
             }
             else
             {
                 // add a trailing zero, just lets the user change the order more easily.
-                return Path.GetDirectoryName(path) +
-                    "\\([" + n.ToString("D3") + "0])" + nameOnly;
+                return Path.GetDirectoryName(filepath) +
+                    "\\([" + number.ToString("D3") + "0])" + nameOnly;
             }
         }
 
-        public static string GetFileNameWithoutNumberedPrefix(string path)
+        public static string GetFileNameWithoutNumberedPrefix(string filepath)
         {
-            var nameOnly = Path.GetFileName(path);
-            if (nameOnly.Length > 8 && nameOnly.StartsWith("([") && nameOnly.Substring(6, 2) == "])")
+            var nameOnly = Path.GetFileName(filepath);
+            if (nameOnly.Length > 8 && nameOnly.StartsWith("([") &&
+                nameOnly.Substring(6, 2) == "])")
             {
                 return nameOnly.Substring(8);
             }
@@ -726,10 +772,12 @@ namespace labs_coordinate_pictures
 
             var ext = Path.GetExtension(path);
             var before = Path.GetFileNameWithoutExtension(path);
-            return Path.Combine(Path.GetDirectoryName(path), before) + MarkerString + category + ext;
+            return Path.Combine(Path.GetDirectoryName(path), before) +
+                MarkerString + category + ext;
         }
 
-        public static void GetCategoryFromFilename(string pathAndCategory, out string pathWithoutCategory, out string category)
+        public static void GetCategoryFromFilename(string pathAndCategory,
+            out string pathWithoutCategory, out string category)
         {
             // check nothing in path has mark
             if (Path.GetDirectoryName(pathAndCategory).Contains(MarkerString))
@@ -742,34 +790,40 @@ namespace labs_coordinate_pictures
             {
                 if (!Configs.Current.SupressDialogs)
                 {
-                    MessageBox.Show("Path " + pathAndCategory + " should contain exactly 1 marker.");
+                    MessageBox.Show("Path " + pathAndCategory +
+                        " should contain exactly 1 marker.");
                 }
 
-                throw new CoordinatePicturesException("Path " + pathAndCategory + " should contain exactly 1 marker.");
+                throw new CoordinatePicturesException("Path " + pathAndCategory +
+                    " should contain exactly 1 marker.");
             }
 
             var partsAfterMarker = parts[1].Split(new char[] { '.' });
             if (partsAfterMarker.Length != 2)
             {
-                throw new CoordinatePicturesException("Parts after the marker shouldn't have another .");
+                throw new CoordinatePicturesException(
+                    "Parts after the marker shouldn't have another .");
             }
 
             category = partsAfterMarker[0];
             pathWithoutCategory = parts[0] + "." + partsAfterMarker[1];
         }
 
-        public static bool SameExceptExtension(string s1, string s2)
+        public static bool SameExceptExtension(string filepath1, string filepath2)
         {
-            var rootNoExtension1 = Path.Combine(Path.GetDirectoryName(s1), Path.GetFileNameWithoutExtension(s1));
-            var rootNoExtension2 = Path.Combine(Path.GetDirectoryName(s2), Path.GetFileNameWithoutExtension(s2));
+            var rootNoExtension1 = Path.Combine(
+                Path.GetDirectoryName(filepath1), Path.GetFileNameWithoutExtension(filepath1));
+            var rootNoExtension2 = Path.Combine(
+                Path.GetDirectoryName(filepath2), Path.GetFileNameWithoutExtension(filepath2));
+
             return rootNoExtension1.ToUpperInvariant() == rootNoExtension2.ToUpperInvariant();
         }
 
-        public static bool IsPathRooted(string s)
+        public static bool IsPathRooted(string filepath)
         {
             try
             {
-                return Path.IsPathRooted(s);
+                return Path.IsPathRooted(filepath);
             }
             catch (ArgumentException)
             {
@@ -826,8 +880,11 @@ namespace labs_coordinate_pictures
             catch (Exception)
             {
                 if (!Utils.AskToConfirm("Could not write to " + _path +
-                    "; labs_coordinate_pictures.exe currently needs to be in writable directory. Continue?"))
+                    "; labs_coordinate_pictures.exe currently needs to be " +
+                    "in writable directory. Continue?"))
+                {
                     Environment.Exit(1);
+                }
             }
         }
 
@@ -851,20 +908,22 @@ namespace labs_coordinate_pictures
     }
 
     // finds similar filenames, especially those created by FormGallery::convertToSeveralJpgs.
-    // e.g., given example.png90.jpg, will see that example.png, example_out.png and example.png60.jpg are related files.
+    // e.g., given example.png90.jpg, will see that
+    // example.png, example_out.png and example.png60.jpg are related files.
     public static class FilenameFindSimilarFilenames
     {
-        public static bool FindMiddleOfName(string path, string[] types, out string pathWithMiddleRemoved)
+        public static bool FindPathWithSuffixRemoved(string path, string[] extensions,
+            out string pathWithSuffixRemoved)
         {
-            pathWithMiddleRemoved = null;
+            pathWithSuffixRemoved = null;
             var filenameParts = Path.GetFileName(path).Split(new char[] { '.' });
             if (filenameParts.Length > 2)
             {
                 var middle = filenameParts[filenameParts.Length - 2].ToLowerInvariant();
                 bool found = false;
-                foreach (var fileext in types)
+                foreach (var fileExt in extensions)
                 {
-                    var type = fileext.Replace(".", "");
+                    var type = fileExt.Replace(".", "");
                     if (middle.StartsWith(type) && Utils.IsDigits(middle.Replace(type, "")))
                     {
                         found = true;
@@ -876,7 +935,9 @@ namespace labs_coordinate_pictures
                 {
                     var list = new List<string>(filenameParts);
                     list.RemoveAt(list.Count - 2);
-                    pathWithMiddleRemoved = Path.GetDirectoryName(path) + "\\" + string.Join(".", list);
+                    pathWithSuffixRemoved = Path.GetDirectoryName(path) +
+                        "\\" + string.Join(".", list);
+
                     return true;
                 }
             }
@@ -884,30 +945,31 @@ namespace labs_coordinate_pictures
             return false;
         }
 
-        public static List<string> FindSimilarNames(string path, string[] types, string[] otherfiles, out bool hasMiddleName, out string newname)
+        public static List<string> FindSimilarNames(string path, string[] types,
+            string[] otherFiles, out bool hasMiddleName, out string newPath)
         {
             // parse the file
-            newname = null;
-            hasMiddleName = FindMiddleOfName(path, types, out newname);
+            newPath = null;
+            hasMiddleName = FindPathWithSuffixRemoved(path, types, out newPath);
 
             // delete all the rest in group
-            var root = hasMiddleName ? newname : path;
-            List<string> ret = new List<string>();
-            foreach (var otherfile in otherfiles)
+            var filenameWithoutSuffix = hasMiddleName ? newPath : path;
+            List<string> results = new List<string>();
+            foreach (var otherFile in otherFiles)
             {
-                if (otherfile.ToUpperInvariant() != path.ToUpperInvariant())
+                if (otherFile.ToUpperInvariant() != path.ToUpperInvariant())
                 {
                     string nameMiddleRemoved;
-                    if (FilenameUtils.SameExceptExtension(root, otherfile) ||
-                        (FindMiddleOfName(otherfile, types, out nameMiddleRemoved) &&
-                        FilenameUtils.SameExceptExtension(root, nameMiddleRemoved)))
+                    if (FilenameUtils.SameExceptExtension(filenameWithoutSuffix, otherFile) ||
+                        (FindPathWithSuffixRemoved(otherFile, types, out nameMiddleRemoved) &&
+                        FilenameUtils.SameExceptExtension(filenameWithoutSuffix, nameMiddleRemoved)))
                     {
-                        ret.Add(otherfile);
+                        results.Add(otherFile);
                     }
                 }
             }
 
-            return ret;
+            return results;
         }
     }
 

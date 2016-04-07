@@ -89,8 +89,11 @@ namespace labs_coordinate_pictures
         public abstract string GetDefaultCategories();
         public abstract string[] GetFileTypes();
         public abstract void OnBeforeAssignCategory();
-        public abstract void OnCompletionAction(string baseDirectory, string path,
-            string pathWithoutCategory, Tuple<string, string, string> category);
+
+        public virtual void OnCompletionAction(string baseDirectory, string path,
+            string pathWithoutCategory, Tuple<string, string, string> category)
+        {
+        }
 
         // list of (keyboard shortcut, label text).
         // shortcut is not automatically bound, must be implemented in OnCustomCommand.
@@ -100,7 +103,8 @@ namespace labs_coordinate_pictures
         }
 
         // modes can perform actions on keyup events in FormGallery.
-        public virtual void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)
+        public virtual void OnCustomCommand(FormGallery form,
+            bool shift, bool alt, bool control, Keys keys)
         {
         }
     }
@@ -145,7 +149,8 @@ namespace labs_coordinate_pictures
             return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
         }
 
-        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
+        public override void OnCompletionAction(string baseDirectory,
+            string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             // create a directory <baseDirectory>/<categoryname>
             var targetDir = Path.Combine(baseDirectory, category.Item3);
@@ -179,7 +184,10 @@ namespace labs_coordinate_pictures
         public override string GetDefaultCategories()
         {
             // filename suffixes that img_resize_keep_exif.py will recognize
-            return "Q/288 typ 10%/288h|W/432 typ 15%/432h|E/576 typ 20%/576h|1/720 typ 25%/720h|3/864 typ 35%/864h|4/1008 typ 40%/1008h|5/1152 typ 45%/1152h|6/1296 typ 50%/1296h|7/1440 typ 55%/1440h|8/1584 typ 60%/1584h|9/1728 typ 65%/1728h|P/1872 typ 75%/1872h|0/100%/100%";
+            return "Q/288 typ 10%/288h|W/432 typ 15%/432h|E/576 typ 20%/576h|" +
+                "1/720 typ 25%/720h|3/864 typ 35%/864h|4/1008 typ 40%/1008h|" +
+                "5/1152 typ 45%/1152h|6/1296 typ 50%/1296h|7/1440 typ 55%/1440h|" +
+                "8/1584 typ 60%/1584h|9/1728 typ 65%/1728h|P/1872 typ 75%/1872h|0/100%/100%";
         }
 
         public override bool SupportsRename()
@@ -192,26 +200,34 @@ namespace labs_coordinate_pictures
             return true;
         }
 
-        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
+        public override void OnCompletionAction(string baseDirectory,
+            string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             if (_hasRunCompletionAction)
             {
                 return;
             }
 
-            // we certainly could start the script directly, but I currently prefer the traditional workflow of
-            // manually running the python script.
+            // we certainly could start the script directly, but I currently prefer the
+            // traditional workflow of manually running the python script.
             // all we do here is write the current directory onto the python script.
-            if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by running a python script,"
-                + " ./tools/ben_python_img/img_convert_resize.py\r\n\r\nSet the directory referred to in the script to\r\n" + baseDirectory + "?"))
+            if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by " +
+                 "running a python script," +
+                 " ./tools/ben_python_img/img_convert_resize.py\r\n\r\n" +
+                "Set the directory referred to in the script to\r\n" + baseDirectory + "?"))
             {
-                var script = Path.Combine(Configs.Current.Directory, "ben_python_img", "img_resize_keep_exif.py");
+                var script = Path.Combine(Configs.Current.Directory,
+                    "ben_python_img", "img_resize_keep_exif.py");
+
                 if (File.Exists(script))
                 {
                     var parts = Utils.SplitByString(File.ReadAllText(script), "###template");
                     if (parts.Length == 3)
                     {
-                        var result = parts[0] + "###template\r\n    baseDirectory = r'" + baseDirectory + "'\r\n    ###template" + parts[2];
+                        var result = parts[0] +
+                            "###template\r\n    baseDirectory = r'" + baseDirectory +
+                            "'\r\n    ###template" + parts[2];
+
                         File.WriteAllText(script, result);
                         MessageBox.Show("img_resize_keep_exif.py modified successfully.");
                     }
@@ -252,7 +268,8 @@ namespace labs_coordinate_pictures
             };
         }
 
-        public override void OnCustomCommand(FormGallery form, bool shift, bool alt, bool control, Keys keys)
+        public override void OnCustomCommand(FormGallery form,
+            bool shift, bool alt, bool control, Keys keys)
         {
             if (!shift && control && !alt && keys == Keys.D2)
             {
@@ -269,10 +286,12 @@ namespace labs_coordinate_pictures
             // first, check for duplicate names
             foreach (var path in list)
             {
-                var similar = FilenameFindSimilarFilenames.FindSimilarNames(path, GetFileTypes(), list, out hasMiddleName, out newname);
+                var similar = FilenameFindSimilarFilenames.FindSimilarNames(
+                    path, GetFileTypes(), list, out hasMiddleName, out newname);
                 if (similar.Count != 0)
                 {
-                    MessageBox.Show("the file " + path + " has similar name(s) " + string.Join("\r\n", similar));
+                    MessageBox.Show("the file " + path + " has similar name(s) "
+                        + string.Join("\r\n", similar));
                     return;
                 }
             }
@@ -297,7 +316,8 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
+        public override void OnCompletionAction(string baseDirectory,
+            string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             // just remove the mark from the file, don't need to do anything else.
             if (File.Exists(pathWithoutCategory))
@@ -321,7 +341,10 @@ namespace labs_coordinate_pictures
         // for every category there is a corresponding dropq*.py script.
         public override string GetDefaultCategories()
         {
-            return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
+            return "Q/Enc 16 (del)/16|W/Enc 24 (lnk)/24|E/Encode 96/96|" +
+                "1/Encode 128/128|2/Encode 144/144|3/Encode 160/160|" +
+                "4/Encode 192/192|5/Encode 224/224|6/Encode 256/256|" +
+                "7/Encode 288/288|8/Encode 320/320|9/Encode 640/640|0/Encode Flac/flac";
         }
 
         public override void OnBeforeAssignCategory()
@@ -355,7 +378,8 @@ namespace labs_coordinate_pictures
         }
 
         // use dropq*.py scripts to convert wav to m4a.
-        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
+        public override void OnCompletionAction(string baseDirectory,
+            string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
             if (path.ToLowerInvariant().EndsWith(".wav"))
             {
@@ -364,12 +388,14 @@ namespace labs_coordinate_pictures
                 if (!string.IsNullOrEmpty(pathM4a))
                 {
                     // 2) see that song__MARKAS__144.m4a should be renamed to song.m4a
-                    var newPathM4a = Path.GetDirectoryName(pathWithoutCategory) + "\\" + Path.GetFileNameWithoutExtension(pathWithoutCategory) +
+                    var newPathM4a = Path.GetDirectoryName(pathWithoutCategory) +
+                        "\\" + Path.GetFileNameWithoutExtension(pathWithoutCategory) +
                         Path.GetExtension(pathM4a);
 
                     if (File.Exists(newPathM4a))
                     {
-                        MessageBox.Show("already exists. could not move " + pathM4a + " to " + newPathM4a);
+                        MessageBox.Show("already exists. could not move " +
+                            pathM4a + " to " + newPathM4a);
                     }
                     else
                     {
@@ -398,10 +424,6 @@ namespace labs_coordinate_pictures
         public override string[] GetFileTypes()
         {
             return new string[] { ".wav", ".mp3", ".mp4", ".m4a", ".wma", ".flac" };
-        }
-
-        public override void OnCompletionAction(string baseDirectory, string path, string pathWithoutCategory, Tuple<string, string, string> category)
-        {
         }
     }
 }
