@@ -280,14 +280,14 @@ namespace labs_coordinate_pictures
         public void AutoAcceptSmallFiles(FormGallery form, int acceptFilesSmallerThan = 1024 * 45)
         {
             var list = form.GetFilelist().GetList();
-            bool hasMiddleName;
-            string newname;
+            bool nameHasSuffix;
+            string pathWithoutSuffix;
 
             // first, check for duplicate names
             foreach (var path in list)
             {
-                var similar = FilenameFindSimilarFilenames.FindSimilarNames(
-                    path, GetFileTypes(), list, out hasMiddleName, out newname);
+                var similar = FindSimilarFilenames.FindSimilarNames(
+                    path, GetFileTypes(), list, out nameHasSuffix, out pathWithoutSuffix);
                 if (similar.Count != 0)
                 {
                     MessageBox.Show("the file " + path + " has similar name(s) "

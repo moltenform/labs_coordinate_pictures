@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -33,10 +34,11 @@ namespace labs_coordinate_pictures
         List<ToolStripItem> _originalEditMenu;
 
         // shortcut key bindings from letter, to category.
-        Dictionary<string, string> _categoryShortcuts;
+        Dictionary<string, string> _categoryKeyBindings;
 
         // support undoing file moves
-        UndoStack<Tuple<string, string>> _undoFileMoves = new UndoStack<Tuple<string, string>>();
+        UndoStack<Tuple<string, string>> _undoFileMoves =
+            new UndoStack<Tuple<string, string>>();
 
         // placeholder image
         Bitmap _bitmapBlank = new Bitmap(1, 1);
@@ -48,7 +50,7 @@ namespace labs_coordinate_pictures
         ImageCache _imagecache;
 
         // how many images to store in cache
-        const int ImageCacheSize = 15;
+        const int ImageCacheSize = 16;
 
         // how many images to prefetch after the user moves to the next image
         const int ImageCacheBatch = 8;
@@ -59,23 +61,27 @@ namespace labs_coordinate_pictures
 
             SimpleLog.Current.WriteLog("Starting session in " + initialDirectory + "|" + initialFilepath);
             _mode = mode;
-            _originalCategoriesMenu = new List<ToolStripItem>(categoriesToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
-            _originalEditMenu = new List<ToolStripItem>(editToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
-            pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+            _originalCategoriesMenu = new List<ToolStripItem>(
+                categoriesToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
+            _originalEditMenu = new List<ToolStripItem>(
+                editToolStripMenuItem.DropDownItems.Cast<ToolStripItem>());
 
             // event handlers
             movePrevMenuItem.Click += (sender, e) => MoveOne(false);
             moveNextMenuItem.Click += (sender, e) => MoveOne(true);
             moveManyPrevToolStripMenuItem.Click += (sender, e) => MoveMany(false);
             moveManyNextToolStripMenuItem.Click += (sender, e) => MoveMany(true);
-            moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
-            moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
+            moveFirstToolStripMenuItem.Click += (sender, e) => MoveFirst(true);
+            moveLastToolStripMenuItem.Click += (sender, e) => MoveFirst(false);
             moveToTrashToolStripMenuItem.Click += (sender, e) => KeyDelete();
             renameItemToolStripMenuItem.Click += (sender, e) => RenameFile();
             undoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(true);
             redoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(false);
 
-            _filelist = new FileListNavigation(initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
+            _filelist = new FileListNavigation(
+                initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
+
+            pictureBox.SizeMode = PictureBoxSizeMode.Normal;
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
             RefreshCategories();
             OnOpenItem();
@@ -94,8 +100,9 @@ namespace labs_coordinate_pictures
         void OnOpenItem()
         {
             // if the user resized the window, create a new cache for the new size
-            pictureBox1.Image = _bitmapBlank;
-            if (_imagecache == null || _imagecache.MaxWidth != pictureBox1.Width || _imagecache.MaxHeight != pictureBox1.Height)
+            pictureBox.Image = _bitmapBlank;
+            if (_imagecache == null || _imagecache.MaxWidth != pictureBox.Width ||
+                _imagecache.MaxHeight != pictureBox.Height)
             {
                 RefreshImageCache();
             }
@@ -103,7 +110,7 @@ namespace labs_coordinate_pictures
             if (_filelist.Current == null)
             {
                 label.Text = "looks done.";
-                pictureBox1.Image = _bitmapBlank;
+                pictureBox.Image = _bitmapBlank;
             }
             else
             {
@@ -112,8 +119,10 @@ namespace labs_coordinate_pictures
 
                 // show the current image
                 int originalWidth = 0, originalHeight = 0;
-                pictureBox1.Image = _imagecache.Get(_filelist.Current, out originalWidth, out originalHeight);
-                _currentImageResized = originalWidth > _imagecache.MaxWidth || originalHeight > _imagecache.MaxHeight;
+                pictureBox.Image = _imagecache.Get(_filelist.Current, out originalWidth, out originalHeight);
+                _currentImageResized = originalWidth > _imagecache.MaxWidth ||
+                    originalHeight > _imagecache.MaxHeight;
+
                 var showResized = _currentImageResized ? "s" : "";
                 label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", _filelist.Current,
                     Utils.FormatFilesize(_filelist.Current), Path.GetFileName(_filelist.Current),
@@ -128,62 +137,63 @@ namespace labs_coordinate_pictures
         {
             if (_imagecache != null)
             {
-                pictureBox1.Image = null;
+                pictureBox.Image = null;
                 _imagecache.Dispose();
             }
 
             // provide callbacks for ImageCache to see if it can dispose an image.
             Func<Bitmap, bool> canDisposeBitmap =
-                (bmp) => (bmp as object) != (pictureBox1.Image as object);
+                (bmp) => (bmp as object) != (pictureBox.Image as object);
+
             Func<Action, bool> callbackOnUiThread =
                 (act) =>
                 {
                     this.Invoke((MethodInvoker)(() => act.Invoke()));
                     return true;
                 };
-            _imagecache = new ImageCache(pictureBox1.Width, pictureBox1.Height,
+
+            _imagecache = new ImageCache(pictureBox.Width, pictureBox.Height,
                 ImageCacheSize, callbackOnUiThread, canDisposeBitmap);
         }
 
         void RefreshFilelist()
         {
             _filelist.Refresh();
-            MoveFirst(false);
+            MoveFirst();
         }
 
-        void MoveOne(bool forwardDirection)
+        void MoveOne(bool isNext)
         {
-            // make a list of length ImageCacheBatch
-            var pathsToCache = new List<string>();
-            for (int i = 0; i < ImageCacheBatch; i++)
-            {
-                pathsToCache.Add(null);
-            }
+            // make a list with all items null
+            var pathsToPrefetch = Enumerable.Repeat<string>(null, ImageCacheBatch).ToList();
 
-            _filelist.GoNextOrPrev(forwardDirection, pathsToCache, pathsToCache.Count);
+            // move forward
+            _filelist.GoNextOrPrev(isNext, pathsToPrefetch, pathsToPrefetch.Count);
             OnOpenItem();
-            _imagecache.AddAsync(pathsToCache);
+
+            // asynchronously prefetch files that are likely to be seen next
+            _imagecache.AddAsync(pathsToPrefetch);
         }
 
-        void MoveMany(bool forwardDirection)
+        void MoveMany(bool isNext)
         {
             for (int i = 0; i < 15; i++)
             {
-                _filelist.GoNextOrPrev(forwardDirection);
+                _filelist.GoNextOrPrev(isNext);
             }
 
             OnOpenItem();
         }
 
-        void MoveFirst(bool forwardDirection)
+        void MoveFirst(bool isFirstOrLast = true)
         {
-            if (forwardDirection)
+            if (isFirstOrLast)
             {
-                _filelist.GoLast();
+                _filelist.GoFirst();
             }
             else
             {
-                _filelist.GoFirst();
+                _filelist.GoLast();
             }
 
             OnOpenItem();
@@ -209,6 +219,7 @@ namespace labs_coordinate_pictures
                     menuItem.ShortcutKeyDisplayString = tuple.Item1;
                     menuItem.Click += (sender, e) => MessageBox.Show(
                         "Press the shortcut " + tuple.Item1 + " to run this command.");
+
                     editToolStripMenuItem.DropDownItems.Add(menuItem);
                     labelView.Text += tuple.Item1 + "=" + tuple.Item2 + "\r\n\r\n";
                 }
@@ -228,7 +239,7 @@ namespace labs_coordinate_pictures
 
             // add items to the Categories menu and to labelView.Text.
             categoriesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-            _categoryShortcuts = new Dictionary<string, string>();
+            _categoryKeyBindings = new Dictionary<string, string>();
             var tuples = ModeUtils.ModeToTuples(_mode);
             foreach (var tuple in tuples)
             {
@@ -237,7 +248,7 @@ namespace labs_coordinate_pictures
                 menuItem.Click += (sender, e) => AssignCategory(tuple.Item3);
                 categoriesToolStripMenuItem.DropDownItems.Add(menuItem);
                 labelView.Text += tuple.Item1 + "    " + tuple.Item2 + "\r\n\r\n";
-                this._categoryShortcuts[tuple.Item1] = tuple.Item3;
+                _categoryKeyBindings[tuple.Item1] = tuple.Item3;
             }
 
             // only show categories in the UI if enabled.
@@ -263,17 +274,23 @@ namespace labs_coordinate_pictures
                 _mode.GetDefaultCategories()
             };
 
-            var text = "Please enter a list of category strings separated by |. Each category string must be in the form A/categoryReadable/categoryId, where A is a single capital letter, categoryReadable will be the human-readable label, and categoryID will be the unique ID (when an image is given this ID, the ID will be added to the filename as a suffix).";
-            var nextCategories = InputBoxForm.GetStrInput(text, null, InputBoxHistory.EditCategoriesString, suggestions);
+            var text = "Please enter a list of category strings separated by |. " +
+                "Each category string must be in the form A/categoryReadable/categoryId, " +
+                "where A is a single capital letter, categoryReadable will be the human-readable " +
+                "label, and categoryID will be the unique ID (when an image is given this ID, the " +
+                "ID will be added to the filename as a suffix).";
+            var nextCategories = InputBoxForm.GetStrInput(
+                text, null, InputBoxHistory.EditCategoriesString, suggestions);
+
             if (!string.IsNullOrEmpty(nextCategories))
             {
                 try
                 {
                     ModeUtils.CategoriesStringToTuple(nextCategories);
                 }
-                catch (CoordinatePicturesException exc)
+                catch (CoordinatePicturesException exception)
                 {
-                    MessageBox.Show(exc.Message);
+                    MessageBox.Show(exception.Message);
                     return;
                 }
 
@@ -282,43 +299,43 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public bool WrapMoveFile(string src, string target, bool fAddToUndoStack = true)
+        public bool WrapMoveFile(string path, string pathDestination, bool addToUndo = true)
         {
-            const int millisecondsToRetryMoving = 3000;
-            if (File.Exists(target))
+            const int millisecondsRetryMoving = 3000;
+            if (File.Exists(pathDestination))
             {
-                MessageBox.Show("already exists: " + target);
+                MessageBox.Show("already exists: " + pathDestination);
                 return false;
             }
 
-            if (!File.Exists(src))
+            if (!File.Exists(path))
             {
-                MessageBox.Show("does not exist: " + src);
+                MessageBox.Show("does not exist: " + path);
                 return false;
             }
 
-            SimpleLog.Current.WriteLog("Moving [" + src + "] to [" + target + "]");
+            SimpleLog.Current.WriteLog("Moving (" + path + ") to (" + pathDestination + ")");
             try
             {
-                bool succeeded = Utils.RepeatWhileFileLocked(src, millisecondsToRetryMoving);
+                bool succeeded = Utils.RepeatWhileFileLocked(path, millisecondsRetryMoving);
                 if (!succeeded)
                 {
                     SimpleLog.Current.WriteLog("Move failed, access denied.");
-                    MessageBox.Show("File is locked: " + src);
+                    MessageBox.Show("File is locked: " + path);
                     return false;
                 }
 
-                File.Move(src, target);
+                File.Move(path, pathDestination);
             }
             catch (IOException e)
             {
-                MessageBox.Show("IOException:" + e);
+                MessageBox.Show("IOException: " + e);
                 return false;
             }
 
-            if (fAddToUndoStack)
+            if (addToUndo)
             {
-                _undoFileMoves.Add(Tuple.Create(src, target));
+                _undoFileMoves.Add(Tuple.Create(path, pathDestination));
             }
 
             return true;
@@ -333,16 +350,19 @@ namespace labs_coordinate_pictures
             if (moveConsidered == null)
             {
                 if (!Configs.Current.SupressDialogs)
+                {
                     MessageBox.Show("nothing to undo");
+                }
             }
             else
             {
-                var newdest = isUndo ? moveConsidered.Item1 : moveConsidered.Item2;
-                var newsrc = isUndo ? moveConsidered.Item2 : moveConsidered.Item1;
+                var pathDestination = isUndo ? moveConsidered.Item1 : moveConsidered.Item2;
+                var pathSource = isUndo ? moveConsidered.Item2 : moveConsidered.Item1;
                 if (Configs.Current.SupressDialogs ||
-                    Utils.AskToConfirm("move " + newsrc + " back to " + newdest + "?"))
+                    Utils.AskToConfirm("move " + pathSource + " back to " + pathDestination + "?"))
                 {
-                    if (WrapMoveFile(newsrc, newdest, fAddToUndoStack: false))
+                    // change the undo state only if the move succeeds.
+                    if (WrapMoveFile(pathSource, pathDestination, addToUndo: false))
                     {
                         if (isUndo)
                         {
@@ -359,14 +379,16 @@ namespace labs_coordinate_pictures
 
         public void FormGallery_KeyUp(object sender, KeyEventArgs e)
         {
+            // ToolStripMenuItem does have automatic keybinding by setting ShortcutKeys,
+            // but it often requires Ctrl or Alt in the shortcutkey,
+            // and it uses KeyDown, firing many times if key is held.
+            // so we manually handle KeyUp.
+
             if (!_enabled)
             {
                 return;
             }
 
-            // Use custom shortcut strings instead of ShortcutKeys
-            // 1) allows shortcuts without Ctrl or Alt
-            // 2) ShortcutKeys uses KeyDown which fires many times if you hold the key
             if (!e.Shift && !e.Control && !e.Alt)
             {
                 if (e.KeyCode == Keys.F5)
@@ -380,9 +402,9 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.PageDown)
                     MoveMany(true);
                 else if (e.KeyCode == Keys.Home)
-                    MoveFirst(false);
-                else if (e.KeyCode == Keys.End)
                     MoveFirst(true);
+                else if (e.KeyCode == Keys.End)
+                    MoveFirst(false);
                 else if (e.KeyCode == Keys.Delete)
                     KeyDelete();
                 else if (e.KeyCode == Keys.H)
@@ -390,14 +412,9 @@ namespace labs_coordinate_pictures
             }
             else if (e.Shift && !e.Control && !e.Alt)
             {
-                // see if this is a category shortcut
-                var keystring = e.KeyCode.ToString();
-                if (keystring.Length == 1 || (keystring.Length == 2 && keystring[0] == 'D'))
-                {
-                    keystring = keystring.Substring(keystring.Length - 1);
-                    if (_categoryShortcuts.ContainsKey(keystring))
-                        AssignCategory(_categoryShortcuts[keystring]);
-                }
+                var categoryId = CheckKeyBindingsToAssignCategory(e.KeyCode, _categoryKeyBindings);
+                if (categoryId != null)
+                    AssignCategory(categoryId);
             }
             else if (e.Shift && e.Control && !e.Alt)
             {
@@ -443,7 +460,26 @@ namespace labs_coordinate_pictures
             _mode.OnCustomCommand(this, e.Shift, e.Alt, e.Control, e.KeyCode);
         }
 
-        // add a file to a category (appends to the filename and it won't show up in formgallery anymore)
+        public static string CheckKeyBindingsToAssignCategory(Keys keysEnum,
+            Dictionary<string, string> bindings)
+        {
+            // see if this is key is bound to a category.
+            // number keys like 1 are represented as "D1".
+            var key = keysEnum.ToString();
+            if (key.Length == 1 ||
+                (key.Length == 2 && key[0] == 'D' && Utils.IsDigits(key[1].ToString())))
+            {
+                key = key.Substring(key.Length - 1);
+                if (bindings.ContainsKey(key))
+                {
+                    return bindings[key];
+                }
+            }
+
+            return null;
+        }
+
+        // add a file to a category (appends to the filename, and it won't show in formgallery)
         void AssignCategory(string categoryId)
         {
             _mode.OnBeforeAssignCategory();
@@ -466,20 +502,24 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            InputBoxHistory key = FilenameUtils.LooksLikeImage(_filelist.Current) ?
+            InputBoxHistory mruList = FilenameUtils.LooksLikeImage(_filelist.Current) ?
                 InputBoxHistory.RenameImage : (FilenameUtils.IsExt(_filelist.Current, ".wav") ?
                 InputBoxHistory.RenameWavAudio : InputBoxHistory.RenameOther);
 
             // for convenience, don't include the numbered prefix or file extension.
             var current = FilenameUtils.GetFileNameWithoutNumberedPrefix(_filelist.Current);
-            var currentNoext = Path.GetFileNameWithoutExtension(current);
+            var currentNoExt = Path.GetFileNameWithoutExtension(current);
 
-            var newname = InputBoxForm.GetStrInput("Enter a new name:", currentNoext, key);
-            if (!string.IsNullOrEmpty(newname))
+            var newName = InputBoxForm.GetStrInput("Enter a new name:", currentNoExt, mruList);
+            if (!string.IsNullOrEmpty(newName))
             {
+                var nameWithPrefix = Path.GetFileName(_filelist.Current);
+                var hasNumberedPrefix = current != nameWithPrefix;
+                var prefix = hasNumberedPrefix ?
+                    nameWithPrefix.Substring(0, FilenameUtils.NumberedPrefixLength()) :
+                    "";
                 var fullnewname = Path.GetDirectoryName(_filelist.Current) + "\\" +
-                    (current != Path.GetFileName(_filelist.Current) ? Path.GetFileName(_filelist.Current).Substring(0, 8) : "") +
-                    newname + Path.GetExtension(_filelist.Current);
+                    prefix + newName + Path.GetExtension(_filelist.Current);
 
                 if (WrapMoveFile(_filelist.Current, fullnewname))
                 {
@@ -504,25 +544,19 @@ namespace labs_coordinate_pictures
 
         bool UndoableSoftDelete(string path)
         {
-            var dest = Utils.GetSoftDeleteDestination(path);
-            return WrapMoveFile(path, dest);
+            var pathDestination = Utils.GetSoftDeleteDestination(path);
+            return WrapMoveFile(path, pathDestination);
         }
 
         // during long-running operations on bg threads, we block most UI input
-        public void UIEnable()
+        public void UIEnable(bool enabled)
         {
-            this.label.ForeColor = Color.Black;
-            fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
-                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = true;
-            _enabled = true;
-        }
-
-        public void UIDisable()
-        {
-            this.label.ForeColor = Color.Gray;
-            fileToolStripMenuItem.Enabled = editToolStripMenuItem.Enabled =
-                renameToolStripMenuItem.Enabled = categoriesToolStripMenuItem.Enabled = false;
-            _enabled = false;
+            _enabled = enabled;
+            this.label.ForeColor = _enabled ? Color.Black : Color.Gray;
+            fileToolStripMenuItem.Enabled = _enabled;
+            editToolStripMenuItem.Enabled = _enabled;
+            renameToolStripMenuItem.Enabled = _enabled;
+            categoriesToolStripMenuItem.Enabled = _enabled;
         }
 
         private void showInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -546,7 +580,8 @@ namespace labs_coordinate_pictures
         {
             if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
             {
-                MessageBox.Show("Could not find the application '" + exe + "'. The location can be set in the Options menu.");
+                MessageBox.Show("Could not find the application '" + exe +
+                    "'. The location can be set in the Options menu.");
             }
             else
             {
@@ -560,7 +595,7 @@ namespace labs_coordinate_pictures
             {
                 Process.Start(_filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
             }
@@ -576,7 +611,7 @@ namespace labs_coordinate_pictures
             {
                 LaunchEditor(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", _filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
             }
@@ -592,7 +627,7 @@ namespace labs_coordinate_pictures
             {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeEditableAudio(_filelist.Current))
+            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
                 LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), _filelist.Current);
             }
@@ -608,13 +643,13 @@ namespace labs_coordinate_pictures
             int nAddedPrefix = 0, nSkippedPrefix = 0, nFailedToRename = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
-                int i = 0;
+                int number = 0;
                 foreach (var path in _filelist.GetList())
                 {
-                    i++;
+                    number++;
                     if (Path.GetFileName(path) == FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
                     {
-                        if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, i)))
+                        if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, number)))
                         {
                             nAddedPrefix++;
                         }
@@ -629,10 +664,12 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                MoveFirst(false);
+                MoveFirst();
             }
 
-            MessageBox.Show(string.Format("{0} files skipped because they already have a prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedPrefix, nFailedToRename, nAddedPrefix));
+            MessageBox.Show(string.Format("{0} files skipped because they already have a prefix, " +
+                "{1} files failed to be renamed, {2} files successfully renamed.",
+                nSkippedPrefix, nFailedToRename, nAddedPrefix));
         }
 
         private void removeNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
@@ -648,7 +685,8 @@ namespace labs_coordinate_pictures
                     }
                     else
                     {
-                        if (WrapMoveFile(path, Path.GetDirectoryName(path) + "\\" + FilenameUtils.GetFileNameWithoutNumberedPrefix(path)))
+                        if (WrapMoveFile(path, Path.GetDirectoryName(path) + "\\" +
+                            FilenameUtils.GetFileNameWithoutNumberedPrefix(path)))
                         {
                             nRemovedPrefix++;
                         }
@@ -659,10 +697,12 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                MoveFirst(false);
+                MoveFirst();
             }
 
-            MessageBox.Show(string.Format("{0} files skipped because they have no prefix, {1} files failed to be renamed, {2} files successfully renamed.", nSkippedAlready, nFailedToRename, nRemovedPrefix));
+            MessageBox.Show(string.Format("{0} files skipped because they have no prefix, " +
+                "{1} files failed to be renamed, {2} files successfully renamed.",
+                nSkippedAlready, nFailedToRename, nRemovedPrefix));
         }
 
         // replace one string with another within a filename.
@@ -674,17 +714,20 @@ namespace labs_coordinate_pictures
             }
 
             var filename = Path.GetFileName(_filelist.Current);
-            var search = InputBoxForm.GetStrInput("Search for this in filename (not directory name):", filename, InputBoxHistory.RenameReplaceInName);
+            var search = InputBoxForm.GetStrInput("Search for this in filename (not directory name):",
+                filename, InputBoxHistory.RenameReplaceInName);
             if (!string.IsNullOrEmpty(search))
             {
-                var replace = InputBoxForm.GetStrInput("Replace with this:", filename, InputBoxHistory.RenameReplaceInName);
+                var replace = InputBoxForm.GetStrInput(
+                    "Replace with this:", filename, InputBoxHistory.RenameReplaceInName);
                 if (replace != null && filename.Contains(search))
                 {
-                    var newfilename = Path.GetDirectoryName(_filelist.Current) + "\\" + filename.Replace(search, replace);
-                    if (WrapMoveFile(_filelist.Current, newfilename))
+                    var pathDestination = Path.GetDirectoryName(_filelist.Current) + "\\" +
+                        filename.Replace(search, replace);
+                    if (WrapMoveFile(_filelist.Current, pathDestination))
                     {
                         _filelist.NotifyFileChanges();
-                        _filelist.TrySetPath(newfilename);
+                        _filelist.TrySetPath(pathDestination);
                         OnOpenItem();
                     }
                 }
@@ -702,9 +745,9 @@ namespace labs_coordinate_pictures
                 }
                 else if (_currentImageResized)
                 {
-                    _imagecache.Excerpt.MakeBmp(
-                        _filelist.Current, e.X, e.Y, pictureBox1.Image.Width, pictureBox1.Image.Height);
-                    pictureBox1.Image = _imagecache.Excerpt.Bmp;
+                    _imagecache.Excerpt.MakeBmp(_filelist.Current, e.X, e.Y,
+                        pictureBox.Image.Width, pictureBox.Image.Height);
+                    pictureBox.Image = _imagecache.Excerpt.Bmp;
                     _zoomed = true;
                 }
             }
@@ -718,84 +761,85 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            var more = new string[] { "50%", "100%", "70%" };
-            var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):", null, more: more, useClipboard: false);
+            var suggestions = new string[] { "50%", "100%", "70%" };
+            var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):",
+                null, more: suggestions, useClipboard: false);
             if (string.IsNullOrEmpty(resize))
             {
                 return;
             }
 
-            if ((!resize.EndsWith("h") && !resize.EndsWith("%")) ||
-                !Utils.IsDigits(resize.Substring(0, resize.Length - 1)))
+            var checkResizeSpec = new Regex(@"^[0-9]+[h%]$");
+            if (!checkResizeSpec.IsMatch(resize))
             {
                 MessageBox.Show("invalid resize spec.");
                 return;
             }
 
-            more = new string[] { "png|100", "jpg|90", "webp|100" };
-            var fmt = InputBoxForm.GetStrInput("Convert to format|quality:", null, InputBoxHistory.EditConvertResizeImage, more, useClipboard: false);
+            suggestions = new string[] { "png|100", "jpg|90", "webp|100" };
+            var fmt = InputBoxForm.GetStrInput("Convert to format|quality:",
+                null, InputBoxHistory.EditConvertResizeImage, suggestions, useClipboard: false);
             if (string.IsNullOrEmpty(fmt))
             {
                 return;
             }
 
-            var parts = fmt.Split(new char[] { '|' });
-            int nQual = 0;
-            if (!(parts.Length == 2 && int.TryParse(parts[1], out nQual) && nQual > 0 && nQual <= 100))
+            var checkFormat = new Regex(@"^[a-zA-Z]+\|[1-9][0-9]*$");
+            if (!checkFormat.IsMatch(fmt))
             {
-                MessageBox.Show("Invalid format string or bad quality");
-                return;
-            }
-            else if (Array.IndexOf(new string[] { "jpg", "png", "gif", "bmp", "webp" }, parts[0]) == -1)
-            {
-                MessageBox.Show("Unsupported image format");
+                MessageBox.Show("invalid format string.");
                 return;
             }
 
-            var outFile = Path.GetDirectoryName(_filelist.Current) + "\\" + Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
+            var parts = fmt.Split(new char[] { '|' });
+            int nQual = int.Parse(parts[1]);
+            var outFile = Path.GetDirectoryName(_filelist.Current) + "\\" +
+                Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
         private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // webp converter can be slow for large images, so ask the user first.
-            var list = _filelist.GetList().Where((item) => item.EndsWith(".png"));
-            var newlist = new List<string>();
-            foreach (var path in list)
+            var listIncludingLarge = _filelist.GetList().Where((item) => item.EndsWith(".png"));
+            var list = new List<string>();
+            foreach (var path in listIncludingLarge)
             {
                 if (new FileInfo(path).Length < 1024 * 500 ||
                     Utils.AskToConfirm("include the large file " +
                         Path.GetFileName(path) + "\r\n" + Utils.FormatFilesize(path) + "?"))
                 {
-                    newlist.Add(path);
+                    list.Add(path);
                 }
             }
 
             RunLongActionInThread(new Action(() =>
             {
-                int countConverted = 0, countLeft = 0;
-                foreach (var path in newlist)
+                int countConverted = 0, countNotConverted = 0;
+                foreach (var path in list)
                 {
-                    var newname = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + ".webp";
-                    if (!File.Exists(newname))
+                    var pathWebp = Path.GetDirectoryName(path) + "\\" +
+                        Path.GetFileNameWithoutExtension(path) + ".webp";
+
+                    if (!File.Exists(pathWebp))
                     {
                         // convert png to webp, then delete the larger of the resulting pair of images.
-                        Utils.RunImageConversion(path, newname, "100%", 100);
-                        if (new FileInfo(newname).Length < new FileInfo(path).Length)
+                        Utils.RunImageConversion(path, pathWebp, "100%", 100);
+                        if (new FileInfo(pathWebp).Length < new FileInfo(path).Length)
                         {
                             countConverted++;
                             Utils.SoftDelete(path);
                         }
                         else
                         {
-                            countLeft++;
-                            File.Delete(newname);
+                            countNotConverted++;
+                            File.Delete(pathWebp);
                         }
                     }
                 }
 
                 MessageBox.Show("Complete. " +
-                    countConverted + "file(s) to webp, " + countLeft + " file(s) were smaller as png.");
+                    countConverted + "file(s) to webp, " + countNotConverted + " file(s) were smaller as png.");
             }));
         }
 
@@ -810,15 +854,15 @@ namespace labs_coordinate_pictures
             RunLongActionInThread(new Action(() =>
             {
                 var qualities = new int[] { 96, 94, 92, 90, 85, 80, 75, 70, 60 };
-                foreach (var qual in qualities)
+                foreach (var quality in qualities)
                 {
-                    var outFile = _filelist.Current + qual.ToString() + ".jpg";
-                    Utils.RunImageConversion(_filelist.Current, outFile, "100%", qual);
+                    var pathOutput = _filelist.Current + quality.ToString() + ".jpg";
+                    Utils.RunImageConversion(_filelist.Current, pathOutput, "100%", quality);
                 }
             }));
         }
 
-        // after making several images at different jpg qualities, keeps the current image and removes the rest.
+        // after making several images at different jpg qualities, keep the current image and remove the rest.
         private void keepAndDeleteOthersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_filelist.Current == null || !FilenameUtils.LooksLikeImage(_filelist.Current))
@@ -826,29 +870,31 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            bool fHasMiddleName;
-            string sNewname;
-            var toDelete = FilenameFindSimilarFilenames.FindSimilarNames(_filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
-                out fHasMiddleName, out sNewname);
+            bool nameHasSuffix;
+            string pathWithoutSuffix;
+            var pathsToDelete = FindSimilarFilenames.FindSimilarNames(
+                _filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
+                out nameHasSuffix, out pathWithoutSuffix);
 
-            if (Utils.AskToConfirm("Delete the extra files \r\n" + string.Join("\r\n", toDelete) + "\r\n?"))
+            if (Utils.AskToConfirm("Delete the extra files \r\n" +
+                string.Join("\r\n", pathsToDelete) + "\r\n?"))
             {
-                foreach (var sFile in toDelete)
+                foreach (var path in pathsToDelete)
                 {
-                    UndoableSoftDelete(sFile);
+                    UndoableSoftDelete(path);
                 }
 
-                // rename this file to be better
-                if (fHasMiddleName && WrapMoveFile(_filelist.Current, sNewname))
+                // rename this file from a.png60.jpg to a.jpg
+                if (nameHasSuffix && WrapMoveFile(_filelist.Current, pathWithoutSuffix))
                 {
                     _filelist.NotifyFileChanges();
-                    _filelist.TrySetPath(sNewname);
+                    _filelist.TrySetPath(pathWithoutSuffix);
                     OnOpenItem();
                 }
             }
         }
 
-        // each mode can specify a 'completion action' that is called for each file that was given a category.
+        // modes provide a 'completion action' that is called for each file assigned to a category.
         private void finishedCategorizingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!_mode.SupportsCompletionAction())
@@ -876,14 +922,17 @@ namespace labs_coordinate_pictures
                 {
                     string pathWithoutCategory, category;
                     FilenameUtils.GetCategoryFromFilename(path, out pathWithoutCategory, out category);
-                    var tupleFound = tuples.Where((item) => item.Item3 == category).ToArray();
-                    if (tupleFound.Length == 0)
+                    var tupleFound = tuples.FirstOrDefault((item) => item.Item3 == category);
+                    if (tupleFound == null)
                     {
-                        MessageBox.Show("Invalid mark for file " + path);
+                        if (!Configs.Current.SupressDialogs)
+                        {
+                            MessageBox.Show("Unknown category for file " + path);
+                        }
                     }
                     else
                     {
-                        _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound[0]);
+                        _mode.OnCompletionAction(_filelist.BaseDirectory, path, pathWithoutCategory, tupleFound);
                     }
                 }
             }
@@ -891,7 +940,7 @@ namespace labs_coordinate_pictures
 
         public void RunLongActionInThread(Action fn)
         {
-            UIDisable();
+            UIEnable(false);
             ThreadPool.QueueUserWorkItem(delegate
             {
                 try
@@ -902,7 +951,7 @@ namespace labs_coordinate_pictures
                 {
                     this.Invoke((MethodInvoker)(() =>
                     {
-                        UIEnable();
+                        UIEnable(true);
                         OnOpenItem();
                     }));
                 }
@@ -911,7 +960,7 @@ namespace labs_coordinate_pictures
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         protected override void Dispose(bool disposing)

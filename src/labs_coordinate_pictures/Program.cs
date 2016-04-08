@@ -27,19 +27,32 @@ namespace labs_coordinate_pictures
                 // by default fatal exceptions like AV won't be caught, seems fine to me.
                 Application.ThreadException += Application_ThreadException;
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Application_UIException);
+                AppDomain.CurrentDomain.UnhandledException +=
+                    new UnhandledExceptionEventHandler(Application_UIException);
             }
 
-            // find best directory for logging and configs.
-            string dir = null;
+            // find directory for logging and configs.
+            // looks in parent directories in case we are running from visual studio.
+            // todo: use appdata instead of current directory.
+            string configDirectory = null;
             if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "silence.flac")))
-                dir = AppDomain.CurrentDomain.BaseDirectory;
-            else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools\silence.flac")))
-                dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools");
-            else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools\silence.flac")))
-                dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools");
+            {
+                configDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            }
+            else if (File.Exists(Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools\silence.flac")))
+            {
+                configDirectory = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools");
+            }
+            else if (File.Exists(Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools\silence.flac")))
+            {
+                configDirectory = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools");
+            }
 
-            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            if (string.IsNullOrEmpty(configDirectory) || !Directory.Exists(configDirectory))
             {
                 MessageBox.Show("We could not find the file silence.flac. Please run this " +
                     "program from the same directory as silence.flac. We will now exit.");
@@ -47,44 +60,59 @@ namespace labs_coordinate_pictures
             }
 
             // initialize logging and configs
-            SimpleLog.Init(Path.Combine(dir, "log.txt"));
+            SimpleLog.Init(Path.Combine(configDirectory, "log.txt"));
             SimpleLog.Current.WriteLog("Initializing.");
-            Configs.Init(Path.Combine(dir, "options.ini"));
+            Configs.Init(Path.Combine(configDirectory, "options.ini"));
             Configs.Current.LoadPersisted();
             Configs.Current.Set(ConfigKey.Version, "0.1");
             Application.Run(new FormStart());
         }
 
-        private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        private static void Application_ThreadException(object sender,
+            System.Threading.ThreadExceptionEventArgs e)
         {
             OnUnhandledException(e.Exception.Message, e.Exception.StackTrace);
         }
 
-        private static void Application_UIException(object sender, UnhandledExceptionEventArgs e)
+        private static void Application_UIException(object sender,
+            UnhandledExceptionEventArgs e)
         {
             // The app will still exit, which seems fine. Can be overridden in app.config.
             var exception = e.ExceptionObject as Exception;
             if (exception != null)
+            {
                 OnUnhandledException(exception.Message, exception.StackTrace);
+            }
             else
+            {
                 OnUnhandledException("Unknown exception", "");
+            }
         }
 
-        private static void OnUnhandledException(string s, string trace)
+        private static void OnUnhandledException(string message, string trace)
         {
             if (Debugger.IsAttached)
+            {
                 Debugger.Break();
+            }
 
             try
             {
-                if (s == null)
-                    s = "";
-                if (trace == null)
-                    trace = "";
+                if (message == null)
+                {
+                    message = "";
+                }
 
-                SimpleLog.Current.WriteError("Unhandled Exception: " + s + "\r\n" + trace);
-                if (!Utils.AskToConfirm("An exception occurred: " + s + " \r\n Continue?"))
+                if (trace == null)
+                {
+                    trace = "";
+                }
+
+                SimpleLog.Current.WriteError("Unhandled Exception: " + message + "\r\n" + trace);
+                if (!Utils.AskToConfirm("An exception occurred: " + message + " \r\n Continue?"))
+                {
                     Environment.Exit(1);
+                }
             }
             catch
             {

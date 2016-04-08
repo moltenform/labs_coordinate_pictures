@@ -707,7 +707,7 @@ namespace labs_coordinate_pictures
                 ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
         }
 
-        public static bool LooksLikeEditableAudio(string filepath)
+        public static bool LooksLikeAudio(string filepath)
         {
             return IsExtensionInList(filepath, new string[] { ".wav", ".flac",
                 ".mp3", ".m4a", ".mp4" });
@@ -732,6 +732,11 @@ namespace labs_coordinate_pictures
             return filepath.ToLowerInvariant().EndsWith(extension);
         }
 
+        public static int NumberedPrefixLength()
+        {
+            return "([0000])".Length;
+        }
+
         public static string AddNumberedPrefix(string filepath, int number)
         {
             var nameOnly = Path.GetFileName(filepath);
@@ -751,10 +756,10 @@ namespace labs_coordinate_pictures
         public static string GetFileNameWithoutNumberedPrefix(string filepath)
         {
             var nameOnly = Path.GetFileName(filepath);
-            if (nameOnly.Length > 8 && nameOnly.StartsWith("([") &&
+            if (nameOnly.Length > NumberedPrefixLength() && nameOnly.StartsWith("([") &&
                 nameOnly.Substring(6, 2) == "])")
             {
-                return nameOnly.Substring(8);
+                return nameOnly.Substring(NumberedPrefixLength());
             }
             else
             {
@@ -910,7 +915,7 @@ namespace labs_coordinate_pictures
     // finds similar filenames, especially those created by FormGallery::convertToSeveralJpgs.
     // e.g., given example.png90.jpg, will see that
     // example.png, example_out.png and example.png60.jpg are related files.
-    public static class FilenameFindSimilarFilenames
+    public static class FindSimilarFilenames
     {
         public static bool FindPathWithSuffixRemoved(string path, string[] extensions,
             out string pathWithSuffixRemoved)
@@ -946,14 +951,14 @@ namespace labs_coordinate_pictures
         }
 
         public static List<string> FindSimilarNames(string path, string[] types,
-            string[] otherFiles, out bool hasMiddleName, out string newPath)
+            string[] otherFiles, out bool nameHasSuffix, out string pathWithoutSuffix)
         {
             // parse the file
-            newPath = null;
-            hasMiddleName = FindPathWithSuffixRemoved(path, types, out newPath);
+            pathWithoutSuffix = null;
+            nameHasSuffix = FindPathWithSuffixRemoved(path, types, out pathWithoutSuffix);
 
             // delete all the rest in group
-            var filenameWithoutSuffix = hasMiddleName ? newPath : path;
+            var filenameWithoutSuffix = nameHasSuffix ? pathWithoutSuffix : path;
             List<string> results = new List<string>();
             foreach (var otherFile in otherFiles)
             {

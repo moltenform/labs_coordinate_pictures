@@ -31,6 +31,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.editFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,12 +53,11 @@
             this.finishedCategorizingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
-            this.redoMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -196,6 +196,13 @@
             this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
             this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
+            // 
+            // redoMoveToolStripMenuItem
+            // 
+            this.redoMoveToolStripMenuItem.Name = "redoMoveToolStripMenuItem";
+            this.redoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Y";
+            this.redoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.redoMoveToolStripMenuItem.Text = "Redo Move...";
             // 
             // copyPathToolStripMenuItem
             // 
@@ -355,7 +362,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.pictureBox, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.labelView, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
@@ -377,15 +384,15 @@
             this.label.TabIndex = 0;
             this.label.Text = "label";
             // 
-            // pictureBox1
+            // pictureBox
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(103, 16);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(543, 373);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox.Location = new System.Drawing.Point(103, 16);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(543, 373);
+            this.pictureBox.TabIndex = 1;
+            this.pictureBox.TabStop = false;
+            this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             // 
             // labelView
             // 
@@ -395,14 +402,7 @@
             this.labelView.Name = "labelView";
             this.labelView.Size = new System.Drawing.Size(94, 379);
             this.labelView.TabIndex = 2;
-            this.labelView.Text = "label1";
-            // 
-            // redoMoveToolStripMenuItem
-            // 
-            this.redoMoveToolStripMenuItem.Name = "redoMoveToolStripMenuItem";
-            this.redoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Y";
-            this.redoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
-            this.redoMoveToolStripMenuItem.Text = "Redo Move...";
+            this.labelView.Text = "labelView";
             // 
             // FormGallery
             // 
@@ -420,7 +420,7 @@
             this.menuStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -439,7 +439,7 @@
         private System.Windows.Forms.ToolStripMenuItem categoriesToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.ToolStripMenuItem moveManyPrevToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem moveManyNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem moveFirstToolStripMenuItem;

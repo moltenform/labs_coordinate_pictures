@@ -24,44 +24,59 @@ namespace labs_coordinate_pictures
             _mru = new PersistMostRecentlyUsedList(currentKey);
             this.StartPosition = FormStartPosition.CenterParent;
             this.Text = " ";
-            this._comboBox.Focus();
             this.AllowDrop = true;
+            this._comboBox.Focus();
         }
 
         // add MRU history, suggestions, and clipboard contents to the list of examples.
-        public static IEnumerable<string> GetInputSuggestions(string strCurrent, InputBoxHistory history, PersistMostRecentlyUsedList saver, bool useClipboard, bool mustBeDirectory, string[] more)
+        public static IEnumerable<string> GetInputSuggestions(string currentSuggestion,
+            InputBoxHistory historyKey, PersistMostRecentlyUsedList history,
+            bool useClipboard, bool mustBeDirectory, string[] more)
         {
-            List<string> comboEntries = new List<string>();
-            if (!string.IsNullOrEmpty(strCurrent))
-                comboEntries.Add(strCurrent);
+            List<string> suggestions = new List<string>();
+            if (!string.IsNullOrEmpty(currentSuggestion))
+            {
+                suggestions.Add(currentSuggestion);
+            }
 
             if (useClipboard && !string.IsNullOrEmpty(Utils.GetClipboard()))
-                comboEntries.Add(Utils.GetClipboard());
+            {
+                suggestions.Add(Utils.GetClipboard());
+            }
 
-            if (history != InputBoxHistory.None)
-                comboEntries.AddRange(saver.Get());
+            if (historyKey != InputBoxHistory.None)
+            {
+                suggestions.AddRange(history.Get());
+            }
 
             if (more != null)
-                comboEntries.AddRange(more);
+            {
+                suggestions.AddRange(more);
+            }
 
-            return comboEntries.Where(entry => FilenameUtils.IsPathRooted(entry) || !mustBeDirectory);
+            return suggestions.Where(entry => !mustBeDirectory || FilenameUtils.IsPathRooted(entry));
         }
 
         // ask user for string input.
-        public static string GetStrInput(string strPrompt, string strCurrent = null, InputBoxHistory history = InputBoxHistory.None, string[] more = null, bool useClipboard = true, bool mustBeDirectory = false)
+        public static string GetStrInput(string mesage, string currentSuggestion = null,
+            InputBoxHistory historyKey = InputBoxHistory.None, string[] more = null,
+            bool useClipboard = true, bool mustBeDirectory = false)
         {
-            using (InputBoxForm form = new InputBoxForm(history))
+            using (InputBoxForm form = new InputBoxForm(historyKey))
             {
-                form._label.Text = strPrompt;
+                form._label.Text = mesage;
 
-                var entries = GetInputSuggestions(strCurrent, history, form._mru, useClipboard, mustBeDirectory, more).ToArray();
+                // fill combo box with suggested input.
                 form._comboBox.Items.Clear();
-                foreach (var s in entries)
+                var suggestions = GetInputSuggestions(currentSuggestion, historyKey, form._mru,
+                    useClipboard, mustBeDirectory, more).ToArray();
+
+                foreach (var s in suggestions)
                 {
                     form._comboBox.Items.Add(s);
                 }
 
-                form._comboBox.Text = entries.Length > 0 ? entries[0] : "";
+                form._comboBox.Text = suggestions.Length > 0 ? suggestions[0] : "";
                 form.ShowDialog();
                 if (form.DialogResult != DialogResult.OK)
                 {
@@ -80,18 +95,23 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static int? GetInteger(string strPrompt, int nDefault = 0, InputBoxHistory history = InputBoxHistory.None)
+        public static int? GetInteger(string message, int defaultInt = 0,
+            InputBoxHistory historyKey = InputBoxHistory.None)
         {
             int fromClipboard = 0;
             var clipboardContainsInt = int.TryParse(Utils.GetClipboard(), out fromClipboard);
-            string s = GetStrInput(strPrompt, nDefault.ToString(), history,
+            string s = GetStrInput(message, defaultInt.ToString(), historyKey,
                 useClipboard: clipboardContainsInt);
 
             int result = 0;
-            if (s == null || s == "" || !int.TryParse(s, out result))
+            if (string.IsNullOrEmpty(s) || !int.TryParse(s, out result))
+            {
                 return null;
+            }
             else
+            {
                 return result;
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -107,7 +127,8 @@ namespace labs_coordinate_pictures
             base.Dispose(disposing);
         }
 
-        // originally based on http://www.java2s.com/Code/CSharp/GUI-Windows-Form/Defineyourowndialogboxandgetuserinput.htm
+        // originally based on
+        // http://www.java2s.com/Code/CSharp/GUI-Windows-Form/Defineyourowndialogboxandgetuserinput.htm
         #region Windows Form Designer generated code
         private void InitializeComponent()
         {
@@ -177,6 +198,7 @@ namespace labs_coordinate_pictures
                 e.Effect = DragDropEffects.None;
         }
 
+        // if user drags a file onto this form, put the filepath into the combo box.
         private void InputBoxForm_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
@@ -206,20 +228,24 @@ namespace labs_coordinate_pictures
         {
             _historyKey = historyKey;
             _configs = configs ?? Configs.Current;
+
+            // find the corresponding ConfigKey for this InputBoxHistory
             if (_historyKey != InputBoxHistory.None)
             {
-                var strKey = "MRU" + _historyKey.ToString();
-                if (!Enum.TryParse(strKey, out _configsKey))
-                    throw new CoordinatePicturesException("not a key:" + strKey);
+                if (!Enum.TryParse("MRU" + _historyKey.ToString(), out _configsKey))
+                {
+                    throw new CoordinatePicturesException("unknown history key" + _historyKey.ToString());
+                }
             }
         }
 
         public string[] Get()
         {
-            if (_historyKey != InputBoxHistory.None)
+            if (_configsKey != ConfigKey.None)
             {
                 _currentItems = _configs.Get(_configsKey).Split(
                     new string[] { _delimiter }, StringSplitOptions.RemoveEmptyEntries);
+
                 return _currentItems;
             }
             else
@@ -230,30 +256,36 @@ namespace labs_coordinate_pictures
 
         public void AddToHistory(string s)
         {
-            if (_historyKey != InputBoxHistory.None)
+            if (_configsKey != ConfigKey.None)
             {
                 if (_currentItems == null)
+                {
                     Get();
+                }
 
                 // only add if it's not already in the list, and s does not contain _delimiter.
-                var index = Array.IndexOf(_currentItems, s);
-                if (!string.IsNullOrEmpty(s) && index != 0 && s.Length < MaxEntryLength && !s.Contains(_delimiter))
+                if (!string.IsNullOrEmpty(s) && s.Length < MaxEntryLength && !s.Contains(_delimiter))
                 {
-                    List<string> listNext = new List<string>(_currentItems);
+                    List<string> list = new List<string>(_currentItems);
 
                     // if it's also elsewhere in the list, remove that one
-                    if (index != -1)
-                        listNext.RemoveAt(index);
+                    var indexAlreadyFound = Array.IndexOf(_currentItems, s);
+                    if (indexAlreadyFound != -1)
+                    {
+                        list.RemoveAt(indexAlreadyFound);
+                    }
 
                     // insert new entry at the top
-                    listNext.Insert(0, s);
+                    list.Insert(0, s);
 
                     // if we've reached the limit, cut out the extra ones
-                    while (listNext.Count > MaxHistoryEntries)
-                        listNext.RemoveAt(listNext.Count - 1);
+                    while (list.Count > MaxHistoryEntries)
+                    {
+                        list.RemoveAt(list.Count - 1);
+                    }
 
                     // save to configs
-                    _configs.Set(_configsKey, string.Join(_delimiter, listNext));
+                    _configs.Set(_configsKey, string.Join(_delimiter, list));
 
                     // refresh in-memory cache
                     Get();

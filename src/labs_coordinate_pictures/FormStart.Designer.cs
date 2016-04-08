@@ -60,6 +60,9 @@
             this.setSorttwitterSourceLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterDestinationLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.sortTwitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortMusicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -105,7 +108,10 @@
             this.toolStripMenuItem1,
             this.resizePhotosKeepingExifsToolStripMenuItem,
             this.markwavQualityToolStripMenuItem,
-            this.markmp3QualityToolStripMenuItem});
+            this.markmp3QualityToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.sortTwitterToolStripMenuItem,
+            this.sortMusicToolStripMenuItem});
             this.picturesToolStripMenuItem.Name = "picturesToolStripMenuItem";
             this.picturesToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
             this.picturesToolStripMenuItem.Text = "Sort &Pictures";
@@ -143,7 +149,7 @@
             // 
             this.markmp3QualityToolStripMenuItem.Name = "markmp3QualityToolStripMenuItem";
             this.markmp3QualityToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.markmp3QualityToolStripMenuItem.Text = "Mark .&mp3 quality...";
+            this.markmp3QualityToolStripMenuItem.Text = "Mark .mp&3 quality...";
             // 
             // optionsToolStripMenuItem
             // 
@@ -286,6 +292,25 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(254, 6);
+            // 
+            // sortTwitterToolStripMenuItem
+            // 
+            this.sortTwitterToolStripMenuItem.Name = "sortTwitterToolStripMenuItem";
+            this.sortTwitterToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortTwitterToolStripMenuItem.Text = "Sort &Twitter...";
+            this.sortTwitterToolStripMenuItem.Click += new System.EventHandler(this.sortTwitterToolStripMenuItem_Click);
+            // 
+            // sortMusicToolStripMenuItem
+            // 
+            this.sortMusicToolStripMenuItem.Name = "sortMusicToolStripMenuItem";
+            this.sortMusicToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortMusicToolStripMenuItem.Text = "Sort &Music...";
+            this.sortMusicToolStripMenuItem.Click += new System.EventHandler(this.sortMusicToolStripMenuItem_Click);
+            // 
             // FormStart
             // 
             this.AllowDrop = true;
@@ -341,6 +366,9 @@
         private System.Windows.Forms.ToolStripMenuItem setSortmusicStagingLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setSorttwitterSourceLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setSorttwitterDestinationLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem sortTwitterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sortMusicToolStripMenuItem;
     }
 }
 
