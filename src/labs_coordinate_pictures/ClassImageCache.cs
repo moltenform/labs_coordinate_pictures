@@ -133,7 +133,6 @@ namespace labs_coordinate_pictures
                         {
                             if (i <= _list.Count - 1 && _canDisposeBitmap(_list[i].Item2))
                             {
-                                _list[i].Item2.Dispose();
                                 _list.RemoveAt(i);
                             }
                         }
@@ -186,7 +185,7 @@ namespace labs_coordinate_pictures
                     bitmap.Dispose();
                 }
 
-                bitmapWillLockFile = false;
+                bitmapWillLockFile = true;
                 bitmap = new Bitmap(1, 1);
             }
 
@@ -220,11 +219,17 @@ namespace labs_coordinate_pictures
                     return ResizeImage(bitmapFull, newWidth, newHeight, path);
                 }
             }
-            else
+            else if (bitmapWillLockFile)
             {
                 // make a copy of the bitmap, otherwise the file remains locked
-                return bitmapWillLockFile ?
-                    new Bitmap(bitmapFull) : bitmapFull;
+                using (bitmapFull)
+                {
+                    return new Bitmap(bitmapFull);
+                }
+            }
+            else
+            {
+                return bitmapFull;
             }
         }
 
@@ -355,7 +360,7 @@ namespace labs_coordinate_pictures
 
                 if (!isCurrent)
                 {
-                    _cache.RemoveAt(indexFound);
+                    RemoveAt(indexFound);
                     indexFound = -1;
                 }
             }
