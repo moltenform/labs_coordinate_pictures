@@ -57,6 +57,9 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
     filesWithWrongExtension = img_utils.getFilesWrongExtension(root, fnGetFiles, inputformat)
     if len(filesWithWrongExtension) > 0:
         warn('files seen with wrong extension: ' + str(filesWithWrongExtension))
+        
+    if storeOriginalFilename or storeExifFromOriginal:
+        img_utils.verifyExifToolIsPresent()
     
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
     allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))

@@ -55,6 +55,12 @@ def exiftool():
 
 class PythonImgExifError(Exception):
     pass
+    
+def verifyExifToolIsPresent():
+    exe = exiftool()
+    if not exe or not files.exists(exe):
+        warn('could not find FilepathExifTool.' +
+            ' please ensure options.ini provides the path to exiftool.exe')
 
 def readExifField(filename, exifField):
     args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)
