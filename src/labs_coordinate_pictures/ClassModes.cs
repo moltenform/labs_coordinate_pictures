@@ -163,7 +163,7 @@ namespace labs_coordinate_pictures
             var newPath = Path.Combine(targetDir, Path.GetFileName(pathWithoutCategory));
             if (File.Exists(newPath))
             {
-                MessageBox.Show("File already exists " + newPath);
+                Utils.MessageErr("File already exists " + newPath);
                 return;
             }
 
@@ -229,16 +229,16 @@ namespace labs_coordinate_pictures
                             "'\r\n    ###template" + parts[2];
 
                         File.WriteAllText(script, result);
-                        MessageBox.Show("img_resize_keep_exif.py modified successfully.");
+                        Utils.MessageBox("img_resize_keep_exif.py modified successfully.");
                     }
                     else
                     {
-                        MessageBox.Show("Could not find ###template in script.");
+                        Utils.MessageErr("Could not find ###template in script.");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Could not find img_resize_keep_exif.py.");
+                    Utils.MessageErr("Could not find img_resize_keep_exif.py.");
                 }
             }
 
@@ -290,7 +290,7 @@ namespace labs_coordinate_pictures
                     path, GetFileTypes(), list, out nameHasSuffix, out pathWithoutSuffix);
                 if (similar.Count != 0)
                 {
-                    MessageBox.Show("the file " + path + " has similar name(s) "
+                    Utils.MessageErr("the file " + path + " has similar name(s) "
                         + string.Join("\r\n", similar));
                     return;
                 }
@@ -312,10 +312,7 @@ namespace labs_coordinate_pictures
                 }
             }
 
-            if (!Configs.Current.SupressDialogs)
-            {
-                MessageBox.Show("Accepted for " + countAccepted + " images.");
-            }
+            Utils.MessageBox("Accepted for " + countAccepted + " images.", true);
         }
 
         public override void OnCompletionAction(string baseDirectory,
@@ -324,7 +321,7 @@ namespace labs_coordinate_pictures
             // just remove the mark from the file, don't need to do anything else.
             if (File.Exists(pathWithoutCategory))
             {
-                MessageBox.Show("File already exists + " + pathWithoutCategory);
+                Utils.MessageBox("File already exists + " + pathWithoutCategory);
             }
             else
             {
@@ -396,7 +393,7 @@ namespace labs_coordinate_pictures
 
                     if (File.Exists(newPathM4a))
                     {
-                        MessageBox.Show("already exists. could not move " +
+                        Utils.MessageErr("already exists. could not move " +
                             pathM4a + " to " + newPathM4a);
                     }
                     else

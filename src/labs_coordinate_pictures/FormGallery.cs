@@ -217,7 +217,7 @@ namespace labs_coordinate_pictures
                 {
                     var menuItem = new ToolStripMenuItem(tuple.Item2);
                     menuItem.ShortcutKeyDisplayString = tuple.Item1;
-                    menuItem.Click += (sender, e) => MessageBox.Show(
+                    menuItem.Click += (sender, e) => Utils.MessageBox(
                         "Press the shortcut " + tuple.Item1 + " to run this command.");
 
                     editToolStripMenuItem.DropDownItems.Add(menuItem);
@@ -290,7 +290,7 @@ namespace labs_coordinate_pictures
                 }
                 catch (CoordinatePicturesException exception)
                 {
-                    MessageBox.Show(exception.Message);
+                    Utils.MessageErr(exception.Message);
                     return;
                 }
 
@@ -304,13 +304,13 @@ namespace labs_coordinate_pictures
             const int millisecondsRetryMoving = 3000;
             if (File.Exists(pathDestination))
             {
-                MessageBox.Show("already exists: " + pathDestination);
+                Utils.MessageErr("already exists: " + pathDestination);
                 return false;
             }
 
             if (!File.Exists(path))
             {
-                MessageBox.Show("does not exist: " + path);
+                Utils.MessageErr("does not exist: " + path);
                 return false;
             }
 
@@ -321,7 +321,7 @@ namespace labs_coordinate_pictures
                 if (!succeeded)
                 {
                     SimpleLog.Current.WriteLog("Move failed, access denied.");
-                    MessageBox.Show("File is locked: " + path);
+                    Utils.MessageErr("File is locked: " + path);
                     return false;
                 }
 
@@ -329,7 +329,7 @@ namespace labs_coordinate_pictures
             }
             catch (IOException e)
             {
-                MessageBox.Show("IOException: " + e);
+                Utils.MessageErr("IOException: " + e);
                 return false;
             }
 
@@ -349,16 +349,13 @@ namespace labs_coordinate_pictures
 
             if (moveConsidered == null)
             {
-                if (!Configs.Current.SupressDialogs)
-                {
-                    MessageBox.Show("nothing to undo");
-                }
+                Utils.MessageErr("nothing to undo", true);
             }
             else
             {
                 var pathDestination = isUndo ? moveConsidered.Item1 : moveConsidered.Item2;
                 var pathSource = isUndo ? moveConsidered.Item2 : moveConsidered.Item1;
-                if (Configs.Current.SupressDialogs ||
+                if (Configs.Current.SuppressDialogs ||
                     Utils.AskToConfirm("move " + pathSource + " back to " + pathDestination + "?"))
                 {
                     // change the undo state only if the move succeeds.
@@ -585,7 +582,7 @@ namespace labs_coordinate_pictures
         {
             if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
             {
-                MessageBox.Show("Could not find the application '" + exe +
+                Utils.MessageErr("Could not find the application '" + exe +
                     "'. The location can be set in the Options menu.");
             }
             else
@@ -672,7 +669,7 @@ namespace labs_coordinate_pictures
                 MoveFirst();
             }
 
-            MessageBox.Show(string.Format("{0} files skipped because they already have a prefix, " +
+            Utils.MessageBox(string.Format("{0} files skipped because they already have a prefix, " +
                 "{1} files failed to be renamed, {2} files successfully renamed.",
                 nSkippedPrefix, nFailedToRename, nAddedPrefix));
         }
@@ -705,7 +702,7 @@ namespace labs_coordinate_pictures
                 MoveFirst();
             }
 
-            MessageBox.Show(string.Format("{0} files skipped because they have no prefix, " +
+            Utils.MessageBox(string.Format("{0} files skipped because they have no prefix, " +
                 "{1} files failed to be renamed, {2} files successfully renamed.",
                 nSkippedAlready, nFailedToRename, nRemovedPrefix));
         }
@@ -775,7 +772,7 @@ namespace labs_coordinate_pictures
             var checkResizeSpec = new Regex(@"^[0-9]+[h%]$");
             if (!checkResizeSpec.IsMatch(resize))
             {
-                MessageBox.Show("invalid resize spec.");
+                Utils.MessageErr("invalid resize spec.");
                 return;
             }
 
@@ -790,7 +787,7 @@ namespace labs_coordinate_pictures
             var checkFormat = new Regex(@"^[a-zA-Z]+\|[1-9][0-9]*$");
             if (!checkFormat.IsMatch(fmt))
             {
-                MessageBox.Show("invalid format string.");
+                Utils.MessageErr("invalid format string.");
                 return;
             }
 
@@ -844,13 +841,13 @@ namespace labs_coordinate_pictures
                         }
                         catch (Exception exc)
                         {
-                            MessageBox.Show("Exception when converting " +
+                            Utils.MessageErr("Exception when converting " +
                                 path + ": " + exc);
                         }
                     }
                 }
 
-                MessageBox.Show("Complete. " +
+                Utils.MessageBox("Complete. " +
                     countConverted + "file(s) to webp, " + countNotConverted + " file(s) were smaller as png.");
 
                 this.Invoke(new Action(() =>
@@ -914,7 +911,7 @@ namespace labs_coordinate_pictures
         {
             if (!_mode.SupportsCompletionAction())
             {
-                MessageBox.Show("Mode does not have an associated action.");
+                Utils.MessageBox("Mode does not have an associated action.");
                 return;
             }
 
@@ -940,10 +937,7 @@ namespace labs_coordinate_pictures
                     var tupleFound = tuples.FirstOrDefault((item) => item.Item3 == category);
                     if (tupleFound == null)
                     {
-                        if (!Configs.Current.SupressDialogs)
-                        {
-                            MessageBox.Show("Unknown category for file " + path);
-                        }
+                        Utils.MessageErr("Unknown category for file " + path, true);
                     }
                     else
                     {

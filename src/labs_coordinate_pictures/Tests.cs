@@ -1032,14 +1032,14 @@ namespace labs_coordinate_pictures
         {
             string dir = TestUtil.GetTestWriteDirectory();
             Directory.Delete(dir, true);
-            Configs.Current.SupressDialogs = true;
+            Configs.Current.SuppressDialogs = true;
             try
             {
                 TestUtil.CallAllTestMethods(typeof(CoordinatePicturesTests), null);
             }
             finally
             {
-                Configs.Current.SupressDialogs = false;
+                Configs.Current.SuppressDialogs = false;
             }
         }
     }

@@ -85,7 +85,7 @@ namespace labs_coordinate_pictures
 
                 if (mustBeDirectory && !Directory.Exists(form._comboBox.Text))
                 {
-                    MessageBox.Show("Directory does not exist");
+                    Utils.MessageBox("Directory does not exist");
                     return null;
                 }
 

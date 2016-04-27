@@ -72,7 +72,7 @@ namespace labs_coordinate_pictures
                     index = _list.SearchForUpToDateCacheEntry(path);
                     if (index == -1)
                     {
-                        MessageBox.Show("did not find image that was just cached. " +
+                        Utils.MessageErr("did not find image that was just cached. " +
                             " this can happen if an image is changed very quickly");
                         originalWidth = originalHeight = 0;
                         return null;
@@ -175,10 +175,7 @@ namespace labs_coordinate_pictures
             }
             catch (Exception)
             {
-                if (!Configs.Current.SupressDialogs)
-                {
-                    MessageBox.Show("Could not load the image " + path);
-                }
+                Utils.MessageErr("Could not load the image " + path, true);
 
                 if (bitmap != null)
                 {

@@ -86,7 +86,7 @@ namespace labs_coordinate_pictures
 
         public static bool AskToConfirm(string message)
         {
-            var result = MessageBox.Show(message, "", MessageBoxButtons.YesNo);
+            var result = System.Windows.Forms.MessageBox.Show(message, "", MessageBoxButtons.YesNo);
             return result == DialogResult.Yes;
         }
 
@@ -120,7 +120,7 @@ namespace labs_coordinate_pictures
             if (string.IsNullOrEmpty(trashDir) ||
                 !Directory.Exists(trashDir))
             {
-                MessageBox.Show("Trash directory not found. Go to the main screen and to the " +
+                MessageBox("Trash directory not found. Go to the main screen and to the " +
                     "option menu and click Options->Set trash directory...");
                 return null;
             }
@@ -271,14 +271,14 @@ namespace labs_coordinate_pictures
 
             if (!File.Exists(pyScript))
             {
-                MessageBox.Show("Script not found " + pyScript);
+                MessageBox("Script not found " + pyScript);
                 return "Script not found";
             }
 
             var python = Configs.Current.Get(ConfigKey.FilepathPython);
             if (string.IsNullOrEmpty(python) || !File.Exists(python))
             {
-                MessageBox.Show("Python exe not found. Go to the main screen and to the " +
+                MessageBox("Python exe not found. Go to the main screen and to the " +
                     "option menu and click Options->Set python location...");
                 return "Python exe not found.";
             }
@@ -292,7 +292,7 @@ namespace labs_coordinate_pictures
 
             if (warnIfStdErr && exitCode != 0)
             {
-                MessageBox.Show("warning, error from script: " + stderr ?? "");
+                MessageBox("warning, error from script: " + stderr ?? "");
             }
 
             return stderr;
@@ -303,7 +303,7 @@ namespace labs_coordinate_pictures
         {
             if (File.Exists(pathOutput))
             {
-                MessageBox.Show("File already exists, " + pathOutput);
+                MessageBox("File already exists, " + pathOutput);
                 return;
             }
 
@@ -319,7 +319,7 @@ namespace labs_coordinate_pictures
 
             if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathOutput))
             {
-                MessageBox.Show("RunImageConversion failed, stderr = " + stderr);
+                MessageBox("RunImageConversion failed, stderr = " + stderr);
             }
         }
 
@@ -346,7 +346,7 @@ namespace labs_coordinate_pictures
                 var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false);
                 if (!File.Exists(pathOutput))
                 {
-                    MessageBox.Show("RunM4aConversion failed, stderr = " + stderr);
+                    MessageBox("RunM4aConversion failed, stderr = " + stderr);
                     return null;
                 }
                 else
@@ -364,7 +364,7 @@ namespace labs_coordinate_pictures
             var player = Configs.Current.Get(ConfigKey.FilepathMediaPlayer);
             if (string.IsNullOrEmpty(player) || !File.Exists(player))
             {
-                MessageBox.Show("Media player not found. Go to the main screen " +
+                MessageBox("Media player not found. Go to the main screen " +
                     "and to the option menu and click Options->Set media player location...");
                 return;
             }
@@ -467,6 +467,20 @@ namespace labs_coordinate_pictures
         public static string[] SplitByString(string s, string delim)
         {
             return s.Split(new string[] { delim }, StringSplitOptions.None);
+        }
+
+        public static void MessageErr(string msg, bool checkIfSuppressed = false)
+        {
+            SimpleLog.Current.WriteError(msg);
+            MessageBox(msg, checkIfSuppressed);
+        }
+
+        public static void MessageBox(string msg, bool checkIfSuppressed = false)
+        {
+            if (!checkIfSuppressed || !Configs.Current.SuppressDialogs)
+            {
+                System.Windows.Forms.MessageBox.Show(msg);
+            }
         }
 
         public static bool IsDebug()
@@ -794,7 +808,7 @@ namespace labs_coordinate_pictures
         {
             if (path.Contains(MarkerString))
             {
-                MessageBox.Show("Path " + path + " already contains marker.");
+                Utils.MessageErr("Path " + path + " already contains marker.");
                 return path;
             }
 
@@ -816,11 +830,8 @@ namespace labs_coordinate_pictures
             var parts = Utils.SplitByString(pathAndCategory, MarkerString);
             if (parts.Length != 2)
             {
-                if (!Configs.Current.SupressDialogs)
-                {
-                    MessageBox.Show("Path " + pathAndCategory +
-                        " should contain exactly 1 marker.");
-                }
+                Utils.MessageErr("Path " + pathAndCategory +
+                    " should contain exactly 1 marker.", true);
 
                 throw new CoordinatePicturesException("Path " + pathAndCategory +
                     " should contain exactly 1 marker.");

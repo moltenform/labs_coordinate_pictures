@@ -102,7 +102,7 @@ namespace labs_coordinate_pictures
 
         // in-memory non-persisted settings
         public string Directory { get; private set; }
-        public bool SupressDialogs { get; set; }
+        public bool SuppressDialogs { get; set; }
 
         public static Configs Current
         {

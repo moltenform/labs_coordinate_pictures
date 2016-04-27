@@ -129,19 +129,19 @@ namespace labs_coordinate_pictures
             if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.T)
             {
                 CoordinatePicturesTests.RunTests();
-                MessageBox.Show("Tests complete.");
+                Utils.MessageBox("Tests complete.");
             }
             else if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.L)
             {
                 bool nextState = !Configs.Current.GetBool(ConfigKey.EnableVerboseLogging);
                 Configs.Current.SetBool(ConfigKey.EnableVerboseLogging, nextState);
-                MessageBox.Show("Set verbose logging to " + nextState);
+                Utils.MessageBox("Set verbose logging to " + nextState);
             }
             else if (!e.Shift && e.Control && e.Alt && e.KeyCode == Keys.E)
             {
                 bool nextState = !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
                 Configs.Current.SetBool(ConfigKey.EnablePersonalFeatures, nextState);
-                MessageBox.Show("Set personal features to " + nextState);
+                Utils.MessageBox("Set personal features to " + nextState);
                 HideOrShowMenus();
             }
         }
@@ -223,7 +223,7 @@ namespace labs_coordinate_pictures
 
                 if (!File.Exists(script))
                 {
-                    MessageBox.Show("could not find " + script + ".locate it by " +
+                    Utils.MessageErr("could not find " + script + ".locate it by " +
                         "choosing from the menu Options->Set coordmusic location...");
                 }
                 else
@@ -234,7 +234,7 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                MessageBox.Show("Unsupported file type.");
+                Utils.MessageErr("Unsupported file type.");
             }
         }
 
