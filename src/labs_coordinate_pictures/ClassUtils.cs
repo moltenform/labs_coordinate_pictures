@@ -29,30 +29,30 @@ namespace labs_coordinate_pictures
         }
 
         // returns exit code.
-        public static int Run(string executable, string[] args, bool shell, bool waitForExit,
+        public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow)
         {
             string stdout, stderr;
-            return Run(executable, args, shell, waitForExit,
+            return Run(executable, args, shellExecute, waitForExit,
                 hideWindow, false, out stdout, out stderr);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
-        public static int Run(string executable, string[] args, bool shell, bool waitForExit,
+        public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow, out string stdout, out string stderr)
         {
-            return Run(executable, args, shell, waitForExit,
+            return Run(executable, args, shellExecute, waitForExit,
                 hideWindow, true, out stdout, out stderr);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
-        static int Run(string executable, string[] args, bool shell, bool waitForExit,
+        static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow, bool getStdout, out string outStdout,
             out string outStderr, string workingDir = null)
         {
             var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = hideWindow;
-            startInfo.UseShellExecute = shell;
+            startInfo.UseShellExecute = shellExecute;
             startInfo.FileName = executable;
             startInfo.Arguments = CombineProcessArguments(args);
             startInfo.WorkingDirectory = workingDir;
@@ -286,7 +286,7 @@ namespace labs_coordinate_pictures
             var args = new List<string> { pyScript };
             args.AddRange(listArgs);
             string stdout, stderr;
-            int exitCode = Run(python, args.ToArray(), shell: false,
+            int exitCode = Run(python, args.ToArray(), shellExecute: false,
                 waitForExit: true, hideWindow: !createWindow, getStdout: true,
                 outStdout: out stdout, outStderr: out stderr, workingDir: workingDir);
 
@@ -372,7 +372,7 @@ namespace labs_coordinate_pictures
             var args = player.ToLower().Contains("foobar") ? new string[] { "/playnow", path } :
                 new string[] { path };
 
-            Run(player, args, hideWindow: true, waitForExit: false, shell: false);
+            Run(player, args, hideWindow: true, waitForExit: false, shellExecute: false);
         }
 
         public static string GetClipboard()
@@ -400,9 +400,33 @@ namespace labs_coordinate_pictures
         // starts website in default browser.
         public static void LaunchUrl(string url)
         {
-            url = GetFirstHttpLink(url);
-            if (url != null && url.StartsWith("http"))
-                Process.Start(url);
+            string prefix;
+            if (url.StartsWith("http://"))
+            {
+                prefix = "http://";
+            }
+            else if (url.StartsWith("https://"))
+            {
+                prefix = "https://";
+            }
+            else
+            {
+                return;
+            }
+
+            url = url.Substring(prefix.Length);
+            url = url.Replace("%", "%25");
+            url = url.Replace("&", "%26");
+            url = url.Replace("|", "%7C");
+            url = url.Replace("\\", "%5C");
+            url = url.Replace("^", "%5E");
+            url = url.Replace("\"", "%22");
+            url = url.Replace("'", "%27");
+            url = url.Replace(">", "%3E");
+            url = url.Replace("<", "%3C");
+            url = url.Replace(" ", "%20");
+            url = prefix + url;
+            Process.Start(url);
         }
 
         // get item from array, clamps index / does not overflow
@@ -442,8 +466,7 @@ namespace labs_coordinate_pictures
 
         public static string[] SplitByString(string s, string delim)
         {
-            // do not parse delim as a regular expression, use as a normal string.
-            return Regex.Split(s, Regex.Escape(delim));
+            return s.Split(new string[] { delim }, StringSplitOptions.None);
         }
 
         public static bool IsDebug()

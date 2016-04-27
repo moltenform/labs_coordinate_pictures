@@ -542,7 +542,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        bool UndoableSoftDelete(string path)
+        public bool UndoableSoftDelete(string path)
         {
             var pathDestination = Utils.GetSoftDeleteDestination(path);
             return WrapMoveFile(path, pathDestination);
@@ -585,7 +585,7 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                Utils.Run(exe, new string[] { path }, shell: false, waitForExit: false, hideWindow: false);
+                Utils.Run(exe, new string[] { path }, shellExecute: false, waitForExit: false, hideWindow: false);
             }
         }
 

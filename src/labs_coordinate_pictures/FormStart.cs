@@ -214,7 +214,7 @@ namespace labs_coordinate_pictures
         {
             if (path.ToLowerInvariant().EndsWith(".url"))
             {
-                Utils.Run(path, null, hideWindow: true, waitForExit: false, shell: true);
+                Utils.Run(path, null, hideWindow: true, waitForExit: false, shellExecute: true);
             }
             else if (FilenameUtils.LooksLikeAudio(path))
             {

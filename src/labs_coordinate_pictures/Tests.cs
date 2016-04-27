@@ -331,14 +331,14 @@ namespace labs_coordinate_pictures
                 return pathWithoutCategory + "|" + category;
             };
 
-            TestUtil.IsEq(@"C:\dir\test\file.jpg|123", 
+            TestUtil.IsEq(@"C:\dir\test\file.jpg|123",
                 testGetCategory(@"C:\dir\test\file__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\dir\test\file.also.jpg|123", 
+            TestUtil.IsEq(@"C:\dir\test\file.also.jpg|123",
                 testGetCategory(@"C:\dir\test\file.also__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\dir\test\file.jpg|", 
+            TestUtil.IsEq(@"C:\dir\test\file.jpg|",
                 testGetCategory(@"C:\dir\test\file__MARKAS__.jpg"));
 
-            // check that invalid paths cause exception to be thrown. 
+            // check that invalid paths cause exception to be thrown.
             TestUtil.AssertExceptionMessage(() => testGetCategory(
                 @"C:\dir\test\dirmark__MARKAS__b\file__MARKAS__123.jpg"), "Directories");
             TestUtil.AssertExceptionMessage(() => testGetCategory(
