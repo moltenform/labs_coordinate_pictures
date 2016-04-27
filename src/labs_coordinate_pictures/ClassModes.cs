@@ -301,8 +301,10 @@ namespace labs_coordinate_pictures
             var sizeIsGoodCategory = GetDefaultCategories().Split(new char[] { '/' })[2];
             foreach (var path in list)
             {
-                if ((path.EndsWith(".webp") || path.EndsWith(".jpg"))
-                    && new FileInfo(path).Length < acceptFilesSmallerThan)
+                var fileLength = new FileInfo(path).Length;
+                if ((path.EndsWith(".webp") || path.EndsWith(".jpg")) &&
+                    fileLength < acceptFilesSmallerThan &&
+                    fileLength > 0)
                 {
                     countAccepted++;
                     var newPath = FilenameUtils.AddCategoryToFilename(path, sizeIsGoodCategory);

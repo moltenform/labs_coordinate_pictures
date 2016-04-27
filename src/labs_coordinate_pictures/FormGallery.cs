@@ -523,11 +523,16 @@ namespace labs_coordinate_pictures
 
                 if (WrapMoveFile(_filelist.Current, fullnewname))
                 {
-                    _filelist.NotifyFileChanges();
-                    _filelist.TrySetPath(fullnewname);
-                    OnOpenItem();
+                    RefreshUiAfterCurrentImagePossiblyMoved(fullnewname);
                 }
             }
+        }
+
+        void RefreshUiAfterCurrentImagePossiblyMoved(string setCurrentPath)
+        {
+            _filelist.NotifyFileChanges();
+            _filelist.TrySetPath(setCurrentPath);
+            OnOpenItem();
         }
 
         void KeyDelete()
@@ -726,9 +731,7 @@ namespace labs_coordinate_pictures
                         filename.Replace(search, replace);
                     if (WrapMoveFile(_filelist.Current, pathDestination))
                     {
-                        _filelist.NotifyFileChanges();
-                        _filelist.TrySetPath(pathDestination);
-                        OnOpenItem();
+                        RefreshUiAfterCurrentImagePossiblyMoved(pathDestination);
                     }
                 }
             }
@@ -823,23 +826,37 @@ namespace labs_coordinate_pictures
 
                     if (!File.Exists(pathWebp))
                     {
-                        // convert png to webp, then delete the larger of the resulting pair of images.
-                        Utils.RunImageConversion(path, pathWebp, "100%", 100);
-                        if (new FileInfo(pathWebp).Length < new FileInfo(path).Length)
+                        try
                         {
-                            countConverted++;
-                            Utils.SoftDelete(path);
+                            // convert png to webp, then delete the larger of the resulting pair of images.
+                            Utils.RunImageConversion(path, pathWebp, "100%", 100);
+                            if (new FileInfo(pathWebp).Length < new FileInfo(path).Length &&
+                                new FileInfo(pathWebp).Length > 0)
+                            {
+                                countConverted++;
+                                Utils.SoftDelete(path);
+                            }
+                            else
+                            {
+                                countNotConverted++;
+                                File.Delete(pathWebp);
+                            }
                         }
-                        else
+                        catch (Exception exc)
                         {
-                            countNotConverted++;
-                            File.Delete(pathWebp);
+                            MessageBox.Show("Exception when converting " +
+                                path + ": " + exc);
                         }
                     }
                 }
 
                 MessageBox.Show("Complete. " +
                     countConverted + "file(s) to webp, " + countNotConverted + " file(s) were smaller as png.");
+
+                this.Invoke(new Action(() =>
+                {
+                    RefreshUiAfterCurrentImagePossiblyMoved(_filelist.Current);
+                }));
             }));
         }
 
@@ -887,9 +904,7 @@ namespace labs_coordinate_pictures
                 // rename this file from a.png60.jpg to a.jpg
                 if (nameHasSuffix && WrapMoveFile(_filelist.Current, pathWithoutSuffix))
                 {
-                    _filelist.NotifyFileChanges();
-                    _filelist.TrySetPath(pathWithoutSuffix);
-                    OnOpenItem();
+                    RefreshUiAfterCurrentImagePossiblyMoved(pathWithoutSuffix);
                 }
             }
         }

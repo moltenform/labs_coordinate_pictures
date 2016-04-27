@@ -936,7 +936,7 @@ namespace labs_coordinate_pictures
             var dir = TestUtil.GetTestSubDirectory("movefile");
             File.WriteAllText(Path.Combine(dir, "t1.bmp"), "1234");
             File.WriteAllText(Path.Combine(dir, "t2.bmp"), "123456789");
-            File.WriteAllText(Path.Combine(dir, "a1.jpg"), "");
+            File.WriteAllText(Path.Combine(dir, "a1.jpg"), "1");
             File.WriteAllText(Path.Combine(dir, "a2.jpg"), "1234");
             File.WriteAllText(Path.Combine(dir, "a3.jpg"), "123456789");
 
