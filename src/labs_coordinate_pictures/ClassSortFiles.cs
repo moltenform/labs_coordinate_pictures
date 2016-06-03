@@ -105,7 +105,7 @@ namespace labs_coordinate_pictures
         public long Filesize { get; set; }
         public string Filepath { get; set; }
         public string Checksum { get; set; }
-        public bool Flag { get; set; }
+        public bool Visited { get; set; }
 
         public static FileEntry EntryFromFileInfo(FileInfo fileInfo, string fullpath, string stripPrefix,
             bool roundLastModifiedTime, int adjustTimeHours)
@@ -158,7 +158,7 @@ namespace labs_coordinate_pictures
                 }
                 else
                 {
-                    entryLeft.Flag = true;
+                    entryLeft.Visited = true;
                     if (entryLeft.Filesize != entryRight.Filesize || entryLeft.LastModifiedTime != entryRight.LastModifiedTime)
                     {
                         results.Add(new FilePathsListViewItem(
@@ -174,7 +174,7 @@ namespace labs_coordinate_pictures
             // find files that weren't seen on the right
             foreach (var entryLeft in indexFilesLeft)
             {
-                if (!entryLeft.Value.Flag)
+                if (!entryLeft.Value.Visited)
                 {
                     results.Add(new FilePathsListViewItem(
                         settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Value.Filepath,
@@ -266,7 +266,4 @@ namespace labs_coordinate_pictures
             return null;
         }
     }
-
-    
-
 }

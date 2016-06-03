@@ -336,7 +336,7 @@ namespace labs_coordinate_pictures
             {
                 throw new CoordinatePicturesException("Unsupported bitrate.");
             }
-            else if (!path.EndsWith(".wav"))
+            else if (!path.EndsWith(".wav", StringComparison.Ordinal))
             {
                 throw new CoordinatePicturesException("Unsupported input format.");
             }
@@ -423,11 +423,11 @@ namespace labs_coordinate_pictures
         public static void LaunchUrl(string url)
         {
             string prefix;
-            if (url.StartsWith("http://"))
+            if (url.StartsWith("http://", StringComparison.Ordinal))
             {
                 prefix = "http://";
             }
-            else if (url.StartsWith("https://"))
+            else if (url.StartsWith("https://", StringComparison.Ordinal))
             {
                 prefix = "https://";
             }
@@ -802,7 +802,7 @@ namespace labs_coordinate_pictures
             var filepathLower = filepath.ToLowerInvariant();
             foreach (var item in extensions)
             {
-                if (filepathLower.EndsWith(item))
+                if (filepathLower.EndsWith(item, StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -813,7 +813,7 @@ namespace labs_coordinate_pictures
 
         public static bool IsExt(string filepath, string extension)
         {
-            return filepath.ToLowerInvariant().EndsWith(extension);
+            return filepath.ToLowerInvariant().EndsWith(extension, StringComparison.Ordinal);
         }
 
         public static int NumberedPrefixLength()
@@ -840,7 +840,8 @@ namespace labs_coordinate_pictures
         public static string GetFileNameWithoutNumberedPrefix(string filepath)
         {
             var nameOnly = Path.GetFileName(filepath);
-            if (nameOnly.Length > NumberedPrefixLength() && nameOnly.StartsWith("([") &&
+            if (nameOnly.Length > NumberedPrefixLength() &&
+                nameOnly.StartsWith("([", StringComparison.Ordinal) &&
                 nameOnly.Substring(6, 2) == "])")
             {
                 return nameOnly.Substring(NumberedPrefixLength());
@@ -1010,7 +1011,8 @@ namespace labs_coordinate_pictures
                 foreach (var fileExt in extensions)
                 {
                     var type = fileExt.Replace(".", "");
-                    if (middle.StartsWith(type) && Utils.IsDigits(middle.Replace(type, "")))
+                    if (middle.StartsWith(type, StringComparison.Ordinal) &&
+                        Utils.IsDigits(middle.Replace(type, "")))
                     {
                         found = true;
                         break;
@@ -1105,10 +1107,26 @@ namespace labs_coordinate_pictures
     }
 
     [Serializable]
-    public class CoordinatePicturesException : ApplicationException
+    public class CoordinatePicturesException : Exception
     {
+        public CoordinatePicturesException(string message, Exception e)
+            : base("CoordinatePicturesException " + message, e)
+        {
+        }
+
         public CoordinatePicturesException(string message)
-            : base("CoordinatePictures " + message)
+            : this(message, null)
+        {
+        }
+
+        public CoordinatePicturesException()
+            : this("", null)
+        {
+        }
+
+        protected CoordinatePicturesException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
         {
         }
     }

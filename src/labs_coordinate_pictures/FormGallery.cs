@@ -800,7 +800,7 @@ namespace labs_coordinate_pictures
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
-        private void RunBatchOptimize(IEnumerable<string> files, bool isJpeg, bool stripAllExif, 
+        private void RunBatchOptimize(IEnumerable<string> files, bool isJpeg, bool stripAllExif,
             string suffix, int minSavings = 0, int pauseEvery = 150)
         {
             int countOptimized = 0, countNotOptimized = 0;
@@ -896,7 +896,7 @@ namespace labs_coordinate_pictures
             {
                 var stripAllExif = false;
                 var list = _filelist.GetList().Where(
-                    (item) => item.ToLowerInvariant().EndsWith(".jpg") &&
+                    (item) => item.ToLowerInvariant().EndsWith(".jpg", StringComparison.Ordinal) &&
                     new FileInfo(item).Length > 1024 * minSize);
 
                 RunLongActionInThread(new Action(() =>
@@ -910,7 +910,7 @@ namespace labs_coordinate_pictures
         {
             // webp converter can be slow for large images, so ask the user first.
             var listIncludingLarge = _filelist.GetList().Where(
-                (item) => item.ToLowerInvariant().EndsWith(".png"));
+                (item) => item.ToLowerInvariant().EndsWith(".png", StringComparison.Ordinal));
             var list = new List<string>();
             foreach (var path in listIncludingLarge)
             {

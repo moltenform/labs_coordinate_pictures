@@ -146,13 +146,13 @@ namespace labs_coordinate_pictures
             {
                 bool nextState = !Configs.Current.GetBool(ConfigKey.EnableVerboseLogging);
                 Configs.Current.SetBool(ConfigKey.EnableVerboseLogging, nextState);
-                Utils.MessageBox("Set verbose logging to " + nextState);
+                Utils.MessageBox("verbose logging set to " + nextState);
             }
             else if (!e.Shift && e.Control && e.Alt && e.KeyCode == Keys.E)
             {
                 bool nextState = !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
                 Configs.Current.SetBool(ConfigKey.EnablePersonalFeatures, nextState);
-                Utils.MessageBox("Set personal features to " + nextState);
+                Utils.MessageBox("personal features set to " + nextState);
                 HideOrShowMenus();
             }
         }
@@ -218,7 +218,7 @@ namespace labs_coordinate_pictures
 
         public static void OnStartSpotify(string path)
         {
-            if (path.ToLowerInvariant().EndsWith(".url"))
+            if (path.ToLowerInvariant().EndsWith(".url", StringComparison.Ordinal))
             {
                 Utils.Run(path, null, hideWindow: true, waitForExit: false, shellExecute: true);
             }
@@ -274,11 +274,11 @@ namespace labs_coordinate_pictures
                 {
                     // adds second item of the tuple to filename as described above.
                     var path = Configs.Current.Get(tuple.Item1);
-                    if (tuple.Item2.StartsWith("."))
+                    if (tuple.Item2.StartsWith(".", StringComparison.Ordinal))
                     {
                         path = Path.GetDirectoryName(path) + "\\" + tuple.Item2.Substring(1);
                     }
-                    else if (tuple.Item2.StartsWith("/"))
+                    else if (tuple.Item2.StartsWith("/", StringComparison.Ordinal))
                     {
                         path = path + "\\" + tuple.Item2.Substring(1);
                     }

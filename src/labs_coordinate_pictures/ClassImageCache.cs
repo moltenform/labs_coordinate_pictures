@@ -156,7 +156,7 @@ namespace labs_coordinate_pictures
             Bitmap bitmap = null;
             try
             {
-                if (path.ToLowerInvariant().EndsWith(".webp"))
+                if (path.ToLowerInvariant().EndsWith(".webp", StringComparison.Ordinal))
                 {
                     byte[] bytesData = File.ReadAllBytes(path);
                     var decoder = new Imazen.WebP.SimpleDecoder();

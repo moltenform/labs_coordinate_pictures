@@ -21,6 +21,10 @@ namespace labs_coordinate_pictures
             _action = action;
             _mruHistorySrc = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectorySrc);
             _mruHistoryDest = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectoryDest);
+            cmbLeftDir.DragDrop += new DragEventHandler(CmbOnDragDrop);
+            cmbLeftDir.DragEnter += new DragEventHandler(CmbOnDragEnter);
+            cmbRightDir.DragDrop += new DragEventHandler(CmbOnDragDrop);
+            cmbRightDir.DragEnter += new DragEventHandler(CmbOnDragEnter);
 
             RefreshComboListItems();
             cmbLeftDir.Text = cmbLeftDir.Items.Count > 0 ? cmbLeftDir.Items[0].ToString() : "";
@@ -149,16 +153,17 @@ namespace labs_coordinate_pictures
                 return null;
             }
 
-            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
-                settings.DestDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                settings.DestDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 Utils.MessageErr("directory should not end with slash.", true);
                 return null;
             }
 
+            // https://msdn.microsoft.com/en-us/library/dd465121.aspx recommends comparing filepaths with OrdinalIgnoreCase
             if (action != SortFilesAction.FindDupeFilesInOneDir &&
-                (settings.SourceDirectory.StartsWith(settings.DestDirectory) ||
-                settings.DestDirectory.StartsWith(settings.SourceDirectory)))
+                (settings.SourceDirectory.StartsWith(settings.DestDirectory, StringComparison.OrdinalIgnoreCase) ||
+                settings.DestDirectory.StartsWith(settings.SourceDirectory, StringComparison.OrdinalIgnoreCase)))
             {
                 Utils.MessageErr("directories must be distinct.", true);
                 return null;
@@ -232,6 +237,30 @@ namespace labs_coordinate_pictures
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 cmbRightDir.Text = dlg.SelectedPath;
+            }
+        }
+
+        private void CmbOnDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void CmbOnDragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+            {
+                string[] filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (filePaths.Length > 0 && !string.IsNullOrEmpty(filePaths[0]))
+                {
+                    (sender as ComboBox).Text = filePaths[0];
+                }
             }
         }
     }

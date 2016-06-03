@@ -302,7 +302,8 @@ namespace labs_coordinate_pictures
             foreach (var path in list)
             {
                 var fileLength = new FileInfo(path).Length;
-                if ((path.EndsWith(".webp") || path.EndsWith(".jpg")) &&
+                if ((path.EndsWith(".webp", StringComparison.Ordinal) ||
+                    path.EndsWith(".jpg", StringComparison.Ordinal)) &&
                     fileLength < acceptFilesSmallerThan &&
                     fileLength > 0)
                 {
@@ -380,7 +381,7 @@ namespace labs_coordinate_pictures
         public override void OnCompletionAction(string baseDirectory,
             string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
-            if (path.ToLowerInvariant().EndsWith(".wav"))
+            if (path.ToLowerInvariant().EndsWith(".wav", StringComparison.Ordinal))
             {
                 // 1) convert song__MARKAS__144.wav to song__MARKAS__144.m4a
                 var pathM4a = Utils.RunM4aConversion(path, category.Item3);

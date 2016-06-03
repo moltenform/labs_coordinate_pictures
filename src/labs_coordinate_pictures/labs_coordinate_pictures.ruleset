@@ -1,23 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RuleSet Name="Rules for labs_coordinate_pictures" Description="Code analysis rules for labs_coordinate_pictures.csproj." ToolsVersion="14.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1000" Action="Warning" />
     <Rule Id="CA1001" Action="Warning" />
+    <Rule Id="CA1003" Action="Warning" />
+    <Rule Id="CA1004" Action="Warning" />
+    <Rule Id="CA1005" Action="Warning" />
+    <Rule Id="CA1006" Action="Warning" />
+    <Rule Id="CA1007" Action="Warning" />
+    <Rule Id="CA1008" Action="Warning" />
     <Rule Id="CA1009" Action="Warning" />
+    <Rule Id="CA1010" Action="Warning" />
+    <Rule Id="CA1012" Action="Warning" />
+    <Rule Id="CA1013" Action="Warning" />
     <Rule Id="CA1016" Action="Warning" />
+    <Rule Id="CA1019" Action="Warning" />
+    <Rule Id="CA1023" Action="Warning" />
+    <Rule Id="CA1027" Action="Warning" />
+    <Rule Id="CA1028" Action="Warning" />
+    <Rule Id="CA1030" Action="Warning" />
+    <Rule Id="CA1032" Action="Warning" />
     <Rule Id="CA1033" Action="Warning" />
+    <Rule Id="CA1035" Action="Warning" />
+    <Rule Id="CA1036" Action="Warning" />
+    <Rule Id="CA1038" Action="Warning" />
+    <Rule Id="CA1039" Action="Warning" />
+    <Rule Id="CA1040" Action="Warning" />
+    <Rule Id="CA1041" Action="Warning" />
+    <Rule Id="CA1043" Action="Warning" />
+    <Rule Id="CA1044" Action="Warning" />
+    <Rule Id="CA1045" Action="Warning" />
+    <Rule Id="CA1046" Action="Warning" />
+    <Rule Id="CA1047" Action="Warning" />
+    <Rule Id="CA1048" Action="Warning" />
     <Rule Id="CA1049" Action="Warning" />
+    <Rule Id="CA1050" Action="Warning" />
+    <Rule Id="CA1052" Action="Warning" />
+    <Rule Id="CA1053" Action="Warning" />
+    <Rule Id="CA1058" Action="Warning" />
+    <Rule Id="CA1059" Action="Warning" />
     <Rule Id="CA1060" Action="Warning" />
     <Rule Id="CA1061" Action="Warning" />
     <Rule Id="CA1063" Action="Warning" />
+    <Rule Id="CA1064" Action="Warning" />
     <Rule Id="CA1065" Action="Warning" />
     <Rule Id="CA1301" Action="Warning" />
+    <Rule Id="CA1307" Action="Warning" />
     <Rule Id="CA1400" Action="Warning" />
     <Rule Id="CA1401" Action="Warning" />
+    <Rule Id="CA1402" Action="Warning" />
     <Rule Id="CA1403" Action="Warning" />
     <Rule Id="CA1404" Action="Warning" />
     <Rule Id="CA1405" Action="Warning" />
+    <Rule Id="CA1406" Action="Warning" />
+    <Rule Id="CA1407" Action="Warning" />
+    <Rule Id="CA1408" Action="Warning" />
+    <Rule Id="CA1409" Action="Warning" />
     <Rule Id="CA1410" Action="Warning" />
+    <Rule Id="CA1411" Action="Warning" />
+    <Rule Id="CA1412" Action="Warning" />
+    <Rule Id="CA1413" Action="Warning" />
+    <Rule Id="CA1414" Action="Warning" />
     <Rule Id="CA1415" Action="Warning" />
+    <Rule Id="CA1500" Action="Warning" />
+    <Rule Id="CA1504" Action="Warning" />
+    <Rule Id="CA1505" Action="Warning" />
+    <Rule Id="CA1506" Action="Warning" />
+    <Rule Id="CA1600" Action="Warning" />
+    <Rule Id="CA1601" Action="Warning" />
+    <Rule Id="CA1700" Action="Warning" />
+    <Rule Id="CA1701" Action="Warning" />
+    <Rule Id="CA1703" Action="Warning" />
+    <Rule Id="CA1708" Action="Warning" />
+    <Rule Id="CA1712" Action="Warning" />
+    <Rule Id="CA1713" Action="Warning" />
+    <Rule Id="CA1714" Action="Warning" />
+    <Rule Id="CA1716" Action="Warning" />
+    <Rule Id="CA1717" Action="Warning" />
+    <Rule Id="CA1719" Action="Warning" />
+    <Rule Id="CA1722" Action="Warning" />
+    <Rule Id="CA1724" Action="Warning" />
+    <Rule Id="CA1726" Action="Warning" />
     <Rule Id="CA1821" Action="Warning" />
     <Rule Id="CA1900" Action="Warning" />
     <Rule Id="CA1901" Action="Warning" />
@@ -58,11 +121,11 @@
     <Rule Id="CA2232" Action="Warning" />
     <Rule Id="CA2235" Action="Warning" />
     <Rule Id="CA2236" Action="Warning" />
-    <Rule Id="CA2237" Action="Warning" />
     <Rule Id="CA2238" Action="Warning" />
     <Rule Id="CA2240" Action="Warning" />
     <Rule Id="CA2241" Action="Warning" />
     <Rule Id="CA2242" Action="Warning" />
+    <Rule Id="CA2243" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1101" Action="None" />

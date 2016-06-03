@@ -78,6 +78,7 @@
             // 
             // cmbLeftDir
             // 
+            this.cmbLeftDir.AllowDrop = true;
             this.cmbLeftDir.FormattingEnabled = true;
             this.cmbLeftDir.Location = new System.Drawing.Point(97, 70);
             this.cmbLeftDir.Name = "cmbLeftDir";
@@ -86,6 +87,7 @@
             // 
             // cmbRightDir
             // 
+            this.cmbRightDir.AllowDrop = true;
             this.cmbRightDir.FormattingEnabled = true;
             this.cmbRightDir.Location = new System.Drawing.Point(97, 123);
             this.cmbRightDir.Name = "cmbRightDir";

@@ -141,7 +141,8 @@ namespace labs_coordinate_pictures
                 var line = lines[lineNumber];
 
                 // skip sections and comments
-                if (line.StartsWith("[") || line.StartsWith("#"))
+                if (line.StartsWith("[", StringComparison.Ordinal) ||
+                    line.StartsWith("#", StringComparison.Ordinal))
                 {
                     continue;
                 }

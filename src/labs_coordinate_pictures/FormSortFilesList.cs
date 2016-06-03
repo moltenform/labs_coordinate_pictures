@@ -77,7 +77,8 @@ namespace labs_coordinate_pictures
                     "Click here to compute file hashes to see which \r\n" +
                     "differences are just moved files.";
                 linkLabel1.Links.Clear();
-                linkLabel1.Links.Add(linkLabel1.Text.IndexOf("here "), "here".Length, "link");
+                linkLabel1.Links.Add(linkLabel1.Text.IndexOf("here ", StringComparison.Ordinal),
+                    "here".Length, "link");
             }));
         }
 

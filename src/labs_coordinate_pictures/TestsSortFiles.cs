@@ -9,10 +9,26 @@ using System.Threading.Tasks;
 namespace labs_coordinate_pictures
 {
     [Serializable]
-    public class CoordinatePicturesTestException : ApplicationException
+    public class CoordinatePicturesTestException : Exception
     {
+        public CoordinatePicturesTestException(string message, Exception e)
+            : base("CoordinatePicturesTestException " + message, e)
+        {
+        }
+
         public CoordinatePicturesTestException(string message)
-            : base(message)
+            : this(message, null)
+        {
+        }
+
+        public CoordinatePicturesTestException()
+            : this("", null)
+        {
+        }
+
+        protected CoordinatePicturesTestException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
         {
         }
     }
@@ -85,7 +101,7 @@ namespace labs_coordinate_pictures
             var sortedMethods = methodInfos.OrderBy(item => item.Name);
             foreach (MethodInfo methodInfo in sortedMethods)
             {
-                if (methodInfo.Name.StartsWith("TestMethod_"))
+                if (methodInfo.Name.StartsWith("TestMethod_", StringComparison.InvariantCulture))
                 {
                     TestUtil.IsTrue(methodInfo.GetParameters().Length == 0);
                     methodInfo.Invoke(null, arParams);
