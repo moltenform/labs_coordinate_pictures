@@ -46,7 +46,7 @@ namespace labs_coordinate_pictures
         }
 
         // returns exit code. reading stdout implies waiting for exit.
-        static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
+        public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow, bool getStdout, out string outStdout,
             out string outStderr, string workingDir = null)
         {
@@ -354,6 +354,23 @@ namespace labs_coordinate_pictures
                     return pathOutput;
                 }
             }
+        }
+
+        public static void JpgStripThumbnails(string path)
+        {
+            // delete IFD1 tags, removes the Thumbnailimage + all associated tags.
+            var exiftool = Configs.Current.Get(ConfigKey.FilepathExifTool);
+            var args = new string[] { "-ifd1:all=", "-PreviewImage=", "-overwrite_original", path };
+            Run(exiftool, args, hideWindow: true, waitForExit: true, shellExecute: false);
+        }
+
+        public static void JpgLosslessOptimize(string path, string pathOut, bool stripAllExif)
+        {
+            var mozjpeg = Configs.Current.Get(ConfigKey.FilepathMozJpeg);
+            var jpegtran = Path.Combine(Path.GetDirectoryName(mozjpeg), "jpegtran.exe");
+            var args = new string[] { "-outfile", pathOut, "-optimise",
+                "-progressive", "-copy", stripAllExif ? "none" : "all", path };
+            Run(jpegtran, args, hideWindow: true, waitForExit: true, shellExecute: false);
         }
 
         public static void PlayMedia(string path)

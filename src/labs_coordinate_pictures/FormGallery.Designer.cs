@@ -38,7 +38,8 @@
             this.editInAltEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cropRotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertResizeImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.convertAllPngToWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSpacePngToWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSpaceJpgFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keepAndDeleteOthersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -183,7 +184,8 @@
             this.editInAltEditorToolStripMenuItem,
             this.cropRotateFileToolStripMenuItem,
             this.convertResizeImageToolStripMenuItem,
-            this.convertAllPngToWebpToolStripMenuItem,
+            this.saveSpacePngToWebpToolStripMenuItem,
+            this.saveSpaceJpgFilesToolStripMenuItem,
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem,
             this.keepAndDeleteOthersToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
@@ -249,13 +251,21 @@
             this.convertResizeImageToolStripMenuItem.Text = "Convert/Resize Image...";
             this.convertResizeImageToolStripMenuItem.Click += new System.EventHandler(this.convertResizeImageToolStripMenuItem_Click);
             // 
-            // convertAllPngToWebpToolStripMenuItem
+            // saveSpacePngToWebpToolStripMenuItem
             // 
-            this.convertAllPngToWebpToolStripMenuItem.Name = "convertAllPngToWebpToolStripMenuItem";
-            this.convertAllPngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
-            this.convertAllPngToWebpToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
-            this.convertAllPngToWebpToolStripMenuItem.Text = "Convert all png to lossless webp";
-            this.convertAllPngToWebpToolStripMenuItem.Click += new System.EventHandler(this.convertAllPngToWebpToolStripMenuItem_Click);
+            this.saveSpacePngToWebpToolStripMenuItem.Name = "saveSpacePngToWebpToolStripMenuItem";
+            this.saveSpacePngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
+            this.saveSpacePngToWebpToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.saveSpacePngToWebpToolStripMenuItem.Text = "Save space by converting png to lossless webp";
+            this.saveSpacePngToWebpToolStripMenuItem.Click += new System.EventHandler(this.saveSpacePngToWebpToolStripMenuItem_Click);
+            // 
+            // saveSpaceJpgFilesToolStripMenuItem
+            // 
+            this.saveSpaceJpgFilesToolStripMenuItem.Name = "saveSpaceJpgFilesToolStripMenuItem";
+            this.saveSpaceJpgFilesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+4";
+            this.saveSpaceJpgFilesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.saveSpaceJpgFilesToolStripMenuItem.Text = "Save space by losslessly optimizing jpg files";
+            this.saveSpaceJpgFilesToolStripMenuItem.Click += new System.EventHandler(this.saveSpaceOptimizeJpgToolStripMenuItem_Click);
             // 
             // convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem
             // 
@@ -454,7 +464,7 @@
         private System.Windows.Forms.ToolStripMenuItem editCategoriesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem finishedCategorizingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertResizeImageToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem convertAllPngToWebpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveSpacePngToWebpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem keepAndDeleteOthersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewCategoriesToolStripMenuItem;
@@ -468,5 +478,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoMoveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveSpaceJpgFilesToolStripMenuItem;
     }
 }

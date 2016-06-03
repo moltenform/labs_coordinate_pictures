@@ -447,7 +447,9 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.OemOpenBrackets)
                     convertResizeImageToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D1)
-                    convertAllPngToWebpToolStripMenuItem_Click(null, null);
+                    saveSpacePngToWebpToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.D4)
+                    saveSpaceOptimizeJpgToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.OemCloseBrackets)
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Enter)
@@ -798,10 +800,117 @@ namespace labs_coordinate_pictures
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
-        private void convertAllPngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RunBatchOptimize(IEnumerable<string> files, bool isJpeg, bool stripAllExif, 
+            string suffix, int minSavings = 0, int pauseEvery = 150)
+        {
+            int countOptimized = 0, countNotOptimized = 0;
+            long saved = 0;
+            foreach (var path in files)
+            {
+                var pathOut = Path.GetDirectoryName(path) + "\\" +
+                    Path.GetFileNameWithoutExtension(path) + suffix;
+
+                if (pauseEvery > 0 && countOptimized % pauseEvery == pauseEvery - 1)
+                {
+                    MessageBox.Show("Pausing... Click OK to continue");
+                }
+
+                if (!File.Exists(pathOut))
+                {
+                    try
+                    {
+                        // run conversion, then delete the larger of the resulting pair of images.
+                        if (isJpeg)
+                        {
+                            Utils.JpgLosslessOptimize(path, pathOut, stripAllExif);
+
+                            if (!stripAllExif)
+                            {
+                                Utils.JpgStripThumbnails(pathOut);
+                            }
+                        }
+                        else
+                        {
+                            Utils.RunImageConversion(path, pathOut, "100%", 100);
+                        }
+
+                        const int minOutputSize = 16;
+                        var oldLength = new FileInfo(path).Length;
+                        var newLength = new FileInfo(pathOut).Length;
+                        if (oldLength - newLength > minSavings && newLength >= minOutputSize)
+                        {
+                            countOptimized++;
+                            saved += oldLength - newLength;
+                            Utils.SoftDelete(path);
+                            SimpleLog.Current.WriteLog(
+                                    "optimizing " + path + " to " + pathOut + ": keeping new");
+
+                            if (isJpeg)
+                            {
+                                // move from _optimmed.jpg to .jpg
+                                File.Move(pathOut, path);
+                            }
+                        }
+                        else
+                        {
+                            if (newLength < minOutputSize)
+                            {
+                                SimpleLog.Current.WriteError(
+                                    "optimizing " + path + " to " + pathOut + ": result too small");
+                            }
+                            else
+                            {
+                                SimpleLog.Current.WriteLog(
+                                    "optimizing " + path + " to " + pathOut + ": keeping original");
+                            }
+
+                            countNotOptimized++;
+                            File.Delete(pathOut);
+                        }
+                    }
+                    catch (Exception exc)
+                    {
+                        Utils.MessageErr("Exception when converting " +
+                            path + ": " + exc);
+                    }
+                }
+            }
+
+            Utils.MessageBox("Complete. " +
+                countOptimized + "file(s) optimized, " + countNotOptimized + " file(s) were better as originals.\n\n" +
+                string.Format(" Saved {0:0.00}mb.", saved / (1024.0 * 1024.0)));
+
+            this.Invoke(new Action(() =>
+            {
+                RefreshUiAfterCurrentImagePossiblyMoved(_filelist.Current);
+            }));
+        }
+
+        private void saveSpaceOptimizeJpgToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            const int minSavings = 30 * 1024;
+            int minSize = 0;
+            var strMinSize = InputBoxForm.GetStrInput("Only optimize jpg files with size greater than this many kb:",
+                "100", useClipboard: false);
+            if (int.TryParse(strMinSize, out minSize))
+            {
+                var stripAllExif = false;
+                var list = _filelist.GetList().Where(
+                    (item) => item.ToLowerInvariant().EndsWith(".jpg") &&
+                    new FileInfo(item).Length > 1024 * minSize);
+
+                RunLongActionInThread(new Action(() =>
+                {
+                    RunBatchOptimize(list, true, stripAllExif, "_optimmed.jpg", minSavings);
+                }));
+            }
+        }
+
+        private void saveSpacePngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // webp converter can be slow for large images, so ask the user first.
-            var listIncludingLarge = _filelist.GetList().Where((item) => item.EndsWith(".png"));
+            var listIncludingLarge = _filelist.GetList().Where(
+                (item) => item.ToLowerInvariant().EndsWith(".png"));
             var list = new List<string>();
             foreach (var path in listIncludingLarge)
             {
@@ -815,45 +924,7 @@ namespace labs_coordinate_pictures
 
             RunLongActionInThread(new Action(() =>
             {
-                int countConverted = 0, countNotConverted = 0;
-                foreach (var path in list)
-                {
-                    var pathWebp = Path.GetDirectoryName(path) + "\\" +
-                        Path.GetFileNameWithoutExtension(path) + ".webp";
-
-                    if (!File.Exists(pathWebp))
-                    {
-                        try
-                        {
-                            // convert png to webp, then delete the larger of the resulting pair of images.
-                            Utils.RunImageConversion(path, pathWebp, "100%", 100);
-                            if (new FileInfo(pathWebp).Length < new FileInfo(path).Length &&
-                                new FileInfo(pathWebp).Length > 0)
-                            {
-                                countConverted++;
-                                Utils.SoftDelete(path);
-                            }
-                            else
-                            {
-                                countNotConverted++;
-                                File.Delete(pathWebp);
-                            }
-                        }
-                        catch (Exception exc)
-                        {
-                            Utils.MessageErr("Exception when converting " +
-                                path + ": " + exc);
-                        }
-                    }
-                }
-
-                Utils.MessageBox("Complete. " +
-                    countConverted + "file(s) to webp, " + countNotConverted + " file(s) were smaller as png.");
-
-                this.Invoke(new Action(() =>
-                {
-                    RefreshUiAfterCurrentImagePossiblyMoved(_filelist.Current);
-                }));
+                RunBatchOptimize(list, false, false, ".webp");
             }));
         }
 
