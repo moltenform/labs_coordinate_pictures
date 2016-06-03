@@ -100,24 +100,28 @@ namespace labs_coordinate_pictures
         public string Checksum { get; set; }
         public bool Flag { get; set; }
 
+        public FileEntry(long lastModifiedTime, long filesize, string filepath)
+        {
+            LastModifiedTime = lastModifiedTime;
+            Filesize = filesize;
+            Filepath = filepath;
+        }
+
         public static FileEntry EntryFromFileInfo(FileInfo fileInfo, string fullpath, string stripPrefix,
             bool roundLastModifiedTime, int adjustTimeHours)
         {
-            FileEntry ret = new FileEntry();
-
             // nb: for a FAT system, o.s. will convert to utc.
             var dt = fileInfo.LastWriteTimeUtc;
             dt = dt.AddHours(adjustTimeHours);
-            ret.LastModifiedTime = dt.Ticks;
+            long ticks = dt.Ticks;
 
             if (roundLastModifiedTime)
             {
-                ret.LastModifiedTime >>= 2;
+                ticks >>= 2;
             }
 
-            ret.Filepath = fullpath.Substring(stripPrefix.Length);
-            ret.Filesize = fileInfo.Length;
-            return ret;
+            var path = fullpath.Substring(stripPrefix.Length);
+            return new FileEntry(ticks, fileInfo.Length, path);
         }
     }
 
@@ -125,16 +129,21 @@ namespace labs_coordinate_pictures
     {
         // finds 'quick' differences. won't see cases where contents differ, but lmt and filesize are the same.
         // returns (only on left, only on right, modified)
-        public static Tuple<List<FileEntry>, List<FileEntry>, List<FileEntry>> FindQuickDifferencesByModifiedTimeAndFilesize(SortFilesSettings settings)
+        public static List<FilePathsListViewItem> FindQuickDifferencesByModifiedTimeAndFilesize(SortFilesSettings settings)
         {
-            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
+                settings.DestDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
                 throw new CoordinatePicturesException("directory should not end with slash.");
             }
 
-            var onlyOnLeft = new List<FileEntry>();
-            var onlyOnRight = new List<FileEntry>();
-            var modified = new List<FileEntry>();
+            if (settings.SourceDirectory.StartsWith(settings.DestDirectory) ||
+                settings.DestDirectory.StartsWith(settings.SourceDirectory))
+            {
+                throw new CoordinatePicturesException("directories must be distinct.");
+            }
+
+            var results = new List<FilePathsListViewItem>();
 
             // make an index of files on the left
             var indexFilesLeft = new Dictionary<string, FileEntry>();
@@ -157,14 +166,20 @@ namespace labs_coordinate_pictures
 
                 if (entryLeft == null)
                 {
-                    onlyOnRight.Add(entryRight);
+                    results.Add(new FilePathsListViewItem("", fileInfo.FullName, FilePathsListViewItemType.Right_Only,
+                        -1, -1, entryRight.Filesize, entryRight.LastModifiedTime));
                 }
                 else
                 {
                     entryLeft.Flag = true;
                     if (entryLeft.Filesize != entryRight.Filesize || entryLeft.LastModifiedTime != entryRight.LastModifiedTime)
                     {
-                        modified.Add(entryLeft);
+                        results.Add(new FilePathsListViewItem(
+                            settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Filepath,
+                            settings.DestDirectory + Path.DirectorySeparatorChar + entryRight.Filepath,
+                            FilePathsListViewItemType.Changed_File,
+                            entryLeft.Filesize, entryLeft.LastModifiedTime,
+                            entryRight.Filesize, entryRight.LastModifiedTime));
                     }
                 }
             }
@@ -174,12 +189,52 @@ namespace labs_coordinate_pictures
             {
                 if (!entryLeft.Value.Flag)
                 {
-                    onlyOnLeft.Add(entryLeft.Value);
+                    results.Add(new FilePathsListViewItem(
+                        settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Value.Filepath,
+                        "", FilePathsListViewItemType.Left_Only, entryLeft.Value.Filesize, entryLeft.Value.LastModifiedTime, -1, -1));
                 }
             }
 
-            return Tuple.Create(onlyOnLeft, onlyOnRight, modified);
+            return results;
         }
+
+        public static List<FilePathsListViewItem> DifferencesToFindDupes(List<FilePathsListViewItem> listAll)
+        {
+            // make an index of files on the left
+            // map of (filesize, lmt) to FileEntry
+            var indexLeft = new Dictionary<Tuple<long, long>, List<FileEntry>>();
+            foreach (var item in listAll)
+            {
+                if (item.FirstFileLength != -1 && item.FirstLastModifiedTime != -1 &&
+                    item.SecondFileLength == -1 && item.SecondLastModifiedTime == -1)
+                {
+                    List<FileEntry> shortList;
+                    var tp = Tuple.Create(item.FirstLastModifiedTime, item.FirstFileLength);
+                    indexLeft.TryGetValue(tp, out shortList);
+                    if (shortList == null)
+                    {
+                        shortList = new List<FileEntry>();
+                        indexLeft[tp] = shortList;
+                    }
+
+                    var entry = new FileEntry(item.FirstLastModifiedTime, item.FirstFileLength, item.FirstPath);
+                    shortList.Add(entry);
+                }
+            }
+
+            // walk through files on the right
+            foreach (var item in listAll)
+            {
+                if (item.FirstFileLength == -1 && item.FirstLastModifiedTime == -1 &&
+                    item.SecondFileLength != -1 && item.SecondLastModifiedTime != -1)
+                {
+                }
+            }
+            return null;
+        }
+
     }
+
+    
 
 }
