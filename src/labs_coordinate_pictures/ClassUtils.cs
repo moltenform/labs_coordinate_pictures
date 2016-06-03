@@ -172,7 +172,7 @@ namespace labs_coordinate_pictures
                     throw new ArgumentOutOfRangeException("invalid character (" + carg + ")");
                 }
 
-                if (args[carg] == string.Empty)
+                if (string.IsNullOrEmpty(args[carg]))
                 {
                     arguments.Append("\"\"");
                 }
@@ -760,7 +760,7 @@ namespace labs_coordinate_pictures
                     return true;
             };
 
-            return _list.GetList().Where(includeFile).ToArray();
+            return _list.GetList(forceRefresh).Where(includeFile).ToArray();
         }
 
         public void Dispose()

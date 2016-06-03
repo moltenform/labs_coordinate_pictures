@@ -151,7 +151,7 @@ namespace labs_coordinate_pictures
                 var split = line.Split(new char[] { '=' }, 2, StringSplitOptions.None);
                 if (split.Length != 2)
                 {
-                    if (line.Trim() != "")
+                    if (!string.IsNullOrEmpty(line.Trim()))
                     {
                         SimpleLog.Current.WriteWarning(
                             "malformed config, missing = on line " + lineNumber);

@@ -81,39 +81,83 @@
     <Rule Id="CA1722" Action="Warning" />
     <Rule Id="CA1724" Action="Warning" />
     <Rule Id="CA1726" Action="Warning" />
+    <Rule Id="CA1801" Action="Warning" />
+    <Rule Id="CA1802" Action="Warning" />
+    <Rule Id="CA1804" Action="Warning" />
+    <Rule Id="CA1809" Action="Warning" />
+    <Rule Id="CA1810" Action="Warning" />
+    <Rule Id="CA1812" Action="Warning" />
+    <Rule Id="CA1813" Action="Warning" />
+    <Rule Id="CA1814" Action="Warning" />
+    <Rule Id="CA1815" Action="Warning" />
+    <Rule Id="CA1816" Action="Warning" />
+    <Rule Id="CA1819" Action="Warning" />
+    <Rule Id="CA1820" Action="Warning" />
     <Rule Id="CA1821" Action="Warning" />
+    <Rule Id="CA1822" Action="Warning" />
+    <Rule Id="CA1823" Action="Warning" />
     <Rule Id="CA1900" Action="Warning" />
     <Rule Id="CA1901" Action="Warning" />
+    <Rule Id="CA1903" Action="Warning" />
+    <Rule Id="CA2001" Action="Warning" />
     <Rule Id="CA2002" Action="Warning" />
+    <Rule Id="CA2003" Action="Warning" />
+    <Rule Id="CA2004" Action="Warning" />
+    <Rule Id="CA2006" Action="Warning" />
     <Rule Id="CA2100" Action="Warning" />
     <Rule Id="CA2101" Action="Warning" />
+    <Rule Id="CA2102" Action="Warning" />
+    <Rule Id="CA2103" Action="Warning" />
+    <Rule Id="CA2104" Action="Warning" />
+    <Rule Id="CA2105" Action="Warning" />
+    <Rule Id="CA2106" Action="Warning" />
+    <Rule Id="CA2107" Action="Warning" />
     <Rule Id="CA2108" Action="Warning" />
+    <Rule Id="CA2109" Action="Warning" />
     <Rule Id="CA2111" Action="Warning" />
     <Rule Id="CA2112" Action="Warning" />
     <Rule Id="CA2114" Action="Warning" />
+    <Rule Id="CA2115" Action="Warning" />
     <Rule Id="CA2116" Action="Warning" />
     <Rule Id="CA2117" Action="Warning" />
+    <Rule Id="CA2118" Action="Warning" />
+    <Rule Id="CA2119" Action="Warning" />
+    <Rule Id="CA2120" Action="Warning" />
+    <Rule Id="CA2121" Action="Warning" />
     <Rule Id="CA2122" Action="Warning" />
     <Rule Id="CA2123" Action="Warning" />
     <Rule Id="CA2124" Action="Warning" />
     <Rule Id="CA2126" Action="Warning" />
+    <Rule Id="CA2130" Action="Warning" />
     <Rule Id="CA2131" Action="Warning" />
     <Rule Id="CA2132" Action="Warning" />
     <Rule Id="CA2133" Action="Warning" />
     <Rule Id="CA2134" Action="Warning" />
+    <Rule Id="CA2135" Action="Warning" />
+    <Rule Id="CA2136" Action="Warning" />
     <Rule Id="CA2137" Action="Warning" />
     <Rule Id="CA2138" Action="Warning" />
+    <Rule Id="CA2139" Action="Warning" />
     <Rule Id="CA2140" Action="Warning" />
     <Rule Id="CA2141" Action="Warning" />
+    <Rule Id="CA2142" Action="Warning" />
+    <Rule Id="CA2143" Action="Warning" />
+    <Rule Id="CA2144" Action="Warning" />
+    <Rule Id="CA2145" Action="Warning" />
     <Rule Id="CA2146" Action="Warning" />
     <Rule Id="CA2147" Action="Warning" />
     <Rule Id="CA2149" Action="Warning" />
+    <Rule Id="CA2151" Action="Warning" />
     <Rule Id="CA2200" Action="Warning" />
+    <Rule Id="CA2201" Action="Warning" />
     <Rule Id="CA2202" Action="Warning" />
+    <Rule Id="CA2205" Action="Warning" />
     <Rule Id="CA2207" Action="Warning" />
+    <Rule Id="CA2208" Action="Warning" />
     <Rule Id="CA2212" Action="Warning" />
     <Rule Id="CA2213" Action="Warning" />
     <Rule Id="CA2214" Action="Warning" />
+    <Rule Id="CA2215" Action="Warning" />
     <Rule Id="CA2216" Action="Warning" />
     <Rule Id="CA2220" Action="Warning" />
     <Rule Id="CA2229" Action="Warning" />

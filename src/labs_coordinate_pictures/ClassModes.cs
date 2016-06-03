@@ -68,7 +68,7 @@ namespace labs_coordinate_pictures
 
         public static void UseDefaultCategoriesIfFirstRun(ModeBase mode)
         {
-            if (mode.GetDefaultCategories() != null && Configs.Current.Get(mode.GetCategories()) == "")
+            if (mode.GetDefaultCategories() != null && string.IsNullOrEmpty(Configs.Current.Get(mode.GetCategories())))
             {
                 Configs.Current.Set(mode.GetCategories(), mode.GetDefaultCategories());
             }

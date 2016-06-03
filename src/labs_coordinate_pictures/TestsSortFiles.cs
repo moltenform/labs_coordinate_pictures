@@ -46,7 +46,8 @@ namespace labs_coordinate_pictures
 
             if (!expected.Equals(actual))
             {
-                throw new Exception("Assertion failure, expected " + expected + " but got " + actual);
+                throw new CoordinatePicturesTestException(
+                    "Assertion failure, expected " + expected + " but got " + actual);
             }
         }
 
@@ -158,8 +159,8 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(false, settings.Mirror);
             TestUtil.IsEq(0, settings.ShiftFiletimeHours);
-            TestUtil.IsStringArrayEq(null, settings.SkipDirectories);
-            TestUtil.IsStringArrayEq(null, settings.SkipFiles);
+            TestUtil.IsStringArrayEq(null, settings.GetSkipDirectories());
+            TestUtil.IsStringArrayEq(null, settings.GetSkipFiles());
             TestUtil.IsEq(dirFirst, settings.SourceDirectory);
 
             settings = FormSortFiles.FillFromUI(SortFilesAction.FindDupeFiles, "a", "a\nb b\n\nc\n\n ",
@@ -170,8 +171,8 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(true, settings.Mirror);
             TestUtil.IsEq(-1, settings.ShiftFiletimeHours);
-            TestUtil.IsStringArrayEq("a", settings.SkipDirectories);
-            TestUtil.IsStringArrayEq("a|b b|c", settings.SkipFiles);
+            TestUtil.IsStringArrayEq("a", settings.GetSkipDirectories());
+            TestUtil.IsStringArrayEq("a|b b|c", settings.GetSkipFiles());
             TestUtil.IsEq(dirSecond, settings.SourceDirectory);
         }
 

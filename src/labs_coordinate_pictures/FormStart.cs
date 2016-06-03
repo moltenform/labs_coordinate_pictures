@@ -73,12 +73,12 @@ namespace labs_coordinate_pictures
             }
         }
 
-        void OpenAudioFileInGallery(string path)
+        static void OpenAudioFileInGallery(string path)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(path);
         }
 
-        string AskUserForDirectory(ModeBase mode, InputBoxHistory mruKey)
+        static string AskUserForDirectory(InputBoxHistory mruKey)
         {
             return InputBoxForm.GetStrInput("Enter directory:", null, mruKey, mustBeDirectory: true);
         }
@@ -97,7 +97,7 @@ namespace labs_coordinate_pictures
         void OpenForm(ModeBase mode, InputBoxHistory mruKey)
         {
             VerifyProgramChecksums();
-            var directory = AskUserForDirectory(mode, mruKey);
+            var directory = AskUserForDirectory(mruKey);
             if (directory == null)
             {
                 return;
@@ -106,7 +106,7 @@ namespace labs_coordinate_pictures
             ShowForm(new FormGallery(mode, directory));
         }
 
-        private void OnSetConfigsDir(object sender, string info, ConfigKey key)
+        static void OnSetConfigsDir(object sender, string info, ConfigKey key)
         {
             var message = (sender as ToolStripItem).Text;
             message += Environment.NewLine + info;
@@ -120,7 +120,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void OnSetConfigsFile(object sender, string info, ConfigKey key)
+        static void OnSetConfigsFile(object sender, string info, ConfigKey key)
         {
             var message = (sender as ToolStripItem).Text;
             OpenFileDialog dialog = new OpenFileDialog();

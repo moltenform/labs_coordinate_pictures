@@ -7,14 +7,34 @@ namespace labs_coordinate_pictures
 {
     public class SortFilesSettings
     {
+        string[] _skipDirectories;
+        string[] _skipFiles;
         public string SourceDirectory { get; set; }
         public string DestDirectory { get; set; }
         public bool AllowFiletimesDifferForFAT { get; set; }
         public int ShiftFiletimeHours { get; set; }
-        public string[] SkipDirectories { get; set; }
-        public string[] SkipFiles { get; set; }
         public bool Mirror { get; set; }
         public string LogFile { get; set; }
+
+        public void SetSkipDirectories(string[] skipDirs)
+        {
+            _skipDirectories = skipDirs;
+        }
+
+        public void SetSkipFiles(string[] skipFiles)
+        {
+            _skipFiles = skipFiles;
+        }
+
+        public string[] GetSkipDirectories()
+        {
+            return _skipDirectories;
+        }
+
+        public string[] GetSkipFiles()
+        {
+            return _skipFiles;
+        }
     }
 
     public static class RobocopySyncFiles
@@ -48,13 +68,13 @@ namespace labs_coordinate_pictures
                 args.Add("/MIR");
             }
 
-            foreach (var s in settings.SkipDirectories)
+            foreach (var s in settings.GetSkipDirectories())
             {
                 args.Add("/XD");
                 args.Add(s);
             }
 
-            foreach (var s in settings.SkipFiles)
+            foreach (var s in settings.GetSkipFiles())
             {
                 args.Add("/XF");
                 args.Add(s);
@@ -256,7 +276,10 @@ namespace labs_coordinate_pictures
                         entry.Checksum = Utils.GetSha512(path);
                     }
 
-                    if (entry.Checksum == checksumThis && !movedAlready.ContainsKey(entry.Filepath))
+                    if (entry.Checksum == checksumThis &&
+                        entry.LastModifiedTime == lastModifiedTime &&
+                        entry.Filesize == filesize &&
+                        !movedAlready.ContainsKey(entry.Filepath))
                     {
                         return entry;
                     }

@@ -115,8 +115,8 @@ namespace labs_coordinate_pictures
             bool mirror)
         {
             var settings = new SortFilesSettings();
-            settings.SkipDirectories = TextLineByLineToList(skipDirs);
-            settings.SkipFiles = TextLineByLineToList(skipFiles);
+            settings.SetSkipDirectories(TextLineByLineToList(skipDirs));
+            settings.SetSkipFiles(TextLineByLineToList(skipFiles));
             settings.SourceDirectory = dirSrc;
             settings.DestDirectory = dirDest;
             settings.AllowFiletimesDifferForFAT = allowTimesDiffer;
