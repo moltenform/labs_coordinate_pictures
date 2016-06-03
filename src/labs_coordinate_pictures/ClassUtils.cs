@@ -644,7 +644,7 @@ namespace labs_coordinate_pictures
 
         static int GetLessThanOrEqual(string[] list, string search)
         {
-            var index = Array.BinarySearch(list, search);
+            var index = Array.BinarySearch(list, search, StringComparer.OrdinalIgnoreCase);
             if (index < 0)
             {
                 index = ~index - 1;
