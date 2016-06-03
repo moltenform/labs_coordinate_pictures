@@ -94,12 +94,6 @@ namespace labs_coordinate_pictures
 
     public class FileEntry
     {
-        public long LastModifiedTime { get; set; }
-        public long Filesize { get; set; }
-        public string Filepath { get; set; }
-        public string Checksum { get; set; }
-        public bool Flag { get; set; }
-
         public FileEntry(long lastModifiedTime, long filesize, string filepath)
         {
             LastModifiedTime = lastModifiedTime;
@@ -107,10 +101,15 @@ namespace labs_coordinate_pictures
             Filepath = filepath;
         }
 
+        public long LastModifiedTime { get; set; }
+        public long Filesize { get; set; }
+        public string Filepath { get; set; }
+        public string Checksum { get; set; }
+        public bool Flag { get; set; }
+
         public static FileEntry EntryFromFileInfo(FileInfo fileInfo, string fullpath, string stripPrefix,
             bool roundLastModifiedTime, int adjustTimeHours)
         {
-            // nb: for a FAT system, o.s. will convert to utc.
             var dt = fileInfo.LastWriteTimeUtc;
             dt = dt.AddHours(adjustTimeHours);
             long ticks = dt.Ticks;
@@ -131,18 +130,6 @@ namespace labs_coordinate_pictures
         // returns (only on left, only on right, modified)
         public static List<FilePathsListViewItem> FindQuickDifferencesByModifiedTimeAndFilesize(SortFilesSettings settings)
         {
-            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()) ||
-                settings.DestDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-            {
-                throw new CoordinatePicturesException("directory should not end with slash.");
-            }
-
-            if (settings.SourceDirectory.StartsWith(settings.DestDirectory) ||
-                settings.DestDirectory.StartsWith(settings.SourceDirectory))
-            {
-                throw new CoordinatePicturesException("directories must be distinct.");
-            }
-
             var results = new List<FilePathsListViewItem>();
 
             // make an index of files on the left
@@ -160,7 +147,7 @@ namespace labs_coordinate_pictures
             foreach (var fileInfo in di.EnumerateFiles("*", SearchOption.AllDirectories))
             {
                 var entryRight = FileEntry.EntryFromFileInfo(fileInfo, fileInfo.FullName,
-                    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, settings.ShiftFiletimeHours);
+                    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, adjustTimeHours: 0);
                 FileEntry entryLeft;
                 indexFilesLeft.TryGetValue(entryRight.Filepath, out entryLeft);
 
@@ -191,22 +178,22 @@ namespace labs_coordinate_pictures
                 {
                     results.Add(new FilePathsListViewItem(
                         settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Value.Filepath,
-                        "", FilePathsListViewItemType.Left_Only, entryLeft.Value.Filesize, entryLeft.Value.LastModifiedTime, -1, -1));
+                        "", FilePathsListViewItemType.Left_Only,
+                        entryLeft.Value.Filesize, entryLeft.Value.LastModifiedTime, -1, -1));
                 }
             }
 
             return results;
         }
 
-        public static List<FilePathsListViewItem> DifferencesToFindDupes(List<FilePathsListViewItem> listAll)
+        public static List<FilePathsListViewItem> DifferencesToFindDupes(FilePathsListViewItem[] listAll)
         {
             // make an index of files on the left
             // map of (filesize, lmt) to FileEntry
             var indexLeft = new Dictionary<Tuple<long, long>, List<FileEntry>>();
             foreach (var item in listAll)
             {
-                if (item.FirstFileLength != -1 && item.FirstLastModifiedTime != -1 &&
-                    item.SecondFileLength == -1 && item.SecondLastModifiedTime == -1)
+                if (item.Status == FilePathsListViewItemType.Left_Only)
                 {
                     List<FileEntry> shortList;
                     var tp = Tuple.Create(item.FirstLastModifiedTime, item.FirstFileLength);
@@ -222,17 +209,62 @@ namespace labs_coordinate_pictures
                 }
             }
 
+            var moved = new Dictionary<string, bool>();
+            var results = new List<FilePathsListViewItem>();
+
             // walk through files on the right
             foreach (var item in listAll)
             {
-                if (item.FirstFileLength == -1 && item.FirstLastModifiedTime == -1 &&
-                    item.SecondFileLength != -1 && item.SecondLastModifiedTime != -1)
+                if (item.Status == FilePathsListViewItemType.Right_Only)
                 {
+                    List<FileEntry> shortList;
+                    var tp = Tuple.Create(item.SecondLastModifiedTime, item.SecondFileLength);
+                    indexLeft.TryGetValue(tp, out shortList);
+                    var entryFound = IsPresentInList(shortList, moved, item.SecondLastModifiedTime, item.SecondFileLength, item.SecondPath);
+
+                    if (entryFound != null)
+                    {
+                        moved[entryFound.Filepath] = true;
+                        moved[item.SecondPath] = true;
+                        results.Add(new FilePathsListViewItem(entryFound.Filepath, item.SecondPath, FilePathsListViewItemType.Moved_File,
+                            entryFound.Filesize, entryFound.Filesize, item.SecondFileLength, item.SecondLastModifiedTime));
+                    }
                 }
             }
-            return null;
+
+            // add the remaining ones
+            foreach (var item in listAll)
+            {
+                if (!moved.ContainsKey(item.FirstPath) && !moved.ContainsKey(item.SecondPath))
+                {
+                    results.Add(item);
+                }
+            }
+
+            return results;
         }
 
+        static FileEntry IsPresentInList(List<FileEntry> list, Dictionary<string, bool> movedAlready, long lastModifiedTime, long filesize, string path)
+        {
+            if (list != null)
+            {
+                string checksumThis = Utils.GetSha512(path);
+                foreach (var entry in list)
+                {
+                    if (entry.Checksum == null)
+                    {
+                        entry.Checksum = Utils.GetSha512(path);
+                    }
+
+                    if (entry.Checksum == checksumThis && !movedAlready.ContainsKey(entry.Filepath))
+                    {
+                        return entry;
+                    }
+                }
+            }
+
+            return null;
+        }
     }
 
     
