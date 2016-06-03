@@ -146,7 +146,7 @@ namespace labs_coordinate_pictures
 
         public override string GetDefaultCategories()
         {
-            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other";
+            return "A/art/art|C/comedy/comedy|R/serious/serious|Q/other/other|T/twitter/twitter";
         }
 
         public override void OnCompletionAction(string baseDirectory,
