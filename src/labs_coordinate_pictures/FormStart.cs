@@ -83,6 +83,17 @@ namespace labs_coordinate_pictures
             return InputBoxForm.GetStrInput("Enter directory:", null, mruKey, mustBeDirectory: true);
         }
 
+        void ShowForm(Form form)
+        {
+            this.Visible = false;
+            using (form)
+            {
+                form.ShowDialog(this);
+            }
+
+            this.Visible = true;
+        }
+
         void OpenForm(ModeBase mode, InputBoxHistory mruKey)
         {
             VerifyProgramChecksums();
@@ -92,7 +103,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            new FormGallery(mode, directory).Show();
+            ShowForm(new FormGallery(mode, directory));
         }
 
         private void OnSetConfigsDir(object sender, string info, ConfigKey key)
@@ -299,12 +310,32 @@ namespace labs_coordinate_pictures
 
         private void sortTwitterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new FormPersonalTwitter().Show();
+            ShowForm(new FormPersonalTwitter());
         }
 
         private void sortMusicToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new FormPersonalMusic().Show();
+            ShowForm(new FormPersonalMusic());
+        }
+
+        private void findMovedFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(new FormSortFiles(SortFilesAction.FindMovedFiles));
+        }
+
+        private void findDuplicateFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(new FormSortFiles(SortFilesAction.FindDupeFiles));
+        }
+
+        private void findDuplicateFilesWithinOneFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(new FormSortFiles(SortFilesAction.FindDupeFilesInOneDir));
+        }
+
+        private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(new FormSortFiles(SortFilesAction.SyncFiles));
         }
     }
 }
