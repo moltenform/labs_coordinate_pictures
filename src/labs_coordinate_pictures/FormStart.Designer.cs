@@ -31,8 +31,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormStart));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.syncDirectoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findMovedFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.findDuplicateFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.syncFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,6 +43,9 @@
             this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.sortTwitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortMusicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setTrashDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setAltImageEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,9 +66,6 @@
             this.setSorttwitterSourceLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterDestinationLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.sortTwitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.sortMusicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -81,24 +84,47 @@
             // filesToolStripMenuItem
             // 
             this.filesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.syncDirectoriesToolStripMenuItem,
-            this.findDuplicateFilesToolStripMenuItem});
+            this.findMovedFilesToolStripMenuItem,
+            this.findDuplicateFilesToolStripMenuItem,
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.syncFilesToolStripMenuItem});
             this.filesToolStripMenuItem.Name = "filesToolStripMenuItem";
             this.filesToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
             this.filesToolStripMenuItem.Text = "Sort &Files";
             // 
-            // syncDirectoriesToolStripMenuItem
+            // findMovedFilesToolStripMenuItem
             // 
-            this.syncDirectoriesToolStripMenuItem.Name = "syncDirectoriesToolStripMenuItem";
-            this.syncDirectoriesToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.syncDirectoriesToolStripMenuItem.Text = "&Sync Directories...";
-            this.syncDirectoriesToolStripMenuItem.Click += new System.EventHandler(this.syncDirectoriesToolStripMenuItem_Click);
+            this.findMovedFilesToolStripMenuItem.Name = "findMovedFilesToolStripMenuItem";
+            this.findMovedFilesToolStripMenuItem.Size = new System.Drawing.Size(299, 22);
+            this.findMovedFilesToolStripMenuItem.Text = "Find &Moved Files...";
+            this.findMovedFilesToolStripMenuItem.Click += new System.EventHandler(this.findMovedFilesToolStripMenuItem_Click);
             // 
             // findDuplicateFilesToolStripMenuItem
             // 
             this.findDuplicateFilesToolStripMenuItem.Name = "findDuplicateFilesToolStripMenuItem";
-            this.findDuplicateFilesToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.findDuplicateFilesToolStripMenuItem.Text = "&Find Duplicate Files...";
+            this.findDuplicateFilesToolStripMenuItem.Size = new System.Drawing.Size(299, 22);
+            this.findDuplicateFilesToolStripMenuItem.Text = "Find &Duplicate Files...";
+            this.findDuplicateFilesToolStripMenuItem.Click += new System.EventHandler(this.findDuplicateFilesToolStripMenuItem_Click);
+            // 
+            // findDuplicateFilesWithinOneFolderToolStripMenuItem
+            // 
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem.Name = "findDuplicateFilesWithinOneFolderToolStripMenuItem";
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem.Size = new System.Drawing.Size(299, 22);
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem.Text = "Find Duplicate Files Within &One Directory...";
+            this.findDuplicateFilesWithinOneFolderToolStripMenuItem.Click += new System.EventHandler(this.findDuplicateFilesWithinOneFolderToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(296, 6);
+            // 
+            // syncFilesToolStripMenuItem
+            // 
+            this.syncFilesToolStripMenuItem.Name = "syncFilesToolStripMenuItem";
+            this.syncFilesToolStripMenuItem.Size = new System.Drawing.Size(299, 22);
+            this.syncFilesToolStripMenuItem.Text = "&Sync Files...";
+            this.syncFilesToolStripMenuItem.Click += new System.EventHandler(this.syncDirectoriesToolStripMenuItem_Click);
             // 
             // picturesToolStripMenuItem
             // 
@@ -150,6 +176,25 @@
             this.markmp3QualityToolStripMenuItem.Name = "markmp3QualityToolStripMenuItem";
             this.markmp3QualityToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
             this.markmp3QualityToolStripMenuItem.Text = "Mark .mp&3 quality...";
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(254, 6);
+            // 
+            // sortTwitterToolStripMenuItem
+            // 
+            this.sortTwitterToolStripMenuItem.Name = "sortTwitterToolStripMenuItem";
+            this.sortTwitterToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortTwitterToolStripMenuItem.Text = "Sort &Twitter...";
+            this.sortTwitterToolStripMenuItem.Click += new System.EventHandler(this.sortTwitterToolStripMenuItem_Click);
+            // 
+            // sortMusicToolStripMenuItem
+            // 
+            this.sortMusicToolStripMenuItem.Name = "sortMusicToolStripMenuItem";
+            this.sortMusicToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortMusicToolStripMenuItem.Text = "Sort &Music...";
+            this.sortMusicToolStripMenuItem.Click += new System.EventHandler(this.sortMusicToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
@@ -292,25 +337,6 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
-            // toolStripMenuItem3
-            // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(254, 6);
-            // 
-            // sortTwitterToolStripMenuItem
-            // 
-            this.sortTwitterToolStripMenuItem.Name = "sortTwitterToolStripMenuItem";
-            this.sortTwitterToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.sortTwitterToolStripMenuItem.Text = "Sort &Twitter...";
-            this.sortTwitterToolStripMenuItem.Click += new System.EventHandler(this.sortTwitterToolStripMenuItem_Click);
-            // 
-            // sortMusicToolStripMenuItem
-            // 
-            this.sortMusicToolStripMenuItem.Name = "sortMusicToolStripMenuItem";
-            this.sortMusicToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.sortMusicToolStripMenuItem.Text = "Sort &Music...";
-            this.sortMusicToolStripMenuItem.Click += new System.EventHandler(this.sortMusicToolStripMenuItem_Click);
-            // 
             // FormStart
             // 
             this.AllowDrop = true;
@@ -338,7 +364,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem filesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem picturesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem syncDirectoriesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem syncFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findDuplicateFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setTrashDirectoryToolStripMenuItem;
@@ -369,6 +395,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem sortTwitterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sortMusicToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findMovedFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem findDuplicateFilesWithinOneFolderToolStripMenuItem;
     }
 }
 

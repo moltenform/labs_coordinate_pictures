@@ -127,7 +127,12 @@ namespace labs_coordinate_pictures
 
             // as a prefix, the first 2 chars of the parent directory
             var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(path))) + "_";
-            return Path.Combine(trashDir, prefix + Path.GetFileName(path) + random.Next());
+            return Path.Combine(trashDir, prefix + Path.GetFileName(path) + GetRandomDigits());
+        }
+
+        public static string GetRandomDigits()
+        {
+            return random.Next().ToString();
         }
 
         public static void SoftDelete(string path)
@@ -467,7 +472,7 @@ namespace labs_coordinate_pictures
         {
             if (path == null || !File.Exists(path))
             {
-                return "filenotfound";
+                return "filenotfound:" + path;
             }
 
             const int bufSize = 64 * 1024;
@@ -479,6 +484,31 @@ namespace labs_coordinate_pictures
                     return Convert.ToBase64String(hash);
                 }
             }
+        }
+
+        public static void RunLongActionInThread(Form frm, Action fn)
+        {
+            frm.Enabled = false;
+            frm.Text = "Loading...";
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                try
+                {
+                    fn.Invoke();
+                }
+                catch (Exception e)
+                {
+                    MessageErr(e.Message);
+                }
+                finally
+                {
+                    frm.Invoke((MethodInvoker)(() =>
+                    {
+                        frm.Enabled = true;
+                        frm.Text = " ";
+                    }));
+                }
+            });
         }
 
         public static string[] SplitByString(string s, string delim)

@@ -63,7 +63,7 @@ namespace labs_coordinate_pictures
 
             if (Utils.IsDebug())
             {
-                CoordinatePicturesTests.RunTests();
+                TestUtil.RunTests();
             }
 
             if (Environment.GetCommandLineArgs().Length > 1 &&
@@ -139,7 +139,7 @@ namespace labs_coordinate_pictures
         {
             if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.T)
             {
-                CoordinatePicturesTests.RunTests();
+                TestUtil.RunTests();
                 Utils.MessageBox("Tests complete.");
             }
             else if (!e.Shift && e.Control && !e.Alt && e.KeyCode == Keys.L)
@@ -185,11 +185,6 @@ namespace labs_coordinate_pictures
             {
                 item.Visible = Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
             }
-        }
-
-        private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         private void FormStart_DragEnter(object sender, DragEventArgs e)
