@@ -1,5 +1,12 @@
 
-CoordinatePictures is used to sort files into Categories.
+CoordinatePictures is used to rename and organize image files.
+
+Here's a walkthrough of how it works:
+
+I have downloaded a lot of images in the past few weeks. 
+
+
+
 for example, let's say you have a directory full of many images of artwork.
 to organize this directory, you would like to sort the images into subdirectories called
 'drawings', 'photographs', 'paintings', and 'other'.
