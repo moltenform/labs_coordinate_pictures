@@ -16,6 +16,12 @@ namespace labs_coordinate_pictures
 {
     public partial class FormGallery : Form
     {
+        // how many images to store in cache
+        const int ImageCacheSize = 16;
+
+        // how many images to prefetch after the user moves to the next image
+        const int ImageCacheBatch = 8;
+
         // see SortingImages.md for a description of modes and categories.
         // the 'mode' specifies filetypes, and can add custom commands
         ModeBase _mode;
@@ -48,12 +54,6 @@ namespace labs_coordinate_pictures
 
         // cache of images; we'll prefetch images into the cache on a bg thread
         ImageCache _imagecache;
-
-        // how many images to store in cache
-        const int ImageCacheSize = 16;
-
-        // how many images to prefetch after the user moves to the next image
-        const int ImageCacheBatch = 8;
 
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {

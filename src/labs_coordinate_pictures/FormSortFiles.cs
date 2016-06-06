@@ -45,15 +45,15 @@ namespace labs_coordinate_pictures
                 checkAllowDiffer.Text = checkAllowDiffer.Text.Replace("2", "4");
             }
 
-            if (action == SortFilesAction.FindMovedFiles)
+            if (action == SortFilesAction.SearchDifferences)
             {
                 lblAction.Text = "Find moved files. Look for differences between directories from filenames and last modified times,\r\n and show which of these differences are simply moved files.";
             }
-            else if (action == SortFilesAction.FindDupeFiles)
+            else if (action == SortFilesAction.SearchDupes)
             {
                 lblAction.Text = "Find duplicate files. Look for files with identical contents.";
             }
-            else if (action == SortFilesAction.FindDupeFilesInOneDir)
+            else if (action == SortFilesAction.SearchDupesInOneDir)
             {
                 lblAction.Text = "Find duplicate files. Look for files with identical contents.";
                 lblLeftDirDesc.Text = "Directory:";
@@ -147,7 +147,7 @@ namespace labs_coordinate_pictures
                 Utils.MessageErr("Directory does not exist " + settings.SourceDirectory, true);
                 return null;
             }
-            else if (!Directory.Exists(settings.DestDirectory) && action != SortFilesAction.FindDupeFilesInOneDir)
+            else if (!Directory.Exists(settings.DestDirectory) && action != SortFilesAction.SearchDupesInOneDir)
             {
                 Utils.MessageErr("Directory does not exist " + settings.DestDirectory, true);
                 return null;
@@ -161,7 +161,7 @@ namespace labs_coordinate_pictures
             }
 
             // https://msdn.microsoft.com/en-us/library/dd465121.aspx recommends comparing filepaths with OrdinalIgnoreCase
-            if (action != SortFilesAction.FindDupeFilesInOneDir &&
+            if (action != SortFilesAction.SearchDupesInOneDir &&
                 (settings.SourceDirectory.StartsWith(settings.DestDirectory, StringComparison.OrdinalIgnoreCase) ||
                 settings.DestDirectory.StartsWith(settings.SourceDirectory, StringComparison.OrdinalIgnoreCase)))
             {
@@ -263,13 +263,5 @@ namespace labs_coordinate_pictures
                 }
             }
         }
-    }
-
-    public enum SortFilesAction
-    {
-        FindMovedFiles,
-        FindDupeFiles,
-        FindDupeFilesInOneDir,
-        SyncFiles
     }
 }

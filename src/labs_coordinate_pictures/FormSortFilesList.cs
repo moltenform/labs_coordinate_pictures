@@ -41,7 +41,7 @@ namespace labs_coordinate_pictures
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!_startedFindMovedFiles && _startedLoading && _action == SortFilesAction.FindMovedFiles)
+            if (!_startedFindMovedFiles && _startedLoading && _action == SortFilesAction.SearchDifferences)
             {
                 _startedFindMovedFiles = true;
                 Utils.RunLongActionInThread(this, new Action(FindMovedFilesPartOne));
@@ -53,7 +53,7 @@ namespace labs_coordinate_pictures
             if (!_startedLoading)
             {
                 _startedLoading = true;
-                if (_action == SortFilesAction.FindMovedFiles)
+                if (_action == SortFilesAction.SearchDifferences)
                 {
                     Utils.RunLongActionInThread(this, new Action(FindMovedFilesPartOne));
                 }
@@ -98,17 +98,6 @@ namespace labs_coordinate_pictures
                 linkLabel1.Text = lblAction.Text;
             }));
         }
-    }
-
-    // numbers correspond with imageList index
-    public enum FilePathsListViewItemType
-    {
-        None = 0,
-        Changed_File = 1,
-        Left_Only = 2,
-        Right_Only = 3,
-        Same_Contents = 4,
-        Moved_File = 5,
     }
 
     public class FilePathsListViewItem : ListViewItem

@@ -5,6 +5,26 @@ using System.Linq;
 
 namespace labs_coordinate_pictures
 {
+    public enum SortFilesAction
+    {
+        SearchDifferences,
+        SearchDifferencesAndRenames,
+        SearchDupes,
+        SearchDupesInOneDir,
+        SyncFiles
+    }
+
+    // numbers correspond with imageList index
+    public enum FilePathsListViewItemType
+    {
+        None = 0,
+        Changed_File = 1,
+        Left_Only = 2,
+        Right_Only = 3,
+        Same_Contents = 4,
+        Moved_File = 5,
+    }
+
     public class SortFilesSettings
     {
         string[] _skipDirectories;
