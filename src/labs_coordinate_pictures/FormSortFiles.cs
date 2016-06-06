@@ -42,7 +42,7 @@ namespace labs_coordinate_pictures
                 txtSkipFiles.Visible = false;
                 lblLeftDirDesc.Text = "Directory #1:";
                 lblRightDirDesc.Text = "Directory #2:";
-                checkAllowDiffer.Text = checkAllowDiffer.Text.Replace("2", "4");
+                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("2", "4");
             }
 
             if (action == SortFilesAction.SearchDifferences)
@@ -61,8 +61,7 @@ namespace labs_coordinate_pictures
                 btnSetRightDir.Visible = false;
                 cmbRightDir.Visible = false;
                 btnSwap.Visible = false;
-                lblShiftTimeHours.Visible = false;
-                txtShiftTimeHours.Visible = false;
+                checkAllowDifferDST.Visible = false;
             }
             else if (action == SortFilesAction.SyncFiles)
             {
@@ -104,14 +103,14 @@ namespace labs_coordinate_pictures
         {
             return FillFromUI(_action, txtSkipDirs.Text, txtSkipFiles.Text,
                 cmbLeftDir.Text, cmbRightDir.Text,
-                checkAllowDiffer.Checked, txtShiftTimeHours.Text,
+                checkAllowDifferSeconds.Checked, checkAllowDifferDST.Checked,
                 checkMirror.Checked);
         }
 
         public static SortFilesSettings FillFromUI(SortFilesAction action,
             string skipDirs, string skipFiles,
             string dirSrc, string dirDest,
-            bool allowTimesDiffer, string shiftTimeHours,
+            bool allowTimesDiffer, bool allowTimesDifferDst,
             bool mirror)
         {
             var settings = new SortFilesSettings();
@@ -120,29 +119,12 @@ namespace labs_coordinate_pictures
             settings.SourceDirectory = dirSrc;
             settings.DestDirectory = dirDest;
             settings.AllowFiletimesDifferForFAT = allowTimesDiffer;
+            settings.AllowFiletimesDifferForDST = allowTimesDifferDst;
             settings.Mirror = mirror;
             settings.LogFile = Path.Combine(TestUtil.GetTestWriteDirectory(),
                 "log" + Utils.GetRandomDigits() + ".txt");
 
-            int shiftTimes = 0;
-            if (int.TryParse(shiftTimeHours, out shiftTimes))
-            {
-                settings.ShiftFiletimeHours = shiftTimes;
-            }
-            else
-            {
-                Utils.MessageErr("Not a valid time shift in hours.", true);
-                return null;
-            }
-
-            if (action == SortFilesAction.SyncFiles && shiftTimes != 0 &&
-                shiftTimes != 1)
-            {
-                Utils.MessageErr("Robocopy only supports DST compensation of 0 hours or 1 hour, but got " +
-                    shiftTimes + ".", true);
-                return null;
-            }
-            else if (!Directory.Exists(settings.SourceDirectory))
+            if (!Directory.Exists(settings.SourceDirectory))
             {
                 Utils.MessageErr("Directory does not exist " + settings.SourceDirectory, true);
                 return null;
@@ -189,14 +171,14 @@ namespace labs_coordinate_pictures
             {
                 if (showCommandLineOnly)
                 {
-                    var args = RobocopySyncFiles.GetFullArgs(settings);
+                    var args = SyncFilesWithRobocopy.GetFullArgs(settings);
                     txtShowRobo.Text = args;
                 }
                 else
                 {
                     Utils.RunLongActionInThread(this, new Action(() =>
                     {
-                        RobocopySyncFiles.Run(settings);
+                        SyncFilesWithRobocopy.Run(settings);
                     }));
                 }
             }

@@ -36,9 +36,7 @@
             this.btnSetLeftDir = new System.Windows.Forms.Button();
             this.btnSetRightDir = new System.Windows.Forms.Button();
             this.btnSwap = new System.Windows.Forms.Button();
-            this.checkAllowDiffer = new System.Windows.Forms.CheckBox();
-            this.txtShiftTimeHours = new System.Windows.Forms.TextBox();
-            this.lblShiftTimeHours = new System.Windows.Forms.Label();
+            this.checkAllowDifferSeconds = new System.Windows.Forms.CheckBox();
             this.checkMirror = new System.Windows.Forms.CheckBox();
             this.txtSkipDirs = new System.Windows.Forms.TextBox();
             this.lblSkipDirs = new System.Windows.Forms.Label();
@@ -47,6 +45,7 @@
             this.btnShowRobo = new System.Windows.Forms.Button();
             this.txtShowRobo = new System.Windows.Forms.TextBox();
             this.btnStart = new System.Windows.Forms.Button();
+            this.checkAllowDifferDST = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lblAction
@@ -124,33 +123,16 @@
             this.btnSwap.UseVisualStyleBackColor = true;
             this.btnSwap.Click += new System.EventHandler(this.btnSwap_Click);
             // 
-            // checkAllowDiffer
+            // checkAllowDifferSeconds
             // 
-            this.checkAllowDiffer.AutoSize = true;
-            this.checkAllowDiffer.Location = new System.Drawing.Point(15, 173);
-            this.checkAllowDiffer.Name = "checkAllowDiffer";
-            this.checkAllowDiffer.Size = new System.Drawing.Size(410, 17);
-            this.checkAllowDiffer.TabIndex = 3;
-            this.checkAllowDiffer.Text = "If file times differ by less than 2 seconds, treat as equal (useful for FAT files" +
-    "ystems)";
-            this.checkAllowDiffer.UseVisualStyleBackColor = true;
-            // 
-            // txtShiftTimeHours
-            // 
-            this.txtShiftTimeHours.Location = new System.Drawing.Point(104, 194);
-            this.txtShiftTimeHours.Name = "txtShiftTimeHours";
-            this.txtShiftTimeHours.Size = new System.Drawing.Size(34, 20);
-            this.txtShiftTimeHours.TabIndex = 4;
-            this.txtShiftTimeHours.Text = "0";
-            // 
-            // lblShiftTimeHours
-            // 
-            this.lblShiftTimeHours.AutoSize = true;
-            this.lblShiftTimeHours.Location = new System.Drawing.Point(15, 196);
-            this.lblShiftTimeHours.Name = "lblShiftTimeHours";
-            this.lblShiftTimeHours.Size = new System.Drawing.Size(333, 13);
-            this.lblShiftTimeHours.TabIndex = 5;
-            this.lblShiftTimeHours.Text = "Shift file times by                 hour(s). (compensate for DST differences)";
+            this.checkAllowDifferSeconds.AutoSize = true;
+            this.checkAllowDifferSeconds.Location = new System.Drawing.Point(15, 173);
+            this.checkAllowDifferSeconds.Name = "checkAllowDifferSeconds";
+            this.checkAllowDifferSeconds.Size = new System.Drawing.Size(436, 17);
+            this.checkAllowDifferSeconds.TabIndex = 3;
+            this.checkAllowDifferSeconds.Text = "Allow file times to differ by less than $ seconds (for FAT systems with imprecise" +
+    " filetimes)";
+            this.checkAllowDifferSeconds.UseVisualStyleBackColor = true;
             // 
             // checkMirror
             // 
@@ -230,6 +212,16 @@
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
+            // checkAllowDifferDST
+            // 
+            this.checkAllowDifferDST.AutoSize = true;
+            this.checkAllowDifferDST.Location = new System.Drawing.Point(15, 195);
+            this.checkAllowDifferDST.Name = "checkAllowDifferDST";
+            this.checkAllowDifferDST.Size = new System.Drawing.Size(389, 17);
+            this.checkAllowDifferDST.TabIndex = 3;
+            this.checkAllowDifferDST.Text = "Allow file times to differ by exactly one hour (compensate for DST differences)";
+            this.checkAllowDifferDST.UseVisualStyleBackColor = true;
+            // 
             // FormSortFiles
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -238,10 +230,9 @@
             this.Controls.Add(this.txtShowRobo);
             this.Controls.Add(this.txtSkipFiles);
             this.Controls.Add(this.txtSkipDirs);
-            this.Controls.Add(this.txtShiftTimeHours);
-            this.Controls.Add(this.lblShiftTimeHours);
             this.Controls.Add(this.checkMirror);
-            this.Controls.Add(this.checkAllowDiffer);
+            this.Controls.Add(this.checkAllowDifferDST);
+            this.Controls.Add(this.checkAllowDifferSeconds);
             this.Controls.Add(this.btnSetRightDir);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnShowRobo);
@@ -271,9 +262,7 @@
         private System.Windows.Forms.Button btnSetLeftDir;
         private System.Windows.Forms.Button btnSetRightDir;
         private System.Windows.Forms.Button btnSwap;
-        private System.Windows.Forms.CheckBox checkAllowDiffer;
-        private System.Windows.Forms.TextBox txtShiftTimeHours;
-        private System.Windows.Forms.Label lblShiftTimeHours;
+        private System.Windows.Forms.CheckBox checkAllowDifferSeconds;
         private System.Windows.Forms.CheckBox checkMirror;
         private System.Windows.Forms.TextBox txtSkipDirs;
         private System.Windows.Forms.Label lblSkipDirs;
@@ -282,5 +271,6 @@
         private System.Windows.Forms.Button btnShowRobo;
         private System.Windows.Forms.TextBox txtShowRobo;
         private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.CheckBox checkAllowDifferDST;
     }
 }

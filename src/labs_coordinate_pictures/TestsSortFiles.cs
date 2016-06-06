@@ -152,25 +152,25 @@ namespace labs_coordinate_pictures
             var dirFirst = TestUtil.GetTestSubDirectory("first");
             var dirSecond = TestUtil.GetTestSubDirectory("second");
             var settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, dirSecond, true, "0", false);
+                dirFirst, dirSecond, true, true, false);
 
             TestUtil.IsEq(true, settings.AllowFiletimesDifferForFAT);
+            TestUtil.IsEq(true, settings.AllowFiletimesDifferForDST);
             TestUtil.IsEq(dirSecond, settings.DestDirectory);
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(false, settings.Mirror);
-            TestUtil.IsEq(0, settings.ShiftFiletimeHours);
             TestUtil.IsStringArrayEq(null, settings.GetSkipDirectories());
             TestUtil.IsStringArrayEq(null, settings.GetSkipFiles());
             TestUtil.IsEq(dirFirst, settings.SourceDirectory);
 
             settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "a", "a\nb b\n\nc\n\n ",
-                dirSecond, dirFirst, false, "-1", true);
+                dirSecond, dirFirst, false, false, true);
 
             TestUtil.IsEq(false, settings.AllowFiletimesDifferForFAT);
+            TestUtil.IsEq(false, settings.AllowFiletimesDifferForDST);
             TestUtil.IsEq(dirFirst, settings.DestDirectory);
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(true, settings.Mirror);
-            TestUtil.IsEq(-1, settings.ShiftFiletimeHours);
             TestUtil.IsStringArrayEq("a", settings.GetSkipDirectories());
             TestUtil.IsStringArrayEq("a|b b|c", settings.GetSkipFiles());
             TestUtil.IsEq(dirSecond, settings.SourceDirectory);
@@ -181,38 +181,28 @@ namespace labs_coordinate_pictures
             var dirFirst = TestUtil.GetTestSubDirectory("first");
             var dirSecond = TestUtil.GetTestSubDirectory("second");
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SyncFiles, "", "",
-                dirFirst, dirSecond, true, "badshift0", true));
-
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SyncFiles, "", "",
-                dirFirst, dirSecond, true, "-1", true));
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+                Path.Combine(dirFirst, "notexist"), dirSecond, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                Path.Combine(dirFirst, "notexist"), dirSecond, true, "1", true));
+                dirFirst, Path.Combine(dirSecond, "notexist"), true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, Path.Combine(dirSecond, "notexist"), true, "1", true));
+                dirFirst + Path.DirectorySeparatorChar, dirSecond, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst + Path.DirectorySeparatorChar, dirSecond, true, "1", true));
+                dirFirst, dirSecond + Path.DirectorySeparatorChar, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, dirSecond + Path.DirectorySeparatorChar, true, "1", true));
-
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, dirFirst, true, "1", true));
+                dirFirst, dirFirst, true, true, true));
 
             Directory.CreateDirectory(Path.Combine(dirFirst, "sub"));
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, Path.Combine(dirFirst, "sub"), true, "1", true));
+                dirFirst, Path.Combine(dirFirst, "sub"), true, true, true));
 
-            // valid for shift time to be -1 if action is FindDupeFiles
-            TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
-                dirFirst, dirSecond, true, "-1", true) != null);
-
-            // valid for dest to be empty if action is FindDupeFilesInOneDir
+           // valid for dest to be empty if action is FindDupeFilesInOneDir
             TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDupesInOneDir, "", "",
-                dirFirst, "", true, "-1", true) != null);
+                dirFirst, "", true, false, true) != null);
         }
 
         static void WriteTextAndLastWriteTime(string dir, string path, string contents, DateTime basetime, int lastwritetime)

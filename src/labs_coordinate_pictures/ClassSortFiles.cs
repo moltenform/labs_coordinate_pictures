@@ -14,9 +14,9 @@ namespace labs_coordinate_pictures
         SyncFiles
     }
 
-    // numbers correspond with imageList index
     public enum FilePathsListViewItemType
     {
+        // numeric value used as index of an ImageList.
         None = 0,
         Changed_File = 1,
         Left_Only = 2,
@@ -29,10 +29,11 @@ namespace labs_coordinate_pictures
     {
         string[] _skipDirectories;
         string[] _skipFiles;
+
         public string SourceDirectory { get; set; }
         public string DestDirectory { get; set; }
         public bool AllowFiletimesDifferForFAT { get; set; }
-        public int ShiftFiletimeHours { get; set; }
+        public bool AllowFiletimesDifferForDST { get; set; }
         public bool Mirror { get; set; }
         public string LogFile { get; set; }
 
@@ -57,7 +58,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public static class RobocopySyncFiles
+    public static class SyncFilesWithRobocopy
     {
         public static string GetFullArgs(SortFilesSettings settings)
         {
@@ -78,7 +79,7 @@ namespace labs_coordinate_pictures
                 args.Add("/FFT");
             }
 
-            if (settings.ShiftFiletimeHours == 1)
+            if (settings.AllowFiletimesDifferForDST)
             {
                 args.Add("/DST");
             }
@@ -114,10 +115,12 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            var workingDir = Environment.SystemDirectory;
             string unused1, unused2;
-            int retcode = Utils.Run("robocopy.exe", GetArgs(settings), shellExecute: false, waitForExit: true,
-                hideWindow: true, getStdout: false, outStdout: out unused1, outStderr: out unused2, workingDir: workingDir);
+            var workingDir = Environment.SystemDirectory;
+            int retcode = Utils.Run("robocopy.exe", GetArgs(settings), shellExecute: false,
+                waitForExit: true, hideWindow: true, getStdout: false, outStdout: out unused1,
+                outStderr: out unused2, workingDir: workingDir);
+
             if (retcode != 0)
             {
                 Utils.MessageErr("Warning: non zero return code, " + retcode);
@@ -127,8 +130,10 @@ namespace labs_coordinate_pictures
                 Utils.MessageBox("Complete.");
             }
 
-            Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false, waitForExit: false,
-                hideWindow: false, getStdout: false, outStdout: out unused1, outStderr: out unused2, workingDir: workingDir);
+            // show log results in notepad
+            Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
+                waitForExit: false, hideWindow: false, getStdout: false, outStdout: out unused1,
+                outStderr: out unused2, workingDir: workingDir);
         }
     }
 
@@ -177,9 +182,9 @@ namespace labs_coordinate_pictures
             var di = new DirectoryInfo(settings.SourceDirectory);
             foreach (var fileInfo in di.EnumerateFiles("*", SearchOption.AllDirectories))
             {
-                var entryLeft = FileEntry.EntryFromFileInfo(fileInfo, fileInfo.FullName,
-                    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, settings.ShiftFiletimeHours);
-                indexFilesLeft[entryLeft.Filepath] = entryLeft;
+                //var entryLeft = FileEntry.EntryFromFileInfo(fileInfo, fileInfo.FullName,
+                //    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, settings.);
+                //indexFilesLeft[entryLeft.Filepath] = entryLeft;
             }
 
             // walk through files on the right
