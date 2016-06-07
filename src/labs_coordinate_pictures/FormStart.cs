@@ -304,12 +304,12 @@ namespace labs_coordinate_pictures
 
         private void findDuplicateFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ShowForm(new FormSortFiles(SortFilesAction.SearchDupes));
+            ShowForm(new FormSortFiles(SortFilesAction.SearchDuplicates));
         }
 
         private void findDuplicateFilesWithinOneFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ShowForm(new FormSortFiles(SortFilesAction.SearchDupesInOneDir));
+            ShowForm(new FormSortFiles(SortFilesAction.SearchDuplicatesInOneDir));
         }
 
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)

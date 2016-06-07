@@ -138,8 +138,6 @@
             // checkMirror
             // 
             this.checkMirror.AutoSize = true;
-            this.checkMirror.Checked = true;
-            this.checkMirror.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkMirror.Location = new System.Drawing.Point(15, 218);
             this.checkMirror.Name = "checkMirror";
             this.checkMirror.Size = new System.Drawing.Size(157, 17);

@@ -10,8 +10,8 @@ namespace labs_coordinate_pictures
 {
     public partial class FormSortFiles : Form
     {
-        PersistMostRecentlyUsedList _mruHistorySrc;
-        PersistMostRecentlyUsedList _mruHistoryDest;
+        PersistMostRecentlyUsedList _mruHistoryLeft;
+        PersistMostRecentlyUsedList _mruHistoryRight;
         SortFilesAction _action;
 
         public FormSortFiles(SortFilesAction action)
@@ -19,8 +19,8 @@ namespace labs_coordinate_pictures
             InitializeComponent();
 
             _action = action;
-            _mruHistorySrc = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectorySrc);
-            _mruHistoryDest = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectoryDest);
+            _mruHistoryLeft = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectoryLeft);
+            _mruHistoryRight = new PersistMostRecentlyUsedList(InputBoxHistory.SyncDirectoryRight);
             cmbLeftDir.DragDrop += new DragEventHandler(CmbOnDragDrop);
             cmbLeftDir.DragEnter += new DragEventHandler(CmbOnDragEnter);
             cmbRightDir.DragDrop += new DragEventHandler(CmbOnDragDrop);
@@ -36,31 +36,36 @@ namespace labs_coordinate_pictures
                 btnShowRobo.Visible = false;
                 txtShowRobo.Visible = false;
                 checkMirror.Visible = false;
+                checkPreview.Visible = false;
                 lblSkipDirs.Visible = false;
                 lblSkipFiles.Visible = false;
                 txtSkipDirs.Visible = false;
                 txtSkipFiles.Visible = false;
                 lblLeftDirDesc.Text = "Directory #1:";
                 lblRightDirDesc.Text = "Directory #2:";
-                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$", "4");
+                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$",
+                    SortFilesSearchDifferences.AllowDifferSeconds.ToString());
             }
             else
             {
-                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$", "2");
+                checkMirror.Checked = true;
+                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$",
+                    SyncFilesWithRobocopy.AllowDifferSeconds.ToString());
             }
 
             if (action == SortFilesAction.SearchDifferences)
             {
-                lblAction.Text = @"Search for differences in two similar folders. 
-Also checks if apparently-new files are actually just renamed files.";
+                lblAction.Text = @"Search for differences in two similar folders.";
+                checkMirror.Text = "Detect moved and renamed files";
+                checkMirror.Visible = true;
             }
-            else if (action == SortFilesAction.SearchDupes)
+            else if (action == SortFilesAction.SearchDuplicates)
             {
                 lblAction.Text = "Search for duplicate files.";
                 checkAllowDifferDST.Visible = false;
                 checkAllowDifferSeconds.Visible = false;
             }
-            else if (action == SortFilesAction.SearchDupesInOneDir)
+            else if (action == SortFilesAction.SearchDuplicatesInOneDir)
             {
                 lblAction.Text = "Search for duplicate files in a folder.";
                 lblLeftDirDesc.Text = "Directory:";
@@ -82,12 +87,12 @@ Also checks if apparently-new files are actually just renamed files.";
             cmbLeftDir.Items.Clear();
             cmbRightDir.Items.Clear();
 
-            foreach (var s in _mruHistorySrc.Get())
+            foreach (var s in _mruHistoryLeft.Get())
             {
                 cmbLeftDir.Items.Add(s);
             }
 
-            foreach (var s in _mruHistoryDest.Get())
+            foreach (var s in _mruHistoryRight.Get())
             {
                 cmbRightDir.Items.Add(s);
             }
@@ -117,15 +122,15 @@ Also checks if apparently-new files are actually just renamed files.";
 
         public static SortFilesSettings FillFromUI(SortFilesAction action,
             string skipDirs, string skipFiles,
-            string dirSrc, string dirDest,
+            string dirLeft, string dirRight,
             bool allowTimesDiffer, bool allowTimesDifferDst,
             bool mirror, bool previewOnly)
         {
             var settings = new SortFilesSettings();
-            settings.SetSkipDirectories(TextLineByLineToList(skipDirs));
-            settings.SetSkipFiles(TextLineByLineToList(skipFiles));
-            settings.SourceDirectory = dirSrc;
-            settings.DestDirectory = dirDest;
+            settings.SkipDirectories.AddRange(TextLineByLineToList(skipDirs));
+            settings.SkipFiles.AddRange(TextLineByLineToList(skipFiles));
+            settings.LeftDirectory = dirLeft;
+            settings.RightDirectory = dirRight;
             settings.AllowFiletimesDifferForFAT = allowTimesDiffer;
             settings.AllowFiletimesDifferForDST = allowTimesDifferDst;
             settings.Mirror = mirror;
@@ -133,28 +138,28 @@ Also checks if apparently-new files are actually just renamed files.";
             settings.LogFile = Path.Combine(TestUtil.GetTestWriteDirectory(),
                 "log" + Utils.GetRandomDigits() + ".txt");
 
-            if (!Directory.Exists(settings.SourceDirectory))
+            if (!Directory.Exists(settings.LeftDirectory))
             {
-                Utils.MessageErr("Directory does not exist " + settings.SourceDirectory, true);
+                Utils.MessageErr("Directory does not exist " + settings.LeftDirectory, true);
                 return null;
             }
-            else if (!Directory.Exists(settings.DestDirectory) && action != SortFilesAction.SearchDupesInOneDir)
+            else if (!Directory.Exists(settings.RightDirectory) && action != SortFilesAction.SearchDuplicatesInOneDir)
             {
-                Utils.MessageErr("Directory does not exist " + settings.DestDirectory, true);
+                Utils.MessageErr("Directory does not exist " + settings.RightDirectory, true);
                 return null;
             }
 
-            if (settings.SourceDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
-                settings.DestDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            if (settings.LeftDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                settings.RightDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 Utils.MessageErr("directory should not end with slash.", true);
                 return null;
             }
 
             // https://msdn.microsoft.com/en-us/library/dd465121.aspx recommends comparing filepaths with OrdinalIgnoreCase
-            if (action != SortFilesAction.SearchDupesInOneDir &&
-                (settings.SourceDirectory.StartsWith(settings.DestDirectory, StringComparison.OrdinalIgnoreCase) ||
-                settings.DestDirectory.StartsWith(settings.SourceDirectory, StringComparison.OrdinalIgnoreCase)))
+            if (action != SortFilesAction.SearchDuplicatesInOneDir &&
+                (settings.LeftDirectory.StartsWith(settings.RightDirectory, StringComparison.OrdinalIgnoreCase) ||
+                settings.RightDirectory.StartsWith(settings.LeftDirectory, StringComparison.OrdinalIgnoreCase)))
             {
                 Utils.MessageErr("directories must be distinct.", true);
                 return null;
@@ -171,8 +176,8 @@ Also checks if apparently-new files are actually just renamed files.";
                 return;
             }
 
-            _mruHistorySrc.AddToHistory(cmbLeftDir.Text);
-            _mruHistoryDest.AddToHistory(cmbRightDir.Text);
+            _mruHistoryLeft.AddToHistory(cmbLeftDir.Text);
+            _mruHistoryRight.AddToHistory(cmbRightDir.Text);
             RefreshComboListItems();
 
             txtShowRobo.Text = "";

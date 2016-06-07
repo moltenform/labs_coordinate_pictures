@@ -151,31 +151,31 @@ namespace labs_coordinate_pictures
         {
             var dirFirst = TestUtil.GetTestSubDirectory("first");
             var dirSecond = TestUtil.GetTestSubDirectory("second");
-            var settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            var settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, dirSecond, true, true, false, false);
 
             TestUtil.IsEq(true, settings.AllowFiletimesDifferForFAT);
             TestUtil.IsEq(true, settings.AllowFiletimesDifferForDST);
-            TestUtil.IsEq(dirSecond, settings.DestDirectory);
+            TestUtil.IsEq(dirSecond, settings.RightDirectory);
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(false, settings.Mirror);
             TestUtil.IsEq(false, settings.PreviewOnly);
-            TestUtil.IsStringArrayEq(null, settings.GetSkipDirectories());
-            TestUtil.IsStringArrayEq(null, settings.GetSkipFiles());
-            TestUtil.IsEq(dirFirst, settings.SourceDirectory);
+            TestUtil.IsStringArrayEq(null, settings.SkipDirectories);
+            TestUtil.IsStringArrayEq(null, settings.SkipFiles);
+            TestUtil.IsEq(dirFirst, settings.LeftDirectory);
 
-            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "a", "a\nb b\n\nc\n\n ",
+            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "a", "a\nb b\n\nc\n\n ",
                 dirSecond, dirFirst, false, false, true, true);
 
             TestUtil.IsEq(false, settings.AllowFiletimesDifferForFAT);
             TestUtil.IsEq(false, settings.AllowFiletimesDifferForDST);
-            TestUtil.IsEq(dirFirst, settings.DestDirectory);
+            TestUtil.IsEq(dirFirst, settings.RightDirectory);
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(true, settings.Mirror);
             TestUtil.IsEq(true, settings.PreviewOnly);
-            TestUtil.IsStringArrayEq("a", settings.GetSkipDirectories());
-            TestUtil.IsStringArrayEq("a|b b|c", settings.GetSkipFiles());
-            TestUtil.IsEq(dirSecond, settings.SourceDirectory);
+            TestUtil.IsStringArrayEq("a", settings.SkipDirectories);
+            TestUtil.IsStringArrayEq("a|b b|c", settings.SkipFiles);
+            TestUtil.IsEq(dirSecond, settings.LeftDirectory);
         }
 
         static void TestMethod_RejectBadFilesSettings()
@@ -183,27 +183,27 @@ namespace labs_coordinate_pictures
             var dirFirst = TestUtil.GetTestSubDirectory("first");
             var dirSecond = TestUtil.GetTestSubDirectory("second");
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 Path.Combine(dirFirst, "notexist"), dirSecond, true, true, true, true));
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, Path.Combine(dirSecond, "notexist"), true, true, true, true));
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst + Path.DirectorySeparatorChar, dirSecond, true, true, true, true));
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, dirSecond + Path.DirectorySeparatorChar, true, true, true, true));
 
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, dirFirst, true, true, true, true));
 
             Directory.CreateDirectory(Path.Combine(dirFirst, "sub"));
-            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDupes, "", "",
+            TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, Path.Combine(dirFirst, "sub"), true, true, true, true));
 
            // valid for dest to be empty if action is FindDupeFilesInOneDir
-            TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDupesInOneDir, "", "",
+            TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicatesInOneDir, "", "",
                 dirFirst, "", true, false, true, true) != null);
         }
 

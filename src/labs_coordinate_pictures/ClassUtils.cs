@@ -34,7 +34,7 @@ namespace labs_coordinate_pictures
         {
             string stdout, stderr;
             return Run(executable, args, shellExecute, waitForExit,
-                hideWindow, false, out stdout, out stderr);
+                hideWindow, false, out stdout, out stderr, null);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
@@ -42,13 +42,13 @@ namespace labs_coordinate_pictures
             bool hideWindow, out string stdout, out string stderr)
         {
             return Run(executable, args, shellExecute, waitForExit,
-                hideWindow, true, out stdout, out stderr);
+                hideWindow, true, out stdout, out stderr, null);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
         public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow, bool getStdout, out string outStdout,
-            out string outStderr, string workingDir = null)
+            out string outStderr, string workingDir)
         {
             var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = hideWindow;
@@ -472,6 +472,7 @@ namespace labs_coordinate_pictures
         {
             if (path == null || !File.Exists(path))
             {
+                // append the full path: it's not intuitive if all file-not-founds have the same 'hash'.
                 return "filenotfound:" + path;
             }
 

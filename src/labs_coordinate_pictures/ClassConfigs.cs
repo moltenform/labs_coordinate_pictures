@@ -65,8 +65,8 @@ namespace labs_coordinate_pictures
         MRURenameReplaceInName,
         MRUEditConvertResizeImage,
         MRUEditCategoriesString,
-        MRUSyncDirectorySrc,
-        MRUSyncDirectoryDest,
+        MRUSyncDirectoryLeft,
+        MRUSyncDirectoryRight,
     }
 
     // The inputbox dialog keeps a MRU list of recently used strings.
@@ -85,8 +85,8 @@ namespace labs_coordinate_pictures
         RenameReplaceInName,
         EditConvertResizeImage,
         EditCategoriesString,
-        SyncDirectorySrc,
-        SyncDirectoryDest,
+        SyncDirectoryLeft,
+        SyncDirectoryRight,
     }
 
     // Class for storing settings.
