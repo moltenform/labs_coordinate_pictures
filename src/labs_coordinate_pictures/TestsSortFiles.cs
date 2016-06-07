@@ -145,6 +145,80 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public static class CreateFileCombinations
+    {
+        enum ModifiedTimes { Same, RightOlder, RightNewer }
+        enum Content { Same, RightAltered, RightAppended }
+        enum Filename { Same, RightAppended }
+        enum ExtraCopies { None, OneOnLeft, TwoOnLeft, OneOnRight, TwoOnRight }
+
+        public static void Go(string dirLeft, string dirRight)
+        {
+            var baseTime = DateTime.Now;
+            foreach (ModifiedTimes m in Enum.GetValues(typeof(ModifiedTimes)))
+            {
+                foreach (Content c in Enum.GetValues(typeof(Content)))
+                {
+                    foreach (Filename f in Enum.GetValues(typeof(Filename)))
+                    {
+                        foreach (ExtraCopies copies in Enum.GetValues(typeof(ExtraCopies)))
+                        {
+                            Go(dirLeft, dirRight, baseTime, m, c, f, copies);
+                        }
+                    }
+                }
+            }
+        }
+
+        static void Go(string dirLeft, string dirRight, DateTime baseTime,
+            ModifiedTimes m, Content c, Filename f, ExtraCopies copies)
+        {
+            var baseName = m.ToString() + c.ToString() + f.ToString() + copies.ToString();
+            var fileLeft = Path.Combine(dirLeft, baseName + ".a");
+            var fileRight = Path.Combine(dirRight, baseName + (f == Filename.RightAppended ? ".aa" : ".a"));
+            WriteFiles(fileLeft, fileRight, baseTime, m, c);
+            switch (copies)
+            {
+                case ExtraCopies.OneOnLeft:
+                    File.Copy(fileLeft, fileLeft + "_1");
+                    break;
+                case ExtraCopies.TwoOnLeft:
+                    File.Copy(fileLeft, fileLeft + "_1");
+                    File.Copy(fileLeft, fileLeft + "_2");
+                    break;
+                case ExtraCopies.OneOnRight:
+                    File.Copy(fileRight, fileRight + "_1");
+                    break;
+                case ExtraCopies.TwoOnRight:
+                    File.Copy(fileRight, fileRight + "_1");
+                    File.Copy(fileRight, fileRight + "_2");
+                    break;
+            }
+        }
+
+        static void WriteFiles(string fileLeft, string fileRight, DateTime baseTime, ModifiedTimes m, Content c)
+        {
+            var addTime = (m == ModifiedTimes.RightNewer) ? 1 :
+                (m == ModifiedTimes.RightOlder) ? -1 : 0;
+            var contentsLeft = fileLeft;
+            var contentsRight = contentsLeft;
+            if (c == Content.RightAltered)
+            {
+                // replace first char with *
+                contentsRight = "*" + contentsRight.Substring(1);
+            }
+            else if (c == Content.RightAppended)
+            {
+                contentsRight += "***";
+            }
+
+            File.WriteAllText(fileLeft, contentsLeft);
+            File.SetLastWriteTimeUtc(fileLeft, baseTime);
+            File.WriteAllText(fileRight, contentsRight);
+            File.SetLastWriteTimeUtc(fileRight, baseTime.AddHours(addTime));
+        }
+    }
+
     public static class CoordinateFilesTests
     {
         static void TestMethod_ValidateGoodFilesSettings()
@@ -207,45 +281,18 @@ namespace labs_coordinate_pictures
                 dirFirst, "", true, false, true, true) != null);
         }
 
-        static void WriteTextAndLastWriteTime(string dir, string path, string contents, DateTime basetime, int lastwritetime)
+        static void WriteTextFile(string dir, string path, string contents, DateTime time)
         {
             File.WriteAllText(Path.Combine(dir, path), contents);
-            var time = basetime.AddMinutes(lastwritetime);
             File.SetLastWriteTimeUtc(Path.Combine(dir, path), time);
         }
 
-        static void TestMethod_HighLevelFindMovedFiles()
+        static void TestMethod_HighLevel()
         {
-            var dirFirst = TestUtil.GetTestSubDirectory("first_fndmved");
-            var dirSecond = TestUtil.GetTestSubDirectory("second_fndmved");
-            var baseTime = DateTime.Now;
-
-            // set up contents
-            WriteTextAndLastWriteTime(dirFirst, "a_same.txt", "0000", baseTime, 0);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffwritetimediffname1.txt", "0001", baseTime, 100);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffwritetime.txt", "0002", baseTime, 1);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffwritetimediffcontents.txt", "0003LL", baseTime, 1);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffsizediffcontents.txt", "0004LL", baseTime, 1);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffcontents.txt", "0005LL", baseTime, 8);
-            WriteTextAndLastWriteTime(dirFirst, "a_diffcontentsdiffname_1.txt", "0005LLL", baseTime, 9);
-            WriteTextAndLastWriteTime(dirFirst, "a_leftonly.txt", "0006LL", baseTime, 6);
-            WriteTextAndLastWriteTime(dirFirst, "a_moved_once1.txt", "0007", baseTime, 1);
-            WriteTextAndLastWriteTime(dirFirst, "a_moved_twice_a_1.txt", "0008", baseTime, 20);
-            WriteTextAndLastWriteTime(dirFirst, "a_moved_twice_b_1.txt", "0008", baseTime, 20);
-            WriteTextAndLastWriteTime(dirFirst, "a_moved_and_copied_1.txt", "0009", baseTime, 1);
-            WriteTextAndLastWriteTime(dirSecond, "a_same.txt", "0000", baseTime, 0);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffwritetimediffname2.txt", "0001", baseTime, 101);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffwritetime.txt", "0002", baseTime, 2);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffwritetimediffcontents.txt", "0003RR", baseTime, 2);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffsizediffcontents.txt", "0004RR::::", baseTime, 1);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffcontents.txt", "0005RR", baseTime, 8);
-            WriteTextAndLastWriteTime(dirSecond, "a_diffcontentsdiffname_2.txt", "0005RRR", baseTime, 9);
-            WriteTextAndLastWriteTime(dirSecond, "a_rightonly.txt", "0006RR", baseTime, 7);
-            WriteTextAndLastWriteTime(dirSecond, "a_moved_once2.txt", "0007", baseTime, 1);
-            WriteTextAndLastWriteTime(dirSecond, "a_moved_twice_a_2.txt", "0008", baseTime, 20);
-            WriteTextAndLastWriteTime(dirSecond, "a_moved_twice_b_2.txt", "0008", baseTime, 20);
-            WriteTextAndLastWriteTime(dirSecond, "a_moved_and_copied_2.txt", "0009", baseTime, 1);
-            WriteTextAndLastWriteTime(dirSecond, "a_moved_and_copied_3.txt", "0009", baseTime, 1);
+            var dirLeft = TestUtil.GetTestSubDirectory("first_fndmved");
+            var dirRight = TestUtil.GetTestSubDirectory("second_fndmved");
+            CreateFileCombinations.Go(dirLeft, dirRight);
+            var dirLeft5 = TestUtil.GetTestSubDirectory("first_fndmved");
         }
     }
 }
