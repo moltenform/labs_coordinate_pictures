@@ -18,8 +18,8 @@ namespace labs_coordinate_pictures
         // numeric value used as index of an ImageList.
         None = 0,
         Changed_File = 1,
-        Left_Only = 2,
-        Right_Only = 3,
+        Src_Only = 2,
+        Dest_Only = 3,
         Same_Contents = 4,
         Moved_File = 5,
     }
@@ -131,9 +131,16 @@ namespace labs_coordinate_pictures
             }
 
             // show log results in notepad
-            Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
-                waitForExit: false, hideWindow: false, getStdout: false, outStdout: out unused1,
-                outStderr: out unused2, workingDir: workingDir);
+            if (File.Exists(settings.LogFile))
+            {
+                Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
+                    waitForExit: false, hideWindow: false, getStdout: false, outStdout: out unused1,
+                    outStderr: out unused2, workingDir: workingDir);
+            }
+            else
+            {
+                Utils.MessageErr("Log file not found.");
+            }
         }
     }
 
@@ -198,7 +205,7 @@ namespace labs_coordinate_pictures
 
                 if (entryLeft == null)
                 {
-                    results.Add(new FilePathsListViewItem("", fileInfo.FullName, FilePathsListViewItemType.Right_Only,
+                    results.Add(new FilePathsListViewItem("", fileInfo.FullName, FilePathsListViewItemType.Dest_Only,
                         -1, -1, entryRight.Filesize, entryRight.LastModifiedTime));
                 }
                 else
@@ -223,7 +230,7 @@ namespace labs_coordinate_pictures
                 {
                     results.Add(new FilePathsListViewItem(
                         settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Value.Filepath,
-                        "", FilePathsListViewItemType.Left_Only,
+                        "", FilePathsListViewItemType.Src_Only,
                         entryLeft.Value.Filesize, entryLeft.Value.LastModifiedTime, -1, -1));
                 }
             }
@@ -238,7 +245,7 @@ namespace labs_coordinate_pictures
             var indexLeft = new Dictionary<Tuple<long, long>, List<FileEntry>>();
             foreach (var item in listAll)
             {
-                if (item.Status == FilePathsListViewItemType.Left_Only)
+                if (item.Status == FilePathsListViewItemType.Src_Only)
                 {
                     List<FileEntry> shortList;
                     var tp = Tuple.Create(item.FirstLastModifiedTime, item.FirstFileLength);
@@ -260,7 +267,7 @@ namespace labs_coordinate_pictures
             // walk through files on the right
             foreach (var item in listAll)
             {
-                if (item.Status == FilePathsListViewItemType.Right_Only)
+                if (item.Status == FilePathsListViewItemType.Dest_Only)
                 {
                     List<FileEntry> shortList;
                     var tp = Tuple.Create(item.SecondLastModifiedTime, item.SecondFileLength);
@@ -312,6 +319,122 @@ namespace labs_coordinate_pictures
             }
 
             return null;
+        }
+    }
+
+    public static class SortFilesSearchDifferences
+    {
+        public class FileInformation
+        {
+            public string _filename;
+            public long _filesize;
+            public DateTime _lastModifiedTime;
+            public bool _wasSeenInDest;
+        }
+
+        public class FileInformationForUI
+        {
+            public FileInformation _fileInfoLeft;
+            public FileInformation _fileInfoRight;
+            public FilePathsListViewItemType _type;
+
+            public FileInformationForUI(FileInformation left, FileInformation right,
+                FilePathsListViewItemType type)
+            {
+                _fileInfoLeft = left;
+                _fileInfoRight = right;
+                _type = type;
+            }
+        }
+
+        const int AllowDifferSeconds = 4;
+
+        public static List<FileInformationForUI> SearchDifferences(SortFilesSettings settings)
+        {
+            var ret = new List<FileInformationForUI>();
+            Dictionary<string, FileInformation> filesSrc =
+                new Dictionary<string, FileInformation>(StringComparer.OrdinalIgnoreCase);
+
+            // go through files in source
+            var diSrc = new DirectoryInfo(settings.SourceDirectory);
+            foreach (var fileInfo in diSrc.EnumerateFiles("*", SearchOption.AllDirectories))
+            {
+                var obj = new FileInformation();
+                obj._filename = fileInfo.FullName;
+                obj._filesize = fileInfo.Length;
+                obj._lastModifiedTime = fileInfo.LastWriteTimeUtc;
+                obj._wasSeenInDest = false;
+                filesSrc[obj._filename] = obj;
+            }
+
+            // go through files in dest
+            var diDest = new DirectoryInfo(settings.DestDirectory);
+            foreach (var fileInfo in diSrc.EnumerateFiles("*", SearchOption.AllDirectories))
+            {
+                FileInformation objSrc;
+                if (filesSrc.TryGetValue(fileInfo.FullName, out objSrc))
+                {
+                    objSrc._wasSeenInDest = true;
+                    if (objSrc._filesize != fileInfo.Length ||
+                        !AreTimesTheSame(objSrc._lastModifiedTime, fileInfo.LastWriteTimeUtc, settings))
+                    {
+                        var objDest = new FileInformation();
+                        objDest._filename = fileInfo.FullName;
+                        objDest._filesize = fileInfo.Length;
+                        objDest._lastModifiedTime = fileInfo.LastWriteTimeUtc;
+                        objDest._wasSeenInDest = true;
+                        ret.Add(new FileInformationForUI(objSrc, objDest, FilePathsListViewItemType.Changed_File));
+                    }
+                }
+                else
+                {
+                    // looks like a new file
+                    var objDest = new FileInformation();
+                    objDest._filename = fileInfo.FullName;
+                    objDest._filesize = fileInfo.Length;
+                    objDest._lastModifiedTime = fileInfo.LastWriteTimeUtc;
+                    objDest._wasSeenInDest = true;
+                    ret.Add(new FileInformationForUI(null, objDest, FilePathsListViewItemType.Dest_Only));
+                }
+            }
+
+            // which files did we see in src but not in dest?
+            foreach (var kvo in filesSrc)
+            {
+                if (!kvo.Value._wasSeenInDest)
+                {
+                    ret.Add(new FileInformationForUI(
+                        kvo.Value, null, FilePathsListViewItemType.Src_Only));
+                }
+            }
+
+            return ret;
+        }
+
+        public static bool AreTimesTheSameHelper(DateTime dt1, DateTime dt2, SortFilesSettings settings)
+        {
+            if (settings.AllowFiletimesDifferForFAT)
+            {
+                return Math.Abs(dt1.Ticks - dt2.Ticks) <= AllowDifferSeconds * TimeSpan.TicksPerSecond;
+            }
+            else
+            {
+                return dt1.Ticks == dt2.Ticks;
+            }
+        }
+
+        public static bool AreTimesTheSame(DateTime dt1, DateTime dt2, SortFilesSettings settings)
+        {
+            if (settings.AllowFiletimesDifferForDST)
+            {
+                return AreTimesTheSameHelper(dt1, dt2, settings)
+                    || AreTimesTheSameHelper(dt1, dt2.AddHours(1), settings)
+                    || AreTimesTheSameHelper(dt1, dt2.AddHours(-1), settings);
+            }
+            else
+            {
+                return AreTimesTheSameHelper(dt1, dt2, settings);
+            }
         }
     }
 }
