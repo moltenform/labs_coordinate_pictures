@@ -46,6 +46,7 @@
             this.txtShowRobo = new System.Windows.Forms.TextBox();
             this.btnStart = new System.Windows.Forms.Button();
             this.checkAllowDifferDST = new System.Windows.Forms.CheckBox();
+            this.checkPreview = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lblAction
@@ -139,7 +140,7 @@
             this.checkMirror.AutoSize = true;
             this.checkMirror.Checked = true;
             this.checkMirror.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkMirror.Location = new System.Drawing.Point(15, 220);
+            this.checkMirror.Location = new System.Drawing.Point(15, 218);
             this.checkMirror.Name = "checkMirror";
             this.checkMirror.Size = new System.Drawing.Size(157, 17);
             this.checkMirror.TabIndex = 3;
@@ -222,6 +223,16 @@
             this.checkAllowDifferDST.Text = "Allow file times to differ by exactly one hour (compensate for DST differences)";
             this.checkAllowDifferDST.UseVisualStyleBackColor = true;
             // 
+            // checkPreview
+            // 
+            this.checkPreview.AutoSize = true;
+            this.checkPreview.Location = new System.Drawing.Point(285, 218);
+            this.checkPreview.Name = "checkPreview";
+            this.checkPreview.Size = new System.Drawing.Size(86, 17);
+            this.checkPreview.TabIndex = 3;
+            this.checkPreview.Text = "Preview only";
+            this.checkPreview.UseVisualStyleBackColor = true;
+            // 
             // FormSortFiles
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -230,6 +241,7 @@
             this.Controls.Add(this.txtShowRobo);
             this.Controls.Add(this.txtSkipFiles);
             this.Controls.Add(this.txtSkipDirs);
+            this.Controls.Add(this.checkPreview);
             this.Controls.Add(this.checkMirror);
             this.Controls.Add(this.checkAllowDifferDST);
             this.Controls.Add(this.checkAllowDifferSeconds);
@@ -272,5 +284,6 @@
         private System.Windows.Forms.TextBox txtShowRobo;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.CheckBox checkAllowDifferDST;
+        private System.Windows.Forms.CheckBox checkPreview;
     }
 }

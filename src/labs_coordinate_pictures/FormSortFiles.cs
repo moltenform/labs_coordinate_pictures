@@ -42,26 +42,34 @@ namespace labs_coordinate_pictures
                 txtSkipFiles.Visible = false;
                 lblLeftDirDesc.Text = "Directory #1:";
                 lblRightDirDesc.Text = "Directory #2:";
-                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("2", "4");
+                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$", "4");
+            }
+            else
+            {
+                checkAllowDifferSeconds.Text = checkAllowDifferSeconds.Text.Replace("$", "2");
             }
 
             if (action == SortFilesAction.SearchDifferences)
             {
-                lblAction.Text = "Find moved files. Look for differences between directories from filenames and last modified times,\r\n and show which of these differences are simply moved files.";
+                lblAction.Text = @"Search for differences in two similar folders. 
+Also checks if apparently-new files are actually just renamed files.";
             }
             else if (action == SortFilesAction.SearchDupes)
             {
-                lblAction.Text = "Find duplicate files. Look for files with identical contents.";
+                lblAction.Text = "Search for duplicate files.";
+                checkAllowDifferDST.Visible = false;
+                checkAllowDifferSeconds.Visible = false;
             }
             else if (action == SortFilesAction.SearchDupesInOneDir)
             {
-                lblAction.Text = "Find duplicate files. Look for files with identical contents.";
+                lblAction.Text = "Search for duplicate files in a folder.";
                 lblLeftDirDesc.Text = "Directory:";
                 lblRightDirDesc.Text = "";
                 btnSetRightDir.Visible = false;
                 cmbRightDir.Visible = false;
                 btnSwap.Visible = false;
                 checkAllowDifferDST.Visible = false;
+                checkAllowDifferSeconds.Visible = false;
             }
             else if (action == SortFilesAction.SyncFiles)
             {
@@ -104,14 +112,14 @@ namespace labs_coordinate_pictures
             return FillFromUI(_action, txtSkipDirs.Text, txtSkipFiles.Text,
                 cmbLeftDir.Text, cmbRightDir.Text,
                 checkAllowDifferSeconds.Checked, checkAllowDifferDST.Checked,
-                checkMirror.Checked);
+                checkMirror.Checked, checkPreview.Checked);
         }
 
         public static SortFilesSettings FillFromUI(SortFilesAction action,
             string skipDirs, string skipFiles,
             string dirSrc, string dirDest,
             bool allowTimesDiffer, bool allowTimesDifferDst,
-            bool mirror)
+            bool mirror, bool previewOnly)
         {
             var settings = new SortFilesSettings();
             settings.SetSkipDirectories(TextLineByLineToList(skipDirs));
@@ -121,6 +129,7 @@ namespace labs_coordinate_pictures
             settings.AllowFiletimesDifferForFAT = allowTimesDiffer;
             settings.AllowFiletimesDifferForDST = allowTimesDifferDst;
             settings.Mirror = mirror;
+            settings.PreviewOnly = previewOnly;
             settings.LogFile = Path.Combine(TestUtil.GetTestWriteDirectory(),
                 "log" + Utils.GetRandomDigits() + ".txt");
 
@@ -156,6 +165,12 @@ namespace labs_coordinate_pictures
 
         void Start(bool showCommandLineOnly)
         {
+            if (_action == SortFilesAction.SyncFiles && !checkPreview.Checked && !showCommandLineOnly &&
+                !Utils.AskToConfirm("Are you sure you want to synchronize these files?"))
+            {
+                return;
+            }
+
             _mruHistorySrc.AddToHistory(cmbLeftDir.Text);
             _mruHistoryDest.AddToHistory(cmbRightDir.Text);
             RefreshComboListItems();

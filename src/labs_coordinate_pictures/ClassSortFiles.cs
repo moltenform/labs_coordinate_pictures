@@ -8,7 +8,6 @@ namespace labs_coordinate_pictures
     public enum SortFilesAction
     {
         SearchDifferences,
-        SearchDifferencesAndRenames,
         SearchDupes,
         SearchDupesInOneDir,
         SyncFiles
@@ -35,6 +34,7 @@ namespace labs_coordinate_pictures
         public bool AllowFiletimesDifferForFAT { get; set; }
         public bool AllowFiletimesDifferForDST { get; set; }
         public bool Mirror { get; set; }
+        public bool PreviewOnly { get; set; }
         public string LogFile { get; set; }
 
         public void SetSkipDirectories(string[] skipDirs)
@@ -89,6 +89,11 @@ namespace labs_coordinate_pictures
                 args.Add("/MIR");
             }
 
+            if (settings.PreviewOnly)
+            {
+                args.Add("/L");
+            }
+
             foreach (var s in settings.GetSkipDirectories())
             {
                 args.Add("/XD");
@@ -110,11 +115,6 @@ namespace labs_coordinate_pictures
 
         public static void Run(SortFilesSettings settings)
         {
-            if (!Utils.AskToConfirm("Sync files?"))
-            {
-                return;
-            }
-
             string unused1, unused2;
             var workingDir = Environment.SystemDirectory;
             int retcode = Utils.Run("robocopy.exe", GetArgs(settings), shellExecute: false,
