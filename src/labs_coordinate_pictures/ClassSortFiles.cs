@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
@@ -11,17 +12,6 @@ namespace labs_coordinate_pictures
         SearchDupes,
         SearchDupesInOneDir,
         SyncFiles
-    }
-
-    public enum FilePathsListViewItemType
-    {
-        // numeric value used as index of an ImageList.
-        None = 0,
-        Changed_File = 1,
-        Src_Only = 2,
-        Dest_Only = 3,
-        Same_Contents = 4,
-        Moved_File = 5,
     }
 
     public class SortFilesSettings
@@ -58,8 +48,54 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public class FileComparisonResult : ListViewItem
+    {
+        public FileInfoForComparison _fileInfoLeft;
+        public FileInfoForComparison _fileInfoRight;
+        public FileComparisonResultType _type;
+
+        public FileComparisonResult(FileInfoForComparison left, FileInfoForComparison right,
+            FileComparisonResultType type)
+        {
+            _fileInfoLeft = left;
+            _fileInfoRight = right;
+            _type = type;
+        }
+    }
+
+    public class FileInfoForComparison
+    {
+        public string _filename;
+        public long _filesize;
+        public DateTime _lastModifiedTime;
+        public bool _wasSeenInDest;
+        public string _contentHash;
+        public FileInfoForComparison(string filename, long filesize, DateTime lastModifiedTime,
+            string contentHash = null, bool wasSeenInDest = false)
+        {
+            _filename = filename;
+            _filesize = filesize;
+            _lastModifiedTime = lastModifiedTime;
+            _wasSeenInDest = wasSeenInDest;
+            _contentHash = contentHash;
+        }
+    }
+
+    public enum FileComparisonResultType
+    {
+        // numeric value used as index of an ImageList.
+        None = 0,
+        Changed_File = 1,
+        Src_Only = 2,
+        Dest_Only = 3,
+        Same_Contents = 4,
+        Moved_File = 5,
+    }
+
     public static class SyncFilesWithRobocopy
     {
+        public const int AllowDifferSeconds = 2;
+
         public static string GetFullArgs(SortFilesSettings settings)
         {
             var args = Utils.CombineProcessArguments(GetArgs(settings));
@@ -144,267 +180,160 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class FileEntry
+    public static class SortFilesSearchDuplicates
     {
-        public FileEntry(long lastModifiedTime, long filesize, string filepath)
+        public static Dictionary<long, List<FileInfoForComparison>> GetIndexByFilesize(string dirName)
         {
-            LastModifiedTime = lastModifiedTime;
-            Filesize = filesize;
-            Filepath = filepath;
-        }
+            // using a list better than subdictionaries, because for SearchDuplicatesInOneDirectory we want
+            // to track the order it was seen in, for consistency.
+            var ret = new Dictionary<long, List<FileInfoForComparison>>();
 
-        public long LastModifiedTime { get; set; }
-        public long Filesize { get; set; }
-        public string Filepath { get; set; }
-        public string Checksum { get; set; }
-        public bool Visited { get; set; }
-
-        public static FileEntry EntryFromFileInfo(FileInfo fileInfo, string fullpath, string stripPrefix,
-            bool roundLastModifiedTime, int adjustTimeHours)
-        {
-            var dt = fileInfo.LastWriteTimeUtc;
-            dt = dt.AddHours(adjustTimeHours);
-            long ticks = dt.Ticks;
-
-            if (roundLastModifiedTime)
+            var di = new DirectoryInfo(dirName);
+            foreach (var info in di.EnumerateFiles("*", SearchOption.AllDirectories))
             {
-                ticks >>= 2;
+                var filename = info.FullName.Substring(dirName.Length);
+                var obj = new FileInfoForComparison(
+                    filename, info.Length, info.LastWriteTimeUtc);
+
+                List<FileInfoForComparison> list;
+                var key = obj._filesize;
+                if (!ret.TryGetValue(key, out list))
+                {
+                    list = ret[key] = new List<FileInfoForComparison>();
+                }
+
+                list.Add(obj);
             }
 
-            var path = fullpath.Substring(stripPrefix.Length);
-            return new FileEntry(ticks, fileInfo.Length, path);
+            return ret;
+        }
+
+        public static List<FileComparisonResult> SearchDuplicatesAcrossDirectories(SortFilesSettings settings)
+        {
+            var ret = new List<FileComparisonResult>();
+            var indexSrc = GetIndexByFilesize(settings.SourceDirectory);
+
+            var diDest = new DirectoryInfo(settings.DestDirectory);
+            foreach (var info in diDest.EnumerateFiles("*", SearchOption.AllDirectories))
+            {
+                List<FileInfoForComparison> list;
+                if (indexSrc.TryGetValue(info.Length, out list))
+                {
+                    var hashDest = Utils.GetSha512(info.FullName);
+                    foreach (var listitem in list)
+                    {
+                        if (listitem._contentHash == null)
+                        {
+                            listitem._contentHash = Utils.GetSha512(Path.Combine(settings.SourceDirectory, listitem._filename));
+                        }
+
+                        if (listitem._contentHash == hashDest)
+                        {
+                            var filenameRight = info.FullName.Substring(settings.DestDirectory.Length);
+                            var objRight = new FileInfoForComparison(
+                                filenameRight, info.Length, info.LastWriteTimeUtc, hashDest);
+                            ret.Add(new FileComparisonResult(
+                                listitem, objRight, FileComparisonResultType.Same_Contents));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public static List<FileComparisonResult> SearchDuplicatesInOneDirectory(SortFilesSettings settings)
+        {
+            var ret = new List<FileComparisonResult>();
+            var index = GetIndexByFilesize(settings.SourceDirectory);
+            foreach (var list in index.Values)
+            {
+                if (list.Count > 1)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        list[i]._contentHash = Utils.GetSha512(Path.Combine(
+                            settings.SourceDirectory, list[i]._filename));
+
+                        // have we seen this hash before?
+                        // this is an n squared loop, but calculating content hashes is far more expensive.
+                        for (int j = 0; j < i; j++)
+                        {
+                            if (list[j]._contentHash == list[i]._contentHash)
+                            {
+                                ret.Add(new FileComparisonResult(
+                                    list[j], list[i], FileComparisonResultType.Same_Contents));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
         }
     }
 
-    public static class FindMovedFiles
-    {
-        // finds 'quick' differences. won't see cases where contents differ, but lmt and filesize are the same.
-        // returns (only on left, only on right, modified)
-        public static List<FilePathsListViewItem> FindQuickDifferencesByModifiedTimeAndFilesize(SortFilesSettings settings)
-        {
-            var results = new List<FilePathsListViewItem>();
-
-            // make an index of files on the left
-            var indexFilesLeft = new Dictionary<string, FileEntry>();
-            var di = new DirectoryInfo(settings.SourceDirectory);
-            foreach (var fileInfo in di.EnumerateFiles("*", SearchOption.AllDirectories))
-            {
-                //var entryLeft = FileEntry.EntryFromFileInfo(fileInfo, fileInfo.FullName,
-                //    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, settings.);
-                //indexFilesLeft[entryLeft.Filepath] = entryLeft;
-            }
-
-            // walk through files on the right
-            di = new DirectoryInfo(settings.DestDirectory);
-            foreach (var fileInfo in di.EnumerateFiles("*", SearchOption.AllDirectories))
-            {
-                var entryRight = FileEntry.EntryFromFileInfo(fileInfo, fileInfo.FullName,
-                    settings.SourceDirectory, settings.AllowFiletimesDifferForFAT, adjustTimeHours: 0);
-                FileEntry entryLeft;
-                indexFilesLeft.TryGetValue(entryRight.Filepath, out entryLeft);
-
-                if (entryLeft == null)
-                {
-                    results.Add(new FilePathsListViewItem("", fileInfo.FullName, FilePathsListViewItemType.Dest_Only,
-                        -1, -1, entryRight.Filesize, entryRight.LastModifiedTime));
-                }
-                else
-                {
-                    entryLeft.Visited = true;
-                    if (entryLeft.Filesize != entryRight.Filesize || entryLeft.LastModifiedTime != entryRight.LastModifiedTime)
-                    {
-                        results.Add(new FilePathsListViewItem(
-                            settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Filepath,
-                            settings.DestDirectory + Path.DirectorySeparatorChar + entryRight.Filepath,
-                            FilePathsListViewItemType.Changed_File,
-                            entryLeft.Filesize, entryLeft.LastModifiedTime,
-                            entryRight.Filesize, entryRight.LastModifiedTime));
-                    }
-                }
-            }
-
-            // find files that weren't seen on the right
-            foreach (var entryLeft in indexFilesLeft)
-            {
-                if (!entryLeft.Value.Visited)
-                {
-                    results.Add(new FilePathsListViewItem(
-                        settings.SourceDirectory + Path.DirectorySeparatorChar + entryLeft.Value.Filepath,
-                        "", FilePathsListViewItemType.Src_Only,
-                        entryLeft.Value.Filesize, entryLeft.Value.LastModifiedTime, -1, -1));
-                }
-            }
-
-            return results;
-        }
-
-        public static List<FilePathsListViewItem> DifferencesToFindDupes(FilePathsListViewItem[] listAll)
-        {
-            // make an index of files on the left
-            // map of (filesize, lmt) to FileEntry
-            var indexLeft = new Dictionary<Tuple<long, long>, List<FileEntry>>();
-            foreach (var item in listAll)
-            {
-                if (item.Status == FilePathsListViewItemType.Src_Only)
-                {
-                    List<FileEntry> shortList;
-                    var tp = Tuple.Create(item.FirstLastModifiedTime, item.FirstFileLength);
-                    indexLeft.TryGetValue(tp, out shortList);
-                    if (shortList == null)
-                    {
-                        shortList = new List<FileEntry>();
-                        indexLeft[tp] = shortList;
-                    }
-
-                    var entry = new FileEntry(item.FirstLastModifiedTime, item.FirstFileLength, item.FirstPath);
-                    shortList.Add(entry);
-                }
-            }
-
-            var moved = new Dictionary<string, bool>();
-            var results = new List<FilePathsListViewItem>();
-
-            // walk through files on the right
-            foreach (var item in listAll)
-            {
-                if (item.Status == FilePathsListViewItemType.Dest_Only)
-                {
-                    List<FileEntry> shortList;
-                    var tp = Tuple.Create(item.SecondLastModifiedTime, item.SecondFileLength);
-                    indexLeft.TryGetValue(tp, out shortList);
-                    var entryFound = IsPresentInList(shortList, moved, item.SecondLastModifiedTime, item.SecondFileLength, item.SecondPath);
-
-                    if (entryFound != null)
-                    {
-                        moved[entryFound.Filepath] = true;
-                        moved[item.SecondPath] = true;
-                        results.Add(new FilePathsListViewItem(entryFound.Filepath, item.SecondPath, FilePathsListViewItemType.Moved_File,
-                            entryFound.Filesize, entryFound.Filesize, item.SecondFileLength, item.SecondLastModifiedTime));
-                    }
-                }
-            }
-
-            // add the remaining ones
-            foreach (var item in listAll)
-            {
-                if (!moved.ContainsKey(item.FirstPath) && !moved.ContainsKey(item.SecondPath))
-                {
-                    results.Add(item);
-                }
-            }
-
-            return results;
-        }
-
-        static FileEntry IsPresentInList(List<FileEntry> list, Dictionary<string, bool> movedAlready, long lastModifiedTime, long filesize, string path)
-        {
-            if (list != null)
-            {
-                string checksumThis = Utils.GetSha512(path);
-                foreach (var entry in list)
-                {
-                    if (entry.Checksum == null)
-                    {
-                        entry.Checksum = Utils.GetSha512(path);
-                    }
-
-                    if (entry.Checksum == checksumThis &&
-                        entry.LastModifiedTime == lastModifiedTime &&
-                        entry.Filesize == filesize &&
-                        !movedAlready.ContainsKey(entry.Filepath))
-                    {
-                        return entry;
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
 
     public static class SortFilesSearchDifferences
     {
-        public class FileInformation
+
+        public const int AllowDifferSeconds = 4;
+
+        public static List<FileComparisonResult> SearchDifferences(SortFilesSettings settings)
         {
-            public string _filename;
-            public long _filesize;
-            public DateTime _lastModifiedTime;
-            public bool _wasSeenInDest;
-        }
-
-        public class FileInformationForUI
-        {
-            public FileInformation _fileInfoLeft;
-            public FileInformation _fileInfoRight;
-            public FilePathsListViewItemType _type;
-
-            public FileInformationForUI(FileInformation left, FileInformation right,
-                FilePathsListViewItemType type)
-            {
-                _fileInfoLeft = left;
-                _fileInfoRight = right;
-                _type = type;
-            }
-        }
-
-        const int AllowDifferSeconds = 4;
-
-        public static List<FileInformationForUI> SearchDifferences(SortFilesSettings settings)
-        {
-            var ret = new List<FileInformationForUI>();
-            Dictionary<string, FileInformation> filesSrc =
-                new Dictionary<string, FileInformation>(StringComparer.OrdinalIgnoreCase);
+            var ret = new List<FileComparisonResult>();
+            Dictionary<string, FileInfoForComparison> filesSrc =
+                new Dictionary<string, FileInfoForComparison>(StringComparer.OrdinalIgnoreCase);
 
             // go through files in source
             var diSrc = new DirectoryInfo(settings.SourceDirectory);
-            foreach (var fileInfo in diSrc.EnumerateFiles("*", SearchOption.AllDirectories))
+            foreach (var info in diSrc.EnumerateFiles("*", SearchOption.AllDirectories))
             {
-                var obj = new FileInformation();
-                obj._filename = fileInfo.FullName;
-                obj._filesize = fileInfo.Length;
-                obj._lastModifiedTime = fileInfo.LastWriteTimeUtc;
-                obj._wasSeenInDest = false;
-                filesSrc[obj._filename] = obj;
+                var filename = info.FullName.Substring(settings.SourceDirectory.Length);
+                filesSrc[filename] = new FileInfoForComparison(
+                    filename, info.Length, info.LastWriteTimeUtc);
             }
 
             // go through files in dest
             var diDest = new DirectoryInfo(settings.DestDirectory);
-            foreach (var fileInfo in diSrc.EnumerateFiles("*", SearchOption.AllDirectories))
+            foreach (var info in diDest.EnumerateFiles("*", SearchOption.AllDirectories))
             {
-                FileInformation objSrc;
-                if (filesSrc.TryGetValue(fileInfo.FullName, out objSrc))
+                FileInfoForComparison objSrc;
+                if (filesSrc.TryGetValue(info.FullName, out objSrc))
                 {
                     objSrc._wasSeenInDest = true;
-                    if (objSrc._filesize != fileInfo.Length ||
-                        !AreTimesTheSame(objSrc._lastModifiedTime, fileInfo.LastWriteTimeUtc, settings))
+                    if (objSrc._filesize != info.Length ||
+                        !AreTimesTheSame(objSrc._lastModifiedTime, info.LastWriteTimeUtc, settings))
                     {
-                        var objDest = new FileInformation();
-                        objDest._filename = fileInfo.FullName;
-                        objDest._filesize = fileInfo.Length;
-                        objDest._lastModifiedTime = fileInfo.LastWriteTimeUtc;
-                        objDest._wasSeenInDest = true;
-                        ret.Add(new FileInformationForUI(objSrc, objDest, FilePathsListViewItemType.Changed_File));
+                        // looks like a modified file. same path but different filesize/lmt.
+                        var filename = info.FullName.Substring(settings.DestDirectory.Length);
+                        var objDest = new FileInfoForComparison(
+                            filename, info.Length, info.LastWriteTimeUtc);
+                        ret.Add(new FileComparisonResult(
+                            objSrc, objDest, FileComparisonResultType.Changed_File));
                     }
                 }
                 else
                 {
                     // looks like a new file
-                    var objDest = new FileInformation();
-                    objDest._filename = fileInfo.FullName;
-                    objDest._filesize = fileInfo.Length;
-                    objDest._lastModifiedTime = fileInfo.LastWriteTimeUtc;
-                    objDest._wasSeenInDest = true;
-                    ret.Add(new FileInformationForUI(null, objDest, FilePathsListViewItemType.Dest_Only));
+                    var filename = info.FullName.Substring(settings.DestDirectory.Length);
+                    var objDest = new FileInfoForComparison(
+                        filename, info.Length, info.LastWriteTimeUtc);
+                    ret.Add(new FileComparisonResult(
+                        null, objDest, FileComparisonResultType.Dest_Only));
                 }
             }
 
             // which files did we see in src but not in dest?
-            foreach (var kvo in filesSrc)
+            foreach (var kvp in filesSrc)
             {
-                if (!kvo.Value._wasSeenInDest)
+                if (!kvp.Value._wasSeenInDest)
                 {
-                    ret.Add(new FileInformationForUI(
-                        kvo.Value, null, FilePathsListViewItemType.Src_Only));
+                    // looks like a deleted file since it didn't show up in the destination.
+                    ret.Add(new FileComparisonResult(
+                        kvp.Value, null, FileComparisonResultType.Src_Only));
                 }
             }
 

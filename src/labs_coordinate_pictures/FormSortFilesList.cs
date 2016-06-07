@@ -16,7 +16,7 @@ namespace labs_coordinate_pictures
         SortFilesSettings _settings;
         bool _startedLoading;
         bool _startedFindMovedFiles;
-        FilePathsListViewItem[] _list = new FilePathsListViewItem[] { };
+        FileComparisonResult[] _list = new FileComparisonResult[] { };
 
         public FormSortFilesList(SortFilesAction action, SortFilesSettings settings)
         {
@@ -63,67 +63,16 @@ namespace labs_coordinate_pictures
         void FindMovedFilesPartOne()
         {
             // iterate through directories, on worker thread
-            var items = FindMovedFiles.FindQuickDifferencesByModifiedTimeAndFilesize(_settings).ToArray();
+            //var items = FindMovedFiles.FindQuickDifferencesByModifiedTimeAndFilesize(_settings).ToArray();
 
             // update UI on main thread
             this.Invoke((MethodInvoker)(() =>
             {
-                this._list = items;
+                this._list = null; //todo: set items
                 this.listView.VirtualListSize = this._list.Length;
                 this.listView.Refresh();
-
-                lblAction.Text = "Currently shown: differences between directories.";
-                linkLabel1.Text = "Currently, differences between the directories are shown. \r\n" +
-                    "Click here to compute file hashes to see which \r\n" +
-                    "differences are just moved files.";
-                linkLabel1.Links.Clear();
-                linkLabel1.Links.Add(linkLabel1.Text.IndexOf("here ", StringComparison.Ordinal),
-                    "here".Length, "link");
+                
             }));
         }
-
-        void FindMovedFilesPartTwo()
-        {
-            // iterate through directories, on worker thread
-            var items = FindMovedFiles.DifferencesToFindDupes(this._list).ToArray();
-
-            // update UI on main thread
-            this.Invoke((MethodInvoker)(() =>
-            {
-                this._list = items;
-                this.listView.VirtualListSize = this._list.Length;
-                this.listView.Refresh();
-
-                lblAction.Text = "Currently shown: differences between directories, showing moved files.";
-                linkLabel1.Text = lblAction.Text;
-            }));
-        }
-    }
-
-    public class FilePathsListViewItem : ListViewItem
-    {
-        public FilePathsListViewItem(string firstPath, string secondPath, FilePathsListViewItemType status,
-            long firstlength, long firstfiletime, long secondlength, long secondfiletime)
-            : base(new string[] {
-                "File",
-                status.ToString().Replace("_", " "),
-                firstPath }, (int)status)
-        {
-            FirstPath = firstPath;
-            SecondPath = secondPath;
-            Status = status;
-            FirstFileLength = firstlength;
-            FirstLastModifiedTime = firstfiletime;
-            SecondFileLength = secondlength;
-            SecondLastModifiedTime = secondfiletime;
-        }
-
-        public string FirstPath { get; private set; }
-        public string SecondPath { get; private set; }
-        public FilePathsListViewItemType Status { get; private set; }
-        public long FirstFileLength { get; private set; }
-        public long FirstLastModifiedTime { get; private set; }
-        public long SecondFileLength { get; private set; }
-        public long SecondLastModifiedTime { get; private set; }
     }
 }
