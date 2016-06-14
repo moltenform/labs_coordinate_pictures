@@ -6,6 +6,26 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
+    // these are our four provided operations.
+    public enum SortFilesAction
+    {
+        SearchDifferences, // see SortFilesSearchDifferences
+        SearchDuplicates, // see SortFilesSearchDuplicates
+        SearchDuplicatesInOneDir, // see SortFilesSearchDuplicatesInOneDir
+        SyncFiles // see SyncFilesWithRobocopy
+    }
+
+    // result of comparison, also used as index into an ImageList.
+    public enum FileComparisonResultType
+    {
+        None = 0,
+        Changed_File = 1,
+        Left_Only = 2,
+        Right_Only = 3,
+        Same_Contents = 4,
+        Moved_File = 5,
+    }
+
     // models what is shown on the FormSortFiles form.
     public class SortFilesSettings
     {
@@ -65,30 +85,10 @@ namespace labs_coordinate_pictures
         public string ContentHash { get; set; }
     }
 
-    // result of comparison. numeric value used as index of an ImageList.
-    public enum FileComparisonResultType
-    {
-        None = 0,
-        Changed_File = 1,
-        Left_Only = 2,
-        Right_Only = 3,
-        Same_Contents = 4,
-        Moved_File = 5,
-    }
-
-    // these are our four provided operations.
-    public enum SortFilesAction
-    {
-        SearchDifferences, // see SortFilesSearchDifferences
-        SearchDuplicates, // see SortFilesSearchDuplicates
-        SearchDuplicatesInOneDir, // see SortFilesSearchDuplicatesInOneDir
-        SyncFiles // see SyncFilesWithRobocopy
-    }
-
     // sync files from one directory to another. (all work done by robocopy.exe)
     public static class SyncFilesWithRobocopy
     {
-        // for FAT systems with imprecise last-write-times.
+        // for filesystems like FAT that have imprecise last-write-times.
         public const int AllowDifferSeconds = 2;
 
         public static string GetFullArgs(SortFilesSettings settings)
@@ -175,72 +175,140 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public static class SortFilesSearchDifferencesAndDetectRenames
+    {
+        public static List<FileComparisonResult> Go(SortFilesSettings settings)
+        {
+            // renamed files appear as a left-only file and a right-only file with same contents
+            // this also helpfully detects files with different lmt but contents are the same
+            var differences = SortFilesSearchDifferences.Go(settings);
+            var left = from item in differences
+                               //where item.Type == FileComparisonResultType.Left_Only
+                           where item.FileInfoLeft != null
+                           select item.FileInfoLeft;
+            var right = from item in differences
+                            //where item.Type == FileComparisonResultType.Right_Only
+                           where item.FileInfoRight != null
+                            select item.FileInfoRight;
+
+            // look for any duplicates between the left-only files and the right-only files
+            var duplicates = SortFilesSearchDuplicates.Go(settings,
+                FileInfoFromComparison(settings.LeftDirectory, left),
+                FileInfoFromComparison(settings.RightDirectory, right));
+
+            // we now want to filter out the duplicates.
+            // 1) make a set of filenames already seen.
+            var alreadySeen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in duplicates)
+            {
+                alreadySeen.Add(settings.LeftDirectory + item.FileInfoLeft.Filename);
+                alreadySeen.Add(settings.RightDirectory + item.FileInfoRight.Filename);
+            }
+
+            // 2) filter out any entries referencing those filenames
+            // but: what if a changed file is also a duplicate.
+            // file A is changed to A', which happens to have the same contents has B.
+            // should we show this as a duplicate, or a change, or both?
+            // hard to solve this. maybe this feature can't be done elegantly.
+            var results = from item in differences
+                          where (item.FileInfoLeft == null ||
+                            !alreadySeen.Contains(settings.LeftDirectory + item.FileInfoLeft.Filename)) &&
+                          (item.FileInfoRight == null ||
+                            !alreadySeen.Contains(settings.RightDirectory + item.FileInfoRight.Filename))
+                          select item;
+
+            return results.Concat(duplicates).ToList();
+        }
+
+        public static IEnumerable<FileInfo> FileInfoFromComparison(string directory,
+            IEnumerable<FileInfoForComparison> list)
+        {
+            foreach (var obj in list)
+            {
+                var filename = directory + obj.Filename;
+                yield return new FileInfo(filename);
+            }
+        }
+    }
+
     public static class SortFilesSearchDifferences
     {
-        // for FAT systems with imprecise last-write-times.
+        // for filesystems like FAT that have imprecise last-write-times.
         public const int AllowDifferSeconds = 4;
 
-        public static List<FileComparisonResult> SearchDifferences(SortFilesSettings settings)
+        public static List<FileComparisonResult> Go(SortFilesSettings settings,
+            bool treatAllFilesAsModified = false)
         {
-            var ret = new List<FileComparisonResult>();
-            Dictionary<string, FileInfoForComparison> filesLeft =
-                new Dictionary<string, FileInfoForComparison>(StringComparer.OrdinalIgnoreCase);
+            var results = new List<FileComparisonResult>();
+            var filesInLeft = new Dictionary<string, FileInfoForComparison>(
+                StringComparer.OrdinalIgnoreCase);
 
             // go through files in left
             var diLeft = new DirectoryInfo(settings.LeftDirectory);
             foreach (var info in diLeft.EnumerateFiles("*", SearchOption.AllDirectories))
             {
                 var filename = info.FullName.Substring(settings.LeftDirectory.Length);
-                filesLeft[filename] = new FileInfoForComparison(
+                filesInLeft[filename] = new FileInfoForComparison(
                     filename, info.Length, info.LastWriteTimeUtc);
             }
 
             // go through files in right
+            int branchHit = 0;
             var diRight = new DirectoryInfo(settings.RightDirectory);
             foreach (var info in diRight.EnumerateFiles("*", SearchOption.AllDirectories))
             {
+                var filenameRight = info.FullName.Substring(settings.RightDirectory.Length);
                 FileInfoForComparison objLeft;
-                if (filesLeft.TryGetValue(info.FullName, out objLeft))
+                if (filesInLeft.TryGetValue(filenameRight, out objLeft))
                 {
                     objLeft.MarkWhenVisited = true;
                     if (objLeft.FileSize != info.Length ||
-                        !AreTimesTheSame(objLeft.LastModifiedTime, info.LastWriteTimeUtc, settings))
+                        !AreTimesEqual(objLeft.LastModifiedTime, info.LastWriteTimeUtc, settings) ||
+                        treatAllFilesAsModified)
                     {
                         // looks like a modified file. same path but different filesize/lmt.
                         var filename = info.FullName.Substring(settings.RightDirectory.Length);
                         var objRight = new FileInfoForComparison(
                             filename, info.Length, info.LastWriteTimeUtc);
-                        ret.Add(new FileComparisonResult(
+                        results.Add(new FileComparisonResult(
                             objLeft, objRight, FileComparisonResultType.Changed_File));
+                    }
+                    else
+                    {
+                        branchHit++;
                     }
                 }
                 else
                 {
                     // looks like a new file
-                    var filename = info.FullName.Substring(settings.RightDirectory.Length);
                     var objRight = new FileInfoForComparison(
-                        filename, info.Length, info.LastWriteTimeUtc);
-                    ret.Add(new FileComparisonResult(
+                        filenameRight, info.Length, info.LastWriteTimeUtc);
+                    results.Add(new FileComparisonResult(
                         null, objRight, FileComparisonResultType.Right_Only));
                 }
             }
 
             // which files did we see in left but not in right?
-            foreach (var kvp in filesLeft)
+            foreach (var kvp in filesInLeft)
             {
                 if (!kvp.Value.MarkWhenVisited)
                 {
                     // looks like a deleted file since it didn't show up on the right.
-                    ret.Add(new FileComparisonResult(
+                    results.Add(new FileComparisonResult(
                         kvp.Value, null, FileComparisonResultType.Left_Only));
+                }
+                else
+                {
+                    branchHit++;
                 }
             }
 
-            return ret;
+            return results;
         }
 
-        public static bool AreTimesTheSameHelper(DateTime dt1, DateTime dt2, SortFilesSettings settings)
+        static bool AreTimesEqualHelper(DateTime dt1, DateTime dt2, SortFilesSettings settings)
         {
+            int branchHit = 0;
             if (settings.AllowFiletimesDifferForFAT)
             {
                 // allow times to differ
@@ -249,34 +317,104 @@ namespace labs_coordinate_pictures
             else
             {
                 // times must be exact
-                return dt1.Ticks == dt2.Ticks;
+                var ret = dt1.Ticks == dt2.Ticks;
+                if (ret)
+                    branchHit++;
+                else
+                    branchHit--;
+                return ret;
             }
         }
 
-        public static bool AreTimesTheSame(DateTime dt1, DateTime dt2, SortFilesSettings settings)
+        public static bool AreTimesEqual(DateTime dt1, DateTime dt2, SortFilesSettings settings)
         {
             if (settings.AllowFiletimesDifferForDST)
             {
-                return AreTimesTheSameHelper(dt1, dt2, settings)
-                    || AreTimesTheSameHelper(dt1, dt2.AddHours(1), settings)
-                    || AreTimesTheSameHelper(dt1, dt2.AddHours(-1), settings);
+                return AreTimesEqualHelper(dt1, dt2, settings)
+                    || AreTimesEqualHelper(dt1, dt2.AddHours(1), settings)
+                    || AreTimesEqualHelper(dt1, dt2.AddHours(-1), settings);
             }
             else
             {
-                return AreTimesTheSameHelper(dt1, dt2, settings);
+                return AreTimesEqualHelper(dt1, dt2, settings);
             }
         }
     }
 
     public static class SortFilesSearchDuplicates
     {
-        public static Dictionary<long, List<FileInfoForComparison>> CreateMappingFilesizeToFilename(
+        public static List<FileComparisonResult> Go(SortFilesSettings settings,
+            IEnumerable<FileInfo> filesInLeft,
+            IEnumerable<FileInfo> filesInRight)
+        {
+            // first, just make an index that simply maps filesizes to filenames.
+            // we don't need to compute any content-hashes yet, because if there
+            // is only one file with that filesize, we know it's not a duplicate.
+            var results = new List<FileComparisonResult>();
+            var indexLeft = MapFilesizesToFilenames(settings.LeftDirectory, filesInLeft);
+            int branchHit = 0;
+
+            // go through files on the right
+            foreach (var infoRight in filesInRight)
+            {
+                List<FileInfoForComparison> list;
+                if (indexLeft.TryGetValue(infoRight.Length, out list))
+                {
+                    // we found another file(s) with the same filesize, so
+                    // let's compare hashes of the content to see if they're the same.
+                    var hashRight = Utils.GetSha512(infoRight.FullName);
+                    foreach (var objLeft in list)
+                    {
+                        // compute the hash if it hasn't been computed already
+                        if (objLeft.ContentHash == null)
+                        {
+                            objLeft.ContentHash = Utils.GetSha512(
+                                settings.LeftDirectory + objLeft.Filename);
+                        }
+                        else
+                        {
+                            branchHit++;
+                        }
+
+                        if (objLeft.ContentHash == hashRight)
+                        {
+                            // these are duplicates, they have the same hash and filesize.
+                            var filenameRight = infoRight.FullName.Substring(
+                                settings.RightDirectory.Length);
+                            var objRight = new FileInfoForComparison(
+                                filenameRight, infoRight.Length, infoRight.LastWriteTimeUtc, hashRight);
+                            results.Add(new FileComparisonResult(
+                                objLeft, objRight, FileComparisonResultType.Same_Contents));
+                            break;
+                        }
+                        else
+                        {
+                            branchHit++;
+                        }
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public static List<FileComparisonResult> Go(
+            SortFilesSettings settings)
+        {
+            var diLeft = new DirectoryInfo(settings.LeftDirectory);
+            var diRight = new DirectoryInfo(settings.RightDirectory);
+            return Go(settings,
+                diLeft.EnumerateFiles("*", SearchOption.AllDirectories),
+                diRight.EnumerateFiles("*", SearchOption.AllDirectories));
+        }
+
+        public static Dictionary<long, List<FileInfoForComparison>> MapFilesizesToFilenames(
             string dirName, IEnumerable<FileInfo> files)
         {
-            // there can be many files with the same size, so it needs to map from size to a collection
-            // use a List instead of a Dict for these small collections, because
-            // maintaining inserted order makes results that are more intuitive to the user.
-            var ret = new Dictionary<long, List<FileInfoForComparison>>();
+            // map filesize to List<FileInfoForComparison> or HashSet<FileInfoForComparison>?
+            // chose List<>; maintaining inserted order makes results that look nicer to the user.
+            var map = new Dictionary<long, List<FileInfoForComparison>>();
+            int branchHit = 0;
             foreach (var info in files)
             {
                 var filename = info.FullName.Substring(dirName.Length);
@@ -284,152 +422,89 @@ namespace labs_coordinate_pictures
                     filename, info.Length, info.LastWriteTimeUtc);
 
                 List<FileInfoForComparison> list;
-                if (!ret.TryGetValue(obj.FileSize, out list))
+                if (!map.TryGetValue(obj.FileSize, out list))
                 {
-                    list = ret[obj.FileSize] = new List<FileInfoForComparison>();
+                    list = map[obj.FileSize] = new List<FileInfoForComparison>();
+                }
+                else
+                {
+                    branchHit++;
                 }
 
                 list.Add(obj);
             }
 
-            return ret;
+            return map;
         }
+    }
 
-        public static List<FileComparisonResult> SearchDuplicatesAcrossDirectories(
-            SortFilesSettings settings, IEnumerable<FileInfo> leftFiles, IEnumerable<FileInfo> rightFiles)
+    public static class SortFilesSearchDuplicatesInOneDir
+    {
+        public static List<FileComparisonResult> Go(SortFilesSettings settings)
         {
-            var ret = new List<FileComparisonResult>();
-            var indexLeft = CreateMappingFilesizeToFilename(settings.LeftDirectory, leftFiles);
-
-            foreach (var info in rightFiles)
-            {
-                List<FileInfoForComparison> list;
-                if (indexLeft.TryGetValue(info.Length, out list))
-                {
-                    var hashRight = Utils.GetSha512(info.FullName);
-                    foreach (var listitem in list)
-                    {
-                        if (listitem.ContentHash == null)
-                        {
-                            listitem.ContentHash = Utils.GetSha512(Path.Combine(
-                                settings.LeftDirectory, listitem.Filename));
-                        }
-
-                        if (listitem.ContentHash == hashRight)
-                        {
-                            var filenameRight = info.FullName.Substring(settings.RightDirectory.Length);
-                            var objRight = new FileInfoForComparison(
-                                filenameRight, info.Length, info.LastWriteTimeUtc, hashRight);
-                            ret.Add(new FileComparisonResult(
-                                listitem, objRight, FileComparisonResultType.Same_Contents));
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-        public static List<FileComparisonResult> SearchDuplicatesInOneDirectory(SortFilesSettings settings)
-        {
-            var ret = new List<FileComparisonResult>();
+            // first, just make an index that simply maps filesizes to filenames.
+            // we don't need to compute any content-hashes yet, because if there
+            // is only one file with that filesize, we know it's not a duplicate.
+            var results = new List<FileComparisonResult>();
             var di = new DirectoryInfo(settings.LeftDirectory);
-            var index = CreateMappingFilesizeToFilename(settings.LeftDirectory,
+            int branchHit = 0;
+            var index = SortFilesSearchDuplicates.MapFilesizesToFilenames(
+                settings.LeftDirectory,
                 di.EnumerateFiles("*", SearchOption.AllDirectories));
 
             foreach (var list in index.Values)
             {
                 if (list.Count > 1)
                 {
+                    // if there's more than one file with the same filesize,
+                    // compute hashes of contents to look for duplicates.
                     for (int i = 0; i < list.Count; i++)
                     {
-                        list[i].ContentHash = Utils.GetSha512(Path.Combine(
-                            settings.LeftDirectory, list[i].Filename));
+                        list[i].ContentHash = Utils.GetSha512(
+                            settings.LeftDirectory + list[i].Filename);
 
-                        // have we seen this hash before?
-                        // this is an n squared loop, but calculating content hashes is far more expensive.
+                        // have we seen this hash before? this is an n-squared loop, but
+                        // basically amortized by the cost of computing hashes.
+                        bool found = false;
                         for (int j = 0; j < i; j++)
                         {
                             if (list[j].ContentHash == list[i].ContentHash)
                             {
-                                ret.Add(new FileComparisonResult(
+                                // consistently put the first-appearing file on the 'left' side
+                                // so that the user can conveniently safely delete all on 'right'.
+                                results.Add(new FileComparisonResult(
                                     list[j], list[i], FileComparisonResultType.Same_Contents));
+                                found = true;
                                 break;
                             }
+                            else
+                            {
+                                branchHit++;
+                            }
+                        }
+
+                        if (i == 0)
+                        {
+                            branchHit++;
+                        }
+
+                        if (found)
+                        {
+                            branchHit++;
+                        }
+                        else
+                        {
+                            branchHit++;
                         }
                     }
                 }
-            }
-
-            return ret;
-        }
-
-        public static List<FileComparisonResult> SearchDuplicatesAcrossDirectories(
-            SortFilesSettings settings)
-        {
-            var diLeft = new DirectoryInfo(settings.LeftDirectory);
-            var diRight = new DirectoryInfo(settings.LeftDirectory);
-            return SearchDuplicatesAcrossDirectories(settings,
-                diLeft.EnumerateFiles("*", SearchOption.AllDirectories),
-                diRight.EnumerateFiles("*", SearchOption.AllDirectories));
-        }
-    }
-
-    public static class SortFilesSearchDifferencesAndDetectRenames
-    {
-        public static IEnumerable<FileInfo> GetFileInfos(string directory,
-            List<FileInfoForComparison> list)
-        {
-            foreach (var obj in list)
-            {
-                var filename = Path.Combine(directory, obj.Filename);
-                yield return new FileInfo(filename);
-            }
-        }
-
-        public static List<FileComparisonResult> SearchDifferencesAndDetectRenames(SortFilesSettings settings)
-        {
-            var differences = SortFilesSearchDifferences.SearchDifferences(settings);
-
-            // separate the list based on what type of action.
-            var listLeftOnly = new List<FileInfoForComparison>();
-            var listRightOnly = new List<FileInfoForComparison>();
-            foreach (var obj in differences)
-            {
-                if (obj.Type == FileComparisonResultType.Left_Only)
+                else
                 {
-                    listLeftOnly.Add(obj.FileInfoLeft);
-                }
-                else if (obj.Type == FileComparisonResultType.Right_Only)
-                {
-                    listRightOnly.Add(obj.FileInfoRight);
+                    branchHit++;
                 }
             }
 
-            // look for any duplicates between the left-only files and the right-only files
-            var duplicates = SortFilesSearchDuplicates.SearchDuplicatesAcrossDirectories(settings,
-                GetFileInfos(settings.LeftDirectory, listLeftOnly),
-                GetFileInfos(settings.RightDirectory, listRightOnly));
-
-            // make a dictionary marking everything we saw that was a duplicate
-            var dictAlreadySeenLeft = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var dictAlreadySeenRight = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var item in duplicates)
-            {
-                dictAlreadySeenLeft.Add(item.FileInfoLeft.Filename);
-                dictAlreadySeenRight.Add(item.FileInfoRight.Filename);
-            }
-
-            var results = from item in differences
-                          where ((item.FileInfoLeft == null || !dictAlreadySeenLeft.Contains(item.FileInfoLeft.Filename))
-                          &&
-                          (item.FileInfoRight == null || !dictAlreadySeenRight.Contains(item.FileInfoRight.Filename)))
-                          select item;
-
-            return results.Concat(duplicates).ToList();
+            return results;
         }
     }
-
-
 }
