@@ -144,7 +144,7 @@ namespace labs_coordinate_pictures
             return args.ToArray();
         }
 
-        public static void Run(SortFilesSettings settings)
+        public static void Go(SortFilesSettings settings)
         {
             string unused;
             var workingDir = Environment.SystemDirectory;
@@ -175,62 +175,6 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public static class SortFilesSearchDifferencesAndDetectRenames
-    {
-        public static List<FileComparisonResult> Go(SortFilesSettings settings)
-        {
-            // renamed files appear as a left-only file and a right-only file with same contents
-            // this also helpfully detects files with different lmt but contents are the same
-            var differences = SortFilesSearchDifferences.Go(settings);
-            var left = from item in differences
-                               //where item.Type == FileComparisonResultType.Left_Only
-                           where item.FileInfoLeft != null
-                           select item.FileInfoLeft;
-            var right = from item in differences
-                            //where item.Type == FileComparisonResultType.Right_Only
-                           where item.FileInfoRight != null
-                            select item.FileInfoRight;
-
-            // look for any duplicates between the left-only files and the right-only files
-            var duplicates = SortFilesSearchDuplicates.Go(settings,
-                FileInfoFromComparison(settings.LeftDirectory, left),
-                FileInfoFromComparison(settings.RightDirectory, right));
-
-            // we now want to filter out the duplicates.
-            // 1) make a set of filenames already seen.
-            var alreadySeen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var item in duplicates)
-            {
-                alreadySeen.Add(settings.LeftDirectory + item.FileInfoLeft.Filename);
-                alreadySeen.Add(settings.RightDirectory + item.FileInfoRight.Filename);
-            }
-
-            // 2) filter out any entries referencing those filenames
-            // but: what if a changed file is also a duplicate.
-            // file A is changed to A', which happens to have the same contents has B.
-            // should we show this as a duplicate, or a change, or both?
-            // hard to solve this. maybe this feature can't be done elegantly.
-            var results = from item in differences
-                          where (item.FileInfoLeft == null ||
-                            !alreadySeen.Contains(settings.LeftDirectory + item.FileInfoLeft.Filename)) &&
-                          (item.FileInfoRight == null ||
-                            !alreadySeen.Contains(settings.RightDirectory + item.FileInfoRight.Filename))
-                          select item;
-
-            return results.Concat(duplicates).ToList();
-        }
-
-        public static IEnumerable<FileInfo> FileInfoFromComparison(string directory,
-            IEnumerable<FileInfoForComparison> list)
-        {
-            foreach (var obj in list)
-            {
-                var filename = directory + obj.Filename;
-                yield return new FileInfo(filename);
-            }
-        }
-    }
-
     public static class SortFilesSearchDifferences
     {
         // for filesystems like FAT that have imprecise last-write-times.
@@ -253,7 +197,6 @@ namespace labs_coordinate_pictures
             }
 
             // go through files in right
-            int branchHit = 0;
             var diRight = new DirectoryInfo(settings.RightDirectory);
             foreach (var info in diRight.EnumerateFiles("*", SearchOption.AllDirectories))
             {
@@ -272,10 +215,6 @@ namespace labs_coordinate_pictures
                             filename, info.Length, info.LastWriteTimeUtc);
                         results.Add(new FileComparisonResult(
                             objLeft, objRight, FileComparisonResultType.Changed_File));
-                    }
-                    else
-                    {
-                        branchHit++;
                     }
                 }
                 else
@@ -297,10 +236,6 @@ namespace labs_coordinate_pictures
                     results.Add(new FileComparisonResult(
                         kvp.Value, null, FileComparisonResultType.Left_Only));
                 }
-                else
-                {
-                    branchHit++;
-                }
             }
 
             return results;
@@ -308,7 +243,6 @@ namespace labs_coordinate_pictures
 
         static bool AreTimesEqualHelper(DateTime dt1, DateTime dt2, SortFilesSettings settings)
         {
-            int branchHit = 0;
             if (settings.AllowFiletimesDifferForFAT)
             {
                 // allow times to differ
@@ -318,10 +252,6 @@ namespace labs_coordinate_pictures
             {
                 // times must be exact
                 var ret = dt1.Ticks == dt2.Ticks;
-                if (ret)
-                    branchHit++;
-                else
-                    branchHit--;
                 return ret;
             }
         }
@@ -352,7 +282,6 @@ namespace labs_coordinate_pictures
             // is only one file with that filesize, we know it's not a duplicate.
             var results = new List<FileComparisonResult>();
             var indexLeft = MapFilesizesToFilenames(settings.LeftDirectory, filesInLeft);
-            int branchHit = 0;
 
             // go through files on the right
             foreach (var infoRight in filesInRight)
@@ -371,10 +300,6 @@ namespace labs_coordinate_pictures
                             objLeft.ContentHash = Utils.GetSha512(
                                 settings.LeftDirectory + objLeft.Filename);
                         }
-                        else
-                        {
-                            branchHit++;
-                        }
 
                         if (objLeft.ContentHash == hashRight)
                         {
@@ -386,10 +311,6 @@ namespace labs_coordinate_pictures
                             results.Add(new FileComparisonResult(
                                 objLeft, objRight, FileComparisonResultType.Same_Contents));
                             break;
-                        }
-                        else
-                        {
-                            branchHit++;
                         }
                     }
                 }
@@ -414,7 +335,6 @@ namespace labs_coordinate_pictures
             // map filesize to List<FileInfoForComparison> or HashSet<FileInfoForComparison>?
             // chose List<>; maintaining inserted order makes results that look nicer to the user.
             var map = new Dictionary<long, List<FileInfoForComparison>>();
-            int branchHit = 0;
             foreach (var info in files)
             {
                 var filename = info.FullName.Substring(dirName.Length);
@@ -425,10 +345,6 @@ namespace labs_coordinate_pictures
                 if (!map.TryGetValue(obj.FileSize, out list))
                 {
                     list = map[obj.FileSize] = new List<FileInfoForComparison>();
-                }
-                else
-                {
-                    branchHit++;
                 }
 
                 list.Add(obj);
@@ -447,7 +363,6 @@ namespace labs_coordinate_pictures
             // is only one file with that filesize, we know it's not a duplicate.
             var results = new List<FileComparisonResult>();
             var di = new DirectoryInfo(settings.LeftDirectory);
-            int branchHit = 0;
             var index = SortFilesSearchDuplicates.MapFilesizesToFilenames(
                 settings.LeftDirectory,
                 di.EnumerateFiles("*", SearchOption.AllDirectories));
@@ -477,30 +392,8 @@ namespace labs_coordinate_pictures
                                 found = true;
                                 break;
                             }
-                            else
-                            {
-                                branchHit++;
-                            }
-                        }
-
-                        if (i == 0)
-                        {
-                            branchHit++;
-                        }
-
-                        if (found)
-                        {
-                            branchHit++;
-                        }
-                        else
-                        {
-                            branchHit++;
                         }
                     }
-                }
-                else
-                {
-                    branchHit++;
                 }
             }
 

@@ -145,12 +145,30 @@ namespace labs_coordinate_pictures
         }
     }
 
-    enum ModifiedTimes { SmTime, MTime }
-    enum Content { SmText, AltText, AddText }
-    enum Filename { SmName, MName }
-    enum ExtraCopies { None, OneOnLeft, OneOnRight }
     public static class CreateFileCombinations
     {
+        enum ModifiedTimes {
+            SmTime,
+            MTime
+        }
+
+        enum Content {
+            SmText,
+            AltText,
+            AddText
+        }
+
+        enum Filename {
+            SmName,
+            MName
+        }
+
+        enum ExtraCopies {
+            None,
+            OneOnLeft,
+            OneOnRight
+        }
+
         public static int Go(string dirLeft, string dirRight)
         {
             int filesCreated = 0;
@@ -170,6 +188,21 @@ namespace labs_coordinate_pictures
             }
 
             return filesCreated;
+        }
+
+        public static int CountPossibleModifiedTimes()
+        {
+            return Enum.GetValues(typeof(ModifiedTimes)).Length;
+        }
+
+        public static int CountPossibleContents()
+        {
+            return Enum.GetValues(typeof(Content)).Length;
+        }
+
+        public static int CountPossibleFilenames()
+        {
+            return Enum.GetValues(typeof(Filename)).Length;
         }
 
         static int Go(string dirLeft, string dirRight, DateTime baseTime,
@@ -321,18 +354,18 @@ namespace labs_coordinate_pictures
             settings.RightDirectory = TestUtil.GetTestSubDirectory("right_fndmved");
             var filesCreated = CreateFileCombinations.Go(settings.LeftDirectory, settings.RightDirectory);
             TestUtil.IsEq(
-                Enum.GetValues(typeof(ModifiedTimes)).Length *
-                Enum.GetValues(typeof(Content)).Length *
-                Enum.GetValues(typeof(Filename)).Length *
+                CreateFileCombinations.CountPossibleModifiedTimes() *
+                CreateFileCombinations.CountPossibleContents() *
+                CreateFileCombinations.CountPossibleFilenames() *
                 ((1 * 2) + (3 * 2)), // ExtraCopies.None -> 2 files, the rest -> 3 files
                 filesCreated);
 
             // search for duplicates in one directory. The only ones it will find are the 'extra copy on left.'
             var results = SortFilesSearchDuplicatesInOneDir.Go(settings);
             TestUtil.IsEq(
-                Enum.GetValues(typeof(ModifiedTimes)).Length *
-                Enum.GetValues(typeof(Content)).Length *
-                Enum.GetValues(typeof(Filename)).Length, results.Count);
+                CreateFileCombinations.CountPossibleModifiedTimes() *
+                CreateFileCombinations.CountPossibleContents() *
+                CreateFileCombinations.CountPossibleFilenames(), results.Count);
 
             // verify sort order. for each pair, the left side should be the one that sorts first alphabetically
             var expectedDuplicates = @"MTimeAddTextMNameOneOnLeft.a|MTimeAddTextMNameOneOnLeft.a_1|Same_Contents
@@ -463,10 +496,6 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a
 SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             TestUtil.IsEq(filesCreated,
                 CountFilenames(expectedDifferences) + CountFilenames(expectedSame));
-
-            //results = SortFilesSearchDifferencesAndDetectRenames.Go(settings);
-            //expectedDifferences = @"";
-            //CompareResultsToString(results, expectedDifferences);
         }
     }
 }

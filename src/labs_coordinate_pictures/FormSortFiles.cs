@@ -56,8 +56,6 @@ namespace labs_coordinate_pictures
             if (action == SortFilesAction.SearchDifferences)
             {
                 lblAction.Text = @"Search for differences in two similar folders.";
-                checkMirror.Text = "Detect moved and renamed files";
-                checkMirror.Visible = true;
             }
             else if (action == SortFilesAction.SearchDuplicates)
             {
@@ -198,7 +196,7 @@ namespace labs_coordinate_pictures
                 {
                     Utils.RunLongActionInThread(this, new Action(() =>
                     {
-                        SyncFilesWithRobocopy.Run(settings);
+                        SyncFilesWithRobocopy.Go(settings);
                     }));
                 }
             }
