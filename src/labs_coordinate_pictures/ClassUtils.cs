@@ -16,17 +16,9 @@ namespace labs_coordinate_pictures
 {
     public static class Utils
     {
+        public static readonly string PathSep = Path.DirectorySeparatorChar.ToString();
+        public static readonly string NL = Environment.NewLine;
         static Random random = new Random();
-
-        public static void OpenDirInExplorer(string sDir)
-        {
-            Process.Start("explorer.exe", "\"" + sDir + "\"");
-        }
-
-        public static void SelectFileInExplorer(string path)
-        {
-            Process.Start("explorer.exe", "/select,\"" + path + "\"");
-        }
 
         // returns exit code.
         public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
@@ -82,6 +74,16 @@ namespace labs_coordinate_pictures
             outStderr = stderr;
 
             return waitForExit ? process.ExitCode : 0;
+        }
+
+        public static void OpenDirInExplorer(string sDir)
+        {
+            Process.Start("explorer.exe", "\"" + sDir + "\"");
+        }
+
+        public static void SelectFileInExplorer(string path)
+        {
+            Process.Start("explorer.exe", "/select,\"" + path + "\"");
         }
 
         public static bool AskToConfirm(string message)
@@ -240,7 +242,11 @@ namespace labs_coordinate_pictures
             if (!File.Exists(filepath))
                 return " file not found";
 
-            var len = new FileInfo(filepath).Length;
+            return FormatFilesize(new FileInfo(filepath).Length);
+        }
+
+        public static string FormatFilesize(long len)
+        {
             return (len > 1024 * 1024) ?
                 string.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
                 string.Format(" ({0}k)", len / 1024);
@@ -490,18 +496,23 @@ namespace labs_coordinate_pictures
         public static void RunLongActionInThread(object locking, Control caption,
             Action action, Action actionOnStart = null, Action actionOnComplete = null)
         {
-            caption.Text = "Loading...";
-            if (actionOnStart != null)
-            {
-                actionOnStart.Invoke();
-            }
-
             ThreadPool.QueueUserWorkItem(delegate
             {
+                // check if another operation is ongoing
                 if (Monitor.TryEnter(locking))
                 {
                     try
                     {
+                        // on the UI thread tell the user we are "working"
+                        caption.Invoke((MethodInvoker)(() =>
+                        {
+                            caption.Text = "Loading...";
+                            if (actionOnStart != null)
+                            {
+                                actionOnStart.Invoke();
+                            }
+                        }));
+
                         action();
                     }
                     catch (Exception e)
@@ -511,10 +522,11 @@ namespace labs_coordinate_pictures
                     finally
                     {
                         Monitor.Exit(locking);
+
+                        // on the UI thread tell the user we are "done"
                         caption.Invoke((MethodInvoker)(() =>
                         {
                             caption.Text = " ";
-
                             if (actionOnComplete != null)
                             {
                                 actionOnComplete.Invoke();

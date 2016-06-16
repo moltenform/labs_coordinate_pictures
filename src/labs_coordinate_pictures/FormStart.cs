@@ -273,8 +273,8 @@ namespace labs_coordinate_pictures
                 if (hashExpected != hash)
                 {
                     if (Utils.AskToConfirm("Checksum does not match for file " +
-                        path + "\r\nwas:" + hashExpected + "\r\nnow: " + hash +
-                        "\r\nDid you recently upgrade or change this program? " +
+                        path + Utils.NL + "was:" + hashExpected + Utils.NL + "now: " + hash +
+                        Utils.NL + "Did you recently upgrade or change this program? " +
                         "If so, click Yes. Otherwise, click No to exit."))
                     {
                         Configs.Current.Set(sumkey, hash);

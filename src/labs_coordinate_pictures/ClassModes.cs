@@ -213,8 +213,8 @@ namespace labs_coordinate_pictures
             // all we do here is write the current directory onto the python script.
             if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by " +
                  "running a python script," +
-                 " ./tools/ben_python_img/img_convert_resize.py\r\n\r\n" +
-                "Set the directory referred to in the script to\r\n" + baseDirectory + "?"))
+                 " ./tools/ben_python_img/img_convert_resize.py" + Utils.NL + Utils.NL +
+                "Set the directory referred to in the script to" + Utils.NL + baseDirectory + "?"))
             {
                 var script = Path.Combine(Configs.Current.Directory,
                     "ben_python_img", "img_resize_keep_exif.py");
@@ -225,8 +225,8 @@ namespace labs_coordinate_pictures
                     if (parts.Length == 3)
                     {
                         var result = parts[0] +
-                            "###template\r\n    baseDirectory = r'" + baseDirectory +
-                            "'\r\n    ###template" + parts[2];
+                            "###template" + Utils.NL + "    baseDirectory = r'" + baseDirectory +
+                            "'" + Utils.NL + "    ###template" + parts[2];
 
                         File.WriteAllText(script, result);
                         Utils.MessageBox("img_resize_keep_exif.py modified successfully.");
@@ -291,7 +291,7 @@ namespace labs_coordinate_pictures
                 if (similar.Count != 0)
                 {
                     Utils.MessageErr("the file " + path + " has similar name(s) "
-                        + string.Join("\r\n", similar));
+                        + string.Join(Utils.NL, similar));
                     return;
                 }
             }

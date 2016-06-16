@@ -295,10 +295,10 @@ namespace labs_coordinate_pictures
                 dirFirst, Path.Combine(dirSecond, "notexist"), true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
-                dirFirst + Path.DirectorySeparatorChar, dirSecond, true, true, true, true));
+                dirFirst + Utils.PathSep, dirSecond, true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
-                dirFirst, dirSecond + Path.DirectorySeparatorChar, true, true, true, true));
+                dirFirst, dirSecond + Utils.PathSep, true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, dirFirst, true, true, true, true));
@@ -355,7 +355,6 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_MapFilesizesToFilenames()
         {
-            var pathsep = Path.DirectorySeparatorChar;
             var dirTest = TestUtil.GetTestSubDirectory("testMapFilesizesToFilenames");
             File.WriteAllText(Path.Combine(dirTest, "a.txt"), "abcd");
             File.WriteAllText(Path.Combine(dirTest, "b.txt"), "abcde");
@@ -372,19 +371,19 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(1, map[5].Count);
 
             // test that FileInfoForComparison was set correctly
-            TestUtil.IsEq(pathsep + "a.txt", mapSorted[0].Filename);
+            TestUtil.IsEq(Utils.PathSep + "a.txt", mapSorted[0].Filename);
             TestUtil.IsEq(null, mapSorted[0].ContentHash);
             TestUtil.IsEq(4L, mapSorted[0].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "a.txt")),
                 mapSorted[0].LastModifiedTime);
 
-            TestUtil.IsEq(pathsep + "b.txt", map[5][0].Filename);
+            TestUtil.IsEq(Utils.PathSep + "b.txt", map[5][0].Filename);
             TestUtil.IsEq(null, map[5][0].ContentHash);
             TestUtil.IsEq(5L, map[5][0].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "b.txt")),
                 map[5][0].LastModifiedTime);
 
-            TestUtil.IsEq(pathsep + "c.txt", mapSorted[1].Filename);
+            TestUtil.IsEq(Utils.PathSep + "c.txt", mapSorted[1].Filename);
             TestUtil.IsEq(null, mapSorted[1].ContentHash);
             TestUtil.IsEq(4L, mapSorted[1].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "c.txt")),
@@ -400,7 +399,7 @@ namespace labs_coordinate_pictures
                         (item.FileInfoLeft?.Filename ?? "") + "|" +
                         (item.FileInfoRight?.Filename ?? "") + "|" +
                         item.Type.ToString();
-            return string.Join(Environment.NewLine, lines);
+            return string.Join(Utils.NL, lines);
         }
 
         static void CompareResultsToString(List<FileComparisonResult> list, string expected)

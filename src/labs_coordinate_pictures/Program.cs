@@ -108,8 +108,8 @@ namespace labs_coordinate_pictures
                     trace = "";
                 }
 
-                SimpleLog.Current.WriteError("Unhandled Exception: " + message + "\r\n" + trace);
-                if (!Utils.AskToConfirm("An exception occurred: " + message + " \r\n Continue?"))
+                SimpleLog.Current.WriteError("Unhandled Exception: " + message + Utils.NL + trace);
+                if (!Utils.AskToConfirm("An exception occurred: " + message + Utils.NL + " Continue?"))
                 {
                     Environment.Exit(1);
                 }

@@ -127,7 +127,7 @@ namespace labs_coordinate_pictures
                     originalHeight > _imagecache.MaxHeight;
 
                 var showResized = _currentImageResized ? "s" : "";
-                label.Text = string.Format("{0} {1}\r\n{2} {3}({4}x{5})", _filelist.Current,
+                label.Text = string.Format("{0} {1}" + Utils.NL + "{2} {3}({4}x{5})", _filelist.Current,
                     Utils.FormatFilesize(_filelist.Current), Path.GetFileName(_filelist.Current),
                     showResized, originalWidth, originalHeight);
             }
@@ -204,7 +204,7 @@ namespace labs_coordinate_pictures
 
         void RefreshCustomCommands()
         {
-            labelView.Text = "\r\n\r\n";
+            labelView.Text = Utils.NL + Utils.NL;
             if (_mode.GetDisplayCustomCommands().Length > 0)
             {
                 // restore original Edit menu
@@ -224,7 +224,7 @@ namespace labs_coordinate_pictures
                         "Press the shortcut " + tuple.Item1 + " to run this command.");
 
                     editToolStripMenuItem.DropDownItems.Add(menuItem);
-                    labelView.Text += tuple.Item1 + "=" + tuple.Item2 + "\r\n\r\n";
+                    labelView.Text += tuple.Item1 + "=" + tuple.Item2 + Utils.NL + Utils.NL;
                 }
             }
         }
@@ -250,7 +250,7 @@ namespace labs_coordinate_pictures
                 menuItem.ShortcutKeyDisplayString = tuple.Item1;
                 menuItem.Click += (sender, e) => AssignCategory(tuple.Item3);
                 categoriesToolStripMenuItem.DropDownItems.Add(menuItem);
-                labelView.Text += tuple.Item1 + "    " + tuple.Item2 + "\r\n\r\n";
+                labelView.Text += tuple.Item1 + "    " + tuple.Item2 + Utils.NL + Utils.NL;
                 _categoryKeyBindings[tuple.Item1] = tuple.Item3;
             }
 
@@ -919,7 +919,7 @@ namespace labs_coordinate_pictures
             {
                 if (new FileInfo(path).Length < 1024 * 500 ||
                     Utils.AskToConfirm("include the large file " +
-                        Path.GetFileName(path) + "\r\n" + Utils.FormatFilesize(path) + "?"))
+                        Path.GetFileName(path) + Utils.NL + Utils.FormatFilesize(path) + "?"))
                 {
                     list.Add(path);
                 }
@@ -964,8 +964,8 @@ namespace labs_coordinate_pictures
                 _filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
                 out nameHasSuffix, out pathWithoutSuffix);
 
-            if (Utils.AskToConfirm("Delete the extra files \r\n" +
-                string.Join("\r\n", pathsToDelete) + "\r\n?"))
+            if (Utils.AskToConfirm("Delete the extra files " + Utils.NL +
+                string.Join(Utils.NL, pathsToDelete) + Utils.NL + "?"))
             {
                 foreach (var path in pathsToDelete)
                 {

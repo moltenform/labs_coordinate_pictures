@@ -149,8 +149,8 @@ namespace labs_coordinate_pictures
                 return null;
             }
 
-            if (settings.LeftDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
-                settings.RightDirectory.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            if (settings.LeftDirectory.EndsWith(Utils.PathSep, StringComparison.Ordinal) ||
+                settings.RightDirectory.EndsWith(Utils.PathSep, StringComparison.Ordinal))
             {
                 Utils.MessageErr("directory should not end with slash.", true);
                 return null;
