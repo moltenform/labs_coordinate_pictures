@@ -15,8 +15,7 @@ namespace labs_coordinate_pictures
         SortFilesAction _action;
         SortFilesSettings _settings;
         FileComparisonResult[] _results;
-        UndoStack<List<Tuple<string, string>>> _undoFileMoves =
-            new UndoStack<List<Tuple<string, string>>>();
+        UndoStack<List<FileMove>> _undoFileMoves;
 
         bool _synchronous; // for testing, run all bg tasks synchronously
         List<FileComparisonResult> _testSelectedItems;
@@ -32,6 +31,7 @@ namespace labs_coordinate_pictures
             _settings = settings;
             _caption = caption;
             _synchronous = allActionsSynchronous;
+            _undoFileMoves = new UndoStack<List<FileMove>>();
             _testSelectedItems = new List<FileComparisonResult>();
 
             listView.SmallImageList = imageList;
@@ -125,6 +125,11 @@ namespace labs_coordinate_pictures
 
             tbLeft.Text = sbLeftFiles.ToString() + Utils.NL + sbLeftStats.ToString();
             tbRight.Text = sbRightFiles.ToString() + Utils.NL + sbRightStats.ToString();
+            if (_action != SortFilesAction.SearchDifferences)
+            {
+                btnCopyFileLeft.Visible = false;
+                btnCopyFileRight.Visible = false;
+            }
         }
 
         static string GetFileDetails(string filename)
@@ -222,14 +227,52 @@ namespace labs_coordinate_pictures
 
         internal void OnClickCopyFile(bool left, bool needConfirm)
         {
-            
+            if (CheckSelectedItemsSameType() || _synchronous)
+            {
+                var moves = new List<FileMove>();
+                foreach (var item in SelectedItems())
+                {
+                    var source = left ? item.GetLeft(_settings.LeftDirectory) :
+                        item.GetRight(_settings.RightDirectory);
+                    var dest = left ? item.GetRight(_settings.RightDirectory) :
+                        item.GetLeft(_settings.LeftDirectory);
+                    var destRoot = left ? _settings.RightDirectory :
+                        _settings.LeftDirectory;
+
+                    if (source != null)
+                    {
+                        if (dest != null && File.Exists(dest))
+                        {
+                            moves.Add(new FileMove(
+                                dest, Utils.GetSoftDeleteDestination(dest), true));
+
+                            moves.Add(new FileMove(
+                                source, dest, false));
+                        }
+                        else
+                        {
+                            // we've been told to Copy-Left-To-Right a Left-Only file,
+                            // the destination isn't set yet, so make a new path.
+                            var destWouldBe = destRoot + (left ? item.FileInfoLeft.Filename :
+                                item.FileInfoRight.Filename);
+
+                            moves.Add(new FileMove(source, destWouldBe, false));
+                        }
+                    }
+                }
+
+                if (!needConfirm || Utils.AskToConfirm("Move " + moves.Count + " files?"))
+                {
+                    moveFiles(moves, left ? tbLeft : tbRight);
+                }
+            }
         }
 
         internal void OnClickDeleteFile(bool left, bool needConfirm)
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
-                var moves = new List<Tuple<string, string>>();
+                var moves = new List<FileMove>();
                 foreach (var item in SelectedItems())
                 {
                     var path = left ? item.GetLeft(_settings.LeftDirectory) :
@@ -237,7 +280,8 @@ namespace labs_coordinate_pictures
 
                     if (path != null)
                     {
-                        moves.Add(Tuple.Create(path, Utils.GetSoftDeleteDestination(path)));
+                        moves.Add(new FileMove(
+                            path, Utils.GetSoftDeleteDestination(path), true));
                     }
                 }
 
@@ -310,18 +354,16 @@ namespace labs_coordinate_pictures
             StartBgAction(RunSortFilesAction);
         }
 
-        internal void GetTestHooks(out TextBox outTbLeft, out TextBox outTbRight,
-            out ListView outListView, out List<FileComparisonResult> outSelectedItems,
-            out UndoStack<List<Tuple<string, string>>> outUndoStack)
+        internal void GetTestHooks(out ListView outListView,
+            out List<FileComparisonResult> outSelectedItems,
+            out UndoStack<List<FileMove>> outUndoStack)
         {
-            outTbLeft = tbLeft;
-            outTbRight = tbRight;
             outListView = listView;
             outSelectedItems = _testSelectedItems;
             outUndoStack = _undoFileMoves;
         }
 
-        void moveFiles(List<Tuple<string, string>> fileMoves, TextBox tbLog)
+        void moveFiles(List<FileMove> fileMoves, TextBox tbLog)
         {
             StartBgAction(() =>
             {
@@ -332,16 +374,22 @@ namespace labs_coordinate_pictures
                     tbRight.Text = "";
                 });
 
-                foreach (var move in fileMoves)
+                // if an exception occurs partially through, progress will be saved on the undo stack.
+                _undoFileMoves.Add(new List<FileMove>());
+                while (fileMoves.Count > 0)
                 {
                     // move file, exceptions are ok
-                    File.Move(move.Item1, move.Item2);
+                    fileMoves[0].Do();
 
                     // print to UI
                     WrapInvoke(() =>
                     {
-                        tbLog.AppendText(Utils.NL + Utils.NL + "Moved " + move.Item1 + " to " + move.Item2);
+                        tbLog.AppendText(Utils.NL + Utils.NL + fileMoves[0]);
                     });
+
+                    // add progress to undo stack; if exception thrown we can still undo until that point
+                    _undoFileMoves.PeekUndo().Add(fileMoves[0]);
+                    fileMoves.RemoveAt(0);
                 }
 
                 // print to UI
@@ -349,15 +397,13 @@ namespace labs_coordinate_pictures
                 {
                     tbLog.AppendText(Utils.NL + Utils.NL + "Complete.");
                 });
-
-                // add to undo stack
-                _undoFileMoves.Add(fileMoves);
             });
         }
 
         internal void OnUndoClick(bool needConfirm)
         {
-            StartBgAction(() => {
+            StartBgAction(() => 
+            {
                 // clear UI
                 WrapInvoke(() =>
                 {
@@ -374,25 +420,24 @@ namespace labs_coordinate_pictures
                 {
                     // ask user to confirm
                     var preview = string.Join(Utils.NL,
-                        from item in fileMoves select "Move " + item.Item2 + " to " + item.Item1);
-                    if (!needConfirm || Utils.AskToConfirm("Move these files?" + Utils.NL + preview))
+                        from move in fileMoves select move.ToString());
+                    if (!needConfirm || Utils.AskToConfirm("Undo these moves?" + Utils.NL + preview))
                     {
                         // if an exception occurs partially through, our progress will be saved
                         while (fileMoves.Count > 0)
                         {
+                            // undo move, exceptions are ok
                             var move = fileMoves[fileMoves.Count - 1];
-
-                            // move file, exceptions are ok and will be caught by RunLongActionInThread
-                            File.Move(move.Item2, move.Item1);
-
-                            // remove from list if successful.
-                            fileMoves.RemoveAt(fileMoves.Count - 1);
+                            move.Undo();
 
                             // print to UI
                             WrapInvoke(() =>
                             {
-                                tbLeft.AppendText(Utils.NL + Utils.NL + "Moved " + move.Item2 + " to " + move.Item1);
+                                tbLeft.AppendText(Utils.NL + Utils.NL + "Undo " + move);
                             });
+
+                            // remove from list
+                            fileMoves.RemoveAt(fileMoves.Count - 1);
                         }
 
                         // print to UI
@@ -410,6 +455,7 @@ namespace labs_coordinate_pictures
 
         void StartBgAction(Action fn)
         {
+            // for testability, when _synchronous is true run everything on one thread.
             if (_synchronous)
             {
                 fn();
@@ -422,6 +468,7 @@ namespace labs_coordinate_pictures
 
         void WrapInvoke(Action fn)
         {
+            // for testability, when _synchronous is true run everything on one thread.
             if (_synchronous)
             {
                 fn();
@@ -434,13 +481,83 @@ namespace labs_coordinate_pictures
 
         IEnumerable<FileComparisonResult> SelectedItems()
         {
-            if (_synchronous)
+            // for testability, override what selected items are seen.
+            if (_testSelectedItems.Count > 0)
             {
                 return _testSelectedItems;
             }
             else
             {
                 return listView.SelectedItems.Cast<FileComparisonResult>();
+            }
+        }
+    }
+
+    // Note, overwrites are not allowed. Existing files should first be Move()d out of the way.
+    // This enables perfect undo-ability for all moves and copies.
+    class FileMove
+    {
+        public FileMove(string source, string dest, bool moveOrCopy)
+        {
+            Source = source;
+            Dest = dest;
+            MoveOrCopy = moveOrCopy;
+        }
+
+        public string Source { get; }
+        public string Dest { get; }
+        public bool MoveOrCopy { get; }
+
+        public override string ToString()
+        {
+            return (MoveOrCopy ? "Moved " : "Copied ") +
+                Source + " to " + Dest;
+        }
+
+        public void Do()
+        {
+            if (File.Exists(Dest))
+            {
+                throw new IOException("File already exists at " + Dest);
+            }
+            else if (!Directory.Exists(Path.GetDirectoryName(Dest)))
+            {
+                // create missing directories
+                Directory.CreateDirectory(Path.GetDirectoryName(Dest));
+            }
+
+            if (MoveOrCopy)
+            {
+                File.Move(Source, Dest);
+            }
+            else
+            {
+                File.Copy(Source, Dest);
+            }
+        }
+
+        public void Undo()
+        {
+            if (MoveOrCopy)
+            {
+                if (File.Exists(Source))
+                {
+                    throw new IOException("File already exists at " + Source);
+                }
+
+                File.Move(Dest, Source);
+            }
+            else
+            {
+                string hashSource = Utils.GetSha512(Source);
+                string hashDest = Utils.GetSha512(Dest);
+                if (!File.Exists(Source) || !File.Exists(Dest) || hashSource != hashDest)
+                {
+                    throw new IOException("Cannot undo Copy because " + Source +
+                        " and " + Dest + " are not equal files");
+                }
+
+                File.Delete(Dest);
             }
         }
     }

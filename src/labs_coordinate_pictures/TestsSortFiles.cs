@@ -581,18 +581,6 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
                 CountFilenames(expectedDifferences) + CountFilenames(expectedSame));
         }
 
-        //static void WaitUntilTrue(Func<bool> fn, int timeout = 5000)
-        //{
-        //    int approximateTimeWaited = 0;
-        //    while (!fn())
-        //    {
-        //        Thread.Sleep(100);
-        //        Application.DoEvents();
-        //        approximateTimeWaited += 100;
-        //        TestUtil.IsTrue(approximateTimeWaited < timeout);
-        //    }
-        //}
-
         static void SelectFirstItems(List<FileComparisonResult> selectedItems,
             ListView listView, int itemsToSelect)
         {
@@ -642,11 +630,10 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             // create form and run searchdifferences
             var form = new FormSortFilesList(
                 SortFilesAction.SearchDifferences, settings, "", allActionsSynchronous: true);
-            TextBox tbLeft, tbRight;
             ListView listView;
             List<FileComparisonResult> mockSelection;
-            UndoStack<List<Tuple<string, string>>> undoStack;
-            form.GetTestHooks(out tbLeft, out tbRight, out listView, out mockSelection, out undoStack);
+            UndoStack<List<FileMove>> undoStack;
+            form.GetTestHooks(out listView, out mockSelection, out undoStack);
             form.RunSortFilesAction();
 
             // simulate column-header click to sort by path
@@ -700,9 +687,9 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             // see if undo was set as expected
             var lastUndo = undoStack.PeekUndo();
             TestUtil.IsEq(3, lastUndo.Count);
-            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[0].Item1);
-            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[1].Item1);
-            TestUtil.IsEq(Path.Combine(left, "onlyleft.txt"), lastUndo[2].Item1);
+            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[0].Source);
+            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[1].Source);
+            TestUtil.IsEq(Path.Combine(left, "onlyleft.txt"), lastUndo[2].Source);
 
             // test file presence
             TestUtil.IsTrue(!File.Exists(Path.Combine(left, "changed1.txt")));
@@ -724,9 +711,9 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             // see if undo was set as expected
             lastUndo = undoStack.PeekUndo();
             TestUtil.IsEq(3, lastUndo.Count);
-            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[0].Item1);
-            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[1].Item1);
-            TestUtil.IsEq(Path.Combine(right, "onlyright.txt"), lastUndo[2].Item1);
+            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[0].Source);
+            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[1].Source);
+            TestUtil.IsEq(Path.Combine(right, "onlyright.txt"), lastUndo[2].Source);
 
             // test file presence
             TestUtil.IsTrue(File.Exists(Path.Combine(left, "changed1.txt")));
@@ -740,6 +727,79 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             form.OnUndoClick(needConfirm: false);
             TestUtil.IsEq(null, undoStack.PeekUndo());
             checkFileContents();
+
+            // copy all left to right
+            SelectFirstItems(mockSelection, listView, items.Length);
+            form.OnClickCopyFile(left: true, needConfirm: false);
+
+            // see if undo was set as expected
+            lastUndo = undoStack.PeekUndo();
+            TestUtil.IsEq(5, lastUndo.Count);
+            TestUtil.IsEq(true, lastUndo[0].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[0].Source);
+            TestUtil.IsEq(false, lastUndo[1].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[1].Source);
+            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[1].Dest);
+            TestUtil.IsEq(true, lastUndo[2].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[2].Source);
+            TestUtil.IsEq(false, lastUndo[3].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[3].Source);
+            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[3].Dest);
+            TestUtil.IsEq(false, lastUndo[4].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(left, "onlyleft.txt"), lastUndo[4].Source);
+            TestUtil.IsEq(Path.Combine(right, "onlyleft.txt"), lastUndo[4].Dest);
+
+            // test file contents
+            TestUtil.IsEq("onlyl", File.ReadAllText(Path.Combine(left, "onlyleft.txt")));
+            TestUtil.IsEq("a", File.ReadAllText(Path.Combine(left, "changed1.txt")));
+            TestUtil.IsEq("123", File.ReadAllText(Path.Combine(left, "changed2.txt")));
+            TestUtil.IsEq("onlyl", File.ReadAllText(Path.Combine(right, "onlyleft.txt")));
+            TestUtil.IsEq("onlyr", File.ReadAllText(Path.Combine(right, "onlyright.txt")));
+            TestUtil.IsEq("a", File.ReadAllText(Path.Combine(right, "changed1.txt")));
+            TestUtil.IsEq("123", File.ReadAllText(Path.Combine(right, "changed2.txt")));
+
+            // run undo
+            form.OnUndoClick(needConfirm: false);
+            TestUtil.IsEq(null, undoStack.PeekUndo());
+            TestUtil.IsTrue(!File.Exists(Path.Combine(right, "onlyleft.txt")));
+            checkFileContents();
+
+            // copy all right to left
+            SelectFirstItems(mockSelection, listView, items.Length);
+            form.OnClickCopyFile(left: false, needConfirm: false);
+
+            // see if undo was set as expected
+            lastUndo = undoStack.PeekUndo();
+            TestUtil.IsEq(5, lastUndo.Count);
+            TestUtil.IsEq(true, lastUndo[0].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[0].Source);
+            TestUtil.IsEq(false, lastUndo[1].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[1].Source);
+            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[1].Dest);
+            TestUtil.IsEq(true, lastUndo[2].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[2].Source);
+            TestUtil.IsEq(false, lastUndo[3].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[3].Source);
+            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[3].Dest);
+            TestUtil.IsEq(false, lastUndo[4].MoveOrCopy);
+            TestUtil.IsEq(Path.Combine(right, "onlyright.txt"), lastUndo[4].Source);
+            TestUtil.IsEq(Path.Combine(left, "onlyright.txt"), lastUndo[4].Dest);
+
+            // test file contents
+            TestUtil.IsEq("onlyl", File.ReadAllText(Path.Combine(left, "onlyleft.txt")));
+            TestUtil.IsEq("onlyr", File.ReadAllText(Path.Combine(left, "onlyright.txt")));
+            TestUtil.IsEq("abc", File.ReadAllText(Path.Combine(left, "changed1.txt")));
+            TestUtil.IsEq("124", File.ReadAllText(Path.Combine(left, "changed2.txt")));
+            TestUtil.IsEq("onlyr", File.ReadAllText(Path.Combine(right, "onlyright.txt")));
+            TestUtil.IsEq("abc", File.ReadAllText(Path.Combine(right, "changed1.txt")));
+            TestUtil.IsEq("124", File.ReadAllText(Path.Combine(right, "changed2.txt")));
+
+            // run undo
+            form.OnUndoClick(needConfirm: false);
+            TestUtil.IsEq(null, undoStack.PeekUndo());
+            TestUtil.IsTrue(!File.Exists(Path.Combine(left, "onlyright.txt")));
+            checkFileContents();
+            form.Dispose();
         }
     }
 }
