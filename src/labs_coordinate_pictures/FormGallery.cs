@@ -151,7 +151,7 @@ namespace labs_coordinate_pictures
             Func<Action, bool> callbackOnUiThread =
                 (act) =>
                 {
-                    this.Invoke((MethodInvoker)(() => act.Invoke()));
+                    this.Invoke((MethodInvoker)(() => act()));
                     return true;
                 };
 

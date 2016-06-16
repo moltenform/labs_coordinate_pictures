@@ -82,6 +82,18 @@ namespace labs_coordinate_pictures
             return (s.Length > 0 && s[0] == '\\') ?
                 s.Substring(1) : s;
         }
+
+        public string GetLeft(string baseDir)
+        {
+            return FileInfoLeft == null ? null :
+                Path.Combine(baseDir, StripInitialSlash(FileInfoLeft.Filename));
+        }
+
+        public string GetRight(string baseDir)
+        {
+            return FileInfoRight == null ? null :
+                Path.Combine(baseDir, StripInitialSlash(FileInfoRight.Filename));
+        }
     }
 
     // caches a file's information and content-hash.

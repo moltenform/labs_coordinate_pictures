@@ -825,7 +825,7 @@ namespace labs_coordinate_pictures
                 TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "t1.bmp")));
                 form.UndoOrRedo(true);
             }
-            }
+        }
 
         static void TestMethod_AutoAcceptSmallFiles()
         {
