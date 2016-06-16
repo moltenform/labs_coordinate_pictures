@@ -205,7 +205,8 @@ namespace labs_coordinate_pictures
             else
             {
                 this.Visible = false;
-                using (var childForm = new FormSortFilesList(_action, settings, lblAction.Text))
+                using (var childForm = new FormSortFilesList(
+                    _action, settings, lblAction.Text, false))
                 {
                     childForm.ShowDialog();
                 }

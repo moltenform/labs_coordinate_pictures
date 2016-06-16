@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
@@ -128,6 +130,12 @@ namespace labs_coordinate_pictures
 
         public static void RunTests()
         {
+            if (Utils.GetSoftDeleteDestination("abc" + Utils.PathSep + "abc") == null)
+            {
+                Utils.MessageBox("Skipping tests until a trash directory is chosen.");
+                return;
+            }
+
             string dir = TestUtil.GetTestWriteDirectory();
             Directory.Delete(dir, true);
             Configs.Current.SuppressDialogs = true;
@@ -307,7 +315,7 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, Path.Combine(dirFirst, "sub"), true, true, true, true));
 
-           // valid for dest to be empty if action is FindDupeFilesInOneDir
+            // valid for dest to be empty if action is FindDupeFilesInOneDir
             TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicatesInOneDir, "", "",
                 dirFirst, "", true, false, true, true) != null);
         }
@@ -559,7 +567,8 @@ SmTimeSmTextSmNameOneOnLeft.a_1||Left";
             CompareResultsToString(results, expectedDifferences);
 
             // account for all 96 files.
-            // (SortFilesSearchDifferences doesn't check hashes, so although it knows AddText are different because filesize changes,
+            // (SortFilesSearchDifferences doesn't check hashes, so although it knows
+            // AddText are different because filesize changes,
             // it won't detect AltText unless filesize or lmt are also different.)
             var expectedSame =
 @"SmTimeAltTextSmNameNone.a|SmTimeAltTextSmNameNone.a
@@ -570,6 +579,167 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a
 SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             TestUtil.IsEq(filesCreated,
                 CountFilenames(expectedDifferences) + CountFilenames(expectedSame));
+        }
+
+        //static void WaitUntilTrue(Func<bool> fn, int timeout = 5000)
+        //{
+        //    int approximateTimeWaited = 0;
+        //    while (!fn())
+        //    {
+        //        Thread.Sleep(100);
+        //        Application.DoEvents();
+        //        approximateTimeWaited += 100;
+        //        TestUtil.IsTrue(approximateTimeWaited < timeout);
+        //    }
+        //}
+
+        static void SelectFirstItems(List<FileComparisonResult> selectedItems,
+            ListView listView, int itemsToSelect)
+        {
+            selectedItems.Clear();
+            for (int i = 0; i < itemsToSelect; i++)
+            {
+                selectedItems.Add((FileComparisonResult)listView.Items[i]);
+            }
+        }
+
+        static void TestMethod_TestSortFilesListOperations()
+        {
+            // create settings object
+            var settings = new SortFilesSettings();
+            var left = TestUtil.GetTestSubDirectory("left_sortfileslist");
+            var right = TestUtil.GetTestSubDirectory("right_sortfileslist");
+            settings.LeftDirectory = left;
+            settings.RightDirectory = right;
+
+            // first, set up test files
+            File.WriteAllText(left + Utils.PathSep + "onlyleft.txt", "onlyl");
+            File.WriteAllText(left + Utils.PathSep + "changed1.txt", "a");
+            File.WriteAllText(left + Utils.PathSep + "changed2.txt", "123");
+            File.WriteAllText(left + Utils.PathSep + "same.txt", "s");
+            File.WriteAllText(right + Utils.PathSep + "onlyright.txt", "onlyr");
+            File.WriteAllText(right + Utils.PathSep + "changed1.txt", "abc");
+            File.WriteAllText(right + Utils.PathSep + "changed2.txt", "124");
+            File.WriteAllText(right + Utils.PathSep + "same.txt", "s");
+            Action checkFileContents = () =>
+            {
+                TestUtil.IsEq("onlyl", File.ReadAllText(Path.Combine(left, "onlyleft.txt")));
+                TestUtil.IsEq("a", File.ReadAllText(Path.Combine(left, "changed1.txt")));
+                TestUtil.IsEq("123", File.ReadAllText(Path.Combine(left, "changed2.txt")));
+                TestUtil.IsEq("onlyr", File.ReadAllText(Path.Combine(right, "onlyright.txt")));
+                TestUtil.IsEq("abc", File.ReadAllText(Path.Combine(right, "changed1.txt")));
+                TestUtil.IsEq("124", File.ReadAllText(Path.Combine(right, "changed2.txt")));
+            };
+
+            // tweak last write times to ensure files on right look different
+            File.SetLastWriteTime(right + Utils.PathSep + "changed1.txt",
+                File.GetLastWriteTime(right + Utils.PathSep + "changed1.txt").AddDays(1));
+            File.SetLastWriteTime(right + Utils.PathSep + "changed2.txt",
+                File.GetLastWriteTime(right + Utils.PathSep + "changed2.txt").AddDays(1));
+            File.SetLastWriteTime(right + Utils.PathSep + "same.txt",
+                File.GetLastWriteTime(left + Utils.PathSep + "same.txt"));
+
+            // create form and run searchdifferences
+            var form = new FormSortFilesList(
+                SortFilesAction.SearchDifferences, settings, "", allActionsSynchronous: true);
+            TextBox tbLeft, tbRight;
+            ListView listView;
+            List<FileComparisonResult> mockSelection;
+            UndoStack<List<Tuple<string, string>>> undoStack;
+            form.GetTestHooks(out tbLeft, out tbRight, out listView, out mockSelection, out undoStack);
+            form.RunSortFilesAction();
+
+            // simulate column-header click to sort by path
+            form.listView_ColumnClick(null, new ColumnClickEventArgs(2));
+
+            // verify listview contents
+            var items = listView.Items.Cast<FileComparisonResult>().ToArray();
+            TestUtil.IsEq(4, items.Length);
+            TestUtil.IsEq(Utils.PathSep + "changed1.txt", items[0].FileInfoLeft.Filename);
+            TestUtil.IsEq(null, items[0].FileInfoLeft.ContentHash);
+            TestUtil.IsEq(1L, items[0].FileInfoLeft.FileSize);
+            TestUtil.IsEq(Utils.PathSep + "changed1.txt", items[0].FileInfoRight.Filename);
+            TestUtil.IsEq(null, items[0].FileInfoRight.ContentHash);
+            TestUtil.IsEq(3L, items[0].FileInfoRight.FileSize);
+            TestUtil.IsEq(Utils.PathSep + "changed2.txt", items[1].FileInfoLeft.Filename);
+            TestUtil.IsEq(null, items[1].FileInfoLeft.ContentHash);
+            TestUtil.IsEq(3L, items[1].FileInfoLeft.FileSize);
+            TestUtil.IsEq(Utils.PathSep + "changed2.txt", items[1].FileInfoRight.Filename);
+            TestUtil.IsEq(null, items[1].FileInfoRight.ContentHash);
+            TestUtil.IsEq(3L, items[1].FileInfoRight.FileSize);
+            TestUtil.IsEq(Utils.PathSep + "onlyleft.txt", items[2].FileInfoLeft.Filename);
+            TestUtil.IsEq(null, items[2].FileInfoLeft.ContentHash);
+            TestUtil.IsEq(5L, items[2].FileInfoLeft.FileSize);
+            TestUtil.IsEq(null, items[2].FileInfoRight);
+            TestUtil.IsEq(Utils.PathSep + "onlyright.txt", items[3].FileInfoRight.Filename);
+            TestUtil.IsEq(null, items[3].FileInfoRight.ContentHash);
+            TestUtil.IsEq(5L, items[3].FileInfoRight.FileSize);
+            TestUtil.IsEq(null, items[3].FileInfoLeft);
+
+            // test CheckSelectedItemsSameType
+            mockSelection.Clear();
+            TestUtil.IsEq(false, form.CheckSelectedItemsSameType());
+            mockSelection.Add((FileComparisonResult)listView.Items[0]);
+            TestUtil.IsEq(true, form.CheckSelectedItemsSameType());
+            mockSelection.Add((FileComparisonResult)listView.Items[1]);
+            TestUtil.IsEq(true, form.CheckSelectedItemsSameType());
+            mockSelection.Add((FileComparisonResult)listView.Items[2]);
+            TestUtil.IsEq(false, form.CheckSelectedItemsSameType());
+            mockSelection.Clear();
+            TestUtil.IsEq(false, form.CheckSelectedItemsSameType());
+            mockSelection.Add((FileComparisonResult)listView.Items[1]);
+            TestUtil.IsEq(true, form.CheckSelectedItemsSameType());
+            mockSelection.Add((FileComparisonResult)listView.Items[2]);
+            TestUtil.IsEq(false, form.CheckSelectedItemsSameType());
+
+            // delete all on left
+            checkFileContents();
+            SelectFirstItems(mockSelection, listView, items.Length);
+            form.OnClickDeleteFile(left: true, needConfirm: false);
+
+            // see if undo was set as expected
+            var lastUndo = undoStack.PeekUndo();
+            TestUtil.IsEq(3, lastUndo.Count);
+            TestUtil.IsEq(Path.Combine(left, "changed1.txt"), lastUndo[0].Item1);
+            TestUtil.IsEq(Path.Combine(left, "changed2.txt"), lastUndo[1].Item1);
+            TestUtil.IsEq(Path.Combine(left, "onlyleft.txt"), lastUndo[2].Item1);
+
+            // test file presence
+            TestUtil.IsTrue(!File.Exists(Path.Combine(left, "changed1.txt")));
+            TestUtil.IsTrue(!File.Exists(Path.Combine(left, "changed2.txt")));
+            TestUtil.IsTrue(!File.Exists(Path.Combine(left, "onlyleft.txt")));
+            TestUtil.IsTrue(File.Exists(Path.Combine(right, "changed1.txt")));
+            TestUtil.IsTrue(File.Exists(Path.Combine(right, "changed2.txt")));
+            TestUtil.IsTrue(File.Exists(Path.Combine(right, "onlyright.txt")));
+
+            // run undo
+            form.OnUndoClick(needConfirm: false);
+            TestUtil.IsEq(null, undoStack.PeekUndo());
+            checkFileContents();
+
+            // delete all on right
+            SelectFirstItems(mockSelection, listView, items.Length);
+            form.OnClickDeleteFile(left: false, needConfirm: false);
+
+            // see if undo was set as expected
+            lastUndo = undoStack.PeekUndo();
+            TestUtil.IsEq(3, lastUndo.Count);
+            TestUtil.IsEq(Path.Combine(right, "changed1.txt"), lastUndo[0].Item1);
+            TestUtil.IsEq(Path.Combine(right, "changed2.txt"), lastUndo[1].Item1);
+            TestUtil.IsEq(Path.Combine(right, "onlyright.txt"), lastUndo[2].Item1);
+
+            // test file presence
+            TestUtil.IsTrue(File.Exists(Path.Combine(left, "changed1.txt")));
+            TestUtil.IsTrue(File.Exists(Path.Combine(left, "changed2.txt")));
+            TestUtil.IsTrue(File.Exists(Path.Combine(left, "onlyleft.txt")));
+            TestUtil.IsTrue(!File.Exists(Path.Combine(right, "changed1.txt")));
+            TestUtil.IsTrue(!File.Exists(Path.Combine(right, "changed2.txt")));
+            TestUtil.IsTrue(!File.Exists(Path.Combine(right, "onlyright.txt")));
+
+            // run undo
+            form.OnUndoClick(needConfirm: false);
+            TestUtil.IsEq(null, undoStack.PeekUndo());
+            checkFileContents();
         }
     }
 }
