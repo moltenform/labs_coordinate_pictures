@@ -6,24 +6,23 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    // these are our four provided operations.
+    // our four provided operations.
     public enum SortFilesAction
     {
-        SearchDifferences, // see SortFilesSearchDifferences
-        SearchDuplicates, // see SortFilesSearchDuplicates
-        SearchDuplicatesInOneDir, // see SortFilesSearchDuplicatesInOneDir
-        SyncFiles // see SyncFilesWithRobocopy
+        SearchDifferences,
+        SearchDuplicates,
+        SearchDuplicatesInOneDir,
+        SyncFiles
     }
 
     // result of comparison, also used as index into an ImageList.
     public enum FileComparisonResultType
     {
         None = 0,
-        Changed_File = 1,
+        Changed = 1,
         Left_Only = 2,
         Right_Only = 3,
-        Same_Contents = 4,
-        Moved_File = 5,
+        Same_Contents = 4
     }
 
     // models what is shown on the FormSortFiles form.
@@ -56,11 +55,33 @@ namespace labs_coordinate_pictures
             FileInfoLeft = fileLeft;
             FileInfoRight = fileRight;
             Type = type;
+
+            string showPath;
+            if (type == FileComparisonResultType.Same_Contents)
+            {
+                showPath = StripInitialSlash(FileInfoRight.Filename) + "; " +
+                     StripInitialSlash(FileInfoLeft.Filename);
+            }
+            else
+            {
+                showPath = StripInitialSlash(FileInfoRight?.Filename ??
+                    FileInfoLeft.Filename);
+            }
+
+            ImageIndex = (int)type;
+            SubItems.Add(type.ToString().Replace("_", " "));
+            SubItems.Add(showPath);
         }
 
         public FileInfoForComparison FileInfoLeft { get; }
         public FileInfoForComparison FileInfoRight { get; }
         public FileComparisonResultType Type { get; }
+
+        static string StripInitialSlash(string s)
+        {
+            return (s.Length > 0 && s[0] == '\\') ?
+                s.Substring(1) : s;
+        }
     }
 
     // caches a file's information and content-hash.
@@ -102,9 +123,7 @@ namespace labs_coordinate_pictures
             var args = new List<string>();
             args.Add(settings.LeftDirectory);
             args.Add(settings.RightDirectory);
-            args.Add("/S"); // include subdirectories
-            args.Add("/E"); // include empty folders
-
+            args.Add("/E"); // subdirectories, including empty directories
             if (settings.AllowFiletimesDifferForFAT)
             {
                 args.Add("/FFT");
@@ -152,9 +171,10 @@ namespace labs_coordinate_pictures
                 waitForExit: true, hideWindow: true, getStdout: false, outStdout: out unused,
                 outStderr: out unused, workingDir: workingDir);
 
-            if (retcode != 0)
+            if (((retcode & 0x08) != 0) || ((retcode & 0x10) != 0))
             {
-                Utils.MessageErr("Warning: non zero return code, " + retcode);
+                Utils.MessageErr("Warning: return code indicates action was not completed, "
+                    + retcode.ToString("X"));
             }
             else
             {
@@ -164,6 +184,12 @@ namespace labs_coordinate_pictures
             // show log results in notepad
             if (File.Exists(settings.LogFile))
             {
+                if (settings.PreviewOnly)
+                {
+                    File.AppendAllText(settings.LogFile, "(Preview Only)",
+                        System.Text.Encoding.Unicode);
+                }
+
                 Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
                     waitForExit: false, hideWindow: false, getStdout: false, outStdout: out unused,
                     outStderr: out unused, workingDir: workingDir);
@@ -180,8 +206,7 @@ namespace labs_coordinate_pictures
         // for filesystems like FAT that have imprecise last-write-times.
         public const int AllowDifferSeconds = 4;
 
-        public static List<FileComparisonResult> Go(SortFilesSettings settings,
-            bool treatAllFilesAsModified = false)
+        public static List<FileComparisonResult> Go(SortFilesSettings settings)
         {
             var results = new List<FileComparisonResult>();
             var filesInLeft = new Dictionary<string, FileInfoForComparison>(
@@ -206,15 +231,14 @@ namespace labs_coordinate_pictures
                 {
                     objLeft.MarkWhenVisited = true;
                     if (objLeft.FileSize != info.Length ||
-                        !AreTimesEqual(objLeft.LastModifiedTime, info.LastWriteTimeUtc, settings) ||
-                        treatAllFilesAsModified)
+                        !AreTimesEqual(objLeft.LastModifiedTime, info.LastWriteTimeUtc, settings))
                     {
                         // looks like a modified file. same path but different filesize/lmt.
                         var filename = info.FullName.Substring(settings.RightDirectory.Length);
                         var objRight = new FileInfoForComparison(
                             filename, info.Length, info.LastWriteTimeUtc);
                         results.Add(new FileComparisonResult(
-                            objLeft, objRight, FileComparisonResultType.Changed_File));
+                            objLeft, objRight, FileComparisonResultType.Changed));
                     }
                 }
                 else
@@ -380,7 +404,6 @@ namespace labs_coordinate_pictures
 
                         // have we seen this hash before? this is an n-squared loop, but
                         // basically amortized by the cost of computing hashes.
-                        bool found = false;
                         for (int j = 0; j < i; j++)
                         {
                             if (list[j].ContentHash == list[i].ContentHash)
@@ -389,7 +412,6 @@ namespace labs_coordinate_pictures
                                 // so that the user can conveniently safely delete all on 'right'.
                                 results.Add(new FileComparisonResult(
                                     list[j], list[i], FileComparisonResultType.Same_Contents));
-                                found = true;
                                 break;
                             }
                         }

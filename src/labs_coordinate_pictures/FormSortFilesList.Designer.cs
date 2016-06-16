@@ -83,22 +83,24 @@
             this.colStatus,
             this.colPath});
             this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView.FullRowSelect = true;
             this.listView.Location = new System.Drawing.Point(3, 16);
             this.listView.Name = "listView";
             this.listView.Size = new System.Drawing.Size(443, 200);
             this.listView.TabIndex = 1;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
-            this.listView.VirtualMode = true;
-            this.listView.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.listView_RetrieveVirtualItem);
+            this.listView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView_ColumnClick);
+            this.listView.SelectedIndexChanged += new System.EventHandler(this.listView_SelectedIndexChanged);
             // 
             // colItemType
             // 
-            this.colItemType.Text = "Type";
+            this.colItemType.Text = " ";
+            this.colItemType.Width = 38;
             // 
             // colStatus
             // 
-            this.colStatus.Text = "Status";
+            this.colStatus.Text = "Type";
             // 
             // colPath
             // 
@@ -143,7 +145,6 @@
             this.linkLabel1.TabIndex = 0;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "f";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // imageList
             // 

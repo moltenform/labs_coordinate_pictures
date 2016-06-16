@@ -203,12 +203,12 @@ namespace labs_coordinate_pictures
             else
             {
                 this.Visible = false;
-                using (var childForm = new FormSortFilesList(_action, settings))
+                using (var childForm = new FormSortFilesList(_action, settings, lblAction.Text))
                 {
                     childForm.ShowDialog();
                 }
 
-                this.Visible = true;
+                this.Close();
             }
         }
 

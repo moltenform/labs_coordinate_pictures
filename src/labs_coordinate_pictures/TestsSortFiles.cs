@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace labs_coordinate_pictures
 {
@@ -314,10 +312,83 @@ namespace labs_coordinate_pictures
                 dirFirst, "", true, false, true, true) != null);
         }
 
-        static void WriteTextFile(string dir, string path, string contents, DateTime time)
+        static void TestMethod_AreTimesEqual()
         {
-            File.WriteAllText(Path.Combine(dir, path), contents);
-            File.SetLastWriteTimeUtc(Path.Combine(dir, path), time);
+            var time = DateTime.Now;
+            var timePlus3s = time.AddSeconds(3);
+            var timePlus1hr = time.AddHours(1);
+
+            // strict compare
+            var settings = new SortFilesSettings();
+            settings.AllowFiletimesDifferForDST = false;
+            settings.AllowFiletimesDifferForFAT = false;
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+
+            // allow DST
+            settings.AllowFiletimesDifferForDST = true;
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+
+            // allow close
+            settings.AllowFiletimesDifferForFAT = true;
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+
+            // disallow DST
+            settings.AllowFiletimesDifferForDST = false;
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+        }
+
+        static void TestMethod_MapFilesizesToFilenames()
+        {
+            var pathsep = Path.DirectorySeparatorChar;
+            var dirTest = TestUtil.GetTestSubDirectory("testMapFilesizesToFilenames");
+            File.WriteAllText(Path.Combine(dirTest, "a.txt"), "abcd");
+            File.WriteAllText(Path.Combine(dirTest, "b.txt"), "abcde");
+            File.WriteAllText(Path.Combine(dirTest, "c.txt"), "1234");
+
+            // adjust the lmt of c.txt
+            File.SetLastWriteTimeUtc(Path.Combine(dirTest, "c.txt"), DateTime.Now.AddDays(1));
+
+            var map = SortFilesSearchDuplicates.MapFilesizesToFilenames(dirTest,
+                new DirectoryInfo(dirTest).EnumerateFiles("*"));
+            var mapSorted = (from item in map[4] orderby item.Filename select item).ToArray();
+            TestUtil.IsEq(2, map.Count);
+            TestUtil.IsEq(2, map[4].Count);
+            TestUtil.IsEq(1, map[5].Count);
+
+            // test that FileInfoForComparison was set correctly
+            TestUtil.IsEq(pathsep + "a.txt", mapSorted[0].Filename);
+            TestUtil.IsEq(null, mapSorted[0].ContentHash);
+            TestUtil.IsEq(4L, mapSorted[0].FileSize);
+            TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "a.txt")),
+                mapSorted[0].LastModifiedTime);
+
+            TestUtil.IsEq(pathsep + "b.txt", map[5][0].Filename);
+            TestUtil.IsEq(null, map[5][0].ContentHash);
+            TestUtil.IsEq(5L, map[5][0].FileSize);
+            TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "b.txt")),
+                map[5][0].LastModifiedTime);
+
+            TestUtil.IsEq(pathsep + "c.txt", mapSorted[1].Filename);
+            TestUtil.IsEq(null, mapSorted[1].ContentHash);
+            TestUtil.IsEq(4L, mapSorted[1].FileSize);
+            TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "c.txt")),
+                mapSorted[1].LastModifiedTime);
         }
 
         static string ResultsToString(IEnumerable<FileComparisonResult> list)
@@ -346,7 +417,7 @@ namespace labs_coordinate_pictures
             return (from c in s where c == '.' select c).Count();
         }
 
-        static void TestMethod_HighLevel()
+        static void TestMethod_TestSortFilesOperations()
         {
             // run the methods on actual files. first create combinations of modified/not modified.
             var settings = new SortFilesSettings();
@@ -368,7 +439,8 @@ namespace labs_coordinate_pictures
                 CreateFileCombinations.CountPossibleFilenames(), results.Count);
 
             // verify sort order. for each pair, the left side should be the one that sorts first alphabetically
-            var expectedDuplicates = @"MTimeAddTextMNameOneOnLeft.a|MTimeAddTextMNameOneOnLeft.a_1|Same_Contents
+            var expectedDuplicates =
+@"MTimeAddTextMNameOneOnLeft.a|MTimeAddTextMNameOneOnLeft.a_1|Same_Contents
 MTimeAddTextSmNameOneOnLeft.a|MTimeAddTextSmNameOneOnLeft.a_1|Same_Contents
 MTimeAltTextMNameOneOnLeft.a|MTimeAltTextMNameOneOnLeft.a_1|Same_Contents
 MTimeAltTextSmNameOneOnLeft.a|MTimeAltTextSmNameOneOnLeft.a_1|Same_Contents
@@ -391,7 +463,8 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a_1|Same_Contents";
             TestUtil.IsEq(countExpectedDuplicates, results.Count);
 
             // verify sort order
-            expectedDuplicates = @"MTimeSmTextMNameNone.a|MTimeSmTextMNameNone.z|Same_Contents
+            expectedDuplicates =
+@"MTimeSmTextMNameNone.a|MTimeSmTextMNameNone.z|Same_Contents
 MTimeSmTextMNameOneOnLeft.a|MTimeSmTextMNameOneOnLeft.z|Same_Contents
 MTimeSmTextMNameOneOnRight.a|MTimeSmTextMNameOneOnRight.z|Same_Contents
 MTimeSmTextMNameOneOnRight.a|MTimeSmTextMNameOneOnRight.z_1|Same_Contents
@@ -411,7 +484,8 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a_1|Same_Contents";
 
             // search for differences in similar directories.
             results = SortFilesSearchDifferences.Go(settings);
-            var expectedDifferences = @"|MTimeAddTextMNameNone.z|Right
+            var expectedDifferences =
+@"|MTimeAddTextMNameNone.z|Right
 |MTimeAddTextMNameOneOnLeft.z|Right
 |MTimeAddTextMNameOneOnRight.z|Right
 |MTimeAddTextMNameOneOnRight.z_1|Right
@@ -488,7 +562,8 @@ SmTimeSmTextSmNameOneOnLeft.a_1||Left";
             // account for all 96 files.
             // (SortFilesSearchDifferences doesn't check hashes, so although it knows AddText are different because filesize changes,
             // it won't detect AltText unless filesize or lmt are also different.)
-            var expectedSame = @"SmTimeAltTextSmNameNone.a|SmTimeAltTextSmNameNone.a
+            var expectedSame =
+@"SmTimeAltTextSmNameNone.a|SmTimeAltTextSmNameNone.a
 SmTimeAltTextSmNameOneOnLeft.a|SmTimeAltTextSmNameOneOnLeft.a
 SmTimeAltTextSmNameOneOnRight.a|SmTimeAltTextSmNameOneOnRight.a
 SmTimeSmTextSmNameNone.a|SmTimeSmTextSmNameNone.a
