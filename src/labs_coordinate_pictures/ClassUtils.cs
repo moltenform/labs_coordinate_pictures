@@ -487,27 +487,44 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static void RunLongActionInThread(Form frm, Action fn)
+        public static void RunLongActionInThread(object locking, Control caption,
+            Action action, Action actionOnStart = null, Action actionOnComplete = null)
         {
-            frm.Enabled = false;
-            frm.Text = "Loading...";
+            caption.Text = "Loading...";
+            if (actionOnStart != null)
+            {
+                actionOnStart.Invoke();
+            }
+
             ThreadPool.QueueUserWorkItem(delegate
             {
-                try
+                if (Monitor.TryEnter(locking))
                 {
-                    fn.Invoke();
-                }
-                catch (Exception e)
-                {
-                    MessageErr(e.Message);
-                }
-                finally
-                {
-                    frm.Invoke((MethodInvoker)(() =>
+                    try
                     {
-                        frm.Enabled = true;
-                        frm.Text = " ";
-                    }));
+                        action();
+                    }
+                    catch (Exception e)
+                    {
+                        MessageErr(e.Message);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(locking);
+                        caption.Invoke((MethodInvoker)(() =>
+                        {
+                            caption.Text = " ";
+
+                            if (actionOnComplete != null)
+                            {
+                                actionOnComplete.Invoke();
+                            }
+                        }));
+                    }
+                }
+                else
+                {
+                    MessageErr("Please wait for the operation to complete.");
                 }
             });
         }

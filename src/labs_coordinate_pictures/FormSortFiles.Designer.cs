@@ -44,9 +44,9 @@
             this.txtSkipFiles = new System.Windows.Forms.TextBox();
             this.btnShowRobo = new System.Windows.Forms.Button();
             this.txtShowRobo = new System.Windows.Forms.TextBox();
-            this.btnStart = new System.Windows.Forms.Button();
             this.checkAllowDifferDST = new System.Windows.Forms.CheckBox();
             this.checkPreview = new System.Windows.Forms.CheckBox();
+            this.btnStart = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblAction
@@ -201,16 +201,6 @@
             this.txtShowRobo.Size = new System.Drawing.Size(219, 40);
             this.txtShowRobo.TabIndex = 6;
             // 
-            // btnStart
-            // 
-            this.btnStart.Location = new System.Drawing.Point(377, 347);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(109, 40);
-            this.btnStart.TabIndex = 2;
-            this.btnStart.Text = "Run Robocopy Command";
-            this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
-            // 
             // checkAllowDifferDST
             // 
             this.checkAllowDifferDST.AutoSize = true;
@@ -230,6 +220,16 @@
             this.checkPreview.TabIndex = 3;
             this.checkPreview.Text = "Preview only";
             this.checkPreview.UseVisualStyleBackColor = true;
+            // 
+            // btnStart
+            // 
+            this.btnStart.Location = new System.Drawing.Point(377, 347);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(109, 40);
+            this.btnStart.TabIndex = 2;
+            this.btnStart.Text = "Run Robocopy Command";
+            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // FormSortFiles
             // 
@@ -280,8 +280,8 @@
         private System.Windows.Forms.TextBox txtSkipFiles;
         private System.Windows.Forms.Button btnShowRobo;
         private System.Windows.Forms.TextBox txtShowRobo;
-        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.CheckBox checkAllowDifferDST;
         private System.Windows.Forms.CheckBox checkPreview;
+        private System.Windows.Forms.Button btnStart;
     }
 }

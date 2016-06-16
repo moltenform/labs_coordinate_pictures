@@ -13,6 +13,7 @@ namespace labs_coordinate_pictures
         PersistMostRecentlyUsedList _mruHistoryLeft;
         PersistMostRecentlyUsedList _mruHistoryRight;
         SortFilesAction _action;
+        object _lock = new object();
 
         public FormSortFiles(SortFilesAction action)
         {
@@ -27,6 +28,7 @@ namespace labs_coordinate_pictures
             cmbRightDir.DragEnter += new DragEventHandler(CmbOnDragEnter);
 
             RefreshComboListItems();
+            AcceptButton = btnStart;
             cmbLeftDir.Text = cmbLeftDir.Items.Count > 0 ? cmbLeftDir.Items[0].ToString() : "";
             cmbRightDir.Text = cmbRightDir.Items.Count > 0 ? cmbRightDir.Items[0].ToString() : "";
 
@@ -194,10 +196,10 @@ namespace labs_coordinate_pictures
                 }
                 else
                 {
-                    Utils.RunLongActionInThread(this, new Action(() =>
+                    Utils.RunLongActionInThread(_lock, this, () =>
                     {
                         SyncFilesWithRobocopy.Go(settings);
-                    }));
+                    });
                 }
             }
             else

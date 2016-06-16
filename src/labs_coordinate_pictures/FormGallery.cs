@@ -55,6 +55,9 @@ namespace labs_coordinate_pictures
         // cache of images; we'll prefetch images into the cache on a bg thread
         ImageCache _imagecache;
 
+        // lock so that only one bg task occurs at a time.
+        object _lock = new object();
+
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
@@ -812,7 +815,7 @@ namespace labs_coordinate_pictures
 
                 if (pauseEvery > 0 && countOptimized % pauseEvery == pauseEvery - 1)
                 {
-                    MessageBox.Show("Pausing... Click OK to continue");
+                    Utils.MessageBox("Pausing... Click OK to continue");
                 }
 
                 if (!File.Exists(pathOut))
@@ -899,10 +902,10 @@ namespace labs_coordinate_pictures
                     (item) => item.ToLowerInvariant().EndsWith(".jpg", StringComparison.Ordinal) &&
                     new FileInfo(item).Length > 1024 * minSize);
 
-                RunLongActionInThread(new Action(() =>
+                RunLongActionInThread(() =>
                 {
                     RunBatchOptimize(list, true, stripAllExif, "_optimmed.jpg", minSavings);
-                }));
+                });
             }
         }
 
@@ -922,10 +925,10 @@ namespace labs_coordinate_pictures
                 }
             }
 
-            RunLongActionInThread(new Action(() =>
+            RunLongActionInThread(() =>
             {
                 RunBatchOptimize(list, false, false, ".webp");
-            }));
+            });
         }
 
         // makes several images at different jpg qualities.
@@ -936,7 +939,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            RunLongActionInThread(new Action(() =>
+            RunLongActionInThread(() =>
             {
                 var qualities = new int[] { 96, 94, 92, 90, 85, 80, 75, 70, 60 };
                 foreach (var quality in qualities)
@@ -944,7 +947,7 @@ namespace labs_coordinate_pictures
                     var pathOutput = _filelist.Current + quality.ToString() + ".jpg";
                     Utils.RunImageConversion(_filelist.Current, pathOutput, "100%", quality);
                 }
-            }));
+            });
         }
 
         // after making several images at different jpg qualities, keep the current image and remove the rest.
@@ -988,11 +991,11 @@ namespace labs_coordinate_pictures
 
             if (Utils.AskToConfirm("Apply finishing?"))
             {
-                RunLongActionInThread(new Action(() =>
+                RunLongActionInThread(() =>
                 {
                     CallCompletionAction();
                     OnOpenItem();
-                }));
+                });
             }
         }
 
@@ -1020,22 +1023,16 @@ namespace labs_coordinate_pictures
 
         public void RunLongActionInThread(Action fn)
         {
-            UIEnable(false);
-            ThreadPool.QueueUserWorkItem(delegate
-            {
-                try
+            Utils.RunLongActionInThread(_lock, this, fn,
+                () =>
                 {
-                    fn.Invoke();
-                }
-                finally
+                    UIEnable(false);
+                },
+                () =>
                 {
-                    this.Invoke((MethodInvoker)(() =>
-                    {
-                        UIEnable(true);
-                        OnOpenItem();
-                    }));
-                }
-            });
+                    UIEnable(true);
+                    OnOpenItem();
+                });
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
