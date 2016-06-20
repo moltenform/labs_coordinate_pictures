@@ -402,7 +402,7 @@ namespace labs_coordinate_pictures
 
         internal void OnUndoClick(bool needConfirm)
         {
-            StartBgAction(() => 
+            StartBgAction(() =>
             {
                 // clear UI
                 WrapInvoke(() =>
@@ -493,7 +493,8 @@ namespace labs_coordinate_pictures
         }
     }
 
-    // Note, overwrites are not allowed. Existing files should first be Move()d out of the way.
+    // Allow undoing file operations, following the Command design pattern.
+    // Overwrites are not allowed. Existing files should first be Move()d out of the way.
     // This enables perfect undo-ability for all moves and copies.
     class FileMove
     {

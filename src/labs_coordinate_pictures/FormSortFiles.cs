@@ -138,6 +138,12 @@ namespace labs_coordinate_pictures
             settings.LogFile = Path.Combine(TestUtil.GetTestWriteDirectory(),
                 "log" + Utils.GetRandomDigits() + ".txt");
 
+            // the right directory field isn't shown in UI, we need to set it manually
+            if (action == SortFilesAction.SearchDuplicatesInOneDir)
+            {
+                settings.RightDirectory = settings.LeftDirectory;
+            }
+
             if (!Directory.Exists(settings.LeftDirectory))
             {
                 Utils.MessageErr("Directory does not exist " + settings.LeftDirectory, true);

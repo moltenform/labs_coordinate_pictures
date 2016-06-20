@@ -289,6 +289,12 @@ namespace labs_coordinate_pictures
             TestUtil.IsStringArrayEq("a", settings.SkipDirectories);
             TestUtil.IsStringArrayEq("a|b b|c", settings.SkipFiles);
             TestUtil.IsEq(dirSecond, settings.LeftDirectory);
+
+            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicatesInOneDir, "", "",
+                dirFirst, dirSecond, false, false, true, true);
+
+            TestUtil.IsEq(dirFirst, settings.LeftDirectory);
+            TestUtil.IsEq(dirFirst, settings.RightDirectory);
         }
 
         static void TestMethod_RejectBadFilesSettings()
