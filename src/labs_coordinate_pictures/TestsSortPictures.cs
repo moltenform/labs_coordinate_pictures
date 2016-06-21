@@ -787,6 +787,12 @@ namespace labs_coordinate_pictures
                 // ok to call undo when undo stack is empty.
                 form.UndoOrRedo(true);
 
+                // wrapmovefile should be able to change file case
+                TestUtil.IsTrue(form.WrapMoveFile(
+                    Path.Combine(dir, "t1.bmp"), Path.Combine(dir, "T1.bmp")));
+                TestUtil.IsTrue(form.WrapMoveFile(
+                    Path.Combine(dir, "T1.bmp"), Path.Combine(dir, "t1.bmp")));
+
                 // call wrapmovefile
                 TestUtil.IsTrue(form.WrapMoveFile(
                     Path.Combine(dir, "t1.bmp"), Path.Combine(dir, "t1m.bmp")));

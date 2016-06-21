@@ -304,6 +304,25 @@ namespace labs_coordinate_pictures
 
         public bool WrapMoveFile(string path, string pathDestination, bool addToUndo = true)
         {
+            if (path != pathDestination &&
+                path.Equals(pathDestination, StringComparison.OrdinalIgnoreCase))
+            {
+                // support changing the case of a file on case-insensitive systems
+                var tmpLocation = path + Utils.GetRandomDigits() + Path.GetExtension(path);
+
+                // step 1: move file to a temporary place
+                // step 2: move to destination
+                return WrapMoveFile(path, tmpLocation, addToUndo) &&
+                    WrapMoveFile(tmpLocation, pathDestination, addToUndo);
+            }
+            else
+            {
+                return WrapMoveFileImpl(path, pathDestination, addToUndo);
+            }
+        }
+
+        public bool WrapMoveFileImpl(string path, string pathDestination, bool addToUndo)
+        {
             const int millisecondsRetryMoving = 3000;
             if (File.Exists(pathDestination))
             {
