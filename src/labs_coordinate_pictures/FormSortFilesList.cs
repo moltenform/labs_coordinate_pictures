@@ -229,6 +229,11 @@ namespace labs_coordinate_pictures
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
+                if (needConfirm && !Utils.AskToConfirm("Move " + SelectedItems().Count() + " files?"))
+                {
+                    return;
+                }
+
                 var moves = new List<FileMove>();
                 foreach (var item in SelectedItems())
                 {
@@ -241,6 +246,7 @@ namespace labs_coordinate_pictures
 
                     if (source != null)
                     {
+                        item.SetMarkedAsModifiedInUI(true);
                         if (dest != null && File.Exists(dest))
                         {
                             moves.Add(new FileMove(
@@ -261,17 +267,19 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                if (!needConfirm || Utils.AskToConfirm("Move " + moves.Count + " files?"))
-                {
                     moveFiles(moves, left ? tbLeft : tbRight);
                 }
             }
-        }
 
         internal void OnClickDeleteFile(bool left, bool needConfirm)
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
+                if (needConfirm && !Utils.AskToConfirm("Delete " + SelectedItems().Count() + " files?"))
+                {
+                    return;
+                }
+
                 var moves = new List<FileMove>();
                 foreach (var item in SelectedItems())
                 {
@@ -280,17 +288,15 @@ namespace labs_coordinate_pictures
 
                     if (path != null)
                     {
+                        item.SetMarkedAsModifiedInUI(true);
                         moves.Add(new FileMove(
                             path, Utils.GetSoftDeleteDestination(path), true));
                     }
                 }
 
-                if (!needConfirm || Utils.AskToConfirm("Delete " + moves.Count + " files?"))
-                {
                     moveFiles(moves, left ? tbLeft : tbRight);
                 }
             }
-        }
 
         void OnClickShowFile(bool left)
         {
@@ -490,6 +496,16 @@ namespace labs_coordinate_pictures
             {
                 return listView.SelectedItems.Cast<FileComparisonResult>();
             }
+        }
+
+        private void listView_DoubleClick(object sender, EventArgs e)
+        {
+            foreach (var item in SelectedItems())
+            {
+                item.SetMarkedAsModifiedInUI(!item.GetMarkedAsModifiedInUI());
+            }
+
+            listView.Refresh();
         }
     }
 

@@ -104,6 +104,7 @@
             this.listView.View = System.Windows.Forms.View.Details;
             this.listView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView_ColumnClick);
             this.listView.SelectedIndexChanged += new System.EventHandler(this.listView_SelectedIndexChanged);
+            this.listView.DoubleClick += new System.EventHandler(this.listView_DoubleClick);
             // 
             // colIcon
             // 
@@ -207,13 +208,13 @@
             this.btnCopyFileLeft.Text = "Copy File ->";
             this.btnCopyFileLeft.UseVisualStyleBackColor = true;
             // 
-            // txtRight
+            // tbRight
             // 
             this.tbRight.BackColor = System.Drawing.SystemColors.Control;
             this.tbRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbRight.Location = new System.Drawing.Point(224, 16);
             this.tbRight.Multiline = true;
-            this.tbRight.Name = "txtRight";
+            this.tbRight.Name = "tbRight";
             this.tbRight.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbRight.Size = new System.Drawing.Size(216, 107);
             this.tbRight.TabIndex = 3;
@@ -238,13 +239,13 @@
             this.lblOnRight.TabIndex = 1;
             this.lblOnRight.Text = "Right:";
             // 
-            // txtLeft
+            // tbLeft
             // 
             this.tbLeft.BackColor = System.Drawing.SystemColors.Control;
             this.tbLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbLeft.Location = new System.Drawing.Point(3, 16);
             this.tbLeft.Multiline = true;
-            this.tbLeft.Name = "txtLeft";
+            this.tbLeft.Name = "tbLeft";
             this.tbLeft.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.tbLeft.Size = new System.Drawing.Size(215, 107);
             this.tbLeft.TabIndex = 2;

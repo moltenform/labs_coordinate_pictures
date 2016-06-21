@@ -57,15 +57,16 @@ namespace labs_coordinate_pictures
             Type = type;
 
             string showPath;
-            if (type == FileComparisonResultType.Same_Contents)
+            if (type == FileComparisonResultType.Same_Contents &&
+                FileInfoLeft.Filename != FileInfoRight.Filename)
             {
-                showPath = StripInitialSlash(FileInfoRight.Filename) + "; " +
-                     StripInitialSlash(FileInfoLeft.Filename);
+                showPath = StripInitialSlash(FileInfoLeft.Filename) + "; " +
+                     StripInitialSlash(FileInfoRight.Filename);
             }
             else
             {
-                showPath = StripInitialSlash(FileInfoRight?.Filename ??
-                    FileInfoLeft.Filename);
+                showPath = StripInitialSlash(FileInfoLeft?.Filename ??
+                    FileInfoRight.Filename);
             }
 
             ImageIndex = (int)type;
@@ -93,6 +94,16 @@ namespace labs_coordinate_pictures
         {
             return FileInfoRight == null ? null :
                 Path.Combine(baseDir, StripInitialSlash(FileInfoRight.Filename));
+        }
+
+        public void SetMarkedAsModifiedInUI(bool p)
+        {
+            SubItems[0].Text = p ? " *" : "";
+        }
+
+        public bool GetMarkedAsModifiedInUI()
+        {
+            return !string.IsNullOrWhiteSpace(SubItems[0].Text);
         }
     }
 
@@ -309,10 +320,13 @@ namespace labs_coordinate_pictures
 
     public static class SortFilesSearchDuplicates
     {
-        public static List<FileComparisonResult> Go(SortFilesSettings settings,
-            IEnumerable<FileInfo> filesInLeft,
-            IEnumerable<FileInfo> filesInRight)
+        public static List<FileComparisonResult> Go(SortFilesSettings settings)
         {
+            var filesInLeft = new DirectoryInfo(settings.LeftDirectory).EnumerateFiles(
+                "*", SearchOption.AllDirectories);
+            var filesInRight = new DirectoryInfo(settings.RightDirectory).EnumerateFiles(
+                "*", SearchOption.AllDirectories);
+
             // first, just make an index that simply maps filesizes to filenames.
             // we don't need to compute any content-hashes yet, because if there
             // is only one file with that filesize, we know it's not a duplicate.
@@ -353,16 +367,6 @@ namespace labs_coordinate_pictures
             }
 
             return results;
-        }
-
-        public static List<FileComparisonResult> Go(
-            SortFilesSettings settings)
-        {
-            var diLeft = new DirectoryInfo(settings.LeftDirectory);
-            var diRight = new DirectoryInfo(settings.RightDirectory);
-            return Go(settings,
-                diLeft.EnumerateFiles("*", SearchOption.AllDirectories),
-                diRight.EnumerateFiles("*", SearchOption.AllDirectories));
         }
 
         public static Dictionary<long, List<FileInfoForComparison>> MapFilesizesToFilenames(
