@@ -865,13 +865,13 @@ renamed2.txt||Left";
                         select item;
             var resultsMoved = SortFilesSearchDuplicates.SearchMovedFiles(
                 settings.LeftDirectory, settings.RightDirectory, query);
-            TestUtil.IsEq(3, resultsMoved.Count);
-            TestUtil.IsEq(Utils.PathSep + "empty1.txt", resultsMoved[0].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "empty1.a", resultsMoved[0].Item2);
-            TestUtil.IsEq(Utils.PathSep + "renamed1.txt", resultsMoved[1].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed1.a", resultsMoved[1].Item2);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.txt", resultsMoved[2].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.a", resultsMoved[2].Item2);
+            TestUtil.IsEq(2, resultsMoved.Count);
+
+            // the 0-length empty.txt isn't included in this list, we don't treat it as a duplicate
+            TestUtil.IsEq(Utils.PathSep + "renamed1.txt", resultsMoved[0].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed1.a", resultsMoved[0].Item2);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.txt", resultsMoved[1].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.a", resultsMoved[1].Item2);
         }
     }
 }

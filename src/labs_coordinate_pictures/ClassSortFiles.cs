@@ -381,6 +381,12 @@ namespace labs_coordinate_pictures
         static FileInfoForComparison FindInMap(Dictionary<long, List<FileInfoForComparison>> map,
             string baseDir, string fullnameToFind, long lengthOfFileToFind)
         {
+            if (lengthOfFileToFind == 0)
+            {
+                // 0-length files compare unequal; often placeholders intentionally created by user
+                return null;
+            }
+
             List<FileInfoForComparison> list;
             if (map.TryGetValue(lengthOfFileToFind, out list))
             {
