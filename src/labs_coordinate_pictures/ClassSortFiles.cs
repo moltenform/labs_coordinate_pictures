@@ -336,33 +336,18 @@ namespace labs_coordinate_pictures
             // go through files on the right
             foreach (var infoRight in filesInRight)
             {
-                List<FileInfoForComparison> list;
-                if (indexLeft.TryGetValue(infoRight.Length, out list))
-                {
-                    // we found another file(s) with the same filesize, so
-                    // let's compare hashes of the content to see if they're the same.
-                    var hashRight = Utils.GetSha512(infoRight.FullName);
-                    foreach (var objLeft in list)
-                    {
-                        // compute the hash if it hasn't been computed already
-                        if (objLeft.ContentHash == null)
-                        {
-                            objLeft.ContentHash = Utils.GetSha512(
-                                settings.LeftDirectory + objLeft.Filename);
-                        }
+                var objLeft = FindInMap(
+                    indexLeft, settings.LeftDirectory, infoRight.FullName, infoRight.Length);
 
-                        if (objLeft.ContentHash == hashRight)
-                        {
-                            // these are duplicates, they have the same hash and filesize.
-                            var filenameRight = infoRight.FullName.Substring(
-                                settings.RightDirectory.Length);
-                            var objRight = new FileInfoForComparison(
-                                filenameRight, infoRight.Length, infoRight.LastWriteTimeUtc, hashRight);
-                            results.Add(new FileComparisonResult(
-                                objLeft, objRight, FileComparisonResultType.Same_Contents));
-                            break;
-                        }
-                    }
+                if (objLeft != null)
+                {
+                    // these are duplicates, they have the same hash and filesize.
+                    var filenameRight = infoRight.FullName.Substring(
+                        settings.RightDirectory.Length);
+                    var objRight = new FileInfoForComparison(filenameRight,
+                        infoRight.Length, infoRight.LastWriteTimeUtc, objLeft.ContentHash);
+                    results.Add(new FileComparisonResult(
+                        objLeft, objRight, FileComparisonResultType.Same_Contents));
                 }
             }
 
@@ -391,6 +376,60 @@ namespace labs_coordinate_pictures
             }
 
             return map;
+        }
+
+        static FileInfoForComparison FindInMap(Dictionary<long, List<FileInfoForComparison>> map,
+            string baseDir, string fullnameToFind, long lengthOfFileToFind)
+        {
+            List<FileInfoForComparison> list;
+            if (map.TryGetValue(lengthOfFileToFind, out list))
+            {
+                // we found another file(s) with the same filesize, so
+                // let's compare hashes of the content to see if they're the same.
+                var hash = Utils.GetSha512(fullnameToFind);
+                foreach (var obj in list)
+                {
+                    // compute the hash if it hasn't been computed already; cache it also
+                    if (obj.ContentHash == null)
+                    {
+                        obj.ContentHash = Utils.GetSha512(
+                            baseDir + obj.Filename);
+                    }
+
+                    if (obj.ContentHash == hash)
+                    {
+                        return obj;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static List<Tuple<FileComparisonResult, string>> SearchMovedFiles(
+            string leftDirectory, string rightDirectory,
+            IEnumerable<FileComparisonResult> query)
+        {
+            // We'll go through every deleted file (exists on the Left
+            // but not the Right) and see if it is just the result of a
+            // moved or renamed file (a file with same contents already exists on Right)
+            var filesInRight = new DirectoryInfo(rightDirectory).EnumerateFiles(
+                "*", SearchOption.AllDirectories);
+            var map = MapFilesizesToFilenames(rightDirectory, filesInRight);
+            var results = new List<Tuple<FileComparisonResult, string>>();
+
+            foreach (var item in query)
+            {
+                var objSameContents = FindInMap(map, rightDirectory,
+                    leftDirectory + item.FileInfoLeft.Filename, item.FileInfoLeft.FileSize);
+                if (objSameContents != null)
+                {
+                    // these are duplicates, they have the same hash and filesize.
+                    results.Add(Tuple.Create(item, objSameContents.Filename));
+                }
+            }
+
+            return results;
         }
     }
 

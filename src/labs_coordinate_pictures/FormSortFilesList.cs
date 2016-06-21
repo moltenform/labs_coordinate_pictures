@@ -70,7 +70,7 @@ namespace labs_coordinate_pictures
                     _results = SortFilesSearchDuplicatesInOneDir.Go(_settings).ToArray();
                     break;
                 default:
-                    Utils.MessageErr("Unexpected action.");
+                    Utils.MessageErr("Unrecognized action.");
                     break;
             }
 
@@ -91,13 +91,15 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            // only collect info we have cached, avoid hitting the disk, for responsiveness
+            // limit filepaths shown; apparently txtbox.Text = "long string" can be slow
+            const int nMaxFilepathsToShow = 20;
             StringBuilder sbLeftFiles = new StringBuilder();
             StringBuilder sbLeftStats = new StringBuilder();
             StringBuilder sbRightFiles = new StringBuilder();
             StringBuilder sbRightStats = new StringBuilder();
-            foreach (var item in SelectedItems())
+            foreach (var item in SelectedItems().Take(nMaxFilepathsToShow))
             {
+                // only collect info we have cached, avoid hitting the disk, for responsiveness
                 if (item.FileInfoLeft != null)
                 {
                     sbLeftFiles.AppendLine(item.GetLeft(_settings.LeftDirectory));
@@ -109,6 +111,13 @@ namespace labs_coordinate_pictures
                     sbRightFiles.AppendLine(item.GetRight(_settings.RightDirectory));
                     sbRightStats.AppendLine(Utils.FormatFilesize(item.FileInfoRight.FileSize));
                 }
+            }
+
+            if (SelectedItems().Count() > nMaxFilepathsToShow)
+            {
+                var omitted = "...Files ommitted, use Edit->Copy Filepaths to see the rest...";
+                sbLeftStats.AppendLine(omitted);
+                sbRightStats.AppendLine(omitted);
             }
 
             foreach (var ctrl in new Control[] { lblOnLeft, tbLeft,
@@ -517,6 +526,34 @@ namespace labs_coordinate_pictures
             {
                 Clipboard.SetText(string.Join(Utils.NL, query));
             }
+        }
+
+        private void searchMovedFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.MessageBox("We'll go through every deleted file (exists on the Left " +
+                "but not the Right) and see if it is just the result of a " +
+                "moved or renamed file (a file with same contents already exists on Right).");
+
+            var query = (from item in listView.Items.Cast<FileComparisonResult>()
+                        where item.Type == FileComparisonResultType.Left_Only
+                        select item).ToList();
+
+            StartBgAction(() => {
+                // retrieve a list of the items that are actually moved files
+                var results = SortFilesSearchDuplicates.SearchMovedFiles(
+                    _settings.LeftDirectory, _settings.RightDirectory, query);
+
+                WrapInvoke(() => {
+                    // show the result in the UI, in the left-most column
+                    MessageBox.Show("Found " + results.Count + " moved file(s).");
+                    foreach (var item in results)
+                    {
+                        item.Item1.SubItems[0].Text = item.Item2;
+                    }
+
+                    listView.Refresh();
+                });
+            });
         }
 
         IEnumerable<FileComparisonResult> SelectedItems()

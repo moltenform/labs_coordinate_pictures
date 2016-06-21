@@ -121,10 +121,16 @@ namespace labs_coordinate_pictures
             return directory;
         }
 
-        public static string GetTestSubDirectory(string name)
+        public static string GetTestSubDirectory(string name, bool ensureEmpty = false)
         {
-            string directory = Path.Combine(GetTestWriteDirectory(), name);
+            string directory = GetTestWriteDirectory() + Utils.PathSep + name;
             Directory.CreateDirectory(directory);
+            if (ensureEmpty)
+            {
+                Directory.Delete(directory, true);
+                Directory.CreateDirectory(directory);
+            }
+
             return directory;
         }
 
@@ -426,7 +432,7 @@ namespace labs_coordinate_pictures
 
         static int CountFilenames(string s)
         {
-            // valid if each filename has 1 and only 1 file extension.
+            // valid if each filename has exactly one file extension.
             return (from c in s where c == '.' select c).Count();
         }
 
@@ -434,8 +440,8 @@ namespace labs_coordinate_pictures
         {
             // run the methods on actual files. first create combinations of modified/not modified.
             var settings = new SortFilesSettings();
-            settings.LeftDirectory = TestUtil.GetTestSubDirectory("left_fndmved");
-            settings.RightDirectory = TestUtil.GetTestSubDirectory("right_fndmved");
+            settings.LeftDirectory = TestUtil.GetTestSubDirectory("left_fndmved", true);
+            settings.RightDirectory = TestUtil.GetTestSubDirectory("right_fndmved", true);
             var filesCreated = CreateFileCombinations.Go(settings.LeftDirectory, settings.RightDirectory);
             TestUtil.IsEq(
                 CreateFileCombinations.CountPossibleModifiedTimes() *
@@ -806,6 +812,66 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             TestUtil.IsTrue(!File.Exists(Path.Combine(left, "onlyright.txt")));
             checkFileContents();
             form.Dispose();
+        }
+
+        static void TestMethod_TestSearchMovedFiles()
+        {
+            var settings = new SortFilesSettings();
+            var left = TestUtil.GetTestSubDirectory("left_fndmved", true);
+            var right = TestUtil.GetTestSubDirectory("right_fndmved", true);
+            settings.LeftDirectory = left;
+            settings.RightDirectory = right;
+
+            // first, set up test files
+            File.WriteAllText(left + Utils.PathSep + "onlyleft.txt", "onlyL");
+            File.WriteAllText(left + Utils.PathSep + "renamed1.txt", "renamed1");
+            File.WriteAllText(left + Utils.PathSep + "renamed2.txt", "renamed2");
+            File.WriteAllText(left + Utils.PathSep + "empty1.txt", "");
+            File.WriteAllText(left + Utils.PathSep + "changed1.txt", "123");
+            File.WriteAllText(left + Utils.PathSep + "same.txt", "s");
+            File.WriteAllText(right + Utils.PathSep + "onlyright.txt", "onlyR");
+            File.WriteAllText(right + Utils.PathSep + "renamed1.a", "renamed1");
+            File.WriteAllText(right + Utils.PathSep + "renamed2.a", "renamed2");
+            File.WriteAllText(right + Utils.PathSep + "empty1.a", "");
+            File.WriteAllText(right + Utils.PathSep + "changed1.txt", "124");
+            File.WriteAllText(right + Utils.PathSep + "same.txt", "s");
+
+            // set last-write-times
+            var dtNow = DateTime.Now;
+            foreach (var filename in Directory.EnumerateFiles(left).Concat(
+                Directory.EnumerateFiles(right)))
+            {
+                File.SetLastWriteTimeUtc(filename, dtNow);
+            }
+
+            File.SetLastWriteTimeUtc(right + Utils.PathSep + "changed1.txt", dtNow.AddDays(1));
+
+            // run search-for-differences
+            var results = SortFilesSearchDifferences.Go(settings);
+            var expectedDifferences = @"|empty1.a|Right
+|onlyright.txt|Right
+|renamed1.a|Right
+|renamed2.a|Right
+changed1.txt|changed1.txt|Changed
+empty1.txt||Left
+onlyleft.txt||Left
+renamed1.txt||Left
+renamed2.txt||Left";
+            CompareResultsToString(results, expectedDifferences);
+
+            // run search for moved files
+            var query = from item in results
+                        where item.Type == FileComparisonResultType.Left_Only
+                        select item;
+            var resultsMoved = SortFilesSearchDuplicates.SearchMovedFiles(
+                settings.LeftDirectory, settings.RightDirectory, query);
+            TestUtil.IsEq(3, resultsMoved.Count);
+            TestUtil.IsEq(Utils.PathSep + "empty1.txt", resultsMoved[0].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "empty1.a", resultsMoved[0].Item2);
+            TestUtil.IsEq(Utils.PathSep + "renamed1.txt", resultsMoved[1].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed1.a", resultsMoved[1].Item2);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.txt", resultsMoved[2].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.a", resultsMoved[2].Item2);
         }
     }
 }

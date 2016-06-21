@@ -511,6 +511,10 @@ namespace labs_coordinate_pictures
                             {
                                 actionOnStart.Invoke();
                             }
+                            else
+                            {
+                                caption.Enabled = false;
+                            }
                         }));
 
                         action();
@@ -531,12 +535,16 @@ namespace labs_coordinate_pictures
                             {
                                 actionOnComplete.Invoke();
                             }
+                            else
+                            {
+                                caption.Enabled = true;
+                            }
                         }));
                     }
                 }
                 else
                 {
-                    MessageErr("Please wait for the operation to complete.");
+                    MessageBox("Please wait for the operation to complete.");
                 }
             });
         }
