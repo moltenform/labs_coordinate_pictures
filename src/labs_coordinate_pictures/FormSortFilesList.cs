@@ -42,7 +42,7 @@ namespace labs_coordinate_pictures
             btnDeleteRight.Click += (o, e) => OnClickDeleteFile(false, true);
             btnShowLeft.Click += (o, e) => OnClickShowFile(true);
             btnShowRight.Click += (o, e) => OnClickShowFile(false);
-            btnUndo.Click += (o, e) => OnUndoClick(true);
+            undoFileMoveToolStripMenuItem.Click += (o, e) => OnUndoClick(true);
         }
 
         private void FormSortFilesList_Load(object sender, EventArgs e)
@@ -52,7 +52,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            btnRefresh_Click();
+            refreshToolStripMenuItem_Click(null, null);
         }
 
         internal void RunSortFilesAction()
@@ -146,20 +146,6 @@ namespace labs_coordinate_pictures
             catch (Exception)
             {
                 return filename + " not accessible.";
-            }
-        }
-
-        private void btnDetails_Click(object sender, EventArgs e)
-        {
-            // allowed to hit disk, so it pulls recent info + computes hash
-            var first = SelectedItems().FirstOrDefault();
-            if (first != null)
-            {
-                tbLeft.Text = first.FileInfoLeft == null ? "" :
-                    GetFileDetails(first.GetLeft(_settings.LeftDirectory));
-
-                tbRight.Text = first.FileInfoRight == null ? "" :
-                    GetFileDetails(first.GetRight(_settings.RightDirectory));
             }
         }
 
@@ -312,54 +298,6 @@ namespace labs_coordinate_pictures
             }
         }
 
-        void btnCompareMerge_Click(object sender, EventArgs e)
-        {
-            var item = SelectedItems().FirstOrDefault();
-            if (item != null)
-            {
-                // if 1 item selected, compare left file and right file
-                string compLeft = item.GetLeft(_settings.LeftDirectory) ?? "";
-                string compRight = item.GetRight(_settings.RightDirectory) ?? "";
-
-                // if > 1 item selected, compare left parent dir and right parent dir
-                if (SelectedItems().Count() > 1)
-                {
-                    compLeft = string.IsNullOrEmpty(compLeft) ? "" :
-                        Path.GetDirectoryName(compLeft);
-                    compRight = string.IsNullOrEmpty(compRight) ? "" :
-                        Path.GetDirectoryName(compRight);
-                }
-
-                var mergeExe = Configs.Current.Get(ConfigKey.FilepathWinMerge);
-                if (string.IsNullOrEmpty(mergeExe) || !File.Exists(mergeExe))
-                {
-                    Utils.MessageBox("Location for winmerge not set, go to the main window and " +
-                        "select the menuitem Options->Set Winmerge location...");
-                }
-                else
-                {
-                    var args = new string[] { compLeft, compRight };
-                    Utils.Run(mergeExe, args, shellExecute: false, waitForExit: false, hideWindow: false);
-                }
-            }
-        }
-
-        void btnCopyFilenames_Click(object sender, EventArgs e)
-        {
-            if (SelectedItems().Count() > 0)
-            {
-                var query = from item in SelectedItems()
-                            select item.SubItems[1].Text + "\t" + item.SubItems[2].Text;
-
-                Clipboard.SetText(string.Join(Utils.NL, query));
-            }
-        }
-
-        void btnRefresh_Click(object sender = null, EventArgs e = null)
-        {
-            StartBgAction(RunSortFilesAction);
-        }
-
         internal void GetTestHooks(out ListView outListView,
             out List<FileComparisonResult> outSelectedItems,
             out UndoStack<List<FileMove>> outUndoStack)
@@ -485,6 +423,102 @@ namespace labs_coordinate_pictures
             }
         }
 
+        private void listView_DoubleClick(object sender, EventArgs e)
+        {
+            foreach (var item in SelectedItems())
+            {
+                item.SetMarkedAsModifiedInUI(!item.GetMarkedAsModifiedInUI());
+            }
+
+            listView.Refresh();
+        }
+
+        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartBgAction(RunSortFilesAction);
+        }
+
+        private void showFileDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // allowed to hit disk, so it pulls recent info + computes hash
+            var first = SelectedItems().FirstOrDefault();
+            if (first != null)
+            {
+                tbLeft.Text = first.FileInfoLeft == null ? "" :
+                    GetFileDetails(first.GetLeft(_settings.LeftDirectory));
+
+                tbRight.Text = first.FileInfoRight == null ? "" :
+                    GetFileDetails(first.GetRight(_settings.RightDirectory));
+            }
+        }
+
+        private void compareFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = SelectedItems().FirstOrDefault();
+            if (item != null)
+            {
+                // if 1 item selected, compare left file and right file
+                string compLeft = item.GetLeft(_settings.LeftDirectory) ?? "";
+                string compRight = item.GetRight(_settings.RightDirectory) ?? "";
+
+                // if > 1 item selected, compare left parent dir and right parent dir
+                if (SelectedItems().Count() > 1)
+                {
+                    compLeft = string.IsNullOrEmpty(compLeft) ? "" :
+                        Path.GetDirectoryName(compLeft);
+                    compRight = string.IsNullOrEmpty(compRight) ? "" :
+                        Path.GetDirectoryName(compRight);
+                }
+
+                var mergeExe = Configs.Current.Get(ConfigKey.FilepathWinMerge);
+                if (string.IsNullOrEmpty(mergeExe) || !File.Exists(mergeExe))
+                {
+                    Utils.MessageBox("Location for winmerge not set, go to the main window and " +
+                        "select the menuitem Options->Set Winmerge location...");
+                }
+                else
+                {
+                    var args = new string[] { compLeft, compRight };
+                    Utils.Run(mergeExe, args, shellExecute: false, waitForExit: false, hideWindow: false);
+                }
+            }
+        }
+
+        private void copyAllFilepathsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var query = from item in SelectedItems()
+                            select item.SubItems[1].Text + "\t" + item.SubItems[2].Text;
+
+            if (query.FirstOrDefault() != null)
+            {
+                Clipboard.SetText(string.Join(Utils.NL, query));
+            }
+        }
+
+        private void copyLeftFilepathsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var query = from item in SelectedItems()
+                        where item.FileInfoLeft != null
+                        select item.GetLeft(_settings.LeftDirectory);
+
+            if (query.FirstOrDefault() != null)
+            {
+                Clipboard.SetText(string.Join(Utils.NL, query));
+            }
+        }
+
+        private void copyRightFilepathsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var query = from item in SelectedItems()
+                        where item.FileInfoRight != null
+                        select item.GetRight(_settings.RightDirectory);
+
+            if (query.FirstOrDefault() != null)
+            {
+                Clipboard.SetText(string.Join(Utils.NL, query));
+            }
+        }
+
         IEnumerable<FileComparisonResult> SelectedItems()
         {
             // for testability, override what selected items are seen.
@@ -496,16 +530,6 @@ namespace labs_coordinate_pictures
             {
                 return listView.SelectedItems.Cast<FileComparisonResult>();
             }
-        }
-
-        private void listView_DoubleClick(object sender, EventArgs e)
-        {
-            foreach (var item in SelectedItems())
-            {
-                item.SetMarkedAsModifiedInUI(!item.GetMarkedAsModifiedInUI());
-            }
-
-            listView.Refresh();
         }
     }
 

@@ -48,33 +48,42 @@
             this.lblOnRight = new System.Windows.Forms.Label();
             this.tbLeft = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.btnCopyFilenames = new System.Windows.Forms.Button();
-            this.btnCompareMerge = new System.Windows.Forms.Button();
-            this.btnUndo = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.showFileDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.compareFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoFileMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.copyLeftFilepathsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyRightFilepathsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyAllFilepathsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.btnDetails = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.lblAction, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.listView, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.lblAction, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.listView, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 220F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(449, 460);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
@@ -82,7 +91,7 @@
             // 
             this.lblAction.AutoSize = true;
             this.lblAction.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblAction.Location = new System.Drawing.Point(3, 0);
+            this.lblAction.Location = new System.Drawing.Point(3, 30);
             this.lblAction.Name = "lblAction";
             this.lblAction.Size = new System.Drawing.Size(443, 13);
             this.lblAction.TabIndex = 0;
@@ -96,7 +105,7 @@
             this.colPath});
             this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView.FullRowSelect = true;
-            this.listView.Location = new System.Drawing.Point(3, 16);
+            this.listView.Location = new System.Drawing.Point(3, 46);
             this.listView.Name = "listView";
             this.listView.Size = new System.Drawing.Size(443, 191);
             this.listView.TabIndex = 1;
@@ -137,7 +146,7 @@
             this.tableLayoutPanel2.Controls.Add(this.lblOnRight, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.tbLeft, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 213);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 243);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 5;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -252,55 +261,104 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.btnCopyFilenames);
-            this.panel1.Controls.Add(this.btnDetails);
-            this.panel1.Controls.Add(this.btnCompareMerge);
-            this.panel1.Controls.Add(this.btnUndo);
-            this.panel1.Controls.Add(this.btnRefresh);
+            this.panel1.Controls.Add(this.menuStrip1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 433);
+            this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(443, 24);
             this.panel1.TabIndex = 6;
             // 
-            // btnCopyFilenames
+            // menuStrip1
             // 
-            this.btnCopyFilenames.Location = new System.Drawing.Point(170, 1);
-            this.btnCopyFilenames.Name = "btnCopyFilenames";
-            this.btnCopyFilenames.Size = new System.Drawing.Size(102, 23);
-            this.btnCopyFilenames.TabIndex = 0;
-            this.btnCopyFilenames.Text = "Copy Filenames";
-            this.btnCopyFilenames.UseVisualStyleBackColor = true;
-            this.btnCopyFilenames.Click += new System.EventHandler(this.btnCopyFilenames_Click);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(443, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
-            // btnCompareMerge
+            // fileToolStripMenuItem
             // 
-            this.btnCompareMerge.Location = new System.Drawing.Point(6, 1);
-            this.btnCompareMerge.Name = "btnCompareMerge";
-            this.btnCompareMerge.Size = new System.Drawing.Size(75, 23);
-            this.btnCompareMerge.TabIndex = 0;
-            this.btnCompareMerge.Text = "Compare...";
-            this.btnCompareMerge.UseVisualStyleBackColor = true;
-            this.btnCompareMerge.Click += new System.EventHandler(this.btnCompareMerge_Click);
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshToolStripMenuItem,
+            this.toolStripMenuItem2,
+            this.showFileDetailsToolStripMenuItem,
+            this.compareFilesToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
             // 
-            // btnUndo
+            // refreshToolStripMenuItem
             // 
-            this.btnUndo.Location = new System.Drawing.Point(359, 1);
-            this.btnUndo.Name = "btnUndo";
-            this.btnUndo.Size = new System.Drawing.Size(75, 23);
-            this.btnUndo.TabIndex = 0;
-            this.btnUndo.Text = "Undo...";
-            this.btnUndo.UseVisualStyleBackColor = true;
+            this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.refreshToolStripMenuItem.Text = "Refresh";
+            this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
-            // btnRefresh
+            // toolStripMenuItem2
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(278, 1);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
-            this.btnRefresh.TabIndex = 0;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(159, 6);
+            // 
+            // showFileDetailsToolStripMenuItem
+            // 
+            this.showFileDetailsToolStripMenuItem.Name = "showFileDetailsToolStripMenuItem";
+            this.showFileDetailsToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.showFileDetailsToolStripMenuItem.Text = "Show File Details";
+            this.showFileDetailsToolStripMenuItem.Click += new System.EventHandler(this.showFileDetailsToolStripMenuItem_Click);
+            // 
+            // compareFilesToolStripMenuItem
+            // 
+            this.compareFilesToolStripMenuItem.Name = "compareFilesToolStripMenuItem";
+            this.compareFilesToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.compareFilesToolStripMenuItem.Text = "Compare Files...";
+            this.compareFilesToolStripMenuItem.Click += new System.EventHandler(this.compareFilesToolStripMenuItem_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.undoFileMoveToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.copyAllFilepathsToolStripMenuItem,
+            this.copyLeftFilepathsToolStripMenuItem,
+            this.copyRightFilepathsToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // undoFileMoveToolStripMenuItem
+            // 
+            this.undoFileMoveToolStripMenuItem.Name = "undoFileMoveToolStripMenuItem";
+            this.undoFileMoveToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.undoFileMoveToolStripMenuItem.Text = "Undo File Move...";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 6);
+            // 
+            // copyLeftFilepathsToolStripMenuItem
+            // 
+            this.copyLeftFilepathsToolStripMenuItem.Name = "copyLeftFilepathsToolStripMenuItem";
+            this.copyLeftFilepathsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.copyLeftFilepathsToolStripMenuItem.Text = "Copy Left Filepaths";
+            this.copyLeftFilepathsToolStripMenuItem.Click += new System.EventHandler(this.copyLeftFilepathsToolStripMenuItem_Click);
+            // 
+            // copyRightFilepathsToolStripMenuItem
+            // 
+            this.copyRightFilepathsToolStripMenuItem.Name = "copyRightFilepathsToolStripMenuItem";
+            this.copyRightFilepathsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.copyRightFilepathsToolStripMenuItem.Text = "Copy Right Filepaths";
+            this.copyRightFilepathsToolStripMenuItem.Click += new System.EventHandler(this.copyRightFilepathsToolStripMenuItem_Click);
+            // 
+            // copyAllFilepathsToolStripMenuItem
+            // 
+            this.copyAllFilepathsToolStripMenuItem.Name = "copyAllFilepathsToolStripMenuItem";
+            this.copyAllFilepathsToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.copyAllFilepathsToolStripMenuItem.Text = "Copy All Filepaths";
+            this.copyAllFilepathsToolStripMenuItem.Click += new System.EventHandler(this.copyAllFilepathsToolStripMenuItem_Click);
             // 
             // imageList
             // 
@@ -312,16 +370,6 @@
             this.imageList.Images.SetKeyName(3, "files_rightonly.png");
             this.imageList.Images.SetKeyName(4, "files_same.png");
             this.imageList.Images.SetKeyName(5, "move.png");
-            // 
-            // btnDetails
-            // 
-            this.btnDetails.Location = new System.Drawing.Point(87, 1);
-            this.btnDetails.Name = "btnDetails";
-            this.btnDetails.Size = new System.Drawing.Size(75, 23);
-            this.btnDetails.TabIndex = 0;
-            this.btnDetails.Text = "Details";
-            this.btnDetails.UseVisualStyleBackColor = true;
-            this.btnDetails.Click += new System.EventHandler(this.btnDetails_Click);
             // 
             // FormSortFilesList
             // 
@@ -337,6 +385,9 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -362,10 +413,17 @@
         private System.Windows.Forms.Button btnShowRight;
         private System.Windows.Forms.Button btnShowLeft;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.Button btnCopyFilenames;
-        private System.Windows.Forms.Button btnCompareMerge;
-        private System.Windows.Forms.Button btnUndo;
-        private System.Windows.Forms.Button btnDetails;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem undoFileMoveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem compareFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showFileDetailsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyLeftFilepathsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyRightFilepathsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyAllFilepathsToolStripMenuItem;
     }
 }
