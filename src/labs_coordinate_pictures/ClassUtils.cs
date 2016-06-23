@@ -501,6 +501,7 @@ namespace labs_coordinate_pictures
                 // check if another operation is ongoing
                 if (Monitor.TryEnter(locking))
                 {
+                    var prevText = caption.Text;
                     try
                     {
                         // on the UI thread tell the user we are "working"
@@ -510,10 +511,6 @@ namespace labs_coordinate_pictures
                             if (actionOnStart != null)
                             {
                                 actionOnStart.Invoke();
-                            }
-                            else
-                            {
-                                caption.Enabled = false;
                             }
                         }));
 
@@ -530,14 +527,10 @@ namespace labs_coordinate_pictures
                         // on the UI thread tell the user we are "done"
                         caption.Invoke((MethodInvoker)(() =>
                         {
-                            caption.Text = " ";
+                            caption.Text = prevText;
                             if (actionOnComplete != null)
                             {
                                 actionOnComplete.Invoke();
-                            }
-                            else
-                            {
-                                caption.Enabled = true;
                             }
                         }));
                     }
