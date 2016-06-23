@@ -63,7 +63,8 @@ namespace labs_coordinate_pictures
             {
                 lblAction.Text = "Search for duplicate files.";
                 checkAllowDifferDST.Visible = false;
-                checkAllowDifferSeconds.Visible = false;
+                checkAllowDifferSeconds.Text = "Files with same name, size, " +
+                    "and last-modified time treated as equal (faster)";
             }
             else if (action == SortFilesAction.SearchDuplicatesInOneDir)
             {
@@ -78,7 +79,8 @@ namespace labs_coordinate_pictures
             }
             else if (action == SortFilesAction.SyncFiles)
             {
-                lblAction.Text = "Sync files. Copy changes from the source directory to the destination directory.";
+                lblAction.Text = "Sync files. " +
+                    "Copy changes from the source directory to the destination directory.";
             }
         }
 
@@ -123,7 +125,7 @@ namespace labs_coordinate_pictures
         public static SortFilesSettings FillFromUI(SortFilesAction action,
             string skipDirs, string skipFiles,
             string dirLeft, string dirRight,
-            bool allowTimesDiffer, bool allowTimesDifferDst,
+            bool checkbox1, bool checkbox2,
             bool mirror, bool previewOnly)
         {
             var settings = new SortFilesSettings();
@@ -131,8 +133,8 @@ namespace labs_coordinate_pictures
             settings.SkipFiles.AddRange(TextLineByLineToList(skipFiles));
             settings.LeftDirectory = dirLeft;
             settings.RightDirectory = dirRight;
-            settings.AllowFiletimesDifferForFAT = allowTimesDiffer;
-            settings.AllowFiletimesDifferForDST = allowTimesDifferDst;
+            settings.AllowFiletimesDifferForFAT = checkbox1;
+            settings.AllowFiletimesDifferForDST = checkbox2;
             settings.Mirror = mirror;
             settings.PreviewOnly = previewOnly;
             settings.LogFile = Path.Combine(TestUtil.GetTestWriteDirectory(),
@@ -142,6 +144,10 @@ namespace labs_coordinate_pictures
             if (action == SortFilesAction.SearchDuplicatesInOneDir)
             {
                 settings.RightDirectory = settings.LeftDirectory;
+            }
+            else if (action == SortFilesAction.SearchDuplicates)
+            {
+                settings.SearchDuplicatesCanUseFiletimes = checkbox1;
             }
 
             if (!Directory.Exists(settings.LeftDirectory))

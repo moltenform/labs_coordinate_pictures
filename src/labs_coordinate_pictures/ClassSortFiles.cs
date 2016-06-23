@@ -38,6 +38,7 @@ namespace labs_coordinate_pictures
         public string RightDirectory { get; set; }
         public bool AllowFiletimesDifferForFAT { get; set; }
         public bool AllowFiletimesDifferForDST { get; set; }
+        public bool SearchDuplicatesCanUseFiletimes { get; set; }
         public bool Mirror { get; set; }
         public bool PreviewOnly { get; set; }
         public string LogFile { get; set; }
@@ -336,14 +337,15 @@ namespace labs_coordinate_pictures
             // go through files on the right
             foreach (var infoRight in filesInRight)
             {
-                var objLeft = FindInMap(
-                    indexLeft, settings.LeftDirectory, infoRight.FullName, infoRight.Length);
+                var filenameRight = infoRight.FullName.Substring(
+                     settings.RightDirectory.Length);
+                var objLeft = FindInMap(indexLeft, settings.LeftDirectory, infoRight.FullName,
+                    infoRight.Length, settings.SearchDuplicatesCanUseFiletimes,
+                    infoRight.LastWriteTimeUtc, filenameRight);
 
                 if (objLeft != null)
                 {
                     // these are duplicates, they have the same hash and filesize.
-                    var filenameRight = infoRight.FullName.Substring(
-                        settings.RightDirectory.Length);
                     var objRight = new FileInfoForComparison(filenameRight,
                         infoRight.Length, infoRight.LastWriteTimeUtc, objLeft.ContentHash);
                     results.Add(new FileComparisonResult(
@@ -379,7 +381,8 @@ namespace labs_coordinate_pictures
         }
 
         static FileInfoForComparison FindInMap(Dictionary<long, List<FileInfoForComparison>> map,
-            string baseDir, string fullnameToFind, long lengthOfFileToFind)
+            string baseDir, string fullnameToFind, long lengthOfFileToFind,
+            bool useLmtShortcut, DateTime lmt, string partialFilename)
         {
             if (lengthOfFileToFind == 0)
             {
@@ -390,12 +393,42 @@ namespace labs_coordinate_pictures
             List<FileInfoForComparison> list;
             if (map.TryGetValue(lengthOfFileToFind, out list))
             {
+                // look for an entry with the same filename
+                FileInfoForComparison hasSameName = null;
+                foreach (var obj in list)
+                {
+                    if (obj.Filename == partialFilename)
+                    {
+                        hasSameName = obj;
+                        break;
+                    }
+                }
+
+                // if enabled, treat files with the same filesize, lmt, and name as equal
+                if (useLmtShortcut && hasSameName != null &&
+                    hasSameName.LastModifiedTime == lmt)
+                {
+                    return hasSameName;
+                }
+
+                // change order so that an entry with the same name is checked first. why?
+                // 1) results look nicer when paired this way
+                // 2) same order of results whether or not useLmtShortcut is on
+                // (as long as lmt times are accurate). Consider the case with two duplicates,
+                // one with the same name, and one that sorts earlier.
+                // We prefer to pick the file with the same name to show as the duplicate.
+                if (hasSameName != null)
+                {
+                    list = new List<FileInfoForComparison>(list);
+                    list.Insert(0, hasSameName);
+                }
+
                 // we found another file(s) with the same filesize, so
                 // let's compare hashes of the content to see if they're the same.
                 var hash = Utils.GetSha512(fullnameToFind);
                 foreach (var obj in list)
                 {
-                    // compute the hash if it hasn't been computed already; cache it also
+                    // compute the hash if it hasn't been computed already, then cache it
                     if (obj.ContentHash == null)
                     {
                         obj.ContentHash = Utils.GetSha512(
@@ -427,7 +460,8 @@ namespace labs_coordinate_pictures
             foreach (var item in query)
             {
                 var objSameContents = FindInMap(map, rightDirectory,
-                    leftDirectory + item.FileInfoLeft.Filename, item.FileInfoLeft.FileSize);
+                    leftDirectory + item.FileInfoLeft.Filename, item.FileInfoLeft.FileSize,
+                    false, DateTime.MinValue, null);
                 if (objSameContents != null)
                 {
                     // these are duplicates, they have the same hash and filesize.

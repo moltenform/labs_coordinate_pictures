@@ -270,7 +270,7 @@ namespace labs_coordinate_pictures
         {
             var dirFirst = TestUtil.GetTestSubDirectory("first");
             var dirSecond = TestUtil.GetTestSubDirectory("second");
-            var settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
+            var settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDifferences, "", "",
                 dirFirst, dirSecond, true, true, false, false);
 
             TestUtil.IsEq(true, settings.AllowFiletimesDifferForFAT);
@@ -279,11 +279,12 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(false, settings.Mirror);
             TestUtil.IsEq(false, settings.PreviewOnly);
+            TestUtil.IsEq(false, settings.SearchDuplicatesCanUseFiletimes);
             TestUtil.IsStringArrayEq(null, settings.SkipDirectories);
             TestUtil.IsStringArrayEq(null, settings.SkipFiles);
             TestUtil.IsEq(dirFirst, settings.LeftDirectory);
 
-            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "a", "a\nb b\n\nc\n\n ",
+            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDifferences, "a", "a\nb b\n\nc\n\n ",
                 dirSecond, dirFirst, false, false, true, true);
 
             TestUtil.IsEq(false, settings.AllowFiletimesDifferForFAT);
@@ -292,6 +293,7 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(Directory.Exists(Path.GetDirectoryName(settings.LogFile)));
             TestUtil.IsEq(true, settings.Mirror);
             TestUtil.IsEq(true, settings.PreviewOnly);
+            TestUtil.IsEq(false, settings.SearchDuplicatesCanUseFiletimes);
             TestUtil.IsStringArrayEq("a", settings.SkipDirectories);
             TestUtil.IsStringArrayEq("a|b b|c", settings.SkipFiles);
             TestUtil.IsEq(dirSecond, settings.LeftDirectory);
@@ -301,6 +303,13 @@ namespace labs_coordinate_pictures
 
             TestUtil.IsEq(dirFirst, settings.LeftDirectory);
             TestUtil.IsEq(dirFirst, settings.RightDirectory);
+            TestUtil.IsEq(false, settings.SearchDuplicatesCanUseFiletimes);
+
+            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
+                dirFirst, dirSecond, true, true, false, false);
+            TestUtil.IsEq(true, settings.AllowFiletimesDifferForFAT);
+            TestUtil.IsEq(true, settings.AllowFiletimesDifferForDST);
+            TestUtil.IsEq(true, settings.SearchDuplicatesCanUseFiletimes);
         }
 
         static void TestMethod_RejectBadFilesSettings()
@@ -491,6 +500,35 @@ MTimeSmTextSmNameNone.a|MTimeSmTextSmNameNone.a|Same_Contents
 MTimeSmTextSmNameOneOnLeft.a|MTimeSmTextSmNameOneOnLeft.a|Same_Contents
 MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Same_Contents
 MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a_1|Same_Contents
+SmTimeSmTextMNameNone.a|SmTimeSmTextMNameNone.z|Same_Contents
+SmTimeSmTextMNameOneOnLeft.a|SmTimeSmTextMNameOneOnLeft.z|Same_Contents
+SmTimeSmTextMNameOneOnRight.a|SmTimeSmTextMNameOneOnRight.z|Same_Contents
+SmTimeSmTextMNameOneOnRight.a|SmTimeSmTextMNameOneOnRight.z_1|Same_Contents
+SmTimeSmTextSmNameNone.a|SmTimeSmTextSmNameNone.a|Same_Contents
+SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a|Same_Contents
+SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a|Same_Contents
+SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a_1|Same_Contents";
+            CompareResultsToString(results, expectedDuplicates);
+
+            // search for duplicates across directories, but uses lmt as a shortcut (less thorough)
+            // it will now think that the SmTimeAltText ones are equal because,
+            // when it sees the lmt are the same, it treats them as the same and doesn't check hash
+            settings.SearchDuplicatesCanUseFiletimes = true;
+            results = SortFilesSearchDuplicates.Go(settings);
+            settings.SearchDuplicatesCanUseFiletimes = false;
+
+            expectedDuplicates =
+@"MTimeSmTextMNameNone.a|MTimeSmTextMNameNone.z|Same_Contents
+MTimeSmTextMNameOneOnLeft.a|MTimeSmTextMNameOneOnLeft.z|Same_Contents
+MTimeSmTextMNameOneOnRight.a|MTimeSmTextMNameOneOnRight.z|Same_Contents
+MTimeSmTextMNameOneOnRight.a|MTimeSmTextMNameOneOnRight.z_1|Same_Contents
+MTimeSmTextSmNameNone.a|MTimeSmTextSmNameNone.a|Same_Contents
+MTimeSmTextSmNameOneOnLeft.a|MTimeSmTextSmNameOneOnLeft.a|Same_Contents
+MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Same_Contents
+MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a_1|Same_Contents
+SmTimeAltTextSmNameNone.a|SmTimeAltTextSmNameNone.a|Same_Contents
+SmTimeAltTextSmNameOneOnLeft.a|SmTimeAltTextSmNameOneOnLeft.a|Same_Contents
+SmTimeAltTextSmNameOneOnRight.a|SmTimeAltTextSmNameOneOnRight.a|Same_Contents
 SmTimeSmTextMNameNone.a|SmTimeSmTextMNameNone.z|Same_Contents
 SmTimeSmTextMNameOneOnLeft.a|SmTimeSmTextMNameOneOnLeft.z|Same_Contents
 SmTimeSmTextMNameOneOnRight.a|SmTimeSmTextMNameOneOnRight.z|Same_Contents
