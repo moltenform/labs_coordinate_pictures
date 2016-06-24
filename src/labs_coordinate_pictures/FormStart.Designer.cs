@@ -32,8 +32,9 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchDifferencesFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.searchDuplicatesInTwoFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.searchDuplicatesOneFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchDuplicatesInTwoFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.syncFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,11 +50,11 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setTrashDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setAltImageEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setWinMergeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMozjpegDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setWebpDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setWinMergeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.setMediaPlayerDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMediaEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,7 +67,8 @@
             this.setSorttwitterSourceLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterDestinationLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.onlineDocumentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,7 +77,8 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.filesToolStripMenuItem,
             this.picturesToolStripMenuItem,
-            this.optionsToolStripMenuItem});
+            this.optionsToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(284, 24);
@@ -102,12 +105,10 @@
             this.searchDifferencesFilesToolStripMenuItem.Text = "Search for differences in two similar folders...";
             this.searchDifferencesFilesToolStripMenuItem.Click += new System.EventHandler(this.findMovedFilesToolStripMenuItem_Click);
             // 
-            // searchDuplicatesInTwoFilesToolStripMenuItem
+            // toolStripMenuItem5
             // 
-            this.searchDuplicatesInTwoFilesToolStripMenuItem.Name = "searchDuplicatesInTwoFilesToolStripMenuItem";
-            this.searchDuplicatesInTwoFilesToolStripMenuItem.Size = new System.Drawing.Size(310, 22);
-            this.searchDuplicatesInTwoFilesToolStripMenuItem.Text = "Search for duplicate files in two folders...";
-            this.searchDuplicatesInTwoFilesToolStripMenuItem.Click += new System.EventHandler(this.findDuplicateFilesToolStripMenuItem_Click);
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(307, 6);
             // 
             // searchDuplicatesOneFolderToolStripMenuItem
             // 
@@ -115,6 +116,13 @@
             this.searchDuplicatesOneFolderToolStripMenuItem.Size = new System.Drawing.Size(310, 22);
             this.searchDuplicatesOneFolderToolStripMenuItem.Text = "Search for duplicate files in a folder...";
             this.searchDuplicatesOneFolderToolStripMenuItem.Click += new System.EventHandler(this.findDuplicateFilesWithinOneFolderToolStripMenuItem_Click);
+            // 
+            // searchDuplicatesInTwoFilesToolStripMenuItem
+            // 
+            this.searchDuplicatesInTwoFilesToolStripMenuItem.Name = "searchDuplicatesInTwoFilesToolStripMenuItem";
+            this.searchDuplicatesInTwoFilesToolStripMenuItem.Size = new System.Drawing.Size(310, 22);
+            this.searchDuplicatesInTwoFilesToolStripMenuItem.Text = "Search for duplicate files in two folders...";
+            this.searchDuplicatesInTwoFilesToolStripMenuItem.Click += new System.EventHandler(this.findDuplicateFilesToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
@@ -235,24 +243,6 @@
             this.setAltImageEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setAltImageEditorDirectoryToolStripMenuItem.Text = "Set image editor location...";
             // 
-            // setPythonLocationToolStripMenuItem
-            // 
-            this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
-            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setPythonLocationToolStripMenuItem.Text = "Set Python location...";
-            // 
-            // setWinMergeDirectoryToolStripMenuItem
-            // 
-            this.setWinMergeDirectoryToolStripMenuItem.Name = "setWinMergeDirectoryToolStripMenuItem";
-            this.setWinMergeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setWinMergeDirectoryToolStripMenuItem.Text = "Set WinMerge location...";
-            // 
-            // setJpegCropDirectoryToolStripMenuItem
-            // 
-            this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
-            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set JpegCrop location...";
-            // 
             // setMozjpegDirectoryToolStripMenuItem
             // 
             this.setMozjpegDirectoryToolStripMenuItem.Name = "setMozjpegDirectoryToolStripMenuItem";
@@ -264,6 +254,24 @@
             this.setWebpDirectoryToolStripMenuItem.Name = "setWebpDirectoryToolStripMenuItem";
             this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setWebpDirectoryToolStripMenuItem.Text = "Set cwebp location...";
+            // 
+            // setPythonLocationToolStripMenuItem
+            // 
+            this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
+            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setPythonLocationToolStripMenuItem.Text = "Set Python location...";
+            // 
+            // setJpegCropDirectoryToolStripMenuItem
+            // 
+            this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
+            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set JpegCrop location...";
+            // 
+            // setWinMergeDirectoryToolStripMenuItem
+            // 
+            this.setWinMergeDirectoryToolStripMenuItem.Name = "setWinMergeDirectoryToolStripMenuItem";
+            this.setWinMergeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setWinMergeDirectoryToolStripMenuItem.Text = "Set WinMerge location...";
             // 
             // toolStripMenuItem2
             // 
@@ -339,10 +347,20 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
-            // toolStripMenuItem5
+            // helpToolStripMenuItem
             // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(307, 6);
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.onlineDocumentationToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // onlineDocumentationToolStripMenuItem
+            // 
+            this.onlineDocumentationToolStripMenuItem.Name = "onlineDocumentationToolStripMenuItem";
+            this.onlineDocumentationToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.onlineDocumentationToolStripMenuItem.Text = "Online &Documentation";
+            this.onlineDocumentationToolStripMenuItem.Click += new System.EventHandler(this.onlineDocumentationToolStripMenuItem_Click);
             // 
             // FormStart
             // 
@@ -406,6 +424,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem searchDuplicatesOneFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem onlineDocumentationToolStripMenuItem;
     }
 }
 

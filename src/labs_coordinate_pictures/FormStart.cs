@@ -316,5 +316,10 @@ namespace labs_coordinate_pictures
         {
             ShowForm(new FormSortFiles(SortFilesAction.SyncFiles));
         }
+
+        private void onlineDocumentationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.LaunchUrl("https://github.com/downpoured/labs_coordinate_pictures/blob/master/README.md");
+        }
     }
 }
