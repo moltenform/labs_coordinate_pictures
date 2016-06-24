@@ -4,8 +4,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -224,7 +222,8 @@ namespace labs_coordinate_pictures
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
-                if (needConfirm && !Utils.AskToConfirm("Move " + SelectedItems().Count() + " files?"))
+                if (needConfirm &&
+                    !Utils.AskToConfirm("Move " + SelectedItems().Count() + " files?"))
                 {
                     return;
                 }
@@ -270,7 +269,8 @@ namespace labs_coordinate_pictures
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
-                if (needConfirm && !Utils.AskToConfirm("Delete " + SelectedItems().Count() + " files?"))
+                if (needConfirm &&
+                    !Utils.AskToConfirm("Delete " + SelectedItems().Count() + " files?"))
                 {
                     return;
                 }
@@ -327,7 +327,6 @@ namespace labs_coordinate_pictures
                     tbRight.Text = "";
                 });
 
-                // if an exception occurs partially through, progress will be saved on the undo stack.
                 _undoFileMoves.Add(new List<FileMove>());
                 while (fileMoves.Count > 0)
                 {
@@ -340,7 +339,7 @@ namespace labs_coordinate_pictures
                         tbLog.AppendText(Utils.NL + Utils.NL + fileMoves[0]);
                     });
 
-                    // add progress to undo stack; if exception thrown we can still undo until that point
+                    // add to undo stack, so that progress is not lost if exception thrown
                     _undoFileMoves.PeekUndo().Add(fileMoves[0]);
                     fileMoves.RemoveAt(0);
                 }
@@ -374,7 +373,9 @@ namespace labs_coordinate_pictures
                     // ask user to confirm
                     var preview = string.Join(Utils.NL,
                         from move in fileMoves select move.ToString());
-                    if (!needConfirm || Utils.AskToConfirm("Undo these moves?" + Utils.NL + preview))
+
+                    if (!needConfirm ||
+                        Utils.AskToConfirm("Undo these moves?" + Utils.NL + preview))
                     {
                         // if an exception occurs partially through, our progress will be saved
                         while (fileMoves.Count > 0)
@@ -488,7 +489,8 @@ namespace labs_coordinate_pictures
                 else
                 {
                     var args = new string[] { compLeft, compRight };
-                    Utils.Run(mergeExe, args, shellExecute: false, waitForExit: false, hideWindow: false);
+                    Utils.Run(mergeExe, args,
+                        shellExecute: false, waitForExit: false, hideWindow: false);
                 }
             }
         }

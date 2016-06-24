@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -155,7 +153,8 @@ namespace labs_coordinate_pictures
                 Utils.MessageErr("Directory does not exist " + settings.LeftDirectory, true);
                 return null;
             }
-            else if (!Directory.Exists(settings.RightDirectory) && action != SortFilesAction.SearchDuplicatesInOneDir)
+            else if (!Directory.Exists(settings.RightDirectory) &&
+                action != SortFilesAction.SearchDuplicatesInOneDir)
             {
                 Utils.MessageErr("Directory does not exist " + settings.RightDirectory, true);
                 return null;
@@ -168,10 +167,12 @@ namespace labs_coordinate_pictures
                 return null;
             }
 
-            // https://msdn.microsoft.com/en-us/library/dd465121.aspx recommends comparing filepaths with OrdinalIgnoreCase
+            // https://msdn.microsoft.com/en-us/library/dd465121.aspx
+            // recommends comparing filepaths with OrdinalIgnoreCase
+            var comparison = StringComparison.OrdinalIgnoreCase;
             if (action != SortFilesAction.SearchDuplicatesInOneDir &&
-                (settings.LeftDirectory.StartsWith(settings.RightDirectory, StringComparison.OrdinalIgnoreCase) ||
-                settings.RightDirectory.StartsWith(settings.LeftDirectory, StringComparison.OrdinalIgnoreCase)))
+                (settings.LeftDirectory.StartsWith(settings.RightDirectory, comparison) ||
+                settings.RightDirectory.StartsWith(settings.LeftDirectory, comparison)))
             {
                 Utils.MessageErr("directories must be distinct.", true);
                 return null;
@@ -182,7 +183,8 @@ namespace labs_coordinate_pictures
 
         void Start(bool showCommandLineOnly)
         {
-            if (_action == SortFilesAction.SyncFiles && !checkPreview.Checked && !showCommandLineOnly &&
+            if (_action == SortFilesAction.SyncFiles &&
+                !checkPreview.Checked && !showCommandLineOnly &&
                 !Utils.AskToConfirm("Are you sure you want to synchronize these files?"))
             {
                 return;

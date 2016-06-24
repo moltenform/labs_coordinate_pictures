@@ -294,7 +294,8 @@ namespace labs_coordinate_pictures
             if (settings.AllowFiletimesDifferForFAT)
             {
                 // allow times to differ
-                return Math.Abs(dt1.Ticks - dt2.Ticks) <= AllowDifferSeconds * TimeSpan.TicksPerSecond;
+                return Math.Abs(dt1.Ticks - dt2.Ticks) <=
+                    AllowDifferSeconds * TimeSpan.TicksPerSecond;
             }
             else
             {

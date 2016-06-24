@@ -13,7 +13,7 @@ namespace labs_coordinate_pictures
     // see SortingImages.md to read more about modes and categories.
     public static class ModeUtils
     {
-        // parse from "A/categoryReadable/categoryId" to Tuple("A", "categoryReadable", "categoryId")
+        // "A/categoryReadable/categoryId" to Tuple("A", "categoryReadable", "categoryId")
         // input must be in the form A/categoryReadable/categoryId
         // A is the keyboard shortcut,
         // categoryReadable is the readable name, and
@@ -68,7 +68,8 @@ namespace labs_coordinate_pictures
 
         public static void UseDefaultCategoriesIfFirstRun(ModeBase mode)
         {
-            if (mode.GetDefaultCategories() != null && string.IsNullOrEmpty(Configs.Current.Get(mode.GetCategories())))
+            if (mode.GetDefaultCategories() != null &&
+                string.IsNullOrEmpty(Configs.Current.Get(mode.GetCategories())))
             {
                 Configs.Current.Set(mode.GetCategories(), mode.GetDefaultCategories());
             }
@@ -76,8 +77,8 @@ namespace labs_coordinate_pictures
     }
 
     // a 'mode' specifies a list of supported file extensions and can provide custom features.
-    // for example a mode for sorting images would have different actions than a mode for sorting audio.
-    // the user can start "completion" by pressing Ctrl+Enter, and the mode provides the code to run.
+    // for example a mode for sorting images could have different actions than a mode for audio.
+    // a mode also defines what happens when the user signals "completion" by pressing Ctrl+Enter.
     // see SortingImages.md to read more about modes and categories.
     // these are essentially callbacks provided to a FormGallery form.
     public abstract class ModeBase

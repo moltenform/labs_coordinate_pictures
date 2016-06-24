@@ -109,7 +109,8 @@ namespace labs_coordinate_pictures
                 }
 
                 SimpleLog.Current.WriteError("Unhandled Exception: " + message + Utils.NL + trace);
-                if (!Utils.AskToConfirm("An exception occurred: " + message + Utils.NL + " Continue?"))
+                if (!Utils.AskToConfirm("An exception occurred: "
+                    + message + Utils.NL + " Continue?"))
                 {
                     Environment.Exit(1);
                 }

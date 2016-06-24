@@ -8,7 +8,6 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
@@ -126,7 +125,7 @@ namespace labs_coordinate_pictures
                 {
                     lock (_lock)
                     {
-                        // note that it's possible there is no work left to do, due to another thread.
+                        // it's possible there is no work left to do, due to another thread.
                         // iterate backwards, since RemoveAt repositions subsequent elements
                         var howManyToRemove = _list.Count - _cacheSize;
                         for (int i = howManyToRemove - 1; i >= 0; i--)
@@ -313,7 +312,7 @@ namespace labs_coordinate_pictures
         public void GetShiftAmount(Bitmap fullImage, int clickX, int clickY,
             int widthOfResizedImage, int heightOfResizedImage, out int shiftX, out int shiftY)
         {
-            // find where the user clicked, and then show that place in the center at full resolution.
+            // find where the user clicked, then show that place in the center at full resolution.
             var centerX = (int)(fullImage.Width * (clickX / ((double)widthOfResizedImage)));
             var centerY = (int)(fullImage.Height * (clickY / ((double)heightOfResizedImage)));
             shiftX = centerX - (MaxWidth / 2);

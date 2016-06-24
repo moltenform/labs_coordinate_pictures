@@ -54,7 +54,8 @@ namespace labs_coordinate_pictures
                 suggestions.AddRange(more);
             }
 
-            return suggestions.Where(entry => !mustBeDirectory || FilenameUtils.IsPathRooted(entry));
+            return suggestions.Where(entry => !mustBeDirectory ||
+                FilenameUtils.IsPathRooted(entry));
         }
 
         // ask user for string input.
@@ -128,7 +129,8 @@ namespace labs_coordinate_pictures
         }
 
         // originally based on
-        // http://www.java2s.com/Code/CSharp/GUI-Windows-Form/Defineyourowndialogboxandgetuserinput.htm
+        // http://www.java2s.com/Code/CSharp/GUI-Windows-Form/
+        // Defineyourowndialogboxandgetuserinput.htm
         #region Windows Form Designer generated code
         private void InitializeComponent()
         {
@@ -184,8 +186,8 @@ namespace labs_coordinate_pictures
             this.Name = "InputBoxForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Input Box Dialog";
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragEnter);
+            this.DragDrop += new DragEventHandler(this.InputBoxForm_DragDrop);
+            this.DragEnter += new DragEventHandler(this.InputBoxForm_DragEnter);
             this.ResumeLayout(false);
         }
         #endregion
@@ -234,7 +236,8 @@ namespace labs_coordinate_pictures
             {
                 if (!Enum.TryParse("MRU" + _historyKey.ToString(), out _configsKey))
                 {
-                    throw new CoordinatePicturesException("unknown history key" + _historyKey.ToString());
+                    throw new CoordinatePicturesException(
+                        "unknown history key" + _historyKey.ToString());
                 }
             }
         }
@@ -264,7 +267,8 @@ namespace labs_coordinate_pictures
                 }
 
                 // only add if it's not already in the list, and s does not contain _delimiter.
-                if (!string.IsNullOrEmpty(s) && s.Length < MaxEntryLength && !s.Contains(_delimiter))
+                if (!string.IsNullOrEmpty(s) &&
+                    s.Length < MaxEntryLength && !s.Contains(_delimiter))
                 {
                     List<string> list = new List<string>(_currentItems);
 

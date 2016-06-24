@@ -354,7 +354,9 @@ namespace labs_coordinate_pictures
                 var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) +
                     "\\dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
-                var stderr = RunPythonScript(script, args, createWindow: false, warnIfStdErr: false);
+                var stderr = RunPythonScript(
+                    script, args, createWindow: false, warnIfStdErr: false);
+
                 if (!File.Exists(pathOutput))
                 {
                     MessageBox("RunM4aConversion failed, stderr = " + stderr);
@@ -478,7 +480,7 @@ namespace labs_coordinate_pictures
         {
             if (path == null || !File.Exists(path))
             {
-                // append the full path: it's not intuitive if all file-not-founds have the same 'hash'.
+                // ensure that two files that both aren't found won't have the same hash.
                 return "filenotfound:" + path;
             }
 
@@ -1072,16 +1074,16 @@ namespace labs_coordinate_pictures
             nameHasSuffix = FindPathWithSuffixRemoved(path, types, out pathWithoutSuffix);
 
             // delete all the rest in group
-            var filenameWithoutSuffix = nameHasSuffix ? pathWithoutSuffix : path;
+            var nameWithoutSuffix = nameHasSuffix ? pathWithoutSuffix : path;
             List<string> results = new List<string>();
             foreach (var otherFile in otherFiles)
             {
                 if (otherFile.ToUpperInvariant() != path.ToUpperInvariant())
                 {
                     string nameMiddleRemoved;
-                    if (FilenameUtils.SameExceptExtension(filenameWithoutSuffix, otherFile) ||
+                    if (FilenameUtils.SameExceptExtension(nameWithoutSuffix, otherFile) ||
                         (FindPathWithSuffixRemoved(otherFile, types, out nameMiddleRemoved) &&
-                        FilenameUtils.SameExceptExtension(filenameWithoutSuffix, nameMiddleRemoved)))
+                        FilenameUtils.SameExceptExtension(nameWithoutSuffix, nameMiddleRemoved)))
                     {
                         results.Add(otherFile);
                     }

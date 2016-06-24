@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -117,11 +116,12 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq("\"a b\"", Utils.CombineProcessArguments(new string[] { "a b" }));
             TestUtil.IsEq("a \" b\"", Utils.CombineProcessArguments(new string[] { "a", " b" }));
             TestUtil.IsEq("a\\\\b", Utils.CombineProcessArguments(new string[] { "a\\\\b" }));
-            TestUtil.IsEq("\"a\\\\b c\"", Utils.CombineProcessArguments(new string[] { "a\\\\b c" }));
             TestUtil.IsEq("\" \\\\\"", Utils.CombineProcessArguments(new string[] { " \\" }));
             TestUtil.IsEq("\" \\\\\\\"\"", Utils.CombineProcessArguments(new string[] { " \\\"" }));
             TestUtil.IsEq("\" \\\\\\\\\"", Utils.CombineProcessArguments(new string[] { " \\\\" }));
 
+            TestUtil.IsEq("\"a\\\\b c\"", Utils.CombineProcessArguments(
+                new string[] { "a\\\\b c" }));
             TestUtil.IsEq("\"C:\\Program Files\\\\\"", Utils.CombineProcessArguments(
                 new string[] { "C:\\Program Files\\" }));
             TestUtil.IsEq("\"dafc\\\"\\\"\\\"a\"", Utils.CombineProcessArguments(
@@ -617,7 +617,8 @@ namespace labs_coordinate_pictures
 
                 // however, if lmt has changed, cached copy should be refreshed.
                 var wasTime = File.GetLastWriteTime(Path.Combine(dir, "a1.png"));
-                File.SetLastWriteTime(Path.Combine(dir, "a1.png"), wasTime - new TimeSpan(0, 0, 10));
+                File.SetLastWriteTime(
+                    Path.Combine(dir, "a1.png"), wasTime - new TimeSpan(0, 0, 10));
                 var bmp1Changed = cache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
                 TestUtil.IsEq(1, gotW);
                 TestUtil.IsEq(1, gotH);

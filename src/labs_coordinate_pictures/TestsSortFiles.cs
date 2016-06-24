@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -26,7 +26,7 @@ namespace labs_coordinate_pictures
         {
         }
 
-        protected CoordinatePicturesTestException(System.Runtime.Serialization.SerializationInfo info,
+        protected CoordinatePicturesTestException(SerializationInfo info,
             System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {
@@ -98,7 +98,8 @@ namespace labs_coordinate_pictures
         // use reflection to call all methods that start with TestMethod_
         public static void CallAllTestMethods(Type type, object[] arParams)
         {
-            MethodInfo[] methodInfos = type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo[] methodInfos = type.GetMethods(
+                BindingFlags.Static | BindingFlags.NonPublic);
             var sortedMethods = methodInfos.OrderBy(item => item.Name);
             foreach (MethodInfo methodInfo in sortedMethods)
             {
@@ -284,7 +285,8 @@ namespace labs_coordinate_pictures
             TestUtil.IsStringArrayEq(null, settings.SkipFiles);
             TestUtil.IsEq(dirFirst, settings.LeftDirectory);
 
-            settings = FormSortFiles.FillFromUI(SortFilesAction.SearchDifferences, "a", "a\nb b\n\nc\n\n ",
+            settings = FormSortFiles.FillFromUI(
+                SortFilesAction.SearchDifferences, "a", "a\nb b\n\nc\n\n ",
                 dirSecond, dirFirst, false, false, true, true);
 
             TestUtil.IsEq(false, settings.AllowFiletimesDifferForFAT);
@@ -337,7 +339,8 @@ namespace labs_coordinate_pictures
                 dirFirst, Path.Combine(dirFirst, "sub"), true, true, true, true));
 
             // valid for dest to be empty if action is FindDupeFilesInOneDir
-            TestUtil.IsTrue(FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicatesInOneDir, "", "",
+            TestUtil.IsTrue(
+                FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicatesInOneDir, "", "",
                 dirFirst, "", true, false, true, true) != null);
         }
 
@@ -351,35 +354,55 @@ namespace labs_coordinate_pictures
             var settings = new SortFilesSettings();
             settings.AllowFiletimesDifferForDST = false;
             settings.AllowFiletimesDifferForFAT = false;
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
 
             // allow DST
             settings.AllowFiletimesDifferForDST = true;
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
 
             // allow close
             settings.AllowFiletimesDifferForFAT = true;
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
 
             // disallow DST
             settings.AllowFiletimesDifferForDST = false;
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
-            TestUtil.IsEq(true, SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
-            TestUtil.IsEq(false, SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, time, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus3s, settings));
+            TestUtil.IsEq(true,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus3s, time, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(time, timePlus1hr, settings));
+            TestUtil.IsEq(false,
+                SortFilesSearchDifferences.AreTimesEqual(timePlus1hr, time, settings));
         }
 
         static void TestMethod_MapFilesizesToFilenames()
@@ -451,7 +474,8 @@ namespace labs_coordinate_pictures
             var settings = new SortFilesSettings();
             settings.LeftDirectory = TestUtil.GetTestSubDirectory("left_fndmved", true);
             settings.RightDirectory = TestUtil.GetTestSubDirectory("right_fndmved", true);
-            var filesCreated = CreateFileCombinations.Go(settings.LeftDirectory, settings.RightDirectory);
+            var filesCreated = CreateFileCombinations.Go(
+                settings.LeftDirectory, settings.RightDirectory);
             TestUtil.IsEq(
                 CreateFileCombinations.CountPossibleModifiedTimes() *
                 CreateFileCombinations.CountPossibleContents() *
@@ -459,14 +483,14 @@ namespace labs_coordinate_pictures
                 ((1 * 2) + (3 * 2)), // ExtraCopies.None -> 2 files, the rest -> 3 files
                 filesCreated);
 
-            // search for duplicates in one directory. The only ones it will find are the 'extra copy on left.'
+            // search for duplicates in one dir, only ones it will find are 'extra copy on left.'
             var results = SortFilesSearchDuplicatesInOneDir.Go(settings);
             TestUtil.IsEq(
                 CreateFileCombinations.CountPossibleModifiedTimes() *
                 CreateFileCombinations.CountPossibleContents() *
                 CreateFileCombinations.CountPossibleFilenames(), results.Count);
 
-            // verify sort order. for each pair, the left side should be the one that sorts first alphabetically
+            // verify sort order. for each pair, the left side should sort first alphabetically
             var expectedDuplicates =
 @"MTimeAddTextMNameOneOnLeft.a|MTimeAddTextMNameOneOnLeft.a_1|Same_Contents
 MTimeAddTextSmNameOneOnLeft.a|MTimeAddTextSmNameOneOnLeft.a_1|Same_Contents
@@ -485,9 +509,10 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a_1|Same_Contents";
             // search for duplicates across directories
             // should find all files on the right marked 'SmText'.
             results = SortFilesSearchDuplicates.Go(settings);
-            var countExpectedDuplicates = (from filename in Directory.EnumerateFiles(settings.RightDirectory)
-                                           where filename.Contains("SmText")
-                                           select filename).Count();
+            var countExpectedDuplicates =
+                (from filename in Directory.EnumerateFiles(settings.RightDirectory)
+                where filename.Contains("SmText")
+                select filename).Count();
             TestUtil.IsEq(countExpectedDuplicates, results.Count);
 
             // verify sort order
@@ -906,10 +931,14 @@ renamed2.txt||Left";
             TestUtil.IsEq(2, resultsMoved.Count);
 
             // the 0-length empty.txt isn't included in this list, we don't treat it as a duplicate
-            TestUtil.IsEq(Utils.PathSep + "renamed1.txt", resultsMoved[0].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed1.a", resultsMoved[0].Item2);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.txt", resultsMoved[1].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.a", resultsMoved[1].Item2);
+            TestUtil.IsEq(Utils.PathSep + "renamed1.txt",
+                resultsMoved[0].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed1.a",
+                resultsMoved[0].Item2);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.txt",
+                resultsMoved[1].Item1.FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.PathSep + "renamed2.a",
+                resultsMoved[1].Item2);
         }
     }
 }
