@@ -348,18 +348,25 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                var pathOutput = Path.GetDirectoryName(path) + "\\" +
+                var encoder = Configs.Current.Get(ConfigKey.FilepathM4aEncoder);
+                if (!File.Exists(encoder))
+                {
+                    MessageErr("M4a encoder not found, use Options->Set m4a encoder.");
+                    throw new CoordinatePicturesException("");
+                }
+
+                var pathOutput = Path.GetDirectoryName(path) + PathSep +
                     Path.GetFileNameWithoutExtension(path) +
                     (qualitySpec == "flac" ? ".flac" : ".m4a");
-                var script = Configs.Current.Get(ConfigKey.FilepathEncodeMusicDropQDirectory) +
-                    "\\dropq" + qualitySpec + ".py";
+                var script = Path.GetDirectoryName(encoder) + PathSep +
+                    "dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
                 var stderr = RunPythonScript(
                     script, args, createWindow: false, warnIfStdErr: false);
 
                 if (!File.Exists(pathOutput))
                 {
-                    MessageBox("RunM4aConversion failed, stderr = " + stderr);
+                    MessageErr("RunM4aConversion failed, stderr = " + stderr);
                     return null;
                 }
                 else
@@ -380,6 +387,12 @@ namespace labs_coordinate_pictures
         public static void JpgLosslessOptimize(string path, string pathOut, bool stripAllExif)
         {
             var mozjpeg = Configs.Current.Get(ConfigKey.FilepathMozJpeg);
+            if (!File.Exists(mozjpeg))
+            {
+                MessageErr("mozjpeg not found, use Options->Set mozjpeg location.");
+                throw new CoordinatePicturesException("");
+            }
+
             var jpegtran = Path.Combine(Path.GetDirectoryName(mozjpeg), "jpegtran.exe");
             var args = new string[] { "-outfile", pathOut, "-optimise",
                 "-progressive", "-copy", stripAllExif ? "none" : "all", path };
@@ -391,7 +404,7 @@ namespace labs_coordinate_pictures
             if (path == null)
                 path = Path.Combine(Configs.Current.Directory, "silence.flac");
 
-            var player = Configs.Current.Get(ConfigKey.FilepathMediaPlayer);
+            var player = Configs.Current.Get(ConfigKey.FilepathAudioPlayer);
             if (string.IsNullOrEmpty(player) || !File.Exists(player))
             {
                 MessageBox("Media player not found. Go to the main screen " +

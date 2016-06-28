@@ -334,21 +334,21 @@ namespace labs_coordinate_pictures
             // unset properties should return empty string
             TestUtil.IsEq("", cfg.Get(ConfigKey.EnablePersonalFeatures));
             TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathPython));
-            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathTrash));
+            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
 
             // from memory
             cfg.Set(ConfigKey.EnablePersonalFeatures, "data=with=equals=");
             cfg.Set(ConfigKey.FilepathPython, " data\twith\t tabs");
             TestUtil.IsEq("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
             TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
-            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathTrash));
+            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
 
             // from disk
             cfg = new Configs(path);
             cfg.LoadPersisted();
             TestUtil.IsEq("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
             TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
-            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathTrash));
+            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
         }
 
         static void TestMethod_ClassConfigsPersistedBools()

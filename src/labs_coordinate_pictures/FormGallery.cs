@@ -443,6 +443,8 @@ namespace labs_coordinate_pictures
                     editInAltEditorToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.X)
                     cropRotateFileToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.R)
+                    cropRotateFileAlt();
                 else if (e.KeyCode == Keys.H)
                     replaceInFilenameToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D3)
@@ -476,6 +478,8 @@ namespace labs_coordinate_pictures
                     saveSpaceOptimizeJpgToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.OemCloseBrackets)
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.R)
+                    cropRotateFileToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Enter)
                     finishedCategorizingToolStripMenuItem_Click(null, null);
             }
@@ -618,59 +622,73 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            if (FilenameUtils.LooksLikeAudio(_filelist.Current))
+            {
+                LaunchEditor(
+                    Configs.Current.Get(ConfigKey.FilepathAudioEditor), _filelist.Current);
+            }
+            else if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
             {
                 Process.Start(_filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
-            {
-                LaunchEditor(Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
-            }
             else
             {
-                LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
+                LaunchEditor(
+                    Configs.Current.Get(ConfigKey.FilepathImageEditorAlt), _filelist.Current);
             }
         }
 
-        private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            if (FilenameUtils.LooksLikeAudio(_filelist.Current))
+            {
+                LaunchEditor(
+                    Configs.Current.Get(ConfigKey.FilepathAudioEditor), _filelist.Current);
+            }
+            else if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
             {
                 LaunchEditor(
                     @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
                     _filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
-            {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathMediaEditor), _filelist.Current);
-            }
             else
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathAltEditorImage), _filelist.Current);
+                var editor = Configs.Current.Get(ConfigKey.FilepathImageEditor);
+                if (string.IsNullOrEmpty(editor))
+                {
+                    LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
+                }
+                else
+                {
+                    LaunchEditor(editor, _filelist.Current);
+                }
             }
         }
 
         private void cropRotateFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
+            if (FilenameUtils.LooksLikeAudio(_filelist.Current))
+            {
+                LaunchEditor(
+                    Configs.Current.Get(ConfigKey.FilepathAudioCrop), _filelist.Current);
+            }
+            else if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
             {
                 LaunchEditor(
                     Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
             }
-            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
-            {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathMp3DirectCut), _filelist.Current);
-            }
             else
             {
-                LaunchEditor(
-                    @"C:\Windows\System32\mspaint.exe", _filelist.Current);
+                editFileToolStripMenuItem_Click(null, null);
             }
+        }
+
+        private void cropRotateFileAlt()
+        {
+            LaunchEditor(
+            Configs.Current.Get(ConfigKey.FilepathJpegCropAlt), _filelist.Current);
         }
 
         // add a prefix to files, useful when renaming and you want to maintain the order

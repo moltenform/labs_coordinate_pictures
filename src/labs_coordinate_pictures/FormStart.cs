@@ -15,59 +15,67 @@ namespace labs_coordinate_pictures
             InitializeComponent();
             HideOrShowMenus();
 
-            // provide Click events for menu items.
-            setTrashDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
+            // provide Click events for menu items (set dirs).
+            setDirectoryForDeletedToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
                 "When pressing Delete to 'move to trash', files will be moved to this directory.",
-                o, ConfigKey.FilepathTrash);
-            setAltImageEditorDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Choose an alternative image editor.",
-                o, ConfigKey.FilepathAltEditorImage);
-            setPythonLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "Locate python.exe; currently only Python 2 is supported.",
-                o, ConfigKey.FilepathPython);
-            setWinMergeDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate winmerge.exe or another diff/merge application.",
-                o, ConfigKey.FilepathWinMerge);
-            setJpegCropDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate jpegcrop.exe or another jpeg crop/rotate application.",
-                o, ConfigKey.FilepathJpegCrop);
-            setMozjpegDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "Locate cjpeg.exe from mozjpeg (can be freely downloaded from Mozilla).",
-                o, ConfigKey.FilepathMozJpeg);
-            setWebpDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "Locate cwebp.exe from webp (can be freely downloaded from Google)",
-                o, ConfigKey.FilepathWebp);
-            setMediaPlayerDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "Choose application for playing audio.",
-                o, ConfigKey.FilepathMediaPlayer);
-            setMediaEditorDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Choose application for editing audio, such as Audacity.",
-                o, ConfigKey.FilepathMediaEditor);
-            setCreateSyncDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate 'create synchronicity.exe'",
-                o, ConfigKey.FilepathCreateSync);
-            setCoordmusicLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate coordinate_music directory containing main.py.",
-                o, ConfigKey.FilepathCoordMusicDirectory);
-            setDropqpyLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate encoder directory containing dropq128.py.",
-                o, ConfigKey.FilepathEncodeMusicDropQDirectory);
-            setMp3DirectCutToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-                "(Optional) Locate mp3directcut.exe.",
-                o, ConfigKey.FilepathMp3DirectCut);
-            setExiftoolLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
-               "(Optional) Locate exiftool.exe.",
-               o, ConfigKey.FilepathExifTool);
+                o, ConfigKey.FilepathDeletedFilesDir);
             setSortmusicStagingLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
                "(Optional) Set sortmusic staging directory.",
-               o, ConfigKey.FilepathSortMusicToLibraryStagingDirectory);
+               o, ConfigKey.FilepathSortMusicToLibraryStagingDir);
             setSorttwitterSourceLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
                "(Optional) Set sorttwitter input directory.",
-               o, ConfigKey.FilepathSortTwitterImagesSourceDirectory);
+               o, ConfigKey.FilepathSortTwitterImagesSourceDir);
             setSorttwitterDestinationLocationToolStripMenuItem.Click += (o, e) =>
                 OnSetConfigsDir(
                 "(Optional) Set sorttwitter output directory.",
-                o, ConfigKey.FilepathSortTwitterImagesDestinationDirectory);
+                o, ConfigKey.FilepathSortTwitterImagesDestinationDir);
+
+            // provide Click events for menu items (set files).
+            setAudioCropStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+               "(Optional) Select an audio cropping tool, such as mp3directcut.exe.",
+               o, ConfigKey.FilepathAudioCrop);
+            setAudioEditorToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for editing audio, such as Audacity.",
+                o, ConfigKey.FilepathAudioEditor);
+            setAudioPlayerToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for playing audio.",
+                o, ConfigKey.FilepathAudioPlayer);
+            setCreateSyncToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Locate 'create synchronicity.exe'",
+                o, ConfigKey.FilepathCreateSync);
+            setCoordmusicLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Locate coordinate_music directory's 'main.py'",
+                o, ConfigKey.FilepathCoordMusicMainPy);
+            setExiftoolLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+               "(Optional) Locate exiftool.exe.",
+               o, ConfigKey.FilepathExifTool);
+            setImageEditorLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for editing images.",
+                o, ConfigKey.FilepathImageEditor);
+            setAltImageEditorToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+               "(Optional) Select another application for editing images.",
+               o, ConfigKey.FilepathImageEditorAlt);
+            setJpegCropDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for editing jpgs, such as jpegcrop.exe.",
+                o, ConfigKey.FilepathJpegCrop);
+            setAltJpegcropLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for editing jpgs, such as jpegcrop.exe.",
+                o, ConfigKey.FilepathJpegCropAlt);
+            setM4aEncoderLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+               "(Optional) Locate 'qaac.exe'; directory should also contain 'dropq128.py'.",
+               o, ConfigKey.FilepathM4aEncoder);
+            setMozjpegToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "Locate 'cjpeg.exe' from the mozjpeg project (free download from Mozilla)",
+                o, ConfigKey.FilepathMozJpeg);
+            setPythonLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "Locate 'python.exe'; currently only Python 2 is supported.",
+                o, ConfigKey.FilepathPython);
+            setWebpToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "Locate 'cwebp.exe' from the webp project (free download from Google)",
+                o, ConfigKey.FilepathWebp);
+            setWinMergeToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select a diff/merge application, such as 'winmerge.exe'.",
+                o, ConfigKey.FilepathWinMerge);
 
             categorizeAndRenamePicturesToolStripMenuItem.Click += (o, e) =>
                 OpenForm(new ModeCategorizeAndRename(), InputBoxHistory.OpenImageDirectory);
@@ -116,20 +124,19 @@ namespace labs_coordinate_pictures
 
         void OpenForm(ModeBase mode, InputBoxHistory mruKey)
         {
-            VerifyAllProgramChecksums();
             var directory = AskUserForDirectory(mruKey);
             if (directory == null)
             {
                 return;
             }
 
+            VerifyAllProgramChecksums();
             ShowForm(new FormGallery(mode, directory));
         }
 
         static void OnSetConfigsDir(string info, object sender, ConfigKey key)
         {
-            var message = (sender as ToolStripItem).Text;
-            message += Environment.NewLine + info;
+            var message = (sender as ToolStripItem).Text + Utils.NL + info;
             var chosenDirectory = InputBoxForm.GetStrInput(message,
                 Configs.Current.Get(key), mustBeDirectory: true);
 
@@ -140,14 +147,28 @@ namespace labs_coordinate_pictures
             }
         }
 
-        static void OnSetConfigsFile(object sender, string info, ConfigKey key)
+        static void OnSetConfigsFile(string info, object sender, ConfigKey key)
         {
             var message = (sender as ToolStripItem).Text;
+            var current = Configs.Current.Get(key);
+
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.DefaultExt = ".exe";
-            dialog.Filter = "Exe files (*.exe)|*.exe";
             dialog.Title = message + " " + info;
             dialog.CheckPathExists = true;
+            dialog.InitialDirectory = File.Exists(current) ?
+                Path.GetDirectoryName(current) : null;
+
+            if (key == ConfigKey.FilepathCoordMusicMainPy)
+            {
+                dialog.DefaultExt = ".py";
+                dialog.Filter = "Py files (*.py)|*.py";
+            }
+            else
+            {
+                dialog.DefaultExt = ".exe";
+                dialog.Filter = "Exe files (*.exe)|*.exe";
+            }
+
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Configs.Current.Set(key, dialog.FileName);
@@ -181,24 +202,24 @@ namespace labs_coordinate_pictures
         {
             var menusPersonalOnly = new ToolStripItem[]
             {
-                this.toolStripMenuItem1,
-                this.toolStripMenuItem2,
-                this.toolStripMenuItem3,
-                this.resizePhotosKeepingExifsToolStripMenuItem,
-                this.markwavQualityToolStripMenuItem,
-                this.markmp3QualityToolStripMenuItem,
-                this.sortTwitterToolStripMenuItem,
-                this.sortMusicToolStripMenuItem,
-                this.setMediaEditorDirectoryToolStripMenuItem,
-                this.setMediaPlayerDirectoryToolStripMenuItem,
-                this.setCreateSyncDirectoryToolStripMenuItem,
-                this.setCoordmusicLocationToolStripMenuItem,
-                this.setDropqpyLocationToolStripMenuItem,
-                this.setMp3DirectCutToolStripMenuItem,
-                this.setExiftoolLocationToolStripMenuItem,
-                this.setSortmusicStagingLocationToolStripMenuItem,
-                this.setSorttwitterSourceLocationToolStripMenuItem,
-                this.setSorttwitterDestinationLocationToolStripMenuItem
+                toolStripPicturesSep1,
+                toolStripPicturesSep2,
+                markwavQualityToolStripMenuItem,
+                markmp3QualityToolStripMenuItem,
+                sortTwitterToolStripMenuItem,
+                sortMusicToolStripMenuItem,
+                setSortmusicStagingLocationToolStripMenuItem,
+                setSorttwitterSourceLocationToolStripMenuItem,
+                setSorttwitterDestinationLocationToolStripMenuItem,
+                setAudioCropStripMenuItem,
+                setAudioEditorToolStripMenuItem,
+                setAudioPlayerToolStripMenuItem,
+                setCreateSyncToolStripMenuItem,
+                setCoordmusicLocationToolStripMenuItem,
+                setAltImageEditorToolStripMenuItem,
+                setAltJpegcropLocationToolStripMenuItem,
+                setM4aEncoderLocationToolStripMenuItem,
+                setWinMergeToolStripMenuItem,
             };
 
             foreach (var item in menusPersonalOnly)
@@ -244,8 +265,7 @@ namespace labs_coordinate_pictures
             }
             else if (FilenameUtils.LooksLikeAudio(path))
             {
-                var script = Path.Combine(Configs.Current.Get(
-                    ConfigKey.FilepathCoordMusicDirectory), "main.py");
+                var script = Configs.Current.Get(ConfigKey.FilepathCoordMusicMainPy);
 
                 if (!File.Exists(script))
                 {
@@ -266,29 +286,25 @@ namespace labs_coordinate_pictures
 
         public static void VerifyAllProgramChecksums()
         {
-            VerifyChecksum(ConfigKey.FilepathPython, ConfigKey.FilepathChecksumPython);
-            VerifyChecksum(ConfigKey.FilepathWinMerge, ConfigKey.FilepathChecksumWinMerge);
-            VerifyChecksum(ConfigKey.FilepathJpegCrop, ConfigKey.FilepathChecksumJpegCrop);
-            VerifyChecksum(ConfigKey.FilepathMozJpeg, ConfigKey.FilepathChecksumMozJpeg);
-            VerifyChecksum(ConfigKey.FilepathWebp, ConfigKey.FilepathChecksumCWebp);
-            VerifyChecksum(ConfigKey.FilepathMediaPlayer, ConfigKey.FilepathChecksumMediaPlayer);
-            VerifyChecksum(ConfigKey.FilepathMediaEditor, ConfigKey.FilepathChecksumMediaEditor);
-            VerifyChecksum(ConfigKey.FilepathCreateSync, ConfigKey.FilepathChecksumCreateSync);
-            VerifyChecksum(ConfigKey.FilepathMp3DirectCut, ConfigKey.FilepathChecksumMp3DirectCut);
-            VerifyChecksum(ConfigKey.FilepathExifTool, ConfigKey.FilepathChecksumExifTool);
-            VerifyChecksum(ConfigKey.FilepathAltEditorImage,
-                ConfigKey.FilepathChecksumAltEditorImage);
-            VerifyChecksum(ConfigKey.FilepathEncodeMusicDropQDirectory,
-                ConfigKey.FilepathChecksumEncodeMusicDropQ, "/qaac.exe");
+            foreach (ConfigKey key in Enum.GetValues(typeof(ConfigKey)))
+            {
+                if (key.ToString().StartsWith("FilePath", StringComparison.Ordinal) &&
+                    !key.ToString().EndsWith("Dir", StringComparison.Ordinal) &&
+                    !key.ToString().Contains("Checksum") &&
+                    !string.IsNullOrEmpty(Configs.Current.Get(key)))
+                {
+                    var otherKeyName = key.ToString().Replace("FilePath", "FilePathChecksum");
+                    var otherKey = Enum.Parse(typeof(ConfigKey), otherKeyName);
+                    VerifyChecksum(key, (ConfigKey)otherKey);
+                }
+            }
         }
 
-        public static void VerifyChecksum(ConfigKey key, ConfigKey sumkey, string appendToPath = "")
+        public static void VerifyChecksum(ConfigKey key, ConfigKey sumkey)
         {
             if (!string.IsNullOrEmpty(Configs.Current.Get(key)))
             {
                 var path = Configs.Current.Get(key);
-                path += appendToPath;
-
                 var hash = Utils.GetSha512(path);
                 var hashExpected = Configs.Current.Get(sumkey);
                 if (hashExpected != hash)

@@ -40,35 +40,37 @@
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripPicturesSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripPicturesSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.sortTwitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sortMusicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setTrashDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setAltImageEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setMozjpegDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setWebpDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setWinMergeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.setMediaPlayerDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setMediaEditorDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setCreateSyncDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setCoordmusicLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setDropqpyLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setMp3DirectCutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setExiftoolLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setDirectoryForDeletedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSortmusicStagingLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterSourceLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSorttwitterDestinationLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
+            this.toolStripOptionsSep = new System.Windows.Forms.ToolStripSeparator();
+            this.setAudioCropStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAudioEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAudioPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setCreateSyncToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setCoordmusicLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setExiftoolLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setImageEditorLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAltImageEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAltJpegcropLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setM4aEncoderLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setMozjpegToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setWinMergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.onlineDocumentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -141,11 +143,11 @@
             this.picturesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.categorizeAndRenamePicturesToolStripMenuItem,
             this.checkFilesizesToolStripMenuItem,
-            this.toolStripMenuItem1,
             this.resizePhotosKeepingExifsToolStripMenuItem,
+            this.toolStripPicturesSep1,
             this.markwavQualityToolStripMenuItem,
             this.markmp3QualityToolStripMenuItem,
-            this.toolStripMenuItem3,
+            this.toolStripPicturesSep2,
             this.sortTwitterToolStripMenuItem,
             this.sortMusicToolStripMenuItem});
             this.picturesToolStripMenuItem.Name = "picturesToolStripMenuItem";
@@ -155,170 +157,89 @@
             // categorizeAndRenamePicturesToolStripMenuItem
             // 
             this.categorizeAndRenamePicturesToolStripMenuItem.Name = "categorizeAndRenamePicturesToolStripMenuItem";
-            this.categorizeAndRenamePicturesToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.categorizeAndRenamePicturesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.categorizeAndRenamePicturesToolStripMenuItem.Text = "Assign pictures to &categories...";
             // 
             // checkFilesizesToolStripMenuItem
             // 
             this.checkFilesizesToolStripMenuItem.Name = "checkFilesizesToolStripMenuItem";
-            this.checkFilesizesToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.checkFilesizesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.checkFilesizesToolStripMenuItem.Text = "&Resize images...";
             // 
-            // toolStripMenuItem1
+            // toolStripPicturesSep1
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(254, 6);
+            this.toolStripPicturesSep1.Name = "toolStripPicturesSep1";
+            this.toolStripPicturesSep1.Size = new System.Drawing.Size(231, 6);
             // 
             // resizePhotosKeepingExifsToolStripMenuItem
             // 
             this.resizePhotosKeepingExifsToolStripMenuItem.Name = "resizePhotosKeepingExifsToolStripMenuItem";
-            this.resizePhotosKeepingExifsToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
-            this.resizePhotosKeepingExifsToolStripMenuItem.Text = "Resize &photographs keeping exifs...";
+            this.resizePhotosKeepingExifsToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.resizePhotosKeepingExifsToolStripMenuItem.Text = "Resize images keeping &exifs...";
             // 
             // markwavQualityToolStripMenuItem
             // 
             this.markwavQualityToolStripMenuItem.Name = "markwavQualityToolStripMenuItem";
-            this.markwavQualityToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.markwavQualityToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.markwavQualityToolStripMenuItem.Text = "Mark .&wav quality...";
             // 
             // markmp3QualityToolStripMenuItem
             // 
             this.markmp3QualityToolStripMenuItem.Name = "markmp3QualityToolStripMenuItem";
-            this.markmp3QualityToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.markmp3QualityToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.markmp3QualityToolStripMenuItem.Text = "Mark .mp&3 quality...";
             // 
-            // toolStripMenuItem3
+            // toolStripPicturesSep2
             // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(254, 6);
+            this.toolStripPicturesSep2.Name = "toolStripPicturesSep2";
+            this.toolStripPicturesSep2.Size = new System.Drawing.Size(231, 6);
             // 
             // sortTwitterToolStripMenuItem
             // 
             this.sortTwitterToolStripMenuItem.Name = "sortTwitterToolStripMenuItem";
-            this.sortTwitterToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortTwitterToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.sortTwitterToolStripMenuItem.Text = "Sort &Twitter...";
             this.sortTwitterToolStripMenuItem.Click += new System.EventHandler(this.sortTwitterToolStripMenuItem_Click);
             // 
             // sortMusicToolStripMenuItem
             // 
             this.sortMusicToolStripMenuItem.Name = "sortMusicToolStripMenuItem";
-            this.sortMusicToolStripMenuItem.Size = new System.Drawing.Size(257, 22);
+            this.sortMusicToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.sortMusicToolStripMenuItem.Text = "Sort &Music...";
             this.sortMusicToolStripMenuItem.Click += new System.EventHandler(this.sortMusicToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setTrashDirectoryToolStripMenuItem,
-            this.setAltImageEditorDirectoryToolStripMenuItem,
-            this.setMozjpegDirectoryToolStripMenuItem,
-            this.setWebpDirectoryToolStripMenuItem,
-            this.setPythonLocationToolStripMenuItem,
-            this.setJpegCropDirectoryToolStripMenuItem,
-            this.setWinMergeDirectoryToolStripMenuItem,
-            this.toolStripMenuItem2,
-            this.setMediaPlayerDirectoryToolStripMenuItem,
-            this.setMediaEditorDirectoryToolStripMenuItem,
-            this.setCreateSyncDirectoryToolStripMenuItem,
-            this.setCoordmusicLocationToolStripMenuItem,
-            this.setDropqpyLocationToolStripMenuItem,
-            this.setMp3DirectCutToolStripMenuItem,
-            this.setExiftoolLocationToolStripMenuItem,
+            this.setDirectoryForDeletedToolStripMenuItem,
             this.setSortmusicStagingLocationToolStripMenuItem,
             this.setSorttwitterSourceLocationToolStripMenuItem,
-            this.setSorttwitterDestinationLocationToolStripMenuItem});
+            this.setSorttwitterDestinationLocationToolStripMenuItem,
+            this.toolStripOptionsSep,
+            this.setAudioCropStripMenuItem,
+            this.setAudioEditorToolStripMenuItem,
+            this.setAudioPlayerToolStripMenuItem,
+            this.setCreateSyncToolStripMenuItem,
+            this.setCoordmusicLocationToolStripMenuItem,
+            this.setExiftoolLocationToolStripMenuItem,
+            this.setImageEditorLocationToolStripMenuItem,
+            this.setAltImageEditorToolStripMenuItem,
+            this.setJpegCropDirectoryToolStripMenuItem,
+            this.setAltJpegcropLocationToolStripMenuItem,
+            this.setM4aEncoderLocationToolStripMenuItem,
+            this.setMozjpegToolStripMenuItem,
+            this.setPythonLocationToolStripMenuItem,
+            this.setWebpToolStripMenuItem,
+            this.setWinMergeToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "&Options";
             // 
-            // setTrashDirectoryToolStripMenuItem
+            // setDirectoryForDeletedToolStripMenuItem
             // 
-            this.setTrashDirectoryToolStripMenuItem.Name = "setTrashDirectoryToolStripMenuItem";
-            this.setTrashDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setTrashDirectoryToolStripMenuItem.Text = "Set destination for deleted files...";
-            // 
-            // setAltImageEditorDirectoryToolStripMenuItem
-            // 
-            this.setAltImageEditorDirectoryToolStripMenuItem.Name = "setAltImageEditorDirectoryToolStripMenuItem";
-            this.setAltImageEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setAltImageEditorDirectoryToolStripMenuItem.Text = "Set image editor location...";
-            // 
-            // setMozjpegDirectoryToolStripMenuItem
-            // 
-            this.setMozjpegDirectoryToolStripMenuItem.Name = "setMozjpegDirectoryToolStripMenuItem";
-            this.setMozjpegDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setMozjpegDirectoryToolStripMenuItem.Text = "Set mozjpeg location...";
-            // 
-            // setWebpDirectoryToolStripMenuItem
-            // 
-            this.setWebpDirectoryToolStripMenuItem.Name = "setWebpDirectoryToolStripMenuItem";
-            this.setWebpDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setWebpDirectoryToolStripMenuItem.Text = "Set cwebp location...";
-            // 
-            // setPythonLocationToolStripMenuItem
-            // 
-            this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
-            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setPythonLocationToolStripMenuItem.Text = "Set Python location...";
-            // 
-            // setJpegCropDirectoryToolStripMenuItem
-            // 
-            this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
-            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set JpegCrop location...";
-            // 
-            // setWinMergeDirectoryToolStripMenuItem
-            // 
-            this.setWinMergeDirectoryToolStripMenuItem.Name = "setWinMergeDirectoryToolStripMenuItem";
-            this.setWinMergeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setWinMergeDirectoryToolStripMenuItem.Text = "Set WinMerge location...";
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(242, 6);
-            // 
-            // setMediaPlayerDirectoryToolStripMenuItem
-            // 
-            this.setMediaPlayerDirectoryToolStripMenuItem.Name = "setMediaPlayerDirectoryToolStripMenuItem";
-            this.setMediaPlayerDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setMediaPlayerDirectoryToolStripMenuItem.Text = "Set media player location...";
-            // 
-            // setMediaEditorDirectoryToolStripMenuItem
-            // 
-            this.setMediaEditorDirectoryToolStripMenuItem.Name = "setMediaEditorDirectoryToolStripMenuItem";
-            this.setMediaEditorDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setMediaEditorDirectoryToolStripMenuItem.Text = "Set media editor location...";
-            // 
-            // setCreateSyncDirectoryToolStripMenuItem
-            // 
-            this.setCreateSyncDirectoryToolStripMenuItem.Name = "setCreateSyncDirectoryToolStripMenuItem";
-            this.setCreateSyncDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setCreateSyncDirectoryToolStripMenuItem.Text = "Set create sync location...";
-            // 
-            // setCoordmusicLocationToolStripMenuItem
-            // 
-            this.setCoordmusicLocationToolStripMenuItem.Name = "setCoordmusicLocationToolStripMenuItem";
-            this.setCoordmusicLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setCoordmusicLocationToolStripMenuItem.Text = "Set coordmusic location...";
-            // 
-            // setDropqpyLocationToolStripMenuItem
-            // 
-            this.setDropqpyLocationToolStripMenuItem.Name = "setDropqpyLocationToolStripMenuItem";
-            this.setDropqpyLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setDropqpyLocationToolStripMenuItem.Text = "Set dropq.py location...";
-            // 
-            // setMp3DirectCutToolStripMenuItem
-            // 
-            this.setMp3DirectCutToolStripMenuItem.Name = "setMp3DirectCutToolStripMenuItem";
-            this.setMp3DirectCutToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setMp3DirectCutToolStripMenuItem.Text = "Set mp3DirectCut location...";
-            // 
-            // setExiftoolLocationToolStripMenuItem
-            // 
-            this.setExiftoolLocationToolStripMenuItem.Name = "setExiftoolLocationToolStripMenuItem";
-            this.setExiftoolLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setExiftoolLocationToolStripMenuItem.Text = "Set exiftool location...";
+            this.setDirectoryForDeletedToolStripMenuItem.Name = "setDirectoryForDeletedToolStripMenuItem";
+            this.setDirectoryForDeletedToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setDirectoryForDeletedToolStripMenuItem.Text = "Set destination for deleted files...";
             // 
             // setSortmusicStagingLocationToolStripMenuItem
             // 
@@ -338,14 +259,100 @@
             this.setSorttwitterDestinationLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setSorttwitterDestinationLocationToolStripMenuItem.Text = "Set sorttwitter output location...";
             // 
-            // label1
+            // toolStripOptionsSep
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 38);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(201, 52);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
+            this.toolStripOptionsSep.Name = "toolStripOptionsSep";
+            this.toolStripOptionsSep.Size = new System.Drawing.Size(242, 6);
+            // 
+            // setAudioCropStripMenuItem
+            // 
+            this.setAudioCropStripMenuItem.Name = "setAudioCropStripMenuItem";
+            this.setAudioCropStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setAudioCropStripMenuItem.Text = "Set audio crop location...";
+            // 
+            // setAudioEditorToolStripMenuItem
+            // 
+            this.setAudioEditorToolStripMenuItem.Name = "setAudioEditorToolStripMenuItem";
+            this.setAudioEditorToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setAudioEditorToolStripMenuItem.Text = "Set audio editor location...";
+            // 
+            // setAudioPlayerToolStripMenuItem
+            // 
+            this.setAudioPlayerToolStripMenuItem.Name = "setAudioPlayerToolStripMenuItem";
+            this.setAudioPlayerToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setAudioPlayerToolStripMenuItem.Text = "Set audio player location...";
+            // 
+            // setCreateSyncToolStripMenuItem
+            // 
+            this.setCreateSyncToolStripMenuItem.Name = "setCreateSyncToolStripMenuItem";
+            this.setCreateSyncToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setCreateSyncToolStripMenuItem.Text = "Set create sync location...";
+            // 
+            // setCoordmusicLocationToolStripMenuItem
+            // 
+            this.setCoordmusicLocationToolStripMenuItem.Name = "setCoordmusicLocationToolStripMenuItem";
+            this.setCoordmusicLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setCoordmusicLocationToolStripMenuItem.Text = "Set coordmusic location...";
+            // 
+            // setExiftoolLocationToolStripMenuItem
+            // 
+            this.setExiftoolLocationToolStripMenuItem.Name = "setExiftoolLocationToolStripMenuItem";
+            this.setExiftoolLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setExiftoolLocationToolStripMenuItem.Text = "Set exiftool location...";
+            // 
+            // setImageEditorLocationToolStripMenuItem
+            // 
+            this.setImageEditorLocationToolStripMenuItem.Name = "setImageEditorLocationToolStripMenuItem";
+            this.setImageEditorLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setImageEditorLocationToolStripMenuItem.Text = "Set image editor location...";
+            // 
+            // setAltImageEditorToolStripMenuItem
+            // 
+            this.setAltImageEditorToolStripMenuItem.Name = "setAltImageEditorToolStripMenuItem";
+            this.setAltImageEditorToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setAltImageEditorToolStripMenuItem.Text = "Set image editor alt location...";
+            // 
+            // setJpegCropDirectoryToolStripMenuItem
+            // 
+            this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
+            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set jpegcrop location...";
+            // 
+            // setAltJpegcropLocationToolStripMenuItem
+            // 
+            this.setAltJpegcropLocationToolStripMenuItem.Name = "setAltJpegcropLocationToolStripMenuItem";
+            this.setAltJpegcropLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setAltJpegcropLocationToolStripMenuItem.Text = "Set jpegcrop alt location...";
+            // 
+            // setM4aEncoderLocationToolStripMenuItem
+            // 
+            this.setM4aEncoderLocationToolStripMenuItem.Name = "setM4aEncoderLocationToolStripMenuItem";
+            this.setM4aEncoderLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setM4aEncoderLocationToolStripMenuItem.Text = "Set m4a encoder location...";
+            // 
+            // setMozjpegToolStripMenuItem
+            // 
+            this.setMozjpegToolStripMenuItem.Name = "setMozjpegToolStripMenuItem";
+            this.setMozjpegToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setMozjpegToolStripMenuItem.Text = "Set mozjpeg location...";
+            // 
+            // setWebpToolStripMenuItem
+            // 
+            this.setWebpToolStripMenuItem.Name = "setWebpToolStripMenuItem";
+            this.setWebpToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setWebpToolStripMenuItem.Text = "Set webp location...";
+            // 
+            // setPythonLocationToolStripMenuItem
+            // 
+            this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
+            this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setPythonLocationToolStripMenuItem.Text = "Set python location...";
+            // 
+            // setWinMergeToolStripMenuItem
+            // 
+            this.setWinMergeToolStripMenuItem.Name = "setWinMergeToolStripMenuItem";
+            this.setWinMergeToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setWinMergeToolStripMenuItem.Text = "Set winmerge location...";
             // 
             // helpToolStripMenuItem
             // 
@@ -361,6 +368,15 @@
             this.onlineDocumentationToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.onlineDocumentationToolStripMenuItem.Text = "Online &Documentation";
             this.onlineDocumentationToolStripMenuItem.Click += new System.EventHandler(this.onlineDocumentationToolStripMenuItem_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 38);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(201, 52);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
             // FormStart
             // 
@@ -392,32 +408,32 @@
         private System.Windows.Forms.ToolStripMenuItem syncFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem searchDuplicatesInTwoFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setTrashDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setDirectoryForDeletedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setPythonLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem categorizeAndRenamePicturesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem resizePhotosKeepingExifsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setWinMergeDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setWinMergeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setJpegCropDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setAltImageEditorDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setMozjpegDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setWebpDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setAltImageEditorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setMozjpegToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setWebpToolStripMenuItem;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripPicturesSep1;
         private System.Windows.Forms.ToolStripMenuItem checkFilesizesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem markwavQualityToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem markmp3QualityToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem setMediaPlayerDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setMediaEditorDirectoryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setCreateSyncDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripOptionsSep;
+        private System.Windows.Forms.ToolStripMenuItem setAudioPlayerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setAudioEditorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setCreateSyncToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setCoordmusicLocationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setDropqpyLocationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setMp3DirectCutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setM4aEncoderLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setAudioCropStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setExiftoolLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setSortmusicStagingLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setSorttwitterSourceLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setSorttwitterDestinationLocationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripSeparator toolStripPicturesSep2;
         private System.Windows.Forms.ToolStripMenuItem sortTwitterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sortMusicToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem searchDifferencesFilesToolStripMenuItem;
@@ -426,6 +442,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem onlineDocumentationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setAltJpegcropLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setImageEditorLocationToolStripMenuItem;
     }
 }
 
