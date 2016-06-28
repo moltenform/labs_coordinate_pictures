@@ -54,7 +54,7 @@ namespace labs_coordinate_pictures
 
             if (string.IsNullOrEmpty(configDirectory) || !Directory.Exists(configDirectory))
             {
-                Utils.MessageErr("We could not find the file silence.flac. Please run this " +
+                MessageBox.Show("We could not find the file silence.flac. Please run this " +
                     "program from the same directory as silence.flac. We will now exit.");
                 Environment.Exit(1);
             }

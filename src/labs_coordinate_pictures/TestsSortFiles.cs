@@ -137,6 +137,10 @@ namespace labs_coordinate_pictures
 
         public static void RunTests()
         {
+            // for the case where FilepathDeletedFilesDir isn't set,
+            // we shouldn't leave junk behind.
+            var localTrash = Path.Combine(Configs.Current.Directory, "(deleted)");
+            var shouldCleanLocalTrash = !Directory.Exists(localTrash);
             if (Utils.GetSoftDeleteDestination("abc" + Utils.PathSep + "abc") == null)
             {
                 Utils.MessageBox("Skipping tests until a trash directory is chosen.");
@@ -154,6 +158,11 @@ namespace labs_coordinate_pictures
             finally
             {
                 Configs.Current.SuppressDialogs = false;
+
+                if (shouldCleanLocalTrash && Directory.Exists(localTrash))
+                {
+                    Directory.Delete(localTrash, false);
+                }
             }
         }
     }

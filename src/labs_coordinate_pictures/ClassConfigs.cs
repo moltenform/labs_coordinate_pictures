@@ -106,11 +106,11 @@ namespace labs_coordinate_pictures
             {
                 var otherKeyName = key.ToString().Replace("Filepath", "FilepathChecksum");
                 var otherKey = Enum.Parse(typeof(ConfigKey), otherKeyName);
-                VerifyChecksum(key, (ConfigKey)otherKey, currentVal);
+                VerifyChecksum((ConfigKey)otherKey, currentVal);
             }
         }
 
-        static void VerifyChecksum(ConfigKey key, ConfigKey sumkey, string current)
+        static void VerifyChecksum(ConfigKey sumkey, string current)
         {
             var hash = Utils.GetSha512(current);
             var hashExpected = Configs.Current.Get(sumkey);

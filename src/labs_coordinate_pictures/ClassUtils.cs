@@ -118,9 +118,22 @@ namespace labs_coordinate_pictures
         // "soft delete" just means moving to a designated 'trash' location.
         public static string GetSoftDeleteDestination(string path)
         {
-            var trashDir = Configs.Current.Get(ConfigKey.FilepathTrash);
-            if (string.IsNullOrEmpty(trashDir) ||
-                !Directory.Exists(trashDir))
+            var trashDir = Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir);
+            if (string.IsNullOrEmpty(trashDir))
+            {
+                // for ease-of-use, pick a default trash directory
+                trashDir = Path.Combine(Configs.Current.Directory, "(deleted)");
+                try
+                {
+                    Directory.CreateDirectory(trashDir);
+                }
+                catch (IOException)
+                {
+                    trashDir = "";
+                }
+            }
+
+            if (!Directory.Exists(trashDir))
             {
                 MessageBox("Trash directory not found. Go to the main screen and to the " +
                     "option menu and click Options->Set trash directory...");
@@ -1008,7 +1021,7 @@ namespace labs_coordinate_pictures
 
             try
             {
-                File.AppendAllText(_path, Environment.NewLine + s);
+                File.AppendAllText(_path, Utils.NL + s);
             }
             catch (Exception)
             {
