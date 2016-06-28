@@ -60,7 +60,7 @@ namespace labs_coordinate_pictures
         CategoriesModeCheckFilesizes,
         CategoriesModeMarkWavQuality,
         CategoriesModeMarkMp3Quality,
-        GalleryViewCategories,
+        GalleryHideCategories,
         MRUOpenImageDirectory,
         MRUOpenImageKeepExifDirectory,
         MRUOpenAudioDirectory,
@@ -93,6 +93,42 @@ namespace labs_coordinate_pictures
         EditCategoriesString,
         SyncDirectoryLeft,
         SyncDirectoryRight,
+    }
+
+    public static class ConfirmChecksums
+    {
+        public static void Check(ConfigKey key, string currentVal)
+        {
+            if (!string.IsNullOrEmpty(currentVal) &&
+                key.ToString().StartsWith("Filepath", StringComparison.Ordinal) &&
+                    !key.ToString().EndsWith("Dir", StringComparison.Ordinal) &&
+                    !key.ToString().Contains("Checksum"))
+            {
+                var otherKeyName = key.ToString().Replace("Filepath", "FilepathChecksum");
+                var otherKey = Enum.Parse(typeof(ConfigKey), otherKeyName);
+                VerifyChecksum(key, (ConfigKey)otherKey, currentVal);
+            }
+        }
+
+        static void VerifyChecksum(ConfigKey key, ConfigKey sumkey, string current)
+        {
+            var hash = Utils.GetSha512(current);
+            var hashExpected = Configs.Current.Get(sumkey);
+            if (hashExpected != hash)
+            {
+                if (Utils.AskToConfirm("Checksum does not match for file " +
+                    current + Utils.NL + "was:" + hashExpected + Utils.NL + "now: " + hash +
+                    Utils.NL + "Did you recently upgrade or change this program? " +
+                    "If so, click Yes. Otherwise, click No to exit."))
+                {
+                    Configs.Current.Set(sumkey, hash);
+                }
+                else
+                {
+                    Environment.Exit(1);
+                }
+            }
+        }
     }
 
     // Class for storing settings.
@@ -214,7 +250,9 @@ namespace labs_coordinate_pictures
         public string Get(ConfigKey key)
         {
             string s;
-            return _persisted.TryGetValue(key, out s) ? s : "";
+            var ret = _persisted.TryGetValue(key, out s) ? s : "";
+            ConfirmChecksums.Check(key, ret);
+            return ret;
         }
 
         public bool GetBool(ConfigKey key)

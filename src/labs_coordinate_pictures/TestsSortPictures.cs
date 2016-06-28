@@ -333,21 +333,21 @@ namespace labs_coordinate_pictures
 
             // unset properties should return empty string
             TestUtil.IsEq("", cfg.Get(ConfigKey.EnablePersonalFeatures));
-            TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.IsEq("", cfg.Get(ConfigKey.EnableVerboseLogging));
             TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
 
             // from memory
             cfg.Set(ConfigKey.EnablePersonalFeatures, "data=with=equals=");
-            cfg.Set(ConfigKey.FilepathPython, " data\twith\t tabs");
+            cfg.Set(ConfigKey.EnableVerboseLogging, " data\twith\t tabs");
             TestUtil.IsEq("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
-            TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.EnableVerboseLogging));
             TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
 
             // from disk
             cfg = new Configs(path);
             cfg.LoadPersisted();
             TestUtil.IsEq("data=with=equals=", cfg.Get(ConfigKey.EnablePersonalFeatures));
-            TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.FilepathPython));
+            TestUtil.IsEq(" data\twith\t tabs", cfg.Get(ConfigKey.EnableVerboseLogging));
             TestUtil.IsEq("", cfg.Get(ConfigKey.FilepathDeletedFilesDir));
         }
 
@@ -368,10 +368,10 @@ namespace labs_coordinate_pictures
         {
             string path = Path.Combine(TestUtil.GetTestSubDirectory("testcfg"), "test.ini");
             Configs cfg = new Configs(path);
-            TestUtil.AssertExceptionMessage(
-                () => cfg.Set(ConfigKey.FilepathPython, "data\rnewline"), "cannot contain newline");
-            TestUtil.AssertExceptionMessage(
-                () => cfg.Set(ConfigKey.FilepathPython, "data\nnewline"), "cannot contain newline");
+            TestUtil.AssertExceptionMessage(() => cfg.Set(
+                ConfigKey.EnableVerboseLogging, "data\rnewline"), "cannot contain newline");
+            TestUtil.AssertExceptionMessage(() => cfg.Set(
+                ConfigKey.EnableVerboseLogging, "data\nnewline"), "cannot contain newline");
         }
 
         static void TestMethod_ClassConfigsInputBoxHistoryShouldHaveCorrespondingConfig()

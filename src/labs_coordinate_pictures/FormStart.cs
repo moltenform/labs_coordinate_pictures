@@ -100,9 +100,27 @@ namespace labs_coordinate_pictures
             }
         }
 
-        static void OpenAudioFileInGallery(string path)
+        void OpenAudioFileInGallery(string path)
         {
-            throw new NotImplementedException(path);
+            if (File.Exists(path))
+            {
+                ModeBase mode;
+                if (FilenameUtils.LooksLikeImage(path))
+                {
+                    mode = new ModeCategorizeAndRename();
+                }
+                else if (path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+                {
+                    mode = new ModeMarkWavQuality();
+                }
+                else
+                {
+                    mode = new ModeMarkMp3Quality();
+                }
+
+                var form = new FormGallery(mode, Path.GetDirectoryName(path), path);
+                ShowForm(form);
+            }
         }
 
         static string AskUserForDirectory(InputBoxHistory mruKey)
@@ -130,7 +148,6 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            VerifyAllProgramChecksums();
             ShowForm(new FormGallery(mode, directory));
         }
 
@@ -143,7 +160,6 @@ namespace labs_coordinate_pictures
             if (!string.IsNullOrEmpty(chosenDirectory))
             {
                 Configs.Current.Set(key, chosenDirectory);
-                VerifyAllProgramChecksums();
             }
         }
 
@@ -172,7 +188,6 @@ namespace labs_coordinate_pictures
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 Configs.Current.Set(key, dialog.FileName);
-                VerifyAllProgramChecksums();
             }
         }
 
@@ -281,46 +296,6 @@ namespace labs_coordinate_pictures
             else
             {
                 Utils.MessageErr("Unsupported file type.");
-            }
-        }
-
-        public static void VerifyAllProgramChecksums()
-        {
-            foreach (ConfigKey key in Enum.GetValues(typeof(ConfigKey)))
-            {
-                if (key.ToString().StartsWith("FilePath", StringComparison.Ordinal) &&
-                    !key.ToString().EndsWith("Dir", StringComparison.Ordinal) &&
-                    !key.ToString().Contains("Checksum") &&
-                    !string.IsNullOrEmpty(Configs.Current.Get(key)))
-                {
-                    var otherKeyName = key.ToString().Replace("FilePath", "FilePathChecksum");
-                    var otherKey = Enum.Parse(typeof(ConfigKey), otherKeyName);
-                    VerifyChecksum(key, (ConfigKey)otherKey);
-                }
-            }
-        }
-
-        public static void VerifyChecksum(ConfigKey key, ConfigKey sumkey)
-        {
-            if (!string.IsNullOrEmpty(Configs.Current.Get(key)))
-            {
-                var path = Configs.Current.Get(key);
-                var hash = Utils.GetSha512(path);
-                var hashExpected = Configs.Current.Get(sumkey);
-                if (hashExpected != hash)
-                {
-                    if (Utils.AskToConfirm("Checksum does not match for file " +
-                        path + Utils.NL + "was:" + hashExpected + Utils.NL + "now: " + hash +
-                        Utils.NL + "Did you recently upgrade or change this program? " +
-                        "If so, click Yes. Otherwise, click No to exit."))
-                    {
-                        Configs.Current.Set(sumkey, hash);
-                    }
-                    else
-                    {
-                        Environment.Exit(1);
-                    }
-                }
             }
         }
 

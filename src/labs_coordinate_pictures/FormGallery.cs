@@ -257,7 +257,7 @@ namespace labs_coordinate_pictures
             }
 
             // only show categories in the UI if enabled.
-            if (!Configs.Current.GetBool(ConfigKey.GalleryViewCategories))
+            if (Configs.Current.GetBool(ConfigKey.GalleryHideCategories))
             {
                 labelView.Text = "";
             }
@@ -265,8 +265,8 @@ namespace labs_coordinate_pictures
 
         private void viewCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var current = Configs.Current.GetBool(ConfigKey.GalleryViewCategories);
-            Configs.Current.SetBool(ConfigKey.GalleryViewCategories, !current);
+            var current = Configs.Current.GetBool(ConfigKey.GalleryHideCategories);
+            Configs.Current.SetBool(ConfigKey.GalleryHideCategories, !current);
             RefreshCategories();
         }
 
@@ -688,7 +688,7 @@ namespace labs_coordinate_pictures
         private void cropRotateFileAlt()
         {
             LaunchEditor(
-            Configs.Current.Get(ConfigKey.FilepathJpegCropAlt), _filelist.Current);
+                Configs.Current.Get(ConfigKey.FilepathJpegCropAlt), _filelist.Current);
         }
 
         // add a prefix to files, useful when renaming and you want to maintain the order
