@@ -81,7 +81,7 @@ namespace labs_coordinate_pictures
 
         static string StripInitialSlash(string s)
         {
-            return (s.Length > 0 && s[0] == '\\') ?
+            return (s.Length > 0 && s[0] == Utils.PathSep[0]) ?
                 s.Substring(1) : s;
         }
 

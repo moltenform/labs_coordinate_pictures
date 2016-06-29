@@ -288,7 +288,7 @@ namespace labs_coordinate_pictures
             string[] listArgs, bool createWindow = false,
             bool warnIfStdErr = true, string workingDir = null)
         {
-            if (!pyScript.Contains("/") && !pyScript.Contains("\\"))
+            if (!pyScript.Contains(Utils.PathSep))
             {
                 pyScript = Path.Combine(Configs.Current.Directory, pyScript);
             }
@@ -892,7 +892,7 @@ namespace labs_coordinate_pictures
             {
                 // add a trailing zero, just lets the user change the order more easily.
                 return Path.GetDirectoryName(filepath) +
-                    "\\([" + number.ToString("D3") + "0])" + nameOnly;
+                    Utils.PathSep + "([" + number.ToString("D3") + "0])" + nameOnly;
             }
         }
 
@@ -1083,7 +1083,7 @@ namespace labs_coordinate_pictures
                     var list = new List<string>(filenameParts);
                     list.RemoveAt(list.Count - 2);
                     pathWithSuffixRemoved = Path.GetDirectoryName(path) +
-                        "\\" + string.Join(".", list);
+                        Utils.PathSep + string.Join(".", list);
 
                     return true;
                 }

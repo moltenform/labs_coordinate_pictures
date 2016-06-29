@@ -465,7 +465,7 @@ namespace labs_coordinate_pictures
 
         static void CompareResultsToString(List<FileComparisonResult> list, string expected)
         {
-            var received = ResultsToString(list).Replace("\\", "").Replace(
+            var received = ResultsToString(list).Replace(Utils.PathSep, "").Replace(
                 "_File", "").Replace("_Only", "").Replace("\r\n", "\n");
             expected = expected.Replace("\r\n", "\n");
             TestUtil.IsEq(expected, received);
@@ -920,7 +920,8 @@ SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
 
             // run search-for-differences
             var results = SortFilesSearchDifferences.Go(settings);
-            var expectedDifferences = @"|empty1.a|Right
+            var expectedDifferences =
+@"|empty1.a|Right
 |onlyright.txt|Right
 |renamed1.a|Right
 |renamed2.a|Right

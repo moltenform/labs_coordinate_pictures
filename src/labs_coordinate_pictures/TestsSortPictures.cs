@@ -66,24 +66,33 @@ namespace labs_coordinate_pictures
                 "expected True but got False");
         }
 
+        static string PathSep(string s)
+        {
+            // replace slashes with platform appropriate character
+            return s.Replace("/", Utils.PathSep);
+        }
+
         static void TestMethod_UtilsSameExceptExtension()
         {
             TestUtil.IsTrue(FilenameUtils.SameExceptExtension(
-                "a\\test6.jpg", "a\\test6.jpg"));
+                "test6.jpg", "test6.jpg"));
             TestUtil.IsTrue(FilenameUtils.SameExceptExtension(
-                "a\\test6.jpg", "a\\test6.png"));
+                "test6.jpg", "test6.png"));
             TestUtil.IsTrue(FilenameUtils.SameExceptExtension(
-                "a\\test6.jpg", "a\\test6.BMP"));
+                "test6.jpg", "test6.BMP"));
             TestUtil.IsTrue(!FilenameUtils.SameExceptExtension(
-                "a\\test6.jpg", "b\\test6.jpg"));
+                "test6.jpg", "test6.jpg.jpg"));
             TestUtil.IsTrue(!FilenameUtils.SameExceptExtension(
-                "a\\test6.jpg", "a\\test6.jpg.jpg"));
-            TestUtil.IsTrue(!FilenameUtils.SameExceptExtension(
-                "a\\test6a.jpg", "a\\test6.jpg"));
+                "test6a.jpg", "test6.jpg"));
             TestUtil.IsTrue(FilenameUtils.SameExceptExtension(
-                "b\\aa.jpg.test6.jpg", "b\\aa.jpg.test6.bmp"));
+                "aa.jpg.test6.jpg", "aa.jpg.test6.bmp"));
             TestUtil.IsTrue(!FilenameUtils.SameExceptExtension(
-                "b\\aa.jpg.test6.jpg", "b\\aa.bmp.test6.jpg"));
+                "aa.jpg.test6.jpg", "aa.bmp.test6.jpg"));
+
+            TestUtil.IsTrue(FilenameUtils.SameExceptExtension(
+                PathSep("a/test6.jpg"), PathSep("a/test6.jpg")));
+            TestUtil.IsTrue(!FilenameUtils.SameExceptExtension(
+                PathSep("a/test6.jpg"), PathSep("b/test6.jpg")));
         }
 
         static void TestMethod_UtilsIsDigits()
@@ -183,14 +192,16 @@ namespace labs_coordinate_pictures
                 // give it a valid path
                 Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir,
                     TestUtil.GetTestWriteDirectory());
-                var fakeDest = Utils.GetSoftDeleteDestination("C:\\dirtest\\test.doc");
+                var fakeDest = Utils.GetSoftDeleteDestination(
+                    PathSep("C:/dirtest/test.doc"));
                 TestUtil.IsTrue(fakeDest.StartsWith(TestUtil.GetTestWriteDirectory() +
                     Utils.PathSep + "di_test.doc", StringComparison.Ordinal));
 
                 // give it an empty path, should fall back to currentdir/(deleted)
                 Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir, "");
                 TestUtil.IsEq("", Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir));
-                fakeDest = Utils.GetSoftDeleteDestination("C:\\dirtest\\test.doc");
+                fakeDest = Utils.GetSoftDeleteDestination(
+                    PathSep("C:/dirtest/test.doc"));
                 TestUtil.IsTrue(Path.GetFileName(fakeDest).StartsWith(
                     "di_test.doc", StringComparison.Ordinal));
                 TestUtil.IsTrue(Path.GetDirectoryName(fakeDest).EndsWith(
@@ -220,32 +231,32 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_NumberedPrefix()
         {
-            TestUtil.IsEq(@"c:\test\([0000])abc.jpg",
-                FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 0));
-            TestUtil.IsEq(@"c:\test\([0010])abc.jpg",
-                FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 1));
-            TestUtil.IsEq(@"c:\test\([1230])abc.jpg",
-                FilenameUtils.AddNumberedPrefix(@"c:\test\abc.jpg", 123));
-            TestUtil.IsEq(@"c:\test\([1230])abc.jpg",
-                FilenameUtils.AddNumberedPrefix(@"c:\test\([1230])abc.jpg", 123));
-            TestUtil.IsEq(@"c:\test\([9999])abc.jpg",
-                FilenameUtils.AddNumberedPrefix(@"c:\test\([9999])abc.jpg", 123));
-            TestUtil.IsEq(@"a.jpg",
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(@"a.jpg"));
-            TestUtil.IsEq(@"abc.jpg",
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([9999])abc.jpg"));
-            TestUtil.IsEq(@"abc.jpg",
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([0000])abc.jpg"));
-            TestUtil.IsEq(@"abc.jpg",
-                FilenameUtils.GetFileNameWithoutNumberedPrefix(@"c:\test\([1230])abc.jpg"));
+            TestUtil.IsEq(PathSep("c:/test/([0000])abc.jpg"),
+                FilenameUtils.AddNumberedPrefix(PathSep("c:/test/abc.jpg"), 0));
+            TestUtil.IsEq(PathSep("c:/test/([0010])abc.jpg"),
+                FilenameUtils.AddNumberedPrefix(PathSep("c:/test/abc.jpg"), 1));
+            TestUtil.IsEq(PathSep("c:/test/([1230])abc.jpg"),
+                FilenameUtils.AddNumberedPrefix(PathSep("c:/test/abc.jpg"), 123));
+            TestUtil.IsEq(PathSep("c:/test/([1230])abc.jpg"),
+                FilenameUtils.AddNumberedPrefix(PathSep("c:/test/([1230])abc.jpg"), 123));
+            TestUtil.IsEq(PathSep("c:/test/([9999])abc.jpg"),
+                FilenameUtils.AddNumberedPrefix(PathSep("c:/test/([9999])abc.jpg"), 123));
+            TestUtil.IsEq(PathSep("a.jpg"),
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(PathSep("a.jpg")));
+            TestUtil.IsEq(PathSep("abc.jpg"),
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(PathSep("c:/test/([9999])abc.jpg")));
+            TestUtil.IsEq(PathSep("abc.jpg"),
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(PathSep("c:/test/([0000])abc.jpg")));
+            TestUtil.IsEq(PathSep("abc.jpg"),
+                FilenameUtils.GetFileNameWithoutNumberedPrefix(PathSep("c:/test/([1230])abc.jpg")));
         }
 
         static void TestMethod_UtilsGetCategory()
         {
-            var testAdd = FilenameUtils.AddCategoryToFilename(@"c:\dir\test\b b.aaa.jpg", "mk");
-            TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__mk.jpg", testAdd);
-            testAdd = FilenameUtils.AddCategoryToFilename(@"c:\dir\test\b b.aaa.jpg", "");
-            TestUtil.IsEq(@"c:\dir\test\b b.aaa__MARKAS__.jpg", testAdd);
+            var testAdd = FilenameUtils.AddCategoryToFilename(PathSep("c:/dir/test/b b.aaa.jpg"), "mk");
+            TestUtil.IsEq(PathSep("c:/dir/test/b b.aaa__MARKAS__mk.jpg"), testAdd);
+            testAdd = FilenameUtils.AddCategoryToFilename(PathSep("c:/dir/test/b b.aaa.jpg"), "");
+            TestUtil.IsEq(PathSep("c:/dir/test/b b.aaa__MARKAS__.jpg"), testAdd);
 
             Func<string, string> testGetCategory = (input) =>
             {
@@ -254,24 +265,24 @@ namespace labs_coordinate_pictures
                 return pathWithoutCategory + "|" + category;
             };
 
-            TestUtil.IsEq(@"C:\dir\test\file.jpg|123",
-                testGetCategory(@"C:\dir\test\file__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\dir\test\file.also.jpg|123",
-                testGetCategory(@"C:\dir\test\file.also__MARKAS__123.jpg"));
-            TestUtil.IsEq(@"C:\dir\test\file.jpg|",
-                testGetCategory(@"C:\dir\test\file__MARKAS__.jpg"));
+            TestUtil.IsEq(PathSep("C:/dir/test/file.jpg|123"),
+                testGetCategory(PathSep("C:/dir/test/file__MARKAS__123.jpg")));
+            TestUtil.IsEq(PathSep("C:/dir/test/file.also.jpg|123"),
+                testGetCategory(PathSep("C:/dir/test/file.also__MARKAS__123.jpg")));
+            TestUtil.IsEq(PathSep("C:/dir/test/file.jpg|"),
+                testGetCategory(PathSep("C:/dir/test/file__MARKAS__.jpg")));
 
             // check that invalid paths cause exception to be thrown.
             TestUtil.AssertExceptionMessage(() => testGetCategory(
-                @"C:\dir\test\dirmark__MARKAS__b\file__MARKAS__123.jpg"), "Directories");
+                PathSep("C:/dir/test/dirmark__MARKAS__b/file__MARKAS__123.jpg")), "Directories");
             TestUtil.AssertExceptionMessage(() => testGetCategory(
-                @"C:\dir\test\dirmark__MARKAS__b\file.jpg"), "Directories");
+                PathSep("C:/dir/test/dirmark__MARKAS__b/file.jpg")), "Directories");
             TestUtil.AssertExceptionMessage(() => testGetCategory(
-                @"C:\dir\test\file__MARKAS__123__MARKAS__123.jpg"), "exactly 1");
+                PathSep("C:/dir/test/file__MARKAS__123__MARKAS__123.jpg")), "exactly 1");
             TestUtil.AssertExceptionMessage(() => testGetCategory(
-                @"C:\dir\test\file.jpg"), "exactly 1");
+                PathSep("C:/dir/test/file.jpg")), "exactly 1");
             TestUtil.AssertExceptionMessage(() => testGetCategory(
-                @"C:\dir\test\file__MARKAS__123.dir.jpg"), "after the marker");
+                PathSep("C:/dir/test/file__MARKAS__123.dir.jpg")), "after the marker");
         }
 
         static void TestMethod_FindSimilarFilenames()
@@ -281,44 +292,44 @@ namespace labs_coordinate_pictures
             bool nameHasSuffix;
             string pathWithoutSuffix;
             var filepaths = new string[] {
-                "c:\\a\\a.png",
-                "c:\\a\\b.png",
-                "c:\\a\\ab.png",
-                "c:\\a\\b_out.png",
-                "c:\\a\\a_out.png",
-                "c:\\a\\a.png60.jpg",
-                "c:\\a\\a.png80.jpg",
-                "c:\\b\\a.png90.jpg" };
+                PathSep("c:/a/a.png"),
+                PathSep("c:/a/b.png"),
+                PathSep("c:/a/ab.png"),
+                PathSep("c:/a/b_out.png"),
+                PathSep("c:/a/a_out.png"),
+                PathSep("c:/a/a.png60.jpg"),
+                PathSep("c:/a/a.png80.jpg"),
+                PathSep("c:/b/a.png90.jpg") };
 
             // alone with no added suffix
             TestUtil.IsStringArrayEq(null, FindSimilarFilenames.FindSimilarNames(
-                "c:\\a\\b.png", extensions, filepaths,
+                PathSep("c:/a/b.png"), extensions, filepaths,
                 out nameHasSuffix, out pathWithoutSuffix));
             TestUtil.IsTrue(!nameHasSuffix);
             TestUtil.IsEq(null, pathWithoutSuffix);
 
             // alone with an added suffix
             TestUtil.IsStringArrayEq(null, FindSimilarFilenames.FindSimilarNames(
-                "c:\\b\\a.png90.jpg", extensions, filepaths,
+                PathSep("c:/b/a.png90.jpg"), extensions, filepaths,
                 out nameHasSuffix, out pathWithoutSuffix));
             TestUtil.IsTrue(nameHasSuffix);
-            TestUtil.IsEq("c:\\b\\a.jpg", pathWithoutSuffix);
+            TestUtil.IsEq(PathSep("c:/b/a.jpg"), pathWithoutSuffix);
 
             // has similar names with no added suffix
-            TestUtil.IsStringArrayEq("c:\\a\\a.png60.jpg|c:\\a\\a.png80.jpg",
+            TestUtil.IsStringArrayEq(PathSep("c:/a/a.png60.jpg|c:/a/a.png80.jpg"),
                 FindSimilarFilenames.FindSimilarNames(
-                    "c:\\a\\a.png", extensions, filepaths,
+                    PathSep("c:/a/a.png"), extensions, filepaths,
                     out nameHasSuffix, out pathWithoutSuffix));
             TestUtil.IsTrue(!nameHasSuffix);
             TestUtil.IsEq(null, pathWithoutSuffix);
 
             // has similar names with an added suffix
-            TestUtil.IsStringArrayEq("c:\\a\\a.png|c:\\a\\a.png80.jpg",
+            TestUtil.IsStringArrayEq(PathSep("c:/a/a.png|c:/a/a.png80.jpg"),
                 FindSimilarFilenames.FindSimilarNames(
-                    "c:\\a\\a.png60.jpg", extensions, filepaths,
+                    PathSep("c:/a/a.png60.jpg"), extensions, filepaths,
                     out nameHasSuffix, out pathWithoutSuffix));
             TestUtil.IsTrue(nameHasSuffix);
-            TestUtil.IsEq("c:\\a\\a.jpg", pathWithoutSuffix);
+            TestUtil.IsEq(PathSep("c:/a/a.jpg"), pathWithoutSuffix);
         }
 
         static void TestMethod_Logging()
@@ -453,22 +464,22 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                    "%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoFirst();
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
@@ -484,22 +495,22 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                    "%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
             }
 
             { // test gonext when file is missing
@@ -509,7 +520,7 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + "\\"), neighbors);
+                    "%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
 
                 nav.GoLast();
                 nav.TrySetPath(Path.Combine(dir, "ab.png"), false);
@@ -549,7 +560,7 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + "\\"), neighbors);
+                    "%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
             }
 
             { // gonext and goprev after deleted file

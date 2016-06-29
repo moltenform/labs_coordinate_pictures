@@ -39,17 +39,17 @@ namespace labs_coordinate_pictures
             {
                 configDirectory = AppDomain.CurrentDomain.BaseDirectory;
             }
-            else if (File.Exists(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools\silence.flac")))
+            else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "../../../../tools/silence.flac".Replace("/", Utils.PathSep))))
             {
-                configDirectory = Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\tools");
+                configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                    "../../../../tools".Replace("/", Utils.PathSep));
             }
-            else if (File.Exists(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools\silence.flac")))
+            else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "../../../../../tools/silence.flac".Replace("/", Utils.PathSep))))
             {
-                configDirectory = Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\tools");
+                configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                    "../../../../../tools".Replace("/", Utils.PathSep));
             }
 
             if (string.IsNullOrEmpty(configDirectory) || !Directory.Exists(configDirectory))

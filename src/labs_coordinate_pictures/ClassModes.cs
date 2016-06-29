@@ -390,7 +390,7 @@ namespace labs_coordinate_pictures
                 {
                     // 2) see that song__MARKAS__144.m4a should be renamed to song.m4a
                     var newPathM4a = Path.GetDirectoryName(pathWithoutCategory) +
-                        "\\" + Path.GetFileNameWithoutExtension(pathWithoutCategory) +
+                        Utils.PathSep + Path.GetFileNameWithoutExtension(pathWithoutCategory) +
                         Path.GetExtension(pathM4a);
 
                     if (File.Exists(newPathM4a))
