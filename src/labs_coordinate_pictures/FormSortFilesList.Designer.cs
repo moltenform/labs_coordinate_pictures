@@ -56,6 +56,7 @@
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.compareFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchMovedFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.propagateMovesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoFileMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
@@ -289,7 +290,8 @@
             this.showFileDetailsToolStripMenuItem,
             this.toolStripMenuItem3,
             this.compareFilesToolStripMenuItem,
-            this.searchMovedFilesToolStripMenuItem});
+            this.searchMovedFilesToolStripMenuItem,
+            this.propagateMovesToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -331,6 +333,13 @@
             this.searchMovedFilesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.searchMovedFilesToolStripMenuItem.Text = "&Search For Moved Files...";
             this.searchMovedFilesToolStripMenuItem.Click += new System.EventHandler(this.searchMovedFilesToolStripMenuItem_Click);
+            // 
+            // propagateMovesToolStripMenuItem
+            // 
+            this.propagateMovesToolStripMenuItem.Name = "propagateMovesToolStripMenuItem";
+            this.propagateMovesToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.propagateMovesToolStripMenuItem.Text = "&Propagate Moves...";
+            this.propagateMovesToolStripMenuItem.Click += new System.EventHandler(this.propagateMovesToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -444,5 +453,6 @@
         private System.Windows.Forms.ToolStripMenuItem copyAllFilepathsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem searchMovedFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem propagateMovesToolStripMenuItem;
     }
 }

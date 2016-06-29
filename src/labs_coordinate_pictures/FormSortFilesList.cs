@@ -41,6 +41,12 @@ namespace labs_coordinate_pictures
             btnShowLeft.Click += (o, e) => OnClickShowFile(true);
             btnShowRight.Click += (o, e) => OnClickShowFile(false);
             undoFileMoveToolStripMenuItem.Click += (o, e) => OnUndoClick(true);
+
+            if (action != SortFilesAction.SearchDifferences)
+            {
+                searchMovedFilesToolStripMenuItem.Visible = false;
+                propagateMovesToolStripMenuItem.Visible = false;
+            }
         }
 
         private void FormSortFilesList_Load(object sender, EventArgs e)
@@ -261,9 +267,9 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                    moveFiles(moves, left ? tbLeft : tbRight);
-                }
+                moveFiles(moves, left ? tbLeft : tbRight);
             }
+        }
 
         internal void OnClickDeleteFile(bool left, bool needConfirm)
         {
@@ -289,9 +295,9 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                    moveFiles(moves, left ? tbLeft : tbRight);
-                }
+                moveFiles(moves, left ? tbLeft : tbRight);
             }
+        }
 
         void OnClickShowFile(bool left)
         {
@@ -327,21 +333,31 @@ namespace labs_coordinate_pictures
                     tbRight.Text = "";
                 });
 
-                _undoFileMoves.Add(new List<FileMove>());
-                while (fileMoves.Count > 0)
+                var addToUndoStack = new List<FileMove>();
+                try
                 {
-                    // move file, exceptions are ok
-                    fileMoves[0].Do();
-
-                    // print to UI
-                    WrapInvoke(() =>
+                    while (fileMoves.Count > 0)
                     {
-                        tbLog.AppendText(Utils.NL + Utils.NL + fileMoves[0]);
-                    });
+                        // move file, exceptions are ok
+                        fileMoves[0].Do();
 
-                    // add to undo stack, so that progress is not lost if exception thrown
-                    _undoFileMoves.PeekUndo().Add(fileMoves[0]);
-                    fileMoves.RemoveAt(0);
+                        // print to UI
+                        WrapInvoke(() =>
+                        {
+                            tbLog.AppendText(Utils.NL + Utils.NL + fileMoves[0]);
+                        });
+
+                        addToUndoStack.Add(fileMoves[0]);
+                        fileMoves.RemoveAt(0);
+                    }
+                }
+                finally
+                {
+                    // keep ability to undo even if operation was stopped by an exception
+                    if (addToUndoStack.Count > 0)
+                    {
+                        _undoFileMoves.Add(addToUndoStack);
+                    }
                 }
 
                 // print to UI
@@ -547,7 +563,7 @@ namespace labs_coordinate_pictures
 
                 WrapInvoke(() => {
                     // show the result in the UI, in the left-most column
-                    MessageBox.Show("Found " + results.Count + " moved file(s).");
+                    Utils.MessageBox("Found " + results.Count + " moved file(s).");
                     foreach (var item in results)
                     {
                         item.Item1.SubItems[0].Text = item.Item2;
@@ -556,6 +572,45 @@ namespace labs_coordinate_pictures
                     listView.Refresh();
                 });
             });
+        }
+
+        private void propagateMovesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // first, user must select items that were found by Search for Moved Files
+            bool areAllMoves = SelectedItems().All((item) =>
+                item.Type == FileComparisonResultType.Left_Only &&
+                item.SubItems[0].Text.Contains(Utils.PathSep));
+            if (!areAllMoves || SelectedItems().Count() == 0)
+            {
+                Utils.MessageBox("None of the selected items is a moved file " +
+                    "found by Search for Moved Files...");
+            }
+            else
+            {
+                PropagateMoves(SelectedItems().ToArray());
+                Utils.MessageBox("Move(s) performed. Run File->Refresh to update UI.");
+            }
+        }
+
+        void PropagateMoves(FileComparisonResult[] items)
+        {
+            // some files were renamed on the left. let's propagate these renames on the right.
+            var moves = new List<FileMove>();
+            foreach (var item in items)
+            {
+                var src = _settings.RightDirectory + item.SubItems[0].Text;
+                var dest = _settings.RightDirectory + item.FileInfoLeft.Filename;
+                var existsOnLeft = File.Exists(
+                    _settings.LeftDirectory + item.SubItems[0].Text);
+
+                // if does exist on left: this is a copied file
+                // if doesn't exist on left: this is a renamed file
+                var move = new FileMove(src, dest, moveOrCopy: !existsOnLeft);
+                moves.Add(move);
+            }
+
+            tbRight.Visible = true;
+            moveFiles(moves, tbRight);
         }
 
         IEnumerable<FileComparisonResult> SelectedItems()
