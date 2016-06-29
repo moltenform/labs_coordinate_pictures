@@ -96,29 +96,40 @@ namespace labs_coordinate_pictures
             if (Environment.GetCommandLineArgs().Length > 1 &&
                 Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
-                OpenAudioFileInGallery(Environment.GetCommandLineArgs()[1]);
+                OpenFileInGallery(Environment.GetCommandLineArgs()[1]);
             }
         }
 
-        void OpenAudioFileInGallery(string path)
+        static ModeBase GuessModeBasedOnFileExtensions(string[] paths)
         {
-            if (File.Exists(path))
+            foreach (var path in paths)
             {
-                ModeBase mode;
                 if (FilenameUtils.LooksLikeImage(path))
                 {
-                    mode = new ModeCategorizeAndRename();
+                    return new ModeCategorizeAndRename();
                 }
                 else if (path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
                 {
-                    mode = new ModeMarkWavQuality();
+                    return new ModeMarkWavQuality();
                 }
-                else
-                {
-                    mode = new ModeMarkMp3Quality();
-                }
+            }
 
+            return new ModeMarkMp3Quality();
+        }
+
+        void OpenFileInGallery(string path)
+        {
+            if (File.Exists(path))
+            {
+                var paths = new string[] { path };
+                var mode = GuessModeBasedOnFileExtensions(paths);
                 var form = new FormGallery(mode, Path.GetDirectoryName(path), path);
+                ShowForm(form);
+            }
+            else if (Directory.Exists(path))
+            {
+                var paths = Directory.EnumerateFiles(path).ToArray();
+                var form = new FormGallery(GuessModeBasedOnFileExtensions(paths), path);
                 ShowForm(form);
             }
         }

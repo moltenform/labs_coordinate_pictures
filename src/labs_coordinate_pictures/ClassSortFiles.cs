@@ -73,6 +73,13 @@ namespace labs_coordinate_pictures
             ImageIndex = (int)type;
             SubItems.Add(type.ToString().Replace("_", " "));
             SubItems.Add(showPath);
+
+            if (type == FileComparisonResultType.Changed &&
+                fileRight.LastModifiedTime > fileLeft.LastModifiedTime)
+            {
+                // show a red icon if the file on the right is newer.
+                ImageIndex = 5;
+            }
         }
 
         public FileInfoForComparison FileInfoLeft { get; }

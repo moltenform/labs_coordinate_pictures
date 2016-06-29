@@ -381,11 +381,12 @@
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList.Images.SetKeyName(0, "list-remove.png");
-            this.imageList.Images.SetKeyName(1, "files_differ.png");
+            this.imageList.Images.SetKeyName(1, "files_differ_green.png");
             this.imageList.Images.SetKeyName(2, "files_leftonly.png");
             this.imageList.Images.SetKeyName(3, "files_rightonly.png");
             this.imageList.Images.SetKeyName(4, "files_same.png");
-            this.imageList.Images.SetKeyName(5, "move.png");
+            this.imageList.Images.SetKeyName(5, "files_differ.png");
+            this.imageList.Images.SetKeyName(6, "move.png");
             // 
             // FormSortFilesList
             // 
