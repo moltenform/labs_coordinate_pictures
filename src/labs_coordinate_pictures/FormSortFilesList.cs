@@ -81,7 +81,7 @@ namespace labs_coordinate_pictures
             // update UI on main thread
             WrapInvoke(() =>
             {
-                listView_ColumnClick(null, new ColumnClickEventArgs(int.MaxValue));
+                listView_ColumnClick(null, new ColumnClickEventArgs(0));
                 listView.Columns[1].Width = -2; // autosize to the longest item in the column
                 lblAction.Text = _caption + Utils.NL;
                 lblAction.Text += "" + _results.Length + " file(s) listed:";
@@ -165,12 +165,17 @@ namespace labs_coordinate_pictures
         internal void listView_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             IEnumerable<FileComparisonResult> displayResults = null;
-            if (e.Column == 0)
+            if (e.Column == 0 && e.Column == _sortCol)
             {
-                // sort by first column
+                // the second time it's clicked, sort by contents of first column
                 displayResults = from item in _results
                                  orderby item.SubItems[0].Text
                                  select item;
+            }
+            else if (e.Column == 0 && e.Column != _sortCol)
+            {
+                // the first time it's clicked, sort by original order
+                displayResults = from item in _results select item;
             }
             else if (e.Column == 1)
             {
@@ -183,11 +188,6 @@ namespace labs_coordinate_pictures
                 displayResults = from item in _results
                                  orderby item.SubItems[2].Text
                                  select item;
-            }
-            else if (e.Column == int.MaxValue)
-            {
-                // original order
-                displayResults = from item in _results select item;
             }
             else
             {
@@ -581,6 +581,32 @@ namespace labs_coordinate_pictures
             });
         }
 
+        private void searchForIdenticalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.MessageBox("We'll go through every supposedly-changed file and see if it is " +
+                "truly a changed file, or if only the write-times are different.");
+
+            var items = listView.Items.Cast<FileComparisonResult>().ToList();
+
+            StartBgAction(() => {
+                // retrieve a list of the supposedly-changed items that are actually identical
+                var results =
+                    SortFilesSearchDuplicates.SearchForIdenticalFilesWithDifferentWriteTimes(
+                    _settings.LeftDirectory, _settings.RightDirectory, items);
+
+                WrapInvoke(() => {
+                    // show the result in the UI, in the left-most column
+                    Utils.MessageBox("Found " + results.Count + " identical file(s).");
+                    foreach (var item in results)
+                    {
+                        item.SubItems[0].Text = "Identical Contents";
+                    }
+
+                    listView.Refresh();
+                });
+            });
+        }
+
         private void propagateMovesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // some files were renamed on the left. let's propagate these renames on the right.
@@ -624,14 +650,35 @@ namespace labs_coordinate_pictures
             }
         }
 
-        private void searchForIdenticalToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void propagateWriteTimesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // some files were identical. let's propagate LMT times from left to right.
+            var moves = new List<IUndoableFileOp>();
+            foreach (var item in SelectedItems())
+            {
+                if (item.Type == FileComparisonResultType.Changed &&
+                    item.SubItems[0].Text == "Identical Contents")
+                {
+                    // set the LMT on the right to be the LMT of the left
+                    var path = _settings.RightDirectory + item.FileInfoRight.Filename;
+                    moves.Add(new FileOpFileSetWritetime(path,
+                        item.FileInfoRight.LastModifiedTime,
+                        item.FileInfoLeft.LastModifiedTime));
+                }
+            }
 
+            if (moves.Count == 0)
+            {
+                Utils.MessageBox("None of the selected items is an identical file " +
+                    "found by 'Search for Identical Files...'");
+            }
+            else
+            {
+                tbRight.Visible = true;
+                moveFiles(moves, tbRight);
+                Utils.MessageBox("Write time updated for " + moves.Count + " file(s). " +
+                    "Run File->Refresh to update UI.");
+            }
         }
 
         IEnumerable<FileComparisonResult> SelectedItems()
@@ -755,17 +802,17 @@ namespace labs_coordinate_pictures
 
         public override string ToString()
         {
-            return "Set-write time of " + Source + " to " + TimeTo;
+            return "Set write-time " + Source + " to " + TimeTo;
         }
 
         public void Do()
         {
-            
+            File.SetLastWriteTimeUtc(Source, TimeTo);
         }
 
         public void Undo()
         {
-            
+            File.SetLastWriteTimeUtc(Source, TimeFrom);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace labs_coordinate_pictures
     }
 
     // models what is shown on the FormSortFiles form.
-    public class SortFilesSettings
+    public sealed class SortFilesSettings
     {
         public SortFilesSettings()
         {
@@ -57,7 +57,7 @@ namespace labs_coordinate_pictures
     }
 
     // will be shown in FormSortFilesList UI.
-    public class FileComparisonResult : ListViewItem
+    public sealed class FileComparisonResult : ListViewItem
     {
         public FileComparisonResult(FileInfoForComparison fileLeft,
             FileInfoForComparison fileRight,
@@ -127,7 +127,7 @@ namespace labs_coordinate_pictures
 
     // caches a file's information and content-hash.
     // the FileInfo class, in contrast, doesn't always cache its properties.
-    public class FileInfoForComparison
+    public sealed class FileInfoForComparison
     {
         public FileInfoForComparison(string filename,
             long filesize, DateTime lastModifiedTime,
@@ -465,7 +465,7 @@ namespace labs_coordinate_pictures
 
         public static List<Tuple<FileComparisonResult, string>> SearchMovedFiles(
             string leftDirectory, string rightDirectory,
-            IEnumerable<FileComparisonResult> query)
+            IEnumerable<FileComparisonResult> input)
         {
             // We'll go through every deleted file (exists on the Left
             // but not the Right) and see if it is just the result of a
@@ -475,7 +475,7 @@ namespace labs_coordinate_pictures
             var map = MapFilesizesToFilenames(rightDirectory, filesInRight);
             var results = new List<Tuple<FileComparisonResult, string>>();
 
-            foreach (var item in query)
+            foreach (var item in input)
             {
                 var objSameContents = FindInMap(map, rightDirectory,
                     leftDirectory + item.FileInfoLeft.Filename, item.FileInfoLeft.FileSize,
@@ -484,6 +484,33 @@ namespace labs_coordinate_pictures
                 {
                     // these are duplicates, they have the same hash and filesize.
                     results.Add(Tuple.Create(item, objSameContents.Filename));
+                }
+            }
+
+            return results;
+        }
+
+        public static List<FileComparisonResult> SearchForIdenticalFilesWithDifferentWriteTimes(
+            string leftDirectory, string rightDirectory,
+            IEnumerable<FileComparisonResult> input)
+        {
+            // We'll go through every supposedly-changed file and see if it is
+            // truly a changed file, or if only the LMTs are different.
+            var results = new List<FileComparisonResult>();
+            foreach (var item in input)
+            {
+                if (item.Type == FileComparisonResultType.Changed &&
+                    item.FileInfoLeft.FileSize == item.FileInfoRight.FileSize)
+                {
+                    // possible optimization to compare hashes of say the last 1mb
+                    // before comparing hashes of entire file. but given that these files
+                    // have same name and size, they're probably identical.
+                    var pathLeft = leftDirectory + item.FileInfoLeft.Filename;
+                    var pathRight = rightDirectory + item.FileInfoRight.Filename;
+                    if (Utils.GetSha512(pathLeft) == Utils.GetSha512(pathRight))
+                    {
+                        results.Add(item);
+                    }
                 }
             }
 

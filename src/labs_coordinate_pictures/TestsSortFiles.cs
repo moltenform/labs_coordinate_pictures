@@ -530,8 +530,8 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a_1|Same_Contents";
             results = SortFilesSearchDuplicates.Go(settings);
             var countExpectedDuplicates =
                 (from filename in Directory.EnumerateFiles(settings.RightDirectory)
-                where filename.Contains("SmText")
-                select filename).Count();
+                 where filename.Contains("SmText")
+                 select filename).Count();
             TestUtil.IsEq(countExpectedDuplicates, results.Count);
 
             // verify sort order
@@ -673,6 +673,16 @@ SmTimeSmTextSmNameOneOnLeft.a|SmTimeSmTextSmNameOneOnLeft.a
 SmTimeSmTextSmNameOneOnRight.a|SmTimeSmTextSmNameOneOnRight.a";
             TestUtil.IsEq(filesCreated,
                 CountFilenames(expectedDifferences) + CountFilenames(expectedSame));
+
+            // search for identical files with different write times
+            // will find all with MTimeSmText
+            var found = SortFilesSearchDuplicates.SearchForIdenticalFilesWithDifferentWriteTimes(
+                settings.LeftDirectory, settings.RightDirectory, results);
+            var expectedIdenticalContents =
+@"MTimeSmTextSmNameNone.a|MTimeSmTextSmNameNone.a|Changed
+MTimeSmTextSmNameOneOnLeft.a|MTimeSmTextSmNameOneOnLeft.a|Changed
+MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
+            CompareResultsToString(found, expectedIdenticalContents);
         }
 
         static void SelectFirstItems(List<FileComparisonResult> selectedItems,
@@ -959,6 +969,43 @@ renamed2.txt||Left";
                 resultsMoved[1].Item1.FileInfoLeft.Filename);
             TestUtil.IsEq(Utils.PathSep + "renamed2.a",
                 resultsMoved[1].Item2);
+        }
+
+        static void TestMethod_TestFileOpFileSetWritetime()
+        {
+            var dir = TestUtil.GetTestSubDirectory("right_fndmved", true);
+            var now = DateTime.UtcNow;
+            var future = now.AddMinutes(25);
+            var past = now.AddMinutes(-25);
+
+            // re-use existing logic for fuzzy time comparison,
+            // in case, say, we're running this test on a FAT drive with imprecise times.
+            var settingsForTimeComparison = new SortFilesSettings();
+            settingsForTimeComparison.AllowFiletimesDifferForDST = false;
+            settingsForTimeComparison.AllowFiletimesDifferForFAT = true;
+
+            // set write-time to be the future, and undo.
+            var path = dir + Utils.PathSep + "testIntoFuture.txt";
+            File.WriteAllText(path, "testIntoFuture");
+            File.SetLastWriteTimeUtc(path, now);
+            var op = new FileOpFileSetWritetime(path, now, future);
+            op.Do();
+            TestUtil.IsTrue(SortFilesSearchDifferences.AreTimesEqual(future,
+                File.GetLastWriteTimeUtc(path), settingsForTimeComparison));
+            op.Undo();
+            TestUtil.IsTrue(SortFilesSearchDifferences.AreTimesEqual(now,
+                File.GetLastWriteTimeUtc(path), settingsForTimeComparison));
+
+            path = dir + Utils.PathSep + "testIntoPast.txt";
+            File.WriteAllText(path, "testIntoPast");
+            File.SetLastWriteTimeUtc(path, now);
+            op = new FileOpFileSetWritetime(path, now, past);
+            op.Do();
+            TestUtil.IsTrue(SortFilesSearchDifferences.AreTimesEqual(past,
+                File.GetLastWriteTimeUtc(path), settingsForTimeComparison));
+            op.Undo();
+            TestUtil.IsTrue(SortFilesSearchDifferences.AreTimesEqual(now,
+                File.GetLastWriteTimeUtc(path), settingsForTimeComparison));
         }
     }
 }
