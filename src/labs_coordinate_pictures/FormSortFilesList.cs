@@ -13,7 +13,7 @@ namespace labs_coordinate_pictures
         SortFilesAction _action;
         SortFilesSettings _settings;
         FileComparisonResult[] _results;
-        UndoStack<List<FileMove>> _undoFileMoves;
+        UndoStack<List<IUndoableFileOp>> _undoFileMoves;
 
         bool _synchronous; // for testing, run all bg tasks synchronously
         List<FileComparisonResult> _testSelectedItems;
@@ -29,7 +29,7 @@ namespace labs_coordinate_pictures
             _settings = settings;
             _caption = caption;
             _synchronous = allActionsSynchronous;
-            _undoFileMoves = new UndoStack<List<FileMove>>();
+            _undoFileMoves = new UndoStack<List<IUndoableFileOp>>();
             _testSelectedItems = new List<FileComparisonResult>();
 
             listView.SmallImageList = imageList;
@@ -81,7 +81,7 @@ namespace labs_coordinate_pictures
             // update UI on main thread
             WrapInvoke(() =>
             {
-                listView_ColumnClick(null, new ColumnClickEventArgs(0));
+                listView_ColumnClick(null, new ColumnClickEventArgs(int.MaxValue));
                 listView.Columns[1].Width = -2; // autosize to the longest item in the column
                 lblAction.Text = _caption + Utils.NL;
                 lblAction.Text += "" + _results.Length + " file(s) listed:";
@@ -167,8 +167,10 @@ namespace labs_coordinate_pictures
             IEnumerable<FileComparisonResult> displayResults = null;
             if (e.Column == 0)
             {
-                // use original order
-                displayResults = from item in _results select item;
+                // sort by first column
+                displayResults = from item in _results
+                                 orderby item.SubItems[0].Text
+                                 select item;
             }
             else if (e.Column == 1)
             {
@@ -181,6 +183,11 @@ namespace labs_coordinate_pictures
                 displayResults = from item in _results
                                  orderby item.SubItems[2].Text
                                  select item;
+            }
+            else if (e.Column == int.MaxValue)
+            {
+                // original order
+                displayResults = from item in _results select item;
             }
             else
             {
@@ -234,7 +241,7 @@ namespace labs_coordinate_pictures
                     return;
                 }
 
-                var moves = new List<FileMove>();
+                var moves = new List<IUndoableFileOp>();
                 foreach (var item in SelectedItems())
                 {
                     var source = left ? item.GetLeft(_settings.LeftDirectory) :
@@ -249,11 +256,11 @@ namespace labs_coordinate_pictures
                         item.SetMarkedAsModifiedInUI(true);
                         if (dest != null && File.Exists(dest))
                         {
-                            moves.Add(new FileMove(
-                                dest, Utils.GetSoftDeleteDestination(dest), true));
+                            moves.Add(new FileOpFileMove(
+                                dest, Utils.GetSoftDeleteDestination(dest)));
 
-                            moves.Add(new FileMove(
-                                source, dest, false));
+                            moves.Add(new FileOpFileCopy(
+                                source, dest));
                         }
                         else
                         {
@@ -262,7 +269,7 @@ namespace labs_coordinate_pictures
                             var destWouldBe = destRoot + (left ? item.FileInfoLeft.Filename :
                                 item.FileInfoRight.Filename);
 
-                            moves.Add(new FileMove(source, destWouldBe, false));
+                            moves.Add(new FileOpFileCopy(source, destWouldBe));
                         }
                     }
                 }
@@ -281,7 +288,7 @@ namespace labs_coordinate_pictures
                     return;
                 }
 
-                var moves = new List<FileMove>();
+                var moves = new List<IUndoableFileOp>();
                 foreach (var item in SelectedItems())
                 {
                     var path = left ? item.GetLeft(_settings.LeftDirectory) :
@@ -290,8 +297,8 @@ namespace labs_coordinate_pictures
                     if (path != null)
                     {
                         item.SetMarkedAsModifiedInUI(true);
-                        moves.Add(new FileMove(
-                            path, Utils.GetSoftDeleteDestination(path), true));
+                        moves.Add(new FileOpFileMove(
+                            path, Utils.GetSoftDeleteDestination(path)));
                     }
                 }
 
@@ -315,14 +322,14 @@ namespace labs_coordinate_pictures
 
         internal void GetTestHooks(out ListView outListView,
             out List<FileComparisonResult> outSelectedItems,
-            out UndoStack<List<FileMove>> outUndoStack)
+            out UndoStack<List<IUndoableFileOp>> outUndoStack)
         {
             outListView = listView;
             outSelectedItems = _testSelectedItems;
             outUndoStack = _undoFileMoves;
         }
 
-        void moveFiles(List<FileMove> fileMoves, TextBox tbLog)
+        void moveFiles(List<IUndoableFileOp> fileMoves, TextBox tbLog)
         {
             StartBgAction(() =>
             {
@@ -333,7 +340,7 @@ namespace labs_coordinate_pictures
                     tbRight.Text = "";
                 });
 
-                var addToUndoStack = new List<FileMove>();
+                var addToUndoStack = new List<IUndoableFileOp>();
                 try
                 {
                     while (fileMoves.Count > 0)
@@ -595,7 +602,7 @@ namespace labs_coordinate_pictures
         void PropagateMoves(FileComparisonResult[] items)
         {
             // some files were renamed on the left. let's propagate these renames on the right.
-            var moves = new List<FileMove>();
+            var moves = new List<IUndoableFileOp>();
             foreach (var item in items)
             {
                 var src = _settings.RightDirectory + item.SubItems[0].Text;
@@ -605,12 +612,28 @@ namespace labs_coordinate_pictures
 
                 // if does exist on left: this is a copied file
                 // if doesn't exist on left: this is a renamed file
-                var move = new FileMove(src, dest, moveOrCopy: !existsOnLeft);
-                moves.Add(move);
+                if (existsOnLeft)
+                {
+                    moves.Add(new FileOpFileCopy(src, dest));
+                }
+                else
+                {
+                    moves.Add(new FileOpFileMove(src, dest));
+                }
             }
 
             tbRight.Visible = true;
             moveFiles(moves, tbRight);
+        }
+
+        private void searchForIdenticalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void propagateWriteTimesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         IEnumerable<FileComparisonResult> SelectedItems()
@@ -630,23 +653,20 @@ namespace labs_coordinate_pictures
     // Allow undoing file operations, following the Command design pattern.
     // Overwrites are not allowed. Existing files should first be Move()d out of the way.
     // This enables perfect undo-ability for all moves and copies.
-    class FileMove
+    sealed class FileOpFileMove : IUndoableFileOp
     {
-        public FileMove(string source, string dest, bool moveOrCopy)
+        public FileOpFileMove(string source, string dest)
         {
             Source = source;
             Dest = dest;
-            MoveOrCopy = moveOrCopy;
         }
 
         public string Source { get; }
         public string Dest { get; }
-        public bool MoveOrCopy { get; }
 
         public override string ToString()
         {
-            return (MoveOrCopy ? "Moved " : "Copied ") +
-                Source + " to " + Dest;
+            return "Moved " + Source + " to " + Dest;
         }
 
         public void Do()
@@ -661,39 +681,93 @@ namespace labs_coordinate_pictures
                 Directory.CreateDirectory(Path.GetDirectoryName(Dest));
             }
 
-            if (MoveOrCopy)
-            {
-                File.Move(Source, Dest);
-            }
-            else
-            {
-                File.Copy(Source, Dest);
-            }
+            File.Move(Source, Dest);
         }
 
         public void Undo()
         {
-            if (MoveOrCopy)
+            if (File.Exists(Source))
             {
-                if (File.Exists(Source))
-                {
-                    throw new IOException("File already exists at " + Source);
-                }
-
-                File.Move(Dest, Source);
+                throw new IOException("File already exists at " + Source);
             }
-            else
+
+            File.Move(Dest, Source);
+        }
+    }
+
+    sealed class FileOpFileCopy : IUndoableFileOp
+    {
+        public FileOpFileCopy(string source, string dest)
+        {
+            Source = source;
+            Dest = dest;
+        }
+
+        public string Source { get; }
+        public string Dest { get; }
+
+        public override string ToString()
+        {
+            return "Copied " + Source + " to " + Dest;
+        }
+
+        public void Do()
+        {
+            if (File.Exists(Dest))
             {
-                string hashSource = Utils.GetSha512(Source);
-                string hashDest = Utils.GetSha512(Dest);
-                if (!File.Exists(Source) || !File.Exists(Dest) || hashSource != hashDest)
-                {
-                    throw new IOException("Cannot undo Copy because " + Source +
-                        " and " + Dest + " are not equal files");
-                }
-
-                File.Delete(Dest);
+                throw new IOException("File already exists at " + Dest);
             }
+            else if (!Directory.Exists(Path.GetDirectoryName(Dest)))
+            {
+                // create missing directories
+                Directory.CreateDirectory(Path.GetDirectoryName(Dest));
+            }
+
+            File.Copy(Source, Dest);
+        }
+
+        public void Undo()
+        {
+            string hashSource = Utils.GetSha512(Source);
+            string hashDest = Utils.GetSha512(Dest);
+            if (!File.Exists(Source) || !File.Exists(Dest) || hashSource != hashDest)
+            {
+                throw new IOException("Cannot undo Copy because " + Source +
+                    " and " + Dest + " are not equal files");
+            }
+
+            File.Delete(Dest);
+        }
+    }
+
+    sealed class FileOpFileSetWritetime : IUndoableFileOp
+    {
+        public FileOpFileSetWritetime(string path, DateTime timeFrom, DateTime timeTo)
+        {
+            Source = path;
+            Dest = path;
+            TimeFrom = timeFrom;
+            TimeTo = timeTo;
+        }
+
+        public string Source { get; }
+        public string Dest { get; }
+        public DateTime TimeFrom { get; }
+        public DateTime TimeTo { get; }
+
+        public override string ToString()
+        {
+            return "Set-write time of " + Source + " to " + TimeTo;
+        }
+
+        public void Do()
+        {
+            
+        }
+
+        public void Undo()
+        {
+            
         }
     }
 }

@@ -105,10 +105,22 @@ namespace labs_coordinate_pictures
 
         static ModeBase GuessModeBasedOnFileExtensions(IEnumerable<string> paths)
         {
-            return !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures) ?
-                new ModeCheckFilesizes() as ModeBase :
-                paths.Any(path => FilenameUtils.LooksLikeImage(path)) ?
-                new ModeCheckFilesizes() as ModeBase : new ModeMarkMp3Quality();
+            if (!Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
+            {
+                return new ModeCheckFilesizes();
+            }
+            else if (paths.First().EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
+            {
+                return new ModeMarkWavQuality();
+            }
+            else if (paths.Any(path => FilenameUtils.LooksLikeImage(path)))
+            {
+                return new ModeCheckFilesizes();
+            }
+            else
+            {
+                return new ModeMarkMp3Quality();
+            }
         }
 
         void OpenFileInGallery(string path)

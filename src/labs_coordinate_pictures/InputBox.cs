@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    public class InputBoxForm : Form
+    public sealed class InputBoxForm : Form
     {
         System.ComponentModel.Container _components = null;
         Button _btnCancel;
@@ -216,7 +216,7 @@ namespace labs_coordinate_pictures
     }
 
     // save MRU history, limits number of entries with a queue structure.
-    public class PersistMostRecentlyUsedList
+    public sealed class PersistMostRecentlyUsedList
     {
         public const int MaxHistoryEntries = 10;
         public const int MaxEntryLength = 300;

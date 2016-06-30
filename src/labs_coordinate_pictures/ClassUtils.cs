@@ -1137,7 +1137,7 @@ namespace labs_coordinate_pictures
         }
     }
 
-    public class UndoStack<T>
+    public sealed class UndoStack<T>
     {
         List<T> _list = new List<T>();
         int _position = -1;
@@ -1183,7 +1183,7 @@ namespace labs_coordinate_pictures
     }
 
     [Serializable]
-    public class CoordinatePicturesException : Exception
+    public sealed class CoordinatePicturesException : Exception
     {
         public CoordinatePicturesException(string message, Exception e)
             : base("CoordinatePicturesException " + message, e)
@@ -1200,7 +1200,7 @@ namespace labs_coordinate_pictures
         {
         }
 
-        protected CoordinatePicturesException(System.Runtime.Serialization.SerializationInfo info,
+        CoordinatePicturesException(System.Runtime.Serialization.SerializationInfo info,
             System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {

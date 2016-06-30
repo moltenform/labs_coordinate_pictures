@@ -25,6 +25,16 @@ namespace labs_coordinate_pictures
         Same_Contents = 4
     }
 
+    // command pattern for file operations.
+    interface IUndoableFileOp
+    {
+        string Source { get; }
+        string Dest { get; }
+
+        void Do();
+        void Undo();
+    }
+
     // models what is shown on the FormSortFiles form.
     public class SortFilesSettings
     {
