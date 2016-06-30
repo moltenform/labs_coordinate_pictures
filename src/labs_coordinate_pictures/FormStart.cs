@@ -2,6 +2,7 @@
 // Licensed under GPLv3. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -92,29 +93,22 @@ namespace labs_coordinate_pictures
             {
                 TestUtil.RunTests();
             }
+        }
 
-            if (Environment.GetCommandLineArgs().Length > 1 &&
-                Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
+        private void FormStart_Load(object sender, EventArgs e)
+        {
+            if (Environment.GetCommandLineArgs().Length > 1)
             {
                 OpenFileInGallery(Environment.GetCommandLineArgs()[1]);
             }
         }
 
-        static ModeBase GuessModeBasedOnFileExtensions(string[] paths)
+        static ModeBase GuessModeBasedOnFileExtensions(IEnumerable<string> paths)
         {
-            foreach (var path in paths)
-            {
-                if (FilenameUtils.LooksLikeImage(path))
-                {
-                    return new ModeCategorizeAndRename();
-                }
-                else if (path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new ModeMarkWavQuality();
-                }
-            }
-
-            return new ModeMarkMp3Quality();
+            return !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures) ?
+                new ModeCheckFilesizes() as ModeBase :
+                paths.Any(path => FilenameUtils.LooksLikeImage(path)) ?
+                new ModeCheckFilesizes() as ModeBase : new ModeMarkMp3Quality();
         }
 
         void OpenFileInGallery(string path)
@@ -125,12 +119,14 @@ namespace labs_coordinate_pictures
                 var mode = GuessModeBasedOnFileExtensions(paths);
                 var form = new FormGallery(mode, Path.GetDirectoryName(path), path);
                 ShowForm(form);
+                Close();
             }
             else if (Directory.Exists(path))
             {
-                var paths = Directory.EnumerateFiles(path).ToArray();
+                var paths = Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories);
                 var form = new FormGallery(GuessModeBasedOnFileExtensions(paths), path);
                 ShowForm(form);
+                Close();
             }
         }
 

@@ -147,8 +147,18 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            string dir = TestUtil.GetTestWriteDirectory();
-            Directory.Delete(dir, true);
+            try
+            {
+                string dir = TestUtil.GetTestWriteDirectory();
+                Directory.Delete(dir, true);
+            }
+            catch (Exception)
+            {
+                Utils.MessageErr("Could not clear unit test directory. Is another instance of " +
+                    "coordinate pictures already running?");
+                return;
+            }
+
             Configs.Current.SuppressDialogs = true;
             try
             {

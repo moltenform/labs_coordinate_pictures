@@ -40,8 +40,8 @@
             this.picturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categorizeAndRenamePicturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkFilesizesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripPicturesSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.resizePhotosKeepingExifsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripPicturesSep1 = new System.Windows.Forms.ToolStripSeparator();
             this.markwavQualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markmp3QualityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripPicturesSep2 = new System.Windows.Forms.ToolStripSeparator();
@@ -65,8 +65,8 @@
             this.setAltJpegcropLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setM4aEncoderLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setMozjpegToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setWinMergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.onlineDocumentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -166,16 +166,16 @@
             this.checkFilesizesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.checkFilesizesToolStripMenuItem.Text = "&Resize images...";
             // 
-            // toolStripPicturesSep1
-            // 
-            this.toolStripPicturesSep1.Name = "toolStripPicturesSep1";
-            this.toolStripPicturesSep1.Size = new System.Drawing.Size(231, 6);
-            // 
             // resizePhotosKeepingExifsToolStripMenuItem
             // 
             this.resizePhotosKeepingExifsToolStripMenuItem.Name = "resizePhotosKeepingExifsToolStripMenuItem";
             this.resizePhotosKeepingExifsToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
             this.resizePhotosKeepingExifsToolStripMenuItem.Text = "Resize images keeping &exifs...";
+            // 
+            // toolStripPicturesSep1
+            // 
+            this.toolStripPicturesSep1.Name = "toolStripPicturesSep1";
+            this.toolStripPicturesSep1.Size = new System.Drawing.Size(231, 6);
             // 
             // markwavQualityToolStripMenuItem
             // 
@@ -336,17 +336,17 @@
             this.setMozjpegToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setMozjpegToolStripMenuItem.Text = "Set mozjpeg location...";
             // 
-            // setWebpToolStripMenuItem
-            // 
-            this.setWebpToolStripMenuItem.Name = "setWebpToolStripMenuItem";
-            this.setWebpToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setWebpToolStripMenuItem.Text = "Set webp location...";
-            // 
             // setPythonLocationToolStripMenuItem
             // 
             this.setPythonLocationToolStripMenuItem.Name = "setPythonLocationToolStripMenuItem";
             this.setPythonLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setPythonLocationToolStripMenuItem.Text = "Set python location...";
+            // 
+            // setWebpToolStripMenuItem
+            // 
+            this.setWebpToolStripMenuItem.Name = "setWebpToolStripMenuItem";
+            this.setWebpToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setWebpToolStripMenuItem.Text = "Set webp location...";
             // 
             // setWinMergeToolStripMenuItem
             // 
@@ -390,6 +390,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormStart";
             this.Text = " ";
+            this.Load += new System.EventHandler(this.FormStart_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FormStart_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FormStart_DragEnter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormStart_KeyDown);

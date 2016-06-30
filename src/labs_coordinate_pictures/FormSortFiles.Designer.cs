@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSortFiles));
             this.lblAction = new System.Windows.Forms.Label();
             this.lblLeftDirDesc = new System.Windows.Forms.Label();
             this.lblRightDirDesc = new System.Windows.Forms.Label();
@@ -255,6 +256,7 @@
             this.Controls.Add(this.lblRightDirDesc);
             this.Controls.Add(this.lblLeftDirDesc);
             this.Controls.Add(this.lblAction);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormSortFiles";
             this.Text = " ";
             this.ResumeLayout(false);
