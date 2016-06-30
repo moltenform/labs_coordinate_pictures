@@ -137,6 +137,27 @@ namespace labs_coordinate_pictures
                 new string[] { "dafc\"\"\"a" }));
         }
 
+        static void TestMethod_UtilsFormatPythonError()
+        {
+            TestUtil.IsEq("", Utils.FormatPythonError(""));
+            TestUtil.IsEq("NotError", Utils.FormatPythonError("NotError"));
+            TestUtil.IsEq("Not Error: Noterror",
+                Utils.FormatPythonError("Not Error: Noterror"));
+            TestUtil.IsEq("IsError: Details" + Utils.NL + Utils.NL + Utils.NL +
+                "Details: text before IsError: Details",
+                Utils.FormatPythonError("text before IsError: Details"));
+            TestUtil.IsEq("IsError:2 some words" + Utils.NL + Utils.NL + Utils.NL +
+                "Details: text before IsError:1 IsError:2 some words",
+                Utils.FormatPythonError("text before IsError:1 IsError:2 some words"));
+
+            var sampleStderr = "test failed, stderr = Traceback (most recent call last): File " +
+                "reallylong string reallylong string reallylong string reallylong string " +
+                ", line 1234, in test.py, raise RuntimeError(errMsg)RuntimeError: the actual msg";
+            TestUtil.IsEq("RuntimeError: the actual msg" + Utils.NL + Utils.NL + Utils.NL +
+                "Details: " + sampleStderr,
+                Utils.FormatPythonError(sampleStderr));
+        }
+
         static void TestMethod_UtilsGetFirstHttpLink()
         {
             TestUtil.IsEq(null, Utils.GetFirstHttpLink(""));

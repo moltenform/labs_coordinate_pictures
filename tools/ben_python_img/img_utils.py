@@ -15,25 +15,35 @@ def readOption(key):
             if line.startswith(key + '='):
                 line = line.strip()
                 return line[len(key + '='):]
-    raise RuntimeError('key ' + key + ' not found in options.ini')
+    
+    return None
 
 def getCwebpLocation():
+    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set webp location... ' + \
+        'and provide path to cwebp.exe'
     ret = readOption('FilepathWebp')
-    assertTrue(ret.endswith(files.sep + 'cwebp.exe'))
+    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'cwebp.exe'):
+        raise RuntimeError(errMsg)
     return ret
     
 def getMozjpegLocation():
+    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set mozjpeg location... ' + \
+        'and provide path to cjpeg.exe'
     ret = readOption('FilepathMozJpeg')
-    assertTrue(ret.endswith(files.sep + 'cjpeg.exe'))
+    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'cjpeg.exe'):
+        raise RuntimeError(errMsg)
     return ret
     
 def getExifToolLocation():
+    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set exiftool location... ' + \
+        'and provide path to exiftool.exe'
     ret = readOption('FilepathExifTool')
-    assertTrue(ret.endswith(files.sep + 'exiftool.exe'))
+    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'exiftool.exe'):
+        raise RuntimeError(errMsg)
     return ret
 
 def getDwebpLocation():
-    cwebpLocation = readOption('FilepathWebp')
+    cwebpLocation = getCwebpLocation()
     return files.join(files.getparent(cwebpLocation), 'dwebp.exe')
     
 def getTempLocation():

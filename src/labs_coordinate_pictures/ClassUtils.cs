@@ -275,6 +275,23 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public static string FormatPythonError(string stderr)
+        {
+            // printing stderr tends to bury the actual error message under a big callstack.
+            // look for last occurrence of Error, show this before anything else.
+            var re = @"\w+Error:(?!.*\w+Error:)";
+            var matches = Regex.Matches(stderr, re);
+            if (matches.Count > 0)
+            {
+                return stderr.Substring(matches[0].Index)
+                    + Utils.NL + Utils.NL + Utils.NL + "Details: " + stderr;
+            }
+            else
+            {
+                return stderr;
+            }
+        }
+
         public static void RunPythonScriptOnSeparateThread(string pyScript,
             string[] listArgs, bool createWindow = false)
         {
@@ -316,7 +333,7 @@ namespace labs_coordinate_pictures
 
             if (warnIfStdErr && exitCode != 0)
             {
-                MessageBox("warning, error from script: " + stderr ?? "");
+                MessageBox("warning, error from script: " + FormatPythonError(stderr) ?? "");
             }
 
             return stderr;
@@ -343,7 +360,7 @@ namespace labs_coordinate_pictures
 
             if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathOutput))
             {
-                MessageBox("RunImageConversion failed, stderr = " + stderr);
+                MessageBox("RunImageConversion failed, " + FormatPythonError(stderr));
             }
         }
 
@@ -379,7 +396,7 @@ namespace labs_coordinate_pictures
 
                 if (!File.Exists(pathOutput))
                 {
-                    MessageErr("RunM4aConversion failed, stderr = " + stderr);
+                    MessageErr("RunM4aConversion failed, " + FormatPythonError(stderr));
                     return null;
                 }
                 else
