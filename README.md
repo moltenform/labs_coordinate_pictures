@@ -9,6 +9,6 @@ naming and organizing pictures
 * Designate editors, for example Ctrl+Shift+E opens the file using a exe you choose.
 
 
-See documentation on [sorting images](SortingImages.md).
+See documentation on [sorting images](doc/SortingImages.md).
 
 Documentation has not yet been added for syncing files and finding duplicates.
