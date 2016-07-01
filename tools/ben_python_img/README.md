@@ -47,13 +47,19 @@ Additional features
 	* unzip ./tools/mozjpeg\_3.1\_x86.zip
 	* (or download from github.com/mozilla/mozjpeg and build)
 	* either specify location from coordinate\_pictures UI, (Options->set mozjpeg location)
-	* or edit ../options.ini to set FilepathMozJpeg=c:\path\to\cjpeg.exe
+	* or edit ../options.ini to set 
+		* FilepathMozJpeg=C:\full\path\to\cjpeg.exe (windows)
+		* FilepathMozJpeg=/full/path/to/cjpeg (non-windows)
 * webp encoder
 	* download from https://developers.google.com/speed/webp/download
 	* either specify location from coordinate\_pictures UI, (Options->set cwebp location)
-	* or edit ../options.ini to set FilepathWebp=c:\path\to\cwebp.exe
+	* or edit ../options.ini to set
+		* FilepathWebp=C:\full\path\to\cwebp.exe (windows)
+		* FilepathWebp=/full/path/to/cwebp (non-windows)
 * exiftool
 	* download from http://www.sno.phy.queensu.ca/~phil/exiftool/
 	* either specify location from coordinate\_pictures UI, (Options->set exiftool location)
-	* or edit ../options.ini to set FilepathExifTool=c:\path\to\exiftool.exe
+	* or edit ../options.ini to set 
+		* FilepathExifTool=C:\full\path\to\exiftool.exe (windows)
+		* FilepathExifTool=/full/path/to/exiftool (non-windows)
 	

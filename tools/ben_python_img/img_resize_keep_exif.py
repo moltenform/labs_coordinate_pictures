@@ -69,7 +69,8 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
         
         resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
 
-def simpleResize(root, recursive, inputformat='png', outputformat='jpg', resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):
+def simpleResize(root, recursive, inputformat='png', outputformat='jpg',
+        resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
     fnGetFiles = files.recursefiles if recurse else files.listfiles
     allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))
@@ -87,14 +88,11 @@ def simpleResize(root, recursive, inputformat='png', outputformat='jpg', resizeS
 
 
 if __name__ == '__main__':
-    # code within the template section will be overwritten by coordinate_pictures.
-    ###template
-    root = r'C:\Users\Mf\Documents\temp\music'
-    ###template
+    dir = '/path/to/directory_with_files_to_resize'
     recurse = False
     storeOriginalFilename = getInputBool('store original filename in exif data?')
     storeExifFromOriginal = True
     jpgHighQualityChromaSampling = False
     
-    # resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
-    # cleanup(root, recurse)
+    # resizeAllAndKeepExif(dir, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
+    # cleanup(dir, recurse)

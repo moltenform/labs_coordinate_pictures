@@ -198,13 +198,14 @@ namespace labs_coordinate_pictures
 
         public override bool SupportsCompletionAction()
         {
-            return true;
+            return Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures);
         }
 
         public override void OnCompletionAction(string baseDirectory,
             string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
-            if (_hasRunCompletionAction)
+            if (_hasRunCompletionAction ||
+                !Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
                 return;
             }

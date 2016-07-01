@@ -20,31 +20,33 @@ def readOption(key):
 
 def getCwebpLocation():
     errMsg = 'Please open labs_coordinate_pictures, go to Options->Set webp location... ' + \
-        'and provide path to cwebp.exe'
+        'and provide path to cwebp.'
     ret = readOption('FilepathWebp')
-    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'cwebp.exe'):
+    if not ret or not files.exists(ret) or not files.sep + 'cwebp' in ret:
         raise RuntimeError(errMsg)
     return ret
     
 def getMozjpegLocation():
     errMsg = 'Please open labs_coordinate_pictures, go to Options->Set mozjpeg location... ' + \
-        'and provide path to cjpeg.exe'
+        'and provide path to cjpeg.'
     ret = readOption('FilepathMozJpeg')
-    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'cjpeg.exe'):
+    if not ret or not files.exists(ret) or not files.sep + 'cjpeg' in ret:
         raise RuntimeError(errMsg)
     return ret
     
 def getExifToolLocation():
     errMsg = 'Please open labs_coordinate_pictures, go to Options->Set exiftool location... ' + \
-        'and provide path to exiftool.exe'
+        'and provide path to exiftool.'
     ret = readOption('FilepathExifTool')
-    if not ret or not files.exists(ret) or not ret.endswith(files.sep + 'exiftool.exe'):
+    if not ret or not files.exists(ret) or not files.sep + 'exiftool' in ret:
         raise RuntimeError(errMsg)
     return ret
 
 def getDwebpLocation():
+    import sys
+    dwebp = 'dwebp.exe' if sys.platform.startswith('win') else 'dwebp'
     cwebpLocation = getCwebpLocation()
-    return files.join(files.getparent(cwebpLocation), 'dwebp.exe')
+    return files.join(files.getparent(cwebpLocation), dwebp)
     
 def getTempLocation():
     # will also be periodically deleted by coordinate_pictures
@@ -67,10 +69,10 @@ class PythonImgExifError(Exception):
     pass
     
 def verifyExifToolIsPresent():
-    exe = exiftool()
-    if not exe or not files.exists(exe):
+    path = exiftool()
+    if not path or not files.exists(path):
         warn('could not find FilepathExifTool.' +
-            ' please ensure options.ini provides the path to exiftool.exe')
+            ' please ensure options.ini provides the path to exiftool.')
 
 def readExifField(filename, exifField):
     args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)

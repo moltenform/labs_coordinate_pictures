@@ -11,11 +11,14 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
     ''' returns a bool, True means that the file was rewritten, False means that it was just moved or copied.
     either True or False are a successful result; exceptions raised on error.'''
     
+    useMozJpeg = True
+    defaultJpgQuality = 94 if useMozJpeg else 93
+    
     if files.getext(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
         raise ValueError('only jpg files can have a quality less than 100.')
+
     if not jpgQuality:
-        useMozJpeg = True
-        jpgQuality = 94 if useMozJpeg else 93
+        jpgQuality = defaultJpgQuality
             
     if sys.platform == 'win32' and infile.lower() == outfile.lower():
         return ConvertResult.SuccessCopied
@@ -44,7 +47,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         # shortcut: dwebp natively can save to common formats
         dwebpsupports = ['png', 'tif']
         if files.getext(infile) == 'webp' and files.getext(outfile) in dwebpsupports:
-            saveWebpToBmpOrPng(infile, outfile)
+            saveWebpToPng(infile, outfile)
             return ConvertResult.SuccessConverted
             
         # shortcut: cwebp natively can save from common formats
@@ -59,7 +62,6 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
                 jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
             return ConvertResult.SuccessConverted
             
-    # PIL can't work directly with webp so convert to png first.
     im = None
     tmpPngOut = None
     memoryStreamIn = None
@@ -112,15 +114,15 @@ def loadImageFromFile(infile, outfile):
         
     return im, memoryStream
 
-def runExeShowErr(args):
+def runProcessShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=True, captureoutput=True)
     if retcode != 0:
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
         
-def runExeWithStdIn(args, sendToStdIn):
-    import subprocess
-    showNoWindow = 0x08000000
+def runProcessWithStdIn(args, sendToStdIn):
+    import subprocess, sys
+    showNoWindow = 0x08000000 if sys.platform.startswith('win') else 0
     sp = subprocess.Popen(args, shell=False, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=showNoWindow)
     comm = sp.communicate(input=sendToStdIn)
@@ -148,7 +150,7 @@ def loadImageFromWebp(infile):
     memoryStream = StringIO(stdout)
     return Image.open(memoryStream), memoryStream
 
-def saveWebpToBmpOrPng(infile, outfile):
+def saveWebpToPng(infile, outfile):
     dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', outfile]
     if files.getext(outfile) == 'bmp':
@@ -156,7 +158,7 @@ def saveWebpToBmpOrPng(infile, outfile):
         raise ValueError('Format not supported')
     elif files.getext(outfile) == 'tif':
         args.append('-tiff')
-    runExeShowErr(args)
+    runProcessShowErr(args)
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')
     
@@ -166,13 +168,14 @@ def saveBmpOrPngToWebp(infile, outfile):
     # specifying -q 100 even when mode is -lossless results in smaller files (at expense of time).
     cwebp = img_utils.getCwebpLocation()
     args = [cwebp, infile, '-lossless', '-m', '6', '-q', '100', '-o', outfile]
-    runExeShowErr(args)
+    runProcessShowErr(args)
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')
     
     return outfile
 
-def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChromaSample, jpgCorrectResolution):
+def saveToMozJpeg(infileIsMemoryStream, infile, outfile,
+        quality, useBetterChromaSample, jpgCorrectResolution):
     # cjpeg cannot convert from png or tif, it needs a bmp.
     # we used to write a temporary bmp to disk, but it's better to write the bmp to memory and send it via stdin.
     assertTrue(isinstance(quality, int))
@@ -185,10 +188,10 @@ def saveToMozJpeg(infileIsMemoryStream, infile, outfile, quality, useBetterChrom
     if not infileIsMemoryStream:
         # input provided by file on disk
         args.extend([infile])
-        runExeShowErr(args)
+        runProcessShowErr(args)
     else:
         # input provided through stdin
-        runExeWithStdIn(args, infile)
+        runProcessWithStdIn(args, infile)
         
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')
