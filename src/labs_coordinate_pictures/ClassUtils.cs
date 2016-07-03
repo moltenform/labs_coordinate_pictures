@@ -348,6 +348,19 @@ namespace labs_coordinate_pictures
                 return;
             }
 
+            // verify checksums to see if the binaries have changed
+            if (FilenameUtils.IsExt(pathInput, ".jpg") ||
+                FilenameUtils.IsExt(pathOutput, ".jpg"))
+            {
+                Configs.Current.Get(ConfigKey.FilepathMozJpeg);
+            }
+
+            if (FilenameUtils.IsExt(pathInput, ".webp") ||
+                FilenameUtils.IsExt(pathOutput, ".webp"))
+            {
+                Configs.Current.Get(ConfigKey.FilepathWebp);
+            }
+
             // send the working directory for the script so that it can find options.ini
             var workingDir = Path.Combine(Configs.Current.Directory,
                 "ben_python_img");

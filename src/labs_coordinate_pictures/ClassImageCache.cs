@@ -172,9 +172,19 @@ namespace labs_coordinate_pictures
                     bitmap.SetResolution(96.0f, 96.0f);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Utils.MessageErr("Could not load the image " + path, true);
+                if (path.ToLowerInvariant().EndsWith(".webp", StringComparison.Ordinal) &&
+                    e.ToString().ToUpperInvariant().Contains("0x8007007E"))
+                {
+                    Utils.MessageErr("It appears that the Visual C++ Redistributable " +
+                       "Packages for Visual Studio 2013 are not installed; please run " +
+                       "vcredist_x64.exe so that libwebp.dll can be used.");
+                }
+
+                Utils.MessageErr("Could not load the image " + path +
+                    Utils.NL + Utils.NL + Utils.NL + "Details: " +
+                    e.ToString(), true);
 
                 if (bitmap != null)
                 {

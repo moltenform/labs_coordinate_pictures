@@ -116,7 +116,9 @@ namespace labs_coordinate_pictures
             var hashExpected = Configs.Current.Get(sumkey);
             if (hashExpected != hash)
             {
-                if (Utils.AskToConfirm("Checksum does not match for file " +
+                if (string.IsNullOrEmpty(hashExpected) ||
+                    string.IsNullOrEmpty(current) ||
+                    Utils.AskToConfirm("Checksum does not match for file " +
                     current + Utils.NL + "was:" + hashExpected + Utils.NL + "now: " + hash +
                     Utils.NL + "Did you recently upgrade or change this program? " +
                     "If so, click Yes. Otherwise, click No to exit."))
