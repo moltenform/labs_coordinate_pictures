@@ -170,6 +170,18 @@ namespace labs_coordinate_pictures
                 "a b c http://www.ok.com a b c http://www.second.com"));
         }
 
+        static void TestMethod_UtilsFormatFilesize()
+        {
+            TestUtil.IsEq(" (2.00mb)", Utils.FormatFilesize((2 * 1024 * 1024) + 25));
+            TestUtil.IsEq(" (1.02mb)", Utils.FormatFilesize((1024 * 1024) + 20000));
+            TestUtil.IsEq(" (345k)", Utils.FormatFilesize((1024 * 345) + 25));
+            TestUtil.IsEq(" (1k)", Utils.FormatFilesize(1025));
+            TestUtil.IsEq(" (1k)", Utils.FormatFilesize(1024));
+            TestUtil.IsEq(" (1k)", Utils.FormatFilesize(1023));
+            TestUtil.IsEq(" (1k)", Utils.FormatFilesize(1));
+            TestUtil.IsEq(" (0k)", Utils.FormatFilesize(0));
+        }
+
         static void TestMethod_ArrayAt()
         {
             var arr = new int[] { 1, 2, 3 };

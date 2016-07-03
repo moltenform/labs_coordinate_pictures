@@ -260,9 +260,12 @@ namespace labs_coordinate_pictures
 
         public static string FormatFilesize(long len)
         {
+            // we'll show small files less than 1kb as "1k".
             return (len > 1024 * 1024) ?
                 string.Format(" ({0:0.00}mb)", len / (1024.0 * 1024.0)) :
-                string.Format(" ({0}k)", len / 1024);
+                (len > 1024) ?
+                string.Format(" ({0}k)", len / 1024) :
+                (len == 0) ? " (0k)" : " (1k)";
         }
 
         public static void CloseOtherProcessesByName(string processName)

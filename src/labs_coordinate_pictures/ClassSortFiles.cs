@@ -200,7 +200,7 @@ namespace labs_coordinate_pictures
             args.Add("/NS"); // no sizes in output
             args.Add("/FP"); // full paths in logs
             args.Add("/NP"); // don't show progress
-            args.Add("/UNILOG:" + settings.LogFile);
+            args.Add("/LOG:" + settings.LogFile);
             return args.ToArray();
         }
 
