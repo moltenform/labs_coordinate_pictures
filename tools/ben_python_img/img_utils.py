@@ -1,52 +1,27 @@
 from ben_python_common import *
+import sys
 
 # field to store original title in. There's an exif tag OriginalRawFileName AKA OriginalFilename, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"
 MarkerString = "__MARKAS__"
 
-def readOption(key):
-    # since ben_python_img is usually called by coordinate_pictures, we'll read from its options file for simplicity.
-    fname = '../options.ini'
-    if not files.exists(fname):
-        raise RuntimeError('cannot locate options.ini file.')
-    
-    with open(fname, 'r') as f:
-        for line in f:
-            if line.startswith(key + '='):
-                line = line.strip()
-                return line[len(key + '='):]
-    
-    return None
+def getToolPath(path):
+    ret = path + ('.exe' if sys.platform.startswith('win') else '')
+    if not files.exists(ret):
+        raise RuntimeError('tool not found, did not see ' + ret)
+    return ret
 
 def getCwebpLocation():
-    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set webp location... ' + \
-        'and provide path to cwebp.'
-    ret = readOption('FilepathWebp')
-    if not ret or not files.exists(ret) or not files.sep + 'cwebp' in ret:
-        raise RuntimeError(errMsg)
-    return ret
+    return getToolPath('../webp/cwebp')
     
 def getMozjpegLocation():
-    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set mozjpeg location... ' + \
-        'and provide path to cjpeg.'
-    ret = readOption('FilepathMozJpeg')
-    if not ret or not files.exists(ret) or not files.sep + 'cjpeg' in ret:
-        raise RuntimeError(errMsg)
-    return ret
+    return getToolPath('../mozjpeg/cjpeg')
     
 def getExifToolLocation():
-    errMsg = 'Please open labs_coordinate_pictures, go to Options->Set exiftool location... ' + \
-        'and provide path to exiftool.'
-    ret = readOption('FilepathExifTool')
-    if not ret or not files.exists(ret) or not files.sep + 'exiftool' in ret:
-        raise RuntimeError(errMsg)
-    return ret
+    return getToolPath('../exiftool/exiftool')
 
 def getDwebpLocation():
-    import sys
-    dwebp = 'dwebp.exe' if sys.platform.startswith('win') else 'dwebp'
-    cwebpLocation = getCwebpLocation()
-    return files.join(files.getparent(cwebpLocation), dwebp)
+    return getToolPath('../webp/dwebp')
     
 def getTempLocation():
     # will also be periodically deleted by coordinate_pictures
@@ -71,8 +46,7 @@ class PythonImgExifError(Exception):
 def verifyExifToolIsPresent():
     path = exiftool()
     if not path or not files.exists(path):
-        warn('could not find FilepathExifTool.' +
-            ' please ensure options.ini provides the path to exiftool.')
+        warn('could not find exiftool, expected to find it at ' + path)
 
 def readExifField(filename, exifField):
     args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)

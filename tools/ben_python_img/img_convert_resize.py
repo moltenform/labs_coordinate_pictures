@@ -167,7 +167,7 @@ def saveWebpToPng(infile, outfile):
 def saveBmpOrPngToWebp(infile, outfile):
     # specifying -q 100 even when mode is -lossless results in smaller files (at expense of time).
     cwebp = img_utils.getCwebpLocation()
-    args = [cwebp, infile, '-lossless', '-m', '6', '-q', '100', '-o', outfile]
+    args = [cwebp, infile, '-lossless', '-z', '9', '-m', '6', '-q', '100', '-o', outfile]
     runProcessShowErr(args)
     if not files.exists(outfile):
         raise RuntimeError('failure running ' + str(args) + ' output not found')

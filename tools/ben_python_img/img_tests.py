@@ -221,16 +221,16 @@ def testCombinatoricImageConversion(tmpDir, testImage):
     expectedSizes = '''start.bmp|43254
 start.bmp.jpg|16960
 start.bmp.png|4526
-start.bmp.webp|1872
+start.bmp.webp|1870
 start.jpg|16960
 start.jpg.bmp|43254
 start.jpg.png|4750
-start.jpg.webp|2164
+start.jpg.webp|2700
 start.png|4526
 start.png.bmp|43254
 start.png.jpg|16960
-start.png.webp|1872
-start.webp|1872
+start.png.webp|1870
+start.webp|1870
 start.webp.bmp|43254
 start.webp.jpg|16960
 start.webp.png|5786'''.replace('\r\n', '\n')
