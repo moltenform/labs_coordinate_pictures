@@ -47,9 +47,6 @@ namespace labs_coordinate_pictures
             setCoordmusicLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Locate coordinate_music directory's 'main.py'",
                 o, ConfigKey.FilepathCoordMusicMainPy);
-            setExiftoolLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-               "(Optional) Locate exiftool.exe.",
-               o, ConfigKey.FilepathExifTool);
             setImageEditorLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Select an application for editing images.",
                 o, ConfigKey.FilepathImageEditor);
@@ -65,15 +62,9 @@ namespace labs_coordinate_pictures
             setM4aEncoderLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                "(Optional) Locate 'qaac.exe'; directory should also contain 'dropq128.py'.",
                o, ConfigKey.FilepathM4aEncoder);
-            setMozjpegToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-                "Locate 'cjpeg.exe' from the mozjpeg project (free download from Mozilla)",
-                o, ConfigKey.FilepathMozJpeg);
             setPythonLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "Locate 'python.exe'; currently only Python 2 is supported.",
                 o, ConfigKey.FilepathPython);
-            setWebpToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-                "Locate 'cwebp.exe' from the webp project (free download from Google)",
-                o, ConfigKey.FilepathWebp);
             setWinMergeToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Select a diff/merge application, such as 'winmerge.exe'.",
                 o, ConfigKey.FilepathWinMerge);

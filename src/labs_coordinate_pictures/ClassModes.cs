@@ -215,7 +215,7 @@ namespace labs_coordinate_pictures
             // all we do here is write the current directory onto the python script.
             if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by " +
                  "running a python script," +
-                 " ./tools/ben_python_img/img_convert_resize.py" + Utils.NL + Utils.NL +
+                 " ./ben_python_img/img_convert_resize.py" + Utils.NL + Utils.NL +
                 "Set the directory referred to in the script to" + Utils.NL + baseDirectory + "?"))
             {
                 var script = Path.Combine(Configs.Current.Directory,

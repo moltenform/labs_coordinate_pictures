@@ -76,14 +76,26 @@ namespace labs_coordinate_pictures
             return waitForExit ? process.ExitCode : 0;
         }
 
+        public static bool IsWindows()
+        {
+            return Environment.OSVersion.Platform.ToString().StartsWith(
+                "Win", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static void OpenDirInExplorer(string sDir)
         {
-            Process.Start("explorer.exe", "\"" + sDir + "\"");
+            if (IsWindows())
+            {
+                Process.Start("explorer.exe", "\"" + sDir + "\"");
+            }
         }
 
         public static void SelectFileInExplorer(string path)
         {
-            Process.Start("explorer.exe", "/select,\"" + path + "\"");
+            if (IsWindows())
+            {
+                Process.Start("explorer.exe", "/select,\"" + path + "\"");
+            }
         }
 
         public static bool AskToConfirm(string message)
@@ -322,9 +334,9 @@ namespace labs_coordinate_pictures
             var python = Configs.Current.Get(ConfigKey.FilepathPython);
             if (string.IsNullOrEmpty(python) || !File.Exists(python))
             {
-                MessageBox("Python exe not found. Go to the main screen and to the " +
+                MessageBox("Python not found. Go to the main screen and to the " +
                     "option menu and click Options->Set python location...");
-                return "Python exe not found.";
+                return "Python not found.";
             }
 
             var args = new List<string> { pyScript };
@@ -349,19 +361,6 @@ namespace labs_coordinate_pictures
             {
                 MessageBox("File already exists, " + pathOutput);
                 return;
-            }
-
-            // verify checksums to see if the binaries have changed
-            if (FilenameUtils.IsExt(pathInput, ".jpg") ||
-                FilenameUtils.IsExt(pathOutput, ".jpg"))
-            {
-                Configs.Current.Get(ConfigKey.FilepathMozJpeg);
-            }
-
-            if (FilenameUtils.IsExt(pathInput, ".webp") ||
-                FilenameUtils.IsExt(pathOutput, ".webp"))
-            {
-                Configs.Current.Get(ConfigKey.FilepathWebp);
             }
 
             // send the working directory for the script so that it can find options.ini
@@ -425,21 +424,28 @@ namespace labs_coordinate_pictures
         public static void JpgStripThumbnails(string path)
         {
             // delete IFD1 tags, removes the Thumbnailimage + all associated tags.
-            var exiftool = Configs.Current.Get(ConfigKey.FilepathExifTool);
+            var exiftool = Configs.Current.Directory + "/exiftool/exiftool" +
+                (Utils.IsWindows() ? ".exe" : "");
+            if (!File.Exists(exiftool))
+            {
+                MessageErr("exiftool not found, expected to be seen at " + exiftool);
+                throw new CoordinatePicturesException("");
+            }
+
             var args = new string[] { "-ifd1:all=", "-PreviewImage=", "-overwrite_original", path };
             Run(exiftool, args, hideWindow: true, waitForExit: true, shellExecute: false);
         }
 
         public static void JpgLosslessOptimize(string path, string pathOut, bool stripAllExif)
         {
-            var mozjpeg = Configs.Current.Get(ConfigKey.FilepathMozJpeg);
-            if (!File.Exists(mozjpeg))
+            var jpegtran = Configs.Current.Directory + "/mozjpeg/jpegtran" +
+                (Utils.IsWindows() ? ".exe" : "");
+            if (!File.Exists(jpegtran))
             {
-                MessageErr("mozjpeg not found, use Options->Set mozjpeg location.");
+                MessageErr("mozjpeg not found, expected to be seen at " + jpegtran);
                 throw new CoordinatePicturesException("");
             }
 
-            var jpegtran = Path.Combine(Path.GetDirectoryName(mozjpeg), "jpegtran.exe");
             var args = new string[] { "-outfile", pathOut, "-optimise",
                 "-progressive", "-copy", stripAllExif ? "none" : "all", path };
             Run(jpegtran, args, hideWindow: true, waitForExit: true, shellExecute: false);
