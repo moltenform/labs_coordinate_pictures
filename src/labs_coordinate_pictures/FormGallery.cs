@@ -281,11 +281,12 @@ namespace labs_coordinate_pictures
 
             var text = "Please enter a list of category strings separated by |. " +
                 "Each category string must be in the form A/categoryReadable/categoryId, " +
-                "where A is a single capital letter, categoryReadable will be the human-readable " +
+                "where A is a single capital letter, categoryReadable is the human-readable " +
                 "label, and categoryID will be the unique ID (when an image is" +
                 " given this ID, the ID will be added to the filename as a suffix).";
             var nextCategories = InputBoxForm.GetStrInput(
-                text, null, InputBoxHistory.EditCategoriesString, suggestions);
+                text, null, InputBoxHistory.EditCategoriesString,
+                suggestions, useClipboard: false);
 
             if (!string.IsNullOrEmpty(nextCategories))
             {
@@ -306,8 +307,12 @@ namespace labs_coordinate_pictures
 
         public bool WrapMoveFile(string path, string pathDestination, bool addToUndo = true)
         {
-            if (path != pathDestination &&
-                path.Equals(pathDestination, StringComparison.OrdinalIgnoreCase))
+            if (path.Equals(pathDestination, StringComparison.Ordinal))
+            {
+                // renaming 'a' to 'a', no action needed
+                return true;
+            }
+            else if (path.Equals(pathDestination, StringComparison.OrdinalIgnoreCase))
             {
                 // support changing the case of a file on case-insensitive systems
                 var tmpLocation = path + Utils.GetRandomDigits() + Path.GetExtension(path);
@@ -694,38 +699,56 @@ namespace labs_coordinate_pictures
         // add a prefix to files, useful when renaming and you want to maintain the order
         private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int nAddedPrefix = 0, nSkippedPrefix = 0, nFailedToRename = 0;
+            int addedPrefix = 0, alreadyPrefix = 0, failed = 0, hidden = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
                 int number = 0;
                 foreach (var path in _filelist.GetList())
                 {
-                    number++;
-                    if (Path.GetFileName(path) ==
+                    if (Utils.GetFileAttributesOrNone(path).HasFlag(FileAttributes.Hidden))
+                    {
+                        hidden++;
+                    }
+                    else if (Path.GetFileName(path) !=
                         FilenameUtils.GetFileNameWithoutNumberedPrefix(path))
                     {
-                        if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, number)))
-                        {
-                            nAddedPrefix++;
-                        }
-                        else
-                        {
-                            nFailedToRename++;
-                        }
+                        alreadyPrefix++;
                     }
                     else
                     {
-                        nSkippedPrefix++;
+                        number++;
+                        if (WrapMoveFile(path, FilenameUtils.AddNumberedPrefix(path, number)))
+                        {
+                            addedPrefix++;
+                        }
+                        else
+                        {
+                            failed++;
+                        }
                     }
                 }
 
                 MoveFirst();
             }
 
-            Utils.MessageBox(string.Format(
-                "{0} files skipped because they already have a prefix, " +
-                "{1} files failed to be renamed, {2} files successfully renamed.",
-                nSkippedPrefix, nFailedToRename, nAddedPrefix));
+            var msg = "" + addedPrefix + " file(s) successfully renamed.";
+
+            if (alreadyPrefix > 0)
+            {
+                msg += Utils.NL + alreadyPrefix + " file(s) already have a prefix";
+            }
+
+            if (hidden > 0)
+            {
+                msg += Utils.NL + hidden + " hidden file(s) skipped";
+            }
+
+            if (failed > 0)
+            {
+                msg += Utils.NL + "note: " + failed + " file(s) could not be renamed";
+            }
+
+            Utils.MessageBox(msg);
         }
 
         private void removeNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
