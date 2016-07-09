@@ -1,14 +1,21 @@
-# labs_coordinate_pictures
-Tools for naming and organizing pictures and files.
+# Coordinate Pictures
 
-naming and organizing pictures
+A collection of tools released under the GPL license. 
 
-* Quickly rename an image, by pressing h.
-* Set up categories, and quickly images to categories.
-* Ctrl-click an image to see it in full resolution.
-* Designate editors, for example Ctrl+Shift+E opens the file using a exe you choose.
+[Sorting Images](doc/SortingImages.md)  
+Quickly rename, resize, categorize, and optimize images
 
+[Keeping Metadata](doc/KeepingMetadata.md)  
+Resize images while keeping exif metadata
 
-See documentation on [sorting images](doc/SortingImages.md).
+[Searching for Differences](doc/SearchDifferences.md)  
+Search for differences in two similar directories
 
-Documentation has not yet been added for syncing files and finding duplicates.
+[Searching for Duplicate Files](doc/SearchDuplicates.md)  
+Search for files with identical contents
+
+[Sync files from one folder to another](doc/SyncingFiles.md)  
+Mirror a directory, for backing up files or copying files over a network
+
+[Getting Started](doc/GettingStarted.md)  
+Download and configuration
