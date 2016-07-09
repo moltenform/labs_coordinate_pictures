@@ -541,6 +541,25 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public static bool LooksLikePath(string path)
+        {
+            return path.Length > 2 && (
+                (path[0] == Utils.PathSep[0]) ||
+                (path[1] == ':' && path[2] == Utils.PathSep[0]));
+        }
+
+        public static FileAttributes GetFileAttributesOrNone(string path)
+        {
+            try
+            {
+                return File.GetAttributes(path);
+            }
+            catch (IOException)
+            {
+                return FileAttributes.Normal;
+            }
+        }
+
         public static string GetSha512(string path)
         {
             if (path == null || !File.Exists(path))

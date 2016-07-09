@@ -194,6 +194,29 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(3, Utils.ArrayAt(arr, 100));
         }
 
+        static void TestMethod_LooksLikePath()
+        {
+            TestUtil.IsTrue(!Utils.LooksLikePath(""));
+            TestUtil.IsTrue(!Utils.LooksLikePath("/"));
+            TestUtil.IsTrue(!Utils.LooksLikePath("\\"));
+            TestUtil.IsTrue(!Utils.LooksLikePath("C:"));
+            TestUtil.IsTrue(Utils.LooksLikePath("C:\\"));
+            TestUtil.IsTrue(Utils.LooksLikePath("C:\\a\\b\\c"));
+            TestUtil.IsTrue(Utils.LooksLikePath("\\test"));
+            TestUtil.IsTrue(Utils.LooksLikePath("\\test\\a\\b\\c"));
+        }
+
+        static void TestMethod_GetFileAttributes()
+        {
+            var path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testhash.txt");
+            File.WriteAllText(path, "12345678");
+            TestUtil.IsEq(File.GetAttributes(path), Utils.GetFileAttributesOrNone(path));
+
+            var pathNotExist = Path.Combine(TestUtil.GetTestWriteDirectory(), "testhash2.txt");
+            TestUtil.IsEq(false, File.Exists(pathNotExist));
+            TestUtil.IsEq(FileAttributes.Normal, Utils.GetFileAttributesOrNone(pathNotExist));
+        }
+
         static void TestMethod_TestSha512()
         {
             var path = Path.Combine(TestUtil.GetTestWriteDirectory(), "testhash.txt");

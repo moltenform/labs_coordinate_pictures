@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -11,7 +12,8 @@ namespace labs_coordinate_pictures
 {
     public sealed class InputBoxForm : Form
     {
-        System.ComponentModel.Container _components = null;
+        Container _components = null;
+        Button _btnBrowse;
         Button _btnCancel;
         Button _btnOK;
         ComboBox _comboBox;
@@ -39,8 +41,10 @@ namespace labs_coordinate_pictures
                 suggestions.Add(currentSuggestion);
             }
 
-            if (useClipboard && !string.IsNullOrEmpty(Utils.GetClipboard()))
+            if (useClipboard && !string.IsNullOrEmpty(Utils.GetClipboard()) &&
+                Utils.LooksLikePath(Utils.GetClipboard()) == mustBeDirectory)
             {
+                // get from clipboard if the right type of string (path vs not path)
                 suggestions.Add(Utils.GetClipboard());
             }
 
@@ -66,6 +70,8 @@ namespace labs_coordinate_pictures
             using (InputBoxForm form = new InputBoxForm(historyKey))
             {
                 form._label.Text = mesage;
+                form._btnBrowse.Visible = mustBeDirectory;
+                form._btnBrowse.Click += (o, e) => form.OnBrowseClick();
 
                 // fill combo box with suggested input.
                 form._comboBox.Items.Clear();
@@ -138,6 +144,7 @@ namespace labs_coordinate_pictures
             this._btnOK = new System.Windows.Forms.Button();
             this._btnCancel = new System.Windows.Forms.Button();
             this._comboBox = new System.Windows.Forms.ComboBox();
+            this._btnBrowse = new System.Windows.Forms.Button();
             this.SuspendLayout();
 
             // _label
@@ -170,6 +177,13 @@ namespace labs_coordinate_pictures
             this._comboBox.Size = new System.Drawing.Size(383, 21);
             this._comboBox.TabIndex = 1;
 
+            // _btnBrowse
+            this._btnBrowse.Location = new System.Drawing.Point(183, 246);
+            this._btnBrowse.Name = "_btnBrowse";
+            this._btnBrowse.Size = new System.Drawing.Size(70, 24);
+            this._btnBrowse.TabIndex = 3;
+            this._btnBrowse.Text = "Browse...";
+
             // InputBoxForm
             this.AcceptButton = this._btnOK;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -177,6 +191,7 @@ namespace labs_coordinate_pictures
             this.ClientSize = new System.Drawing.Size(434, 287);
             this.ControlBox = false;
             this.Controls.Add(this._comboBox);
+            this.Controls.Add(this._btnBrowse);
             this.Controls.Add(this._btnCancel);
             this.Controls.Add(this._btnOK);
             this.Controls.Add(this._label);
@@ -186,11 +201,20 @@ namespace labs_coordinate_pictures
             this.Name = "InputBoxForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Input Box Dialog";
-            this.DragDrop += new DragEventHandler(this.InputBoxForm_DragDrop);
-            this.DragEnter += new DragEventHandler(this.InputBoxForm_DragEnter);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.InputBoxForm_DragEnter);
             this.ResumeLayout(false);
         }
         #endregion
+
+        private void OnBrowseClick()
+        {
+            var dlg = new FolderBrowserDialog();
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                _comboBox.Text = dlg.SelectedPath;
+            }
+        }
 
         private void InputBoxForm_DragEnter(object sender, DragEventArgs e)
         {
