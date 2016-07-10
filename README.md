@@ -18,4 +18,4 @@ Search for files with identical contents
 Mirror a directory, for backing up files or copying files over a network
 
 [Getting Started](doc/GettingStarted.md)  
-Download and configuration
+Download, configuration, dev notes
