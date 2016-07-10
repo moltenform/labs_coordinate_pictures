@@ -57,6 +57,11 @@ namespace labs_coordinate_pictures
         // lock so that only one bg task occurs at a time.
         object _lock = new object();
 
+        // keep track of window size
+        FormWindowState _lastWindowState;
+        int _lastWindowWidth;
+        int _lastWindowHeight;
+
         public FormGallery(ModeBase mode, string initialDirectory, string initialFilepath = "")
         {
             InitializeComponent();
@@ -81,6 +86,9 @@ namespace labs_coordinate_pictures
             undoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(true);
             redoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(false);
 
+            _lastWindowState = WindowState;
+            _lastWindowWidth = Width;
+            _lastWindowHeight = Height;
             _filelist = new FileListNavigation(
                 initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
 
@@ -1118,6 +1126,32 @@ namespace labs_coordinate_pictures
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void FormGallery_ResizeEnd(object sender, EventArgs e)
+        {
+            // if the user resizes the form, resize current image if needed.
+            if ((_lastWindowWidth != Width || _lastWindowHeight != Height) &&
+                !(_mode is ModeAudioBase))
+            {
+                _lastWindowWidth = Width;
+                _lastWindowHeight = Height;
+                OnOpenItem();
+            }
+        }
+
+        private void FormGallery_Resize(object sender, EventArgs e)
+        {
+            // minimize and maximize events apparently don't trigger ResizeEnd.
+            if (WindowState != _lastWindowState)
+            {
+                _lastWindowState = WindowState;
+
+                if (WindowState != FormWindowState.Minimized)
+                {
+                    FormGallery_ResizeEnd(null, null);
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -427,7 +427,9 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormGallery";
             this.Text = "FormGallery";
+            this.ResizeEnd += new System.EventHandler(this.FormGallery_ResizeEnd);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyUp);
+            this.Resize += new System.EventHandler(this.FormGallery_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
