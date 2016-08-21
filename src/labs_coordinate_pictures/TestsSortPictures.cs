@@ -69,7 +69,7 @@ namespace labs_coordinate_pictures
         static string PathSep(string s)
         {
             // replace slashes with platform appropriate character
-            return s.Replace("/", Utils.PathSep);
+            return s.Replace("/", Utils.Sep);
         }
 
         static void TestMethod_UtilsSameExceptExtension()
@@ -251,7 +251,7 @@ namespace labs_coordinate_pictures
                 var fakeDest = Utils.GetSoftDeleteDestination(
                     PathSep("C:/dirtest/test.doc"));
                 TestUtil.IsTrue(fakeDest.StartsWith(TestUtil.GetTestWriteDirectory() +
-                    Utils.PathSep + "di_test.doc", StringComparison.Ordinal));
+                    Utils.Sep + "di_test.doc", StringComparison.Ordinal));
 
                 // give it an empty path, should fall back to currentdir/(deleted)
                 Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir, "");
@@ -520,22 +520,22 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%cc.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%dd.png|%dd.png|%dd.png|%dd.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoFirst();
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
@@ -551,22 +551,22 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "cc.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%bb.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "bb.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%aa.png|%aa.png|%aa.png|%aa.png".Replace("%", dir + Utils.Sep), neighbors);
             }
 
             { // test gonext when file is missing
@@ -576,7 +576,7 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(true, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "aa.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%bb.png|%cc.png|%dd.png|%dd.png".Replace("%", dir + Utils.Sep), neighbors);
 
                 nav.GoLast();
                 nav.TrySetPath(Path.Combine(dir, "ab.png"), false);
@@ -616,7 +616,7 @@ namespace labs_coordinate_pictures
                 nav.GoNextOrPrev(false, neighbors, neighbors.Count);
                 TestUtil.IsEq(Path.Combine(dir, "dd.png"), nav.Current);
                 TestUtil.IsStringArrayEq(
-                    "%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + Utils.PathSep), neighbors);
+                    "%cc.png|%bb.png|%aa.png|%aa.png".Replace("%", dir + Utils.Sep), neighbors);
             }
 
             { // gonext and goprev after deleted file

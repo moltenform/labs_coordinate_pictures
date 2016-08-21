@@ -558,7 +558,7 @@ namespace labs_coordinate_pictures
                 var prefix = hasNumberedPrefix ?
                     nameWithPrefix.Substring(0, FilenameUtils.NumberedPrefixLength()) :
                     "";
-                var fullnewname = Path.GetDirectoryName(_filelist.Current) + Utils.PathSep +
+                var fullnewname = Path.GetDirectoryName(_filelist.Current) + Utils.Sep +
                     prefix + newName + Path.GetExtension(_filelist.Current);
 
                 if (WrapMoveFile(_filelist.Current, fullnewname))
@@ -773,7 +773,7 @@ namespace labs_coordinate_pictures
                     }
                     else
                     {
-                        if (WrapMoveFile(path, Path.GetDirectoryName(path) + Utils.PathSep +
+                        if (WrapMoveFile(path, Path.GetDirectoryName(path) + Utils.Sep +
                             FilenameUtils.GetFileNameWithoutNumberedPrefix(path)))
                         {
                             nRemovedPrefix++;
@@ -812,7 +812,7 @@ namespace labs_coordinate_pictures
                 if (replace != null && filename.Contains(search))
                 {
                     var pathDestination = Path.GetDirectoryName(_filelist.Current) +
-                        Utils.PathSep + filename.Replace(search, replace);
+                        Utils.Sep + filename.Replace(search, replace);
                     if (WrapMoveFile(_filelist.Current, pathDestination))
                     {
                         RefreshUiAfterCurrentImagePossiblyMoved(pathDestination);
@@ -880,7 +880,7 @@ namespace labs_coordinate_pictures
 
             var parts = fmt.Split(new char[] { '|' });
             int nQual = int.Parse(parts[1]);
-            var outFile = Path.GetDirectoryName(_filelist.Current) + Utils.PathSep +
+            var outFile = Path.GetDirectoryName(_filelist.Current) + Utils.Sep +
                 Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
@@ -892,7 +892,7 @@ namespace labs_coordinate_pictures
             long saved = 0;
             foreach (var path in files)
             {
-                var pathOut = Path.GetDirectoryName(path) + Utils.PathSep +
+                var pathOut = Path.GetDirectoryName(path) + Utils.Sep +
                     Path.GetFileNameWithoutExtension(path) + suffix;
 
                 if (pauseEvery > 0 && countOptimized % pauseEvery == pauseEvery - 1)

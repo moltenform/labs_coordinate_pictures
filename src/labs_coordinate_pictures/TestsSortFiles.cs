@@ -124,7 +124,7 @@ namespace labs_coordinate_pictures
 
         public static string GetTestSubDirectory(string name, bool ensureEmpty = false)
         {
-            string directory = GetTestWriteDirectory() + Utils.PathSep + name;
+            string directory = GetTestWriteDirectory() + Utils.Sep + name;
             Directory.CreateDirectory(directory);
             if (ensureEmpty)
             {
@@ -141,7 +141,7 @@ namespace labs_coordinate_pictures
             // we shouldn't leave junk behind.
             var localTrash = Path.Combine(Configs.Current.Directory, "(deleted)");
             var shouldCleanLocalTrash = !Directory.Exists(localTrash);
-            if (Utils.GetSoftDeleteDestination("abc" + Utils.PathSep + "abc") == null)
+            if (Utils.GetSoftDeleteDestination("abc" + Utils.Sep + "abc") == null)
             {
                 Utils.MessageBox("Skipping tests until a trash directory is chosen.");
                 return;
@@ -345,10 +345,10 @@ namespace labs_coordinate_pictures
                 dirFirst, Path.Combine(dirSecond, "notexist"), true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
-                dirFirst + Utils.PathSep, dirSecond, true, true, true, true));
+                dirFirst + Utils.Sep, dirSecond, true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
-                dirFirst, dirSecond + Utils.PathSep, true, true, true, true));
+                dirFirst, dirSecond + Utils.Sep, true, true, true, true));
 
             TestUtil.IsEq(null, FormSortFiles.FillFromUI(SortFilesAction.SearchDuplicates, "", "",
                 dirFirst, dirFirst, true, true, true, true));
@@ -442,19 +442,19 @@ namespace labs_coordinate_pictures
             TestUtil.IsEq(1, map[5].Count);
 
             // test that FileInfoForComparison was set correctly
-            TestUtil.IsEq(Utils.PathSep + "a.txt", mapSorted[0].Filename);
+            TestUtil.IsEq(Utils.Sep + "a.txt", mapSorted[0].Filename);
             TestUtil.IsEq(null, mapSorted[0].ContentHash);
             TestUtil.IsEq(4L, mapSorted[0].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "a.txt")),
                 mapSorted[0].LastModifiedTime);
 
-            TestUtil.IsEq(Utils.PathSep + "b.txt", map[5][0].Filename);
+            TestUtil.IsEq(Utils.Sep + "b.txt", map[5][0].Filename);
             TestUtil.IsEq(null, map[5][0].ContentHash);
             TestUtil.IsEq(5L, map[5][0].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "b.txt")),
                 map[5][0].LastModifiedTime);
 
-            TestUtil.IsEq(Utils.PathSep + "c.txt", mapSorted[1].Filename);
+            TestUtil.IsEq(Utils.Sep + "c.txt", mapSorted[1].Filename);
             TestUtil.IsEq(null, mapSorted[1].ContentHash);
             TestUtil.IsEq(4L, mapSorted[1].FileSize);
             TestUtil.IsEq(File.GetLastWriteTimeUtc(Path.Combine(dirTest, "c.txt")),
@@ -475,7 +475,7 @@ namespace labs_coordinate_pictures
 
         static void CompareResultsToString(List<FileComparisonResult> list, string expected)
         {
-            var received = ResultsToString(list).Replace(Utils.PathSep, "").Replace(
+            var received = ResultsToString(list).Replace(Utils.Sep, "").Replace(
                 "_File", "").Replace("_Only", "").Replace("\r\n", "\n");
             expected = expected.Replace("\r\n", "\n");
             TestUtil.IsEq(expected, received);
@@ -705,14 +705,14 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
             settings.RightDirectory = right;
 
             // first, set up test files
-            File.WriteAllText(left + Utils.PathSep + "onlyleft.txt", "onlyl");
-            File.WriteAllText(left + Utils.PathSep + "changed1.txt", "a");
-            File.WriteAllText(left + Utils.PathSep + "changed2.txt", "123");
-            File.WriteAllText(left + Utils.PathSep + "same.txt", "s");
-            File.WriteAllText(right + Utils.PathSep + "onlyright.txt", "onlyr");
-            File.WriteAllText(right + Utils.PathSep + "changed1.txt", "abc");
-            File.WriteAllText(right + Utils.PathSep + "changed2.txt", "124");
-            File.WriteAllText(right + Utils.PathSep + "same.txt", "s");
+            File.WriteAllText(left + Utils.Sep + "onlyleft.txt", "onlyl");
+            File.WriteAllText(left + Utils.Sep + "changed1.txt", "a");
+            File.WriteAllText(left + Utils.Sep + "changed2.txt", "123");
+            File.WriteAllText(left + Utils.Sep + "same.txt", "s");
+            File.WriteAllText(right + Utils.Sep + "onlyright.txt", "onlyr");
+            File.WriteAllText(right + Utils.Sep + "changed1.txt", "abc");
+            File.WriteAllText(right + Utils.Sep + "changed2.txt", "124");
+            File.WriteAllText(right + Utils.Sep + "same.txt", "s");
             Action checkFileContents = () =>
             {
                 TestUtil.IsEq("onlyl", File.ReadAllText(Path.Combine(left, "onlyleft.txt")));
@@ -724,12 +724,12 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
             };
 
             // tweak last write times to ensure files on right look different
-            File.SetLastWriteTime(right + Utils.PathSep + "changed1.txt",
-                File.GetLastWriteTime(right + Utils.PathSep + "changed1.txt").AddDays(1));
-            File.SetLastWriteTime(right + Utils.PathSep + "changed2.txt",
-                File.GetLastWriteTime(right + Utils.PathSep + "changed2.txt").AddDays(1));
-            File.SetLastWriteTime(right + Utils.PathSep + "same.txt",
-                File.GetLastWriteTime(left + Utils.PathSep + "same.txt"));
+            File.SetLastWriteTime(right + Utils.Sep + "changed1.txt",
+                File.GetLastWriteTime(right + Utils.Sep + "changed1.txt").AddDays(1));
+            File.SetLastWriteTime(right + Utils.Sep + "changed2.txt",
+                File.GetLastWriteTime(right + Utils.Sep + "changed2.txt").AddDays(1));
+            File.SetLastWriteTime(right + Utils.Sep + "same.txt",
+                File.GetLastWriteTime(left + Utils.Sep + "same.txt"));
 
             // create form and run searchdifferences
             var form = new FormSortFilesList(
@@ -746,23 +746,23 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
             // verify listview contents
             var items = listView.Items.Cast<FileComparisonResult>().ToArray();
             TestUtil.IsEq(4, items.Length);
-            TestUtil.IsEq(Utils.PathSep + "changed1.txt", items[0].FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.Sep + "changed1.txt", items[0].FileInfoLeft.Filename);
             TestUtil.IsEq(null, items[0].FileInfoLeft.ContentHash);
             TestUtil.IsEq(1L, items[0].FileInfoLeft.FileSize);
-            TestUtil.IsEq(Utils.PathSep + "changed1.txt", items[0].FileInfoRight.Filename);
+            TestUtil.IsEq(Utils.Sep + "changed1.txt", items[0].FileInfoRight.Filename);
             TestUtil.IsEq(null, items[0].FileInfoRight.ContentHash);
             TestUtil.IsEq(3L, items[0].FileInfoRight.FileSize);
-            TestUtil.IsEq(Utils.PathSep + "changed2.txt", items[1].FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.Sep + "changed2.txt", items[1].FileInfoLeft.Filename);
             TestUtil.IsEq(null, items[1].FileInfoLeft.ContentHash);
             TestUtil.IsEq(3L, items[1].FileInfoLeft.FileSize);
-            TestUtil.IsEq(Utils.PathSep + "changed2.txt", items[1].FileInfoRight.Filename);
+            TestUtil.IsEq(Utils.Sep + "changed2.txt", items[1].FileInfoRight.Filename);
             TestUtil.IsEq(null, items[1].FileInfoRight.ContentHash);
             TestUtil.IsEq(3L, items[1].FileInfoRight.FileSize);
-            TestUtil.IsEq(Utils.PathSep + "onlyleft.txt", items[2].FileInfoLeft.Filename);
+            TestUtil.IsEq(Utils.Sep + "onlyleft.txt", items[2].FileInfoLeft.Filename);
             TestUtil.IsEq(null, items[2].FileInfoLeft.ContentHash);
             TestUtil.IsEq(5L, items[2].FileInfoLeft.FileSize);
             TestUtil.IsEq(null, items[2].FileInfoRight);
-            TestUtil.IsEq(Utils.PathSep + "onlyright.txt", items[3].FileInfoRight.Filename);
+            TestUtil.IsEq(Utils.Sep + "onlyright.txt", items[3].FileInfoRight.Filename);
             TestUtil.IsEq(null, items[3].FileInfoRight.ContentHash);
             TestUtil.IsEq(5L, items[3].FileInfoRight.FileSize);
             TestUtil.IsEq(null, items[3].FileInfoLeft);
@@ -915,18 +915,18 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
             settings.RightDirectory = right;
 
             // first, set up test files
-            File.WriteAllText(left + Utils.PathSep + "onlyleft.txt", "onlyL");
-            File.WriteAllText(left + Utils.PathSep + "renamed1.txt", "renamed1");
-            File.WriteAllText(left + Utils.PathSep + "renamed2.txt", "renamed2");
-            File.WriteAllText(left + Utils.PathSep + "empty1.txt", "");
-            File.WriteAllText(left + Utils.PathSep + "changed1.txt", "123");
-            File.WriteAllText(left + Utils.PathSep + "same.txt", "s");
-            File.WriteAllText(right + Utils.PathSep + "onlyright.txt", "onlyR");
-            File.WriteAllText(right + Utils.PathSep + "renamed1.a", "renamed1");
-            File.WriteAllText(right + Utils.PathSep + "renamed2.a", "renamed2");
-            File.WriteAllText(right + Utils.PathSep + "empty1.a", "");
-            File.WriteAllText(right + Utils.PathSep + "changed1.txt", "124");
-            File.WriteAllText(right + Utils.PathSep + "same.txt", "s");
+            File.WriteAllText(left + Utils.Sep + "onlyleft.txt", "onlyL");
+            File.WriteAllText(left + Utils.Sep + "renamed1.txt", "renamed1");
+            File.WriteAllText(left + Utils.Sep + "renamed2.txt", "renamed2");
+            File.WriteAllText(left + Utils.Sep + "empty1.txt", "");
+            File.WriteAllText(left + Utils.Sep + "changed1.txt", "123");
+            File.WriteAllText(left + Utils.Sep + "same.txt", "s");
+            File.WriteAllText(right + Utils.Sep + "onlyright.txt", "onlyR");
+            File.WriteAllText(right + Utils.Sep + "renamed1.a", "renamed1");
+            File.WriteAllText(right + Utils.Sep + "renamed2.a", "renamed2");
+            File.WriteAllText(right + Utils.Sep + "empty1.a", "");
+            File.WriteAllText(right + Utils.Sep + "changed1.txt", "124");
+            File.WriteAllText(right + Utils.Sep + "same.txt", "s");
 
             // set last-write-times
             var dtNow = DateTime.Now;
@@ -936,7 +936,7 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
                 File.SetLastWriteTimeUtc(filename, dtNow);
             }
 
-            File.SetLastWriteTimeUtc(right + Utils.PathSep + "changed1.txt", dtNow.AddDays(1));
+            File.SetLastWriteTimeUtc(right + Utils.Sep + "changed1.txt", dtNow.AddDays(1));
 
             // run search-for-differences
             var results = SortFilesSearchDifferences.Go(settings);
@@ -961,13 +961,13 @@ renamed2.txt||Left";
             TestUtil.IsEq(2, resultsMoved.Count);
 
             // the 0-length empty.txt isn't included in this list, we don't treat it as a duplicate
-            TestUtil.IsEq(Utils.PathSep + "renamed1.txt",
+            TestUtil.IsEq(Utils.Sep + "renamed1.txt",
                 resultsMoved[0].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed1.a",
+            TestUtil.IsEq(Utils.Sep + "renamed1.a",
                 resultsMoved[0].Item2);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.txt",
+            TestUtil.IsEq(Utils.Sep + "renamed2.txt",
                 resultsMoved[1].Item1.FileInfoLeft.Filename);
-            TestUtil.IsEq(Utils.PathSep + "renamed2.a",
+            TestUtil.IsEq(Utils.Sep + "renamed2.a",
                 resultsMoved[1].Item2);
         }
 
@@ -985,7 +985,7 @@ renamed2.txt||Left";
             settingsForTimeComparison.AllowFiletimesDifferForFAT = true;
 
             // set write-time to be the future, and undo.
-            var path = dir + Utils.PathSep + "testIntoFuture.txt";
+            var path = dir + Utils.Sep + "testIntoFuture.txt";
             File.WriteAllText(path, "testIntoFuture");
             File.SetLastWriteTimeUtc(path, now);
             var op = new FileOpFileSetWritetime(path, now, future);
@@ -996,7 +996,7 @@ renamed2.txt||Left";
             TestUtil.IsTrue(SortFilesSearchDifferences.AreTimesEqual(now,
                 File.GetLastWriteTimeUtc(path), settingsForTimeComparison));
 
-            path = dir + Utils.PathSep + "testIntoPast.txt";
+            path = dir + Utils.Sep + "testIntoPast.txt";
             File.WriteAllText(path, "testIntoPast");
             File.SetLastWriteTimeUtc(path, now);
             op = new FileOpFileSetWritetime(path, now, past);

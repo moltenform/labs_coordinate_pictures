@@ -40,16 +40,16 @@ namespace labs_coordinate_pictures
                 configDirectory = AppDomain.CurrentDomain.BaseDirectory;
             }
             else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "../../../../tools/silence.flac".Replace("/", Utils.PathSep))))
+                "../../../../tools/silence.flac".Replace("/", Utils.Sep))))
             {
                 configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                    "../../../../tools".Replace("/", Utils.PathSep));
+                    "../../../../tools".Replace("/", Utils.Sep));
             }
             else if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "../../../../../tools/silence.flac".Replace("/", Utils.PathSep))))
+                "../../../../../tools/silence.flac".Replace("/", Utils.Sep))))
             {
                 configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                    "../../../../../tools".Replace("/", Utils.PathSep));
+                    "../../../../../tools".Replace("/", Utils.Sep));
             }
 
             if (string.IsNullOrEmpty(configDirectory) || !Directory.Exists(configDirectory))

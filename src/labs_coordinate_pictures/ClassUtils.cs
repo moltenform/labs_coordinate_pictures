@@ -16,7 +16,7 @@ namespace labs_coordinate_pictures
 {
     public static class Utils
     {
-        public static readonly string PathSep = Path.DirectorySeparatorChar.ToString();
+        public static readonly string Sep = Path.DirectorySeparatorChar.ToString();
         public static readonly string NL = Environment.NewLine;
         static Random random = new Random();
 
@@ -320,7 +320,7 @@ namespace labs_coordinate_pictures
             string[] listArgs, bool createWindow = false,
             bool warnIfStdErr = true, string workingDir = null)
         {
-            if (!pyScript.Contains(Utils.PathSep))
+            if (!pyScript.Contains(Utils.Sep))
             {
                 pyScript = Path.Combine(Configs.Current.Directory, pyScript);
             }
@@ -400,10 +400,10 @@ namespace labs_coordinate_pictures
                     throw new CoordinatePicturesException("");
                 }
 
-                var pathOutput = Path.GetDirectoryName(path) + PathSep +
+                var pathOutput = Path.GetDirectoryName(path) + Sep +
                     Path.GetFileNameWithoutExtension(path) +
                     (qualitySpec == "flac" ? ".flac" : ".m4a");
-                var script = Path.GetDirectoryName(encoder) + PathSep +
+                var script = Path.GetDirectoryName(encoder) + Sep +
                     "dropq" + qualitySpec + ".py";
                 var args = new string[] { path };
                 var stderr = RunPythonScript(
@@ -544,8 +544,8 @@ namespace labs_coordinate_pictures
         public static bool LooksLikePath(string path)
         {
             return path.Length > 2 && (
-                (path[0] == Utils.PathSep[0]) ||
-                (path[1] == ':' && path[2] == Utils.PathSep[0]));
+                (path[0] == Sep[0]) ||
+                (path[1] == ':' && path[2] == Sep[0]));
         }
 
         public static FileAttributes GetFileAttributesOrNone(string path)
@@ -950,7 +950,7 @@ namespace labs_coordinate_pictures
             {
                 // add a trailing zero, just lets the user change the order more easily.
                 return Path.GetDirectoryName(filepath) +
-                    Utils.PathSep + "([" + number.ToString("D3") + "0])" + nameOnly;
+                    Utils.Sep + "([" + number.ToString("D3") + "0])" + nameOnly;
             }
         }
 
@@ -1141,7 +1141,7 @@ namespace labs_coordinate_pictures
                     var list = new List<string>(filenameParts);
                     list.RemoveAt(list.Count - 2);
                     pathWithSuffixRemoved = Path.GetDirectoryName(path) +
-                        Utils.PathSep + string.Join(".", list);
+                        Utils.Sep + string.Join(".", list);
 
                     return true;
                 }

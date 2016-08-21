@@ -614,7 +614,7 @@ namespace labs_coordinate_pictures
             foreach (var item in SelectedItems())
             {
                 if (item.Type != FileComparisonResultType.Left_Only ||
-                    !item.SubItems[0].Text.Contains(Utils.PathSep))
+                    !item.SubItems[0].Text.Contains(Utils.Sep))
                 {
                     continue;
                 }
