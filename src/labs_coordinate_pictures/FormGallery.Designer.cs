@@ -57,6 +57,9 @@
             this.label = new System.Windows.Forms.Label();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
+            this.zoomInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -181,6 +184,9 @@
             this.redoMoveToolStripMenuItem,
             this.copyPathToolStripMenuItem,
             this.toolStripMenuItem2,
+            this.zoomInToolStripMenuItem,
+            this.zoomOutToolStripMenuItem,
+            this.toolStripMenuItem6,
             this.editFileToolStripMenuItem,
             this.editInAltEditorToolStripMenuItem,
             this.cropRotateFileToolStripMenuItem,
@@ -415,6 +421,25 @@
             this.labelView.TabIndex = 2;
             this.labelView.Text = "labelView";
             // 
+            // zoomInToolStripMenuItem
+            // 
+            this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
+            this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.zoomInToolStripMenuItem.Text = "Zoom In";
+            // 
+            // zoomOutToolStripMenuItem
+            // 
+            this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
+            this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.zoomOutToolStripMenuItem.Text = "Zoom Out";
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(401, 6);
+            // 
             // FormGallery
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -483,5 +508,8 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoMoveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveSpaceJpgFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem zoomInToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem zoomOutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
     }
 }

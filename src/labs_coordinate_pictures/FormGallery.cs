@@ -85,6 +85,8 @@ namespace labs_coordinate_pictures
             renameItemToolStripMenuItem.Click += (sender, e) => RenameFile();
             undoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(true);
             redoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(false);
+            zoomInToolStripMenuItem.Click += (sender, e) => changeZoom(true);
+            zoomOutToolStripMenuItem.Click += (sender, e) => changeZoom(false);
 
             _lastWindowState = WindowState;
             _lastWindowWidth = Width;
@@ -495,6 +497,10 @@ namespace labs_coordinate_pictures
                     cropRotateFileToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.Enter)
                     finishedCategorizingToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.PageUp)
+                    changeZoom(true);
+                else if (e.KeyCode == Keys.PageDown)
+                    changeZoom(false);
             }
 
             _mode.OnCustomCommand(this, e.Shift, e.Alt, e.Control, e.KeyCode);
@@ -1082,6 +1088,12 @@ namespace labs_coordinate_pictures
                     OnOpenItem();
                 });
             }
+        }
+
+        void changeZoom(bool zoomIn)
+        {
+            _imagecache.ChangeResizeFactor(zoomIn);
+            OnOpenItem();
         }
 
         public void CallCompletionAction()

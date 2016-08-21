@@ -21,6 +21,9 @@ namespace labs_coordinate_pictures
         // as there won't usually be multiple readers.
         object _lock = new object();
 
+        // scale image size
+        int _resizeFactor = 1;
+
         // rough limit on length of _cache.
         int _cacheSize;
 
@@ -111,6 +114,7 @@ namespace labs_coordinate_pictures
                         new FileInfo(path).LastWriteTimeUtc :
                         DateTime.MinValue;
 
+                    bitmap = ResizeImageByFactor(bitmap, _resizeFactor);
                     _list.Add(new Tuple<string, Bitmap, int, int, DateTime>(
                         path, bitmap, originalWidth, originalHeight, lastModified));
 
@@ -239,6 +243,15 @@ namespace labs_coordinate_pictures
             }
         }
 
+        public void ChangeResizeFactor(bool zoomIn)
+        {
+            if ((!zoomIn && _resizeFactor <= 1) || (zoomIn && _resizeFactor > 10))
+                return;
+
+            _list = new ListOfCachedImages(); // invalidate cache
+            _resizeFactor = zoomIn ? (_resizeFactor + 1) : (_resizeFactor - 1);
+        }
+
         public static Bitmap ResizeImage(Bitmap bitmapFull,
             int newWidth, int newHeight, string pathForLogging)
         {
@@ -270,6 +283,33 @@ namespace labs_coordinate_pictures
             {
                 return bitmapResized;
             }
+        }
+
+        static Bitmap ResizeImageByFactor(Bitmap bitmap, int mult)
+        {
+            if (mult <= 1 || (bitmap.Width == 1 && bitmap.Height == 1) ||
+                (bitmap.Width > 2000 || bitmap.Height > 2000))
+            {
+                return bitmap;
+            }
+
+            Bitmap bitmapResized = new Bitmap(bitmap.Width * mult, bitmap.Height * mult);
+            using (Graphics g = Graphics.FromImage(bitmapResized))
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.None;
+                g.DrawImage(bitmap, new Rectangle(0, 0, bitmapResized.Width, bitmapResized.Height));
+            }
+
+            if (bitmapResized == null)
+            {
+                Utils.MessageErr("resized image is null");
+                return bitmap;
+            }
+
+            bitmap.Dispose();
+            return bitmapResized;
         }
     }
 
