@@ -42,6 +42,7 @@
             this.saveSpacePngToWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSpaceJpgFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuConvertImageFormats = new System.Windows.Forms.ToolStripMenuItem();
             this.keepAndDeleteOthersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,9 +58,11 @@
             this.label = new System.Windows.Forms.Label();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
+            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -70,6 +73,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
+            this.viewToolStripMenuItem,
             this.renameToolStripMenuItem,
             this.categoriesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -184,13 +188,11 @@
             this.redoMoveToolStripMenuItem,
             this.copyPathToolStripMenuItem,
             this.toolStripMenuItem2,
-            this.zoomInToolStripMenuItem,
-            this.zoomOutToolStripMenuItem,
-            this.toolStripMenuItem6,
             this.editFileToolStripMenuItem,
             this.editInAltEditorToolStripMenuItem,
             this.cropRotateFileToolStripMenuItem,
             this.convertResizeImageToolStripMenuItem,
+            this.mnuConvertImageFormats,
             this.saveSpacePngToWebpToolStripMenuItem,
             this.saveSpaceJpgFilesToolStripMenuItem,
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem,
@@ -281,6 +283,15 @@
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Text = "Convert to several jpgs with different qualities";
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Click += new System.EventHandler(this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click);
+            // 
+            // mnuConvertImageFormats
+            // 
+            this.mnuConvertImageFormats.Name = "mnuConvertImageFormats";
+            this.mnuConvertImageFormats.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.K)));
+            this.mnuConvertImageFormats.Size = new System.Drawing.Size(404, 22);
+            this.mnuConvertImageFormats.Text = "Convert Many Images...";
+            this.mnuConvertImageFormats.Click += new System.EventHandler(this.mnuConvertImageFormats_Click);
             // 
             // keepAndDeleteOthersToolStripMenuItem
             // 
@@ -421,24 +432,42 @@
             this.labelView.TabIndex = 2;
             this.labelView.Text = "labelView";
             // 
+            // viewToolStripMenuItem
+            // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.zoomInToolStripMenuItem,
+            this.zoomOutToolStripMenuItem,
+            this.toolStripMenuItem6,
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem});
+            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.viewToolStripMenuItem.Text = "View";
+            // 
             // zoomInToolStripMenuItem
             // 
             this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
             this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
-            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.zoomInToolStripMenuItem.Text = "Zoom In";
             // 
             // zoomOutToolStripMenuItem
             // 
             this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
             this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
-            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.zoomOutToolStripMenuItem.Text = "Zoom Out";
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(401, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(250, 6);
+            // 
+            // mnuAutorotateJPGsForThisDirectoryToolStripMenuItem
+            // 
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Name = "mnuAutorotateJPGsForThisDirectoryToolStripMenuItem";
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
             // 
             // FormGallery
             // 
@@ -508,8 +537,11 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoMoveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveSpaceJpgFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mnuConvertImageFormats;
+        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem zoomInToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem zoomOutToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem mnuAutorotateJPGsForThisDirectoryToolStripMenuItem;
     }
 }

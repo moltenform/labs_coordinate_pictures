@@ -21,9 +21,6 @@ namespace labs_coordinate_pictures
         // as there won't usually be multiple readers.
         object _lock = new object();
 
-        // scale image size
-        int _resizeFactor = 1;
-
         // rough limit on length of _cache.
         int _cacheSize;
 
@@ -32,24 +29,32 @@ namespace labs_coordinate_pictures
         Func<Action, bool> _callbackOnUiThread;
         Func<Bitmap, bool> _canDisposeBitmap;
 
+        // if asked, we'll read exif metadata to rotate jpg images
+        JpegRotationFinder _shouldRotateThisImage;
+
         public ImageCache(
             int maxWidth,
             int maxHeight,
             int cacheSize,
             Func<Action, bool> callbackOnUiThread,
-            Func<Bitmap, bool> canDisposeBitmap)
+            Func<Bitmap, bool> canDisposeBitmap,
+            JpegRotationFinder shouldRotateThisImage)
         {
+            ResizeFactor = 1;
             MaxWidth = maxWidth;
             MaxHeight = maxHeight;
             _cacheSize = cacheSize;
             _callbackOnUiThread = callbackOnUiThread;
             _canDisposeBitmap = canDisposeBitmap;
+            _shouldRotateThisImage = shouldRotateThisImage;
             Excerpt = new ImageViewExcerpt(maxWidth, maxHeight);
         }
 
         public ImageViewExcerpt Excerpt { get; private set; }
         public int MaxHeight { get; private set; }
         public int MaxWidth { get; private set; }
+        public int ResizeFactor { get; set; }
+        public int VerticalScrollFactor { get; set; }
 
         public void Dispose()
         {
@@ -114,7 +119,7 @@ namespace labs_coordinate_pictures
                         new FileInfo(path).LastWriteTimeUtc :
                         DateTime.MinValue;
 
-                    bitmap = ResizeImageByFactor(bitmap, _resizeFactor);
+                    bitmap = ResizeImageByFactor(bitmap, ResizeFactor, VerticalScrollFactor);
                     _list.Add(new Tuple<string, Bitmap, int, int, DateTime>(
                         path, bitmap, originalWidth, originalHeight, lastModified));
 
@@ -154,7 +159,7 @@ namespace labs_coordinate_pictures
         }
 
         // bitmapWillLockFile indicates whether holding onto Bitmap will hold lock on a file.
-        public static Bitmap GetBitmap(string path, out bool bitmapWillLockFile)
+        public static Bitmap GetBitmap(string path, JpegRotationFinder shouldrotate, out bool bitmapWillLockFile)
         {
             Bitmap bitmap = null;
             try
@@ -199,6 +204,11 @@ namespace labs_coordinate_pictures
                 bitmap = new Bitmap(1, 1);
             }
 
+            if (shouldrotate != null && shouldrotate.ShouldRotate(path))
+            {
+                bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            }
+
             return bitmap;
         }
 
@@ -212,7 +222,7 @@ namespace labs_coordinate_pictures
             }
 
             bool bitmapWillLockFile;
-            Bitmap bitmapFull = GetBitmap(path, out bitmapWillLockFile);
+            Bitmap bitmapFull = GetBitmap(path, _shouldRotateThisImage, out bitmapWillLockFile);
 
             // resize and preserve ratio
             originalWidth = bitmapFull.Width;
@@ -243,13 +253,9 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void ChangeResizeFactor(bool zoomIn)
+        public void InvalidateCache()
         {
-            if ((!zoomIn && _resizeFactor <= 1) || (zoomIn && _resizeFactor > 10))
-                return;
-
-            _list = new ListOfCachedImages(); // invalidate cache
-            _resizeFactor = zoomIn ? (_resizeFactor + 1) : (_resizeFactor - 1);
+            _list = new ListOfCachedImages();
         }
 
         public static Bitmap ResizeImage(Bitmap bitmapFull,
@@ -285,11 +291,12 @@ namespace labs_coordinate_pictures
             }
         }
 
-        static Bitmap ResizeImageByFactor(Bitmap bitmap, int mult)
+        static Bitmap ResizeImageByFactor(Bitmap bitmap, int mult, int movevertically)
         {
             if (mult <= 1 || (bitmap.Width == 1 && bitmap.Height == 1) ||
                 (bitmap.Width > 2000 || bitmap.Height > 2000))
             {
+                /* let's disallow resizing large images, to keep good responsiveness */
                 return bitmap;
             }
 
@@ -299,7 +306,7 @@ namespace labs_coordinate_pictures
                 g.SmoothingMode = SmoothingMode.None;
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = PixelOffsetMode.None;
-                g.DrawImage(bitmap, new Rectangle(0, 0, bitmapResized.Width, bitmapResized.Height));
+                g.DrawImage(bitmap, new Rectangle(0, movevertically, bitmapResized.Width, bitmapResized.Height));
             }
 
             if (bitmapResized == null)
@@ -328,7 +335,7 @@ namespace labs_coordinate_pictures
         public Bitmap Bmp { get; private set; }
 
         public void MakeBmp(string path, int clickX, int clickY,
-            int widthOfResizedImage, int heightOfResizedImage)
+            int widthOfResizedImage, int heightOfResizedImage, JpegRotationFinder shouldRotateImages)
         {
             Bmp.Dispose();
             Bmp = new Bitmap(MaxWidth, MaxHeight);
@@ -339,7 +346,7 @@ namespace labs_coordinate_pictures
 
             // we can disregard bitmapWillLockFile because we'll quickly dispose bitmapFull.
             bool bitmapWillLockFile;
-            using (Bitmap bitmapFull = ImageCache.GetBitmap(path, out bitmapWillLockFile))
+            using (Bitmap bitmapFull = ImageCache.GetBitmap(path, shouldRotateImages, out bitmapWillLockFile))
             {
                 if (bitmapFull.Width == 1 || bitmapFull.Height == 1)
                 {

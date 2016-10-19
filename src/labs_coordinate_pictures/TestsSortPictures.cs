@@ -123,7 +123,6 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A\subdir", @"C:\A"));
             TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A", @"C:\A\subdir"));
             TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\A", @"C:\AA"));
-            TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\AA", @"C:\A"));
             TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\abc", @"C:\ABCDE"));
         }
 
@@ -708,7 +707,7 @@ namespace labs_coordinate_pictures
 
             // standard lookup
             using (var cache = new ImageCache(20, 20, cacheSize,
-                callbackOnUiThread, canDisposeBitmap))
+                callbackOnUiThread, canDisposeBitmap, null))
             {
                 // retrieve from the cache
                 int gotW = 0, gotH = 0;
@@ -738,7 +737,7 @@ namespace labs_coordinate_pictures
 
             // add past the limit
             using (var cache = new ImageCache(20, 20, cacheSize,
-                callbackOnUiThread, canDisposeBitmap))
+                callbackOnUiThread, canDisposeBitmap, null))
             {
                 // fill up cache
                 removedFromCache.Clear();

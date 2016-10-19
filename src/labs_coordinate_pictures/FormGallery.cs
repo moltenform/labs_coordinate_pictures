@@ -115,7 +115,7 @@ namespace labs_coordinate_pictures
             return _imagecache;
         }
 
-        void OnOpenItem()
+        void OnOpenItem(bool resetvscroll = true)
         {
             // if the user resized the window, create a new cache for the new size
             pictureBox.Image = _bitmapBlank;
@@ -132,6 +132,12 @@ namespace labs_coordinate_pictures
             }
             else
             {
+                if (resetvscroll && _imagecache.VerticalScrollFactor != 0)
+                {
+                    _imagecache.VerticalScrollFactor = 0;
+                    _imagecache.InvalidateCache();
+                }
+
                 // tell the mode we've opened something
                 _mode.OnOpenItem(_filelist.Current, this);
 
@@ -173,7 +179,7 @@ namespace labs_coordinate_pictures
                 };
 
             _imagecache = new ImageCache(pictureBox.Width, pictureBox.Height,
-                ImageCacheSize, callbackOnUiThread, canDisposeBitmap);
+                ImageCacheSize, callbackOnUiThread, canDisposeBitmap, _shouldRotateImages);
         }
 
         void RefreshFilelist()
@@ -285,13 +291,13 @@ namespace labs_coordinate_pictures
             RefreshCategories();
         }
 
-        private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
+        public static bool EditCategories(string defaults, ConfigKey key, InputBoxHistory historykey)
         {
             // in the input box, suggest category strings.
             var suggestions = new string[]
             {
-                Configs.Current.Get(_mode.GetCategories()),
-                _mode.GetDefaultCategories()
+                Configs.Current.Get(key),
+                defaults
             };
 
             var text = "Please enter a list of category strings separated by |. " +
@@ -300,7 +306,7 @@ namespace labs_coordinate_pictures
                 "label, and categoryID will be the unique ID (when an image is" +
                 " given this ID, the ID will be added to the filename as a suffix).";
             var nextCategories = InputBoxForm.GetStrInput(
-                text, null, InputBoxHistory.EditCategoriesString,
+                text, null, historykey,
                 suggestions, useClipboard: false);
 
             if (!string.IsNullOrEmpty(nextCategories))
@@ -312,10 +318,20 @@ namespace labs_coordinate_pictures
                 catch (CoordinatePicturesException exception)
                 {
                     Utils.MessageErr(exception.Message);
-                    return;
+                    return false;
                 }
 
-                Configs.Current.Set(_mode.GetCategories(), nextCategories);
+                Configs.Current.Set(key, nextCategories);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (EditCategories(_mode.GetDefaultCategories(), _mode.GetCategories(), InputBoxHistory.EditCategoriesString))
+            {
                 RefreshCategories();
             }
         }
@@ -456,6 +472,10 @@ namespace labs_coordinate_pictures
                 var categoryId = CheckKeyBindingsToAssignCategory(e.KeyCode, _categoryKeyBindings);
                 if (categoryId != null)
                     AssignCategory(categoryId);
+                else if (e.KeyCode == Keys.Up)
+                    changeVscroll(true);
+                else if (e.KeyCode == Keys.Down)
+                    changeVscroll(false);
             }
             else if (e.Shift && e.Control && !e.Alt)
             {
@@ -844,7 +864,7 @@ namespace labs_coordinate_pictures
                 else if (_currentImageResized)
                 {
                     _imagecache.Excerpt.MakeBmp(_filelist.Current, e.X, e.Y,
-                        pictureBox.Image.Width, pictureBox.Image.Height);
+                        pictureBox.Image.Width, pictureBox.Image.Height, _shouldRotateImages);
                     pictureBox.Image = _imagecache.Excerpt.Bmp;
                     _zoomed = true;
                 }
@@ -1097,8 +1117,19 @@ namespace labs_coordinate_pictures
 
         void changeZoom(bool zoomIn)
         {
-            _imagecache.ChangeResizeFactor(zoomIn);
+            if ((!zoomIn && _imagecache.ResizeFactor <= 1) || (zoomIn && _imagecache.ResizeFactor > 10))
+                return;
+
+            _imagecache.InvalidateCache();
+            _imagecache.ResizeFactor = zoomIn ? (_imagecache.ResizeFactor + 1) : (_imagecache.ResizeFactor - 1);
             OnOpenItem();
+        }
+
+        void changeVscroll(bool upOrDown)
+        {
+            _imagecache.InvalidateCache();
+            _imagecache.VerticalScrollFactor = upOrDown ? (_imagecache.VerticalScrollFactor + 50) : (_imagecache.VerticalScrollFactor - 50);
+            OnOpenItem(false);
         }
 
         public void CallCompletionAction()
