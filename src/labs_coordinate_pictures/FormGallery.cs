@@ -58,6 +58,10 @@ namespace labs_coordinate_pictures
         // lock so that only one bg task occurs at a time.
         object _lock = new object();
 
+        // if asked, we'll read exif metadata to rotate jpg images
+        JpegRotationFinder _shouldRotateImages =
+            new JpegRotationFinder();
+
         // keep track of window size
         FormWindowState _lastWindowState;
         int _lastWindowWidth;
@@ -1263,6 +1267,73 @@ namespace labs_coordinate_pictures
                     }
                 }
             }
+        }
+
+        void mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _shouldRotateImages.RefreshForDirectory(Path.GetDirectoryName(_filelist.Current));
+            _imagecache.InvalidateCache();
+            OnOpenItem();
+        }
+    }
+
+    public class JpegRotationFinder
+    {
+        Dictionary<string, bool> _dict =
+            new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+
+        public bool ShouldRotate(string path)
+        {
+            return _dict.ContainsKey(path);
+        }
+
+        public void RefreshForDirectory(string dir)
+        {
+            var exiftool = Configs.Current.Directory + "/exiftool/exiftool" +
+                    (Utils.IsWindows() ? ".exe" : "");
+            if (!File.Exists(exiftool))
+            {
+                Utils.MessageErr("exiftool not found, expected to be seen at " + exiftool);
+            }
+            else if (Directory.Exists(dir))
+            {
+                var args = new string[] { "-Orientation", dir };
+                string stdout = "";
+                string stderr = "";
+                int retcode = Utils.Run(exiftool, args, getStdout: true, outStdout: out stdout, outStderr: out stderr, hideWindow: true, waitForExit: true, shellExecute: false, workingDir: ".");
+                if (!string.IsNullOrEmpty(stderr))
+                {
+                    MessageBox.Show("Exif tool showed the message: " + stderr);
+                }
+
+                if (retcode == 0)
+                {
+                    parseStdOut(stdout);
+                }
+            }
+        }
+
+        void parseStdOut(string stdout)
+        {
+            var parts = Utils.SplitByString(stdout, "========");
+            int rotatednow = 0;
+            foreach (string spart in parts)
+            {
+                var part = spart.Trim();
+                var subparts = Utils.SplitByString(part, "Orientation          ");
+                if (subparts.Length == 2)
+                {
+                    string path = subparts[0].Trim();
+                    path = path.Replace("/", Utils.Sep);
+                    if (subparts[1].Contains("Rotate 90 CW"))
+                    {
+                        _dict[path] = true;
+                        rotatednow++;
+                    }
+                }
+            }
+
+            MessageBox.Show("Done. It looks like there are " + rotatednow + " rotated jpgs in this directory.");
         }
     }
 }
