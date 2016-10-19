@@ -54,6 +54,7 @@ namespace labs_coordinate_pictures
         CategoriesModeCheckFilesizes,
         CategoriesModeMarkWavQuality,
         CategoriesModeMarkMp3Quality,
+        CategoriesModeText,
         GalleryHideCategories,
         MRUOpenImageDirectory,
         MRUOpenImageKeepExifDirectory,

@@ -236,6 +236,7 @@ namespace labs_coordinate_pictures
                 setSortmusicStagingLocationToolStripMenuItem,
                 setSorttwitterSourceLocationToolStripMenuItem,
                 setSorttwitterDestinationLocationToolStripMenuItem,
+                sortTextFilesToolStripMenuItem,
                 setAudioCropStripMenuItem,
                 setAudioEditorToolStripMenuItem,
                 setAudioPlayerToolStripMenuItem,
@@ -338,6 +339,11 @@ namespace labs_coordinate_pictures
         private void syncDirectoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ShowForm(new FormSortFiles(SortFilesAction.SyncFiles));
+        }
+
+        private void sortTextFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(new FormPersonalText());
         }
 
         private void onlineDocumentationToolStripMenuItem_Click(object sender, EventArgs e)

@@ -68,6 +68,7 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.onlineDocumentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
+            this.sortTextFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -146,7 +147,8 @@
             this.markmp3QualityToolStripMenuItem,
             this.toolStripPicturesSep2,
             this.sortTwitterToolStripMenuItem,
-            this.sortMusicToolStripMenuItem});
+            this.sortMusicToolStripMenuItem,
+            this.sortTextFilesToolStripMenuItem});
             this.picturesToolStripMenuItem.Name = "picturesToolStripMenuItem";
             this.picturesToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.picturesToolStripMenuItem.Text = "&Pictures";
@@ -354,6 +356,13 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
             // 
+            // sortTextFilesToolStripMenuItem
+            // 
+            this.sortTextFilesToolStripMenuItem.Name = "sortTextFilesToolStripMenuItem";
+            this.sortTextFilesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.sortTextFilesToolStripMenuItem.Text = "Sort Te&xt Files...";
+            this.sortTextFilesToolStripMenuItem.Click += new System.EventHandler(this.sortTextFilesToolStripMenuItem_Click);
+            // 
             // FormStart
             // 
             this.AllowDrop = true;
@@ -418,6 +427,7 @@
         private System.Windows.Forms.ToolStripMenuItem onlineDocumentationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setAltJpegcropLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setImageEditorLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sortTextFilesToolStripMenuItem;
     }
 }
 
