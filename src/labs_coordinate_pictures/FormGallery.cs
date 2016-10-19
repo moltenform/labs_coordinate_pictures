@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -1192,6 +1193,76 @@ namespace labs_coordinate_pictures
             }
 
             base.Dispose(disposing);
+        }
+
+        void mnuConvertImageFormats_Click(object sender, EventArgs e)
+        {
+            var dir = InputBoxForm.GetStrInput(
+                "Please enter the directory that contains the images:", this.GetFilelist().BaseDirectory, InputBoxHistory.OpenImageDirectory, mustBeDirectory: true);
+            if (dir != null && dir.Length > 0 && Directory.Exists(dir))
+            {
+                var suggestions = new string[] { "png", "bmp", "tif", "tiff", "gif", "jpg" };
+                var srcformat = InputBoxForm.GetStrInput("Select a source format:",
+                    null, InputBoxHistory.None, suggestions, useClipboard: false);
+                if (srcformat != null && srcformat.Length > 0 && Array.IndexOf(suggestions, srcformat) == -1)
+                {
+                    MessageBox.Show("Format not supported");
+                }
+                else if (srcformat != null && srcformat.Length > 0)
+                {
+                    var outformats = new ImageFormat[] { ImageFormat.Png,
+                        ImageFormat.Bmp, ImageFormat.Tiff, ImageFormat.Tiff };
+                    var outformatstrings = new string[] { "png", "bmp", "tif", "tiff" };
+                    var destformat = InputBoxForm.GetStrInput("Select a destination format:",
+                        null, InputBoxHistory.None, outformatstrings, useClipboard: false);
+                    var index = Array.IndexOf(outformatstrings, destformat);
+                    if (destformat != null && destformat.Length > 0 && index == -1)
+                    {
+                        MessageBox.Show("Format not supported");
+                    }
+                    else if (srcformat != null && srcformat.Length > 0)
+                    {
+                        mnuConvertImageFormatsGo(dir, srcformat, destformat, outformats[index]);
+                    }
+                }
+            }
+        }
+
+        static void mnuConvertImageFormatsGo(string dir, string srcformat, string destfmt, System.Drawing.Imaging.ImageFormat outfmt)
+        {
+            bool recurse = Utils.AskToConfirm("Recurse into subdirectories?");
+            foreach (var file in Directory.EnumerateFiles(dir, "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+            {
+                if (file.EndsWith("." + srcformat, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var destfile = Path.GetDirectoryName(file) + Utils.Sep + Path.GetFileNameWithoutExtension(file) + "." + destfmt;
+                    if (File.Exists(destfile))
+                    {
+                        MessageBox.Show("Cannot continue: " + destfile + "already exists.");
+                        return;
+                    }
+                }
+            }
+
+            foreach (var file in Directory.EnumerateFiles(dir, "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
+            {
+                if (file.EndsWith("." + srcformat, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var destfile = Path.GetDirectoryName(file) + Utils.Sep + Path.GetFileNameWithoutExtension(file) + "." + destfmt;
+
+                    try
+                    {
+                        using (Bitmap bmp = new Bitmap(file))
+                        {
+                            bmp.Save(destfile, outfmt);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("Failed to convert file " + file + " got " + e.ToString());
+                    }
+                }
+            }
         }
     }
 }
