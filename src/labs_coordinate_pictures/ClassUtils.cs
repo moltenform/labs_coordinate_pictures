@@ -127,6 +127,17 @@ namespace labs_coordinate_pictures
             return s.Substring(0, Math.Min(2, s.Length));
         }
 
+        public static bool ArePathsDistinct(string s1, string s2)
+        {
+            // https://msdn.microsoft.com/en-us/library/dd465121.aspx
+            // we'll compare with OrdinalIgnoreCase since that's what msdn recommends
+            s1 = s1 + Utils.Sep;
+            s2 = s2 + Utils.Sep;
+            var comparison = StringComparison.OrdinalIgnoreCase;
+            return !s1.StartsWith(s2, comparison) &&
+                !s2.StartsWith(s1, comparison);
+        }
+
         // "soft delete" just means moving to a designated 'trash' location.
         public static string GetSoftDeleteDestination(string path)
         {

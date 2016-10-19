@@ -106,12 +106,25 @@ namespace labs_coordinate_pictures
             TestUtil.IsTrue(!Utils.IsDigits("a456789a"));
         }
 
-        static void TestMethod_UtilsLastTwoChars()
+        static void TestMethod_UtilsFirstTwoChars()
         {
             TestUtil.IsEq("", Utils.FirstTwoChars(""));
             TestUtil.IsEq("a", Utils.FirstTwoChars("a"));
             TestUtil.IsEq("ab", Utils.FirstTwoChars("ab"));
             TestUtil.IsEq("ab", Utils.FirstTwoChars("abc"));
+        }
+
+        static void TestMethod_UtilsArePathsDistinct()
+        {
+            TestUtil.IsTrue(!Utils.ArePathsDistinct("", ""));
+            TestUtil.IsTrue(!Utils.ArePathsDistinct("a", "a"));
+            TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A", @"C:\A"));
+            TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A", @"C:\a"));
+            TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A\subdir", @"C:\A"));
+            TestUtil.IsTrue(!Utils.ArePathsDistinct(@"C:\A", @"C:\A\subdir"));
+            TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\A", @"C:\AA"));
+            TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\AA", @"C:\A"));
+            TestUtil.IsTrue(Utils.ArePathsDistinct(@"C:\abc", @"C:\ABCDE"));
         }
 
         static void TestMethod_UtilsCombineProcessArguments()
@@ -815,15 +828,24 @@ namespace labs_coordinate_pictures
             File.WriteAllText(Path.Combine(dir, "t4__MARKAS__other.png"), "1234");
             File.WriteAllText(Path.Combine(dir, "t5__MARKAS__badfiletype.wav"), "1234");
             File.WriteAllText(Path.Combine(dir, "t6__MARKAS__unknowncategory.jpg"), "1234");
-            using (var form = new FormGallery(mode, dir))
+            var prevCategories = Configs.Current.Get(ConfigKey.CategoriesModeCategorizeAndRename);
+            try
             {
-                form.CallCompletionAction();
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.png")));
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t2.png")));
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t3.jpg")));
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "other", "t4.png")));
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t5__MARKAS__badfiletype.wav")));
-                TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t6__MARKAS__unknowncategory.jpg")));
+                Configs.Current.Set(ConfigKey.CategoriesModeCategorizeAndRename, mode.GetDefaultCategories());
+                using (var form = new FormGallery(mode, dir))
+                {
+                    form.CallCompletionAction();
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.png")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t2.png")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t3.jpg")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "other", "t4.png")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t5__MARKAS__badfiletype.wav")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t6__MARKAS__unknowncategory.jpg")));
+                }
+            }
+            finally
+            {
+                Configs.Current.Set(ConfigKey.CategoriesModeCategorizeAndRename, prevCategories);
             }
         }
 

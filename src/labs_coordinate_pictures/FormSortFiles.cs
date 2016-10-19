@@ -167,12 +167,8 @@ namespace labs_coordinate_pictures
                 return null;
             }
 
-            // https://msdn.microsoft.com/en-us/library/dd465121.aspx
-            // recommends comparing filepaths with OrdinalIgnoreCase
-            var comparison = StringComparison.OrdinalIgnoreCase;
-            if (action != SortFilesAction.SearchDuplicatesInOneDir &&
-                (settings.LeftDirectory.StartsWith(settings.RightDirectory, comparison) ||
-                settings.RightDirectory.StartsWith(settings.LeftDirectory, comparison)))
+            if (action != SortFilesAction.SearchDuplicatesInOneDir && !Utils.ArePathsDistinct(
+                settings.LeftDirectory, settings.RightDirectory))
             {
                 Utils.MessageErr("directories must be distinct.", true);
                 return null;
