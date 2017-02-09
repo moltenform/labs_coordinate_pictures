@@ -53,12 +53,12 @@ namespace labs_coordinate_pictures
             setAltImageEditorToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                "(Optional) Select another application for editing images.",
                o, ConfigKey.FilepathImageEditorAlt);
-            setJpegCropDirectoryToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+            setImageEditorJpegToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Select an application for editing jpgs, such as jpegcrop.exe.",
-                o, ConfigKey.FilepathJpegCrop);
-            setAltJpegcropLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-                "(Optional) Select an application for editing jpgs, such as jpegcrop.exe.",
-                o, ConfigKey.FilepathJpegCropAlt);
+                o, ConfigKey.FilepathImageEditorJpeg);
+            setImageEditorCropLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for cropping jpgs, such as jpegcrop.exe.",
+                o, ConfigKey.FilepathImageEditorCrop);
             setM4aEncoderLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                "(Optional) Locate 'qaac.exe'; directory should also contain 'dropq128.py'.",
                o, ConfigKey.FilepathM4aEncoder);
@@ -243,7 +243,7 @@ namespace labs_coordinate_pictures
                 setCreateSyncToolStripMenuItem,
                 setCoordmusicLocationToolStripMenuItem,
                 setAltImageEditorToolStripMenuItem,
-                setAltJpegcropLocationToolStripMenuItem,
+                setImageEditorCropLocationToolStripMenuItem,
                 setM4aEncoderLocationToolStripMenuItem,
                 setWinMergeToolStripMenuItem,
             };

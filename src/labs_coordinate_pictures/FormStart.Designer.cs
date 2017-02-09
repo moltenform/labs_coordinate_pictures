@@ -60,8 +60,8 @@
             this.setCoordmusicLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setImageEditorLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setAltImageEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setJpegCropDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setAltJpegcropLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setImageEditorJpegToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setImageEditorCropLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setM4aEncoderLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setPythonLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setWinMergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -222,8 +222,8 @@
             this.setCoordmusicLocationToolStripMenuItem,
             this.setImageEditorLocationToolStripMenuItem,
             this.setAltImageEditorToolStripMenuItem,
-            this.setJpegCropDirectoryToolStripMenuItem,
-            this.setAltJpegcropLocationToolStripMenuItem,
+            this.setImageEditorJpegToolStripMenuItem,
+            this.setImageEditorCropLocationToolStripMenuItem,
             this.setM4aEncoderLocationToolStripMenuItem,
             this.setPythonLocationToolStripMenuItem,
             this.setWinMergeToolStripMenuItem});
@@ -300,19 +300,19 @@
             // 
             this.setAltImageEditorToolStripMenuItem.Name = "setAltImageEditorToolStripMenuItem";
             this.setAltImageEditorToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setAltImageEditorToolStripMenuItem.Text = "Set image editor alt location...";
+            this.setAltImageEditorToolStripMenuItem.Text = "Set alt image editor location...";
             // 
             // setJpegCropDirectoryToolStripMenuItem
             // 
-            this.setJpegCropDirectoryToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
-            this.setJpegCropDirectoryToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setJpegCropDirectoryToolStripMenuItem.Text = "Set jpegcrop location...";
+            this.setImageEditorJpegToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
+            this.setImageEditorJpegToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setImageEditorJpegToolStripMenuItem.Text = "Set image editor jpeg location...";
             // 
             // setAltJpegcropLocationToolStripMenuItem
             // 
-            this.setAltJpegcropLocationToolStripMenuItem.Name = "setAltJpegcropLocationToolStripMenuItem";
-            this.setAltJpegcropLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
-            this.setAltJpegcropLocationToolStripMenuItem.Text = "Set jpegcrop alt location...";
+            this.setImageEditorCropLocationToolStripMenuItem.Name = "setAltJpegcropLocationToolStripMenuItem";
+            this.setImageEditorCropLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.setImageEditorCropLocationToolStripMenuItem.Text = "Set image editor crop location...";
             // 
             // setM4aEncoderLocationToolStripMenuItem
             // 
@@ -399,7 +399,7 @@
         private System.Windows.Forms.ToolStripMenuItem categorizeAndRenamePicturesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem resizePhotosKeepingExifsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setWinMergeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setJpegCropDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setImageEditorJpegToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setAltImageEditorToolStripMenuItem;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripSeparator toolStripPicturesSep1;
@@ -425,7 +425,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem onlineDocumentationToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setAltJpegcropLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setImageEditorCropLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setImageEditorLocationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sortTextFilesToolStripMenuItem;
     }

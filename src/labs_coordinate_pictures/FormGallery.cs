@@ -483,8 +483,6 @@ namespace labs_coordinate_pictures
                     editInAltEditorToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.X)
                     cropRotateFileToolStripMenuItem_Click(null, null);
-                else if (e.KeyCode == Keys.R)
-                    cropRotateFileAlt();
                 else if (e.KeyCode == Keys.H)
                     replaceInFilenameToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D3)
@@ -652,12 +650,13 @@ namespace labs_coordinate_pictures
             Clipboard.SetText(_filelist.Current ?? "");
         }
 
-        static void LaunchEditor(string exe, string path)
+        static void StartExe(string path, ConfigKey key, string exeOverride = null)
         {
+            var exe = exeOverride ?? Configs.Current.Get(key);
             if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
             {
                 Utils.MessageErr("Could not find the application '" + exe +
-                    "'. The location can be set in the Options menu.");
+                    "'. The location can be set in the Options menu (" + key.ToString() + ").");
             }
             else
             {
@@ -668,45 +667,49 @@ namespace labs_coordinate_pictures
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.LooksLikeAudio(_filelist.Current))
+            if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathAudioEditor), _filelist.Current);
+                StartExe(_filelist.Current, ConfigKey.FilepathImageEditorJpeg);
             }
             else if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
             {
+                StartExe(_filelist.Current, ConfigKey.None,
+                    @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe");
+            }
+            else if (FilenameUtils.IsExt(_filelist.Current, ".gif"))
+            {
                 Process.Start(_filelist.Current);
+            }
+            else if (!FilenameUtils.LooksLikeAudio(_filelist.Current))
+            {
+                StartExe(_filelist.Current, ConfigKey.FilepathImageEditorAlt);
             }
             else
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathImageEditorAlt), _filelist.Current);
+                MessageBox.Show("Audio files currently have no alt editor.");
             }
         }
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.LooksLikeAudio(_filelist.Current))
+            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathAudioEditor), _filelist.Current);
+                Process.Start(_filelist.Current);
             }
-            else if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            else if (FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
-                LaunchEditor(
-                    @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-                    _filelist.Current);
+                StartExe(_filelist.Current, ConfigKey.FilepathAudioEditor);
             }
             else
             {
-                var editor = Configs.Current.Get(ConfigKey.FilepathImageEditor);
-                if (string.IsNullOrEmpty(editor))
+                if (string.IsNullOrEmpty(Configs.Current.Get(ConfigKey.FilepathImageEditor)))
                 {
-                    LaunchEditor(@"C:\Windows\System32\mspaint.exe", _filelist.Current);
+                    StartExe(_filelist.Current, ConfigKey.None,
+                        @"C:\Windows\System32\mspaint.exe");
                 }
                 else
                 {
-                    LaunchEditor(editor, _filelist.Current);
+                    StartExe(_filelist.Current, ConfigKey.FilepathImageEditor);
                 }
             }
         }
@@ -715,24 +718,16 @@ namespace labs_coordinate_pictures
         {
             if (FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathAudioCrop), _filelist.Current);
+                StartExe(_filelist.Current, ConfigKey.FilepathAudioCrop);
             }
             else if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
             {
-                LaunchEditor(
-                    Configs.Current.Get(ConfigKey.FilepathJpegCrop), _filelist.Current);
+                StartExe(_filelist.Current, ConfigKey.FilepathImageEditorCrop);
             }
             else
             {
-                editFileToolStripMenuItem_Click(null, null);
+                MessageBox.Show("No application set for cropping this file type.");
             }
-        }
-
-        private void cropRotateFileAlt()
-        {
-            LaunchEditor(
-                Configs.Current.Get(ConfigKey.FilepathJpegCropAlt), _filelist.Current);
         }
 
         // add a prefix to files, useful when renaming and you want to maintain the order

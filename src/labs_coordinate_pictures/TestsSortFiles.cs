@@ -150,7 +150,11 @@ namespace labs_coordinate_pictures
             try
             {
                 string dir = TestUtil.GetTestWriteDirectory();
-                Directory.Delete(dir, true);
+
+                if (Directory.Exists(dir))
+                {
+                    Directory.Delete(dir, true);
+                }
             }
             catch (Exception)
             {
