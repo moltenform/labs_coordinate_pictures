@@ -376,15 +376,24 @@ namespace labs_coordinate_pictures
 
         public override string[] GetFileTypes()
         {
-            return new string[] { ".wav" };
+            return new string[] { ".wav", ".flac" };
         }
 
         // use dropq*.py scripts to convert wav to m4a.
         public override void OnCompletionAction(string baseDirectory,
             string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
-            if (path.ToLowerInvariant().EndsWith(".wav", StringComparison.Ordinal))
+            if (path.ToLowerInvariant().EndsWith(".wav", StringComparison.Ordinal) ||
+                path.ToLowerInvariant().EndsWith(".flac", StringComparison.Ordinal))
             {
+                if (path.ToLowerInvariant().EndsWith(".flac", StringComparison.Ordinal) &&
+                    category.Item3 == "flac")
+                {
+                    // no conversion needed
+                    File.Move(path, pathWithoutCategory);
+                    return;
+                }
+
                 // 1) convert song__MARKAS__144.wav to song__MARKAS__144.m4a
                 var pathM4a = Utils.RunM4aConversion(path, category.Item3);
                 if (!string.IsNullOrEmpty(pathM4a))

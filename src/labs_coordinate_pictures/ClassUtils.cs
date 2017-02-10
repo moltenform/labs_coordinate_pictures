@@ -398,7 +398,8 @@ namespace labs_coordinate_pictures
             {
                 throw new CoordinatePicturesException("Unsupported bitrate.");
             }
-            else if (!path.EndsWith(".wav", StringComparison.Ordinal))
+            else if (!path.EndsWith(".wav", StringComparison.Ordinal) &&
+                !path.EndsWith(".flac", StringComparison.Ordinal))
             {
                 throw new CoordinatePicturesException("Unsupported input format.");
             }

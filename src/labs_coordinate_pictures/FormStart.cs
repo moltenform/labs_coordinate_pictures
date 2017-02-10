@@ -100,13 +100,15 @@ namespace labs_coordinate_pictures
             {
                 return new ModeCheckFilesizes();
             }
-            else if (paths.First().EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-            {
-                return new ModeMarkWavQuality();
-            }
             else if (paths.Any(path => FilenameUtils.LooksLikeImage(path)))
             {
                 return new ModeCheckFilesizes();
+            }
+            else if (paths.All(path =>
+                path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||
+                path.EndsWith(".flac", StringComparison.OrdinalIgnoreCase)))
+            {
+                return new ModeMarkWavQuality();
             }
             else
             {
