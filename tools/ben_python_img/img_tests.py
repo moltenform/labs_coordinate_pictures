@@ -2,6 +2,8 @@ from ben_python_common import *
 import img_utils
 import img_convert_resize
 import img_resize_keep_exif
+import PIL
+from PIL import Image
 
 def img_utils_testGetMarkFromFilename():
     # tests splitting a filename that contains the "__MARKAS__" marker.
@@ -118,19 +120,17 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
     assertEq('a50p.jpg', img_utils.readOriginalFilename(files.join(tmpDir, 'a50p.jpg')))
     assertEq('a32h.jpg', img_utils.readOriginalFilename(files.join(tmpDir, 'a32h.jpg')))
     assertEq('a200h.jpg', img_utils.readOriginalFilename(files.join(tmpDir, 'a200h.jpg')))
-        
-    # check sizes, if the mozjpeg version changes, these might need to be updated
-    expectedSizes = '''a100p.jpg|10261
-a200h.jpg|10261
-a200h__MARKAS__200h.jpg|10239
-a32h.jpg|1485
-a32h__MARKAS__32h.jpg|10239
-a50p.jpg|2864
-a50p__MARKAS__50%.jpg|10239'''.replace('\r\n', '\n')
+    
+    expectedSizes = '''a100p.jpg|8524
+a200h.jpg|8524
+a200h__MARKAS__200h.jpg|8502
+a32h.jpg|1331
+a32h__MARKAS__32h.jpg|8502
+a50p.jpg|2539
+a50p__MARKAS__50%.jpg|8502'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
-    assertEq(expectedSizes, resultSizes)
-    
+    assertEq(expectedSizes, resultSizes, 'current pillow version=%s' % PIL.PILLOW_VERSION)
     trace('img_resize_keep_exif_testActualFiles passed.')
 
 def img_resize_keep_exif_testCleanup(tmpDir):
@@ -180,19 +180,26 @@ def img_resize_keep_exif_testExifErrorsShouldRaise(tmpDir):
     assertException(lambda: img_utils.removeResolutionTags(
         files.join(tmpDir, 'invalidjpg.jpg')), img_utils.PythonImgExifError)
 
+class RNG(object):
+    # so that same sequence is generated regardless of Python version
+    def __init__(self, seed=0):
+        self.previous = seed
+
+    def next(self):
+        # use contants from glibc's rand()
+        modulus = 2**31 - 1
+        a, c = 1103515245, 12345
+        ret = (self.previous * a + c) % modulus
+        self.previous = ret
+        return ret
+
 def createTestImage(width, height, seed):
-    from PIL import Image
-    import random
-    prevRandState = random.getstate()
-    try:
-        random.seed(seed)
-        im = Image.new("RGB", (width, height))
-        for y in xrange(height):
-            for x in xrange(width):
-                v = random.choice([0, 255])
-                im.putpixel((x, y), (v, v, v))
-    finally:
-        random.setstate(prevRandState)
+    rng = RNG(seed)
+    im = Image.new("RGB", (width, height))
+    for y in xrange(height):
+        for x in xrange(width):
+            v = rng.next() % 256
+            im.putpixel((x, y), (v, v, v))
     return im
     
 def testCombinatoricImageConversion(tmpDir, testImage):
@@ -217,23 +224,23 @@ def testCombinatoricImageConversion(tmpDir, testImage):
                 img_convert_resize.convertOrResizeImage(startfile, outfile, jpgQuality=jpgQuality)
                 assertTrue(files.exists(outfile))
                 
-    # if the PIL/webp/mozjpeg version changes, these might need to be updated
     expectedSizes = '''start.bmp|43254
-start.bmp.jpg|16960
-start.bmp.png|4526
-start.bmp.webp|1870
-start.jpg|16960
+start.bmp.jpg|15536
+start.bmp.png|39430
+start.bmp.webp|14468
+start.jpg|15536
 start.jpg.bmp|43254
-start.jpg.png|4750
-start.jpg.webp|2700
-start.png|4526
+start.jpg.png|39500
+start.jpg.webp|14468
+start.png|39430
 start.png.bmp|43254
-start.png.jpg|16960
-start.png.webp|1870
-start.webp|1870
+start.png.jpg|15536
+start.png.webp|14468
+start.webp|14468
 start.webp.bmp|43254
-start.webp.jpg|16960
-start.webp.png|5786'''.replace('\r\n', '\n')
+start.webp.jpg|15536
+start.webp.png|22366'''.replace('\r\n', '\n')
+    
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir)) if short.startswith('start')])
     assertEq(expectedSizes, resultSizes)
@@ -262,18 +269,17 @@ def testJpgQualities(tmpDir, testImage):
     # simply write several jpgs at different qualities, and make sure the file sizes are as expected.
     tmpDir = files.join(tmpDir, 'testJpgQuality')
     files.makedirs(tmpDir)
-    testImage.save(files.join(tmpDir, 'start.png'))
+    testImage.save(files.join(tmpDir, 'start.bmp'))
     qualities = [100, 90, 60, 10]
     for qual in qualities:
-        img_convert_resize.convertOrResizeImage(files.join(tmpDir, 'start.png'),
+        img_convert_resize.convertOrResizeImage(files.join(tmpDir, 'start.bmp'),
             files.join(tmpDir, 'q%d.jpg'%qual), jpgQuality=qual)
     
-    # if the PIL/webp/mozjpeg version changes, these might need to be updated
-    expectedSizes = '''q10.jpg|1104
-q100.jpg|16960
-q60.jpg|6099
-q90.jpg|10785
-start.png|4526'''.replace('\r\n', '\n')
+    expectedSizes = '''q10.jpg|993
+q100.jpg|15536
+q60.jpg|5120
+q90.jpg|9366
+start.bmp|43254'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
     assertEq(expectedSizes, resultSizes)
@@ -284,7 +290,9 @@ def img_convert_resize_tests(tmpDir):
     testCombinatoricImageConversion(tmpDir, testImage)
     testJpgQualities(tmpDir, testImage)
 
+
 if __name__ == '__main__':
+    # passes on pillow 3.2, 3.3, 4.0
     tmpDir = files.join(img_utils.getTempLocation(), 'testimgconvert')
     if files.isdir(tmpDir):
         files.rmtree(tmpDir)

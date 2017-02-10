@@ -49,22 +49,30 @@ def verifyExifToolIsPresent():
         warn('could not find exiftool, expected to find it at ' + path)
 
 def readExifField(filename, exifField):
-    args = "{0}|-S|-{1}|{2}".format(exiftool(), exifField, filename)
-    args = args.split('|')
+    # returns string, not byte sequence
+    assert isinstance(exifField, str)
+    args = [exiftool(),
+        '-S',
+        '-%s' % exifField,
+        filename]
+    
     ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
-    sres = stdout.strip()
+    sres = bytes_to_string(stdout.strip())
     if sres:
-        if not startswith(sres, exifField + ': '):
-            raise PythonImgExifError('expected ' + exifField + ': but got ' + sres)
+        if not sres.startswith(exifField + ': '):
+            raise PythonImgExifError('expected (' + exifField + '): but got (' + sres + ')')
         return sres[len(exifField + ': '):]
     else:
-        return asbytes('')
+        return ''
 
 def setExifField(filename, exifField, value):
     # -m flag lets exiftool() ignores minor errors
-    args = "{0}|-{1}={2}|-overwrite_original|-m|{3}".format(
-        exiftool(), exifField, value, filename)
-    args = args.split('|')
+    assert isinstance(exifField, str)
+    args = [exiftool(),
+        '-%s=%s' % (exifField, value),
+        '-overwrite_original',
+        '-m',
+        filename]
     files.run(args, shell=False, throwOnFailure=PythonImgExifError)
 
 def readThumbnails(dirname, removeThumbnails, outputDir=None):

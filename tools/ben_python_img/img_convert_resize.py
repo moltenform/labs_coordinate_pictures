@@ -246,6 +246,7 @@ def resizeImage(im, resizeSpec, loggingContext):
         ret = im.resize((newWidth, newHeight), Image.ANTIALIAS)
         return ret
 
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
