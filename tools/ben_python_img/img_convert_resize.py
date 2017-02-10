@@ -73,8 +73,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             
         # save image
         if files.getext(outfile) == 'jpg':
-            from cStringIO import StringIO
-            memoryStreamOut = StringIO()
+            memoryStreamOut = cBytesIO()
             im.save(memoryStreamOut, format='bmp')
             saveToMozJpeg(True, memoryStreamOut.getvalue(),
                 outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
@@ -146,8 +145,7 @@ def loadImageFromWebp(infile):
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
 
     # read the png directly from memory
-    from cStringIO import StringIO
-    memoryStream = StringIO(stdout)
+    memoryStream = cBytesIO(stdout)
     return Image.open(memoryStream), memoryStream
 
 def saveWebpToPng(infile, outfile):

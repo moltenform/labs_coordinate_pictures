@@ -54,11 +54,11 @@ def readExifField(filename, exifField):
     ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
     sres = stdout.strip()
     if sres:
-        if not sres.startswith(exifField + ': '):
+        if not startswith(sres, exifField + ': '):
             raise PythonImgExifError('expected ' + exifField + ': but got ' + sres)
         return sres[len(exifField + ': '):]
     else:
-        return ''
+        return asbytes('')
 
 def setExifField(filename, exifField, value):
     # -m flag lets exiftool() ignores minor errors
