@@ -104,6 +104,86 @@ namespace labs_coordinate_pictures
             return result == DialogResult.Yes;
         }
 
+        /// <param name="extensionFilter">e.g. ["*.jpg;*.png;*.gif", "*.*"]</param>
+        /// <param name="extensionFilterNames">e.g. ["Images", "All Files"]</param>
+        static string BuildFileDialogFilter(string[] extensionFilter, string[] extensionFilterNames)
+        {
+            if (extensionFilter == null || extensionFilter.Length == 0)
+            {
+                return "";
+            }
+
+            var items = new List<string>();
+            for (int i = 0; i < extensionFilter.Length; i++)
+            {
+                items.Add(extensionFilterNames != null ? extensionFilterNames[i] : extensionFilter[i]);
+                items.Add(extensionFilter[i]);
+            }
+
+            return string.Join("|", items);
+        }
+
+        public static string AskOpenFileDialog(string title, string[] extensionFilter = null,
+            string[] extensionFilterNames = null, string initialDir = null)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Title = title;
+                dlg.InitialDirectory = initialDir;
+                dlg.Filter = BuildFileDialogFilter(extensionFilter, extensionFilterNames);
+                var result = dlg.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    return dlg.FileName;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public static string[] AskOpenFilesDialog(string title, string[] extensionFilter = null,
+            string[] extensionFilterNames = null, string initialDir = null)
+        {
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Multiselect = true;
+                dlg.Title = title;
+                dlg.InitialDirectory = initialDir;
+                dlg.Filter = BuildFileDialogFilter(extensionFilter, extensionFilterNames);
+                var result = dlg.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    return dlg.FileNames;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public static string AskSaveFileDialog(string title, string[] extensionFilter = null,
+            string[] extensionFilterNames = null, string initialDir = null)
+        {
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Title = title;
+                dlg.InitialDirectory = initialDir;
+                dlg.Filter = BuildFileDialogFilter(extensionFilter, extensionFilterNames);
+                var result = dlg.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    return dlg.FileName;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
         public static bool IsDigits(string s)
         {
             if (s == null || s.Length == 0)
