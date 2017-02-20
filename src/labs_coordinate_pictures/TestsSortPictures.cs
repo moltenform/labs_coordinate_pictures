@@ -254,31 +254,11 @@ namespace labs_coordinate_pictures
 
         static void TestMethod_SoftDeleteDefaultDir()
         {
-            string saved = Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir);
-            try
-            {
-                // give it a valid path
-                Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir,
-                    TestUtil.GetTestWriteDirectory());
-                var fakeDest = Utils.GetSoftDeleteDestination(
-                    PathSep("C:/dirtest/test.doc"));
-                TestUtil.IsTrue(fakeDest.StartsWith(TestUtil.GetTestWriteDirectory() +
-                    Utils.Sep + "di_test.doc", StringComparison.Ordinal));
-
-                // give it an empty path, should fall back to currentdir/(deleted)
-                Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir, "");
-                TestUtil.IsEq("", Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir));
-                fakeDest = Utils.GetSoftDeleteDestination(
-                    PathSep("C:/dirtest/test.doc"));
-                TestUtil.IsTrue(Path.GetFileName(fakeDest).StartsWith(
-                    "di_test.doc", StringComparison.Ordinal));
-                TestUtil.IsTrue(Path.GetDirectoryName(fakeDest).EndsWith(
-                    "(deleted)", StringComparison.Ordinal));
-            }
-            finally
-            {
-                Configs.Current.Set(ConfigKey.FilepathDeletedFilesDir, saved);
-            }
+            var fakeFile = PathSep("C:/dirtest/test.doc");
+            var deleteDir = Utils.GetSoftDeleteDirectory(fakeFile);
+            var deleteDest = Utils.GetSoftDeleteDestination(fakeFile);
+            TestUtil.IsTrue(deleteDest.StartsWith(deleteDir +
+                Utils.Sep + "di_test.doc", StringComparison.Ordinal));
         }
 
         static void TestMethod_IsExtensionInList()

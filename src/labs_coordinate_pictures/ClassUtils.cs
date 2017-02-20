@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,7 +15,7 @@ using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
 {
-    public static class Utils
+    public static partial class Utils
     {
         public static readonly string Sep = Path.DirectorySeparatorChar.ToString();
         public static readonly string NL = Environment.NewLine;
@@ -218,25 +219,40 @@ namespace labs_coordinate_pictures
                 !s2.StartsWith(s1, comparison);
         }
 
-        // "soft delete" just means moving to a designated 'trash' location.
-        public static string GetSoftDeleteDestination(string path)
+        public static string GetSoftDeleteDirectory(string path)
         {
-            var trashDir = Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir);
-            if (string.IsNullOrEmpty(trashDir))
+            var overrideFn = typeof(Utils).GetMethod("OverrideGetSoftDeleteDir",
+                BindingFlags.Static | BindingFlags.Public);
+
+            if (overrideFn != null)
+            {
+                return overrideFn.Invoke(null, new object[] { path }) as string;
+            }
+
+            var deleteDir = Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir);
+            if (string.IsNullOrEmpty(deleteDir))
             {
                 // for ease-of-use, pick a default trash directory
-                trashDir = Path.Combine(Configs.Current.Directory, "(deleted)");
+                deleteDir = Path.Combine(Configs.Current.Directory, "(deleted)");
                 try
                 {
-                    Directory.CreateDirectory(trashDir);
+                    if (!Directory.Exists(deleteDir))
+                        Directory.CreateDirectory(deleteDir);
                 }
                 catch (IOException)
                 {
-                    trashDir = "";
+                    deleteDir = "";
                 }
             }
 
-            if (!Directory.Exists(trashDir))
+            return deleteDir;
+        }
+
+        // "soft delete" just means moving to a designated 'trash' location.
+        public static string GetSoftDeleteDestination(string path)
+        {
+            var deleteDir = GetSoftDeleteDirectory(path);
+            if (!Directory.Exists(deleteDir))
             {
                 MessageBox("Trash directory not found. Go to the main screen and to the " +
                     "option menu and click Options->Set trash directory...");
@@ -245,7 +261,7 @@ namespace labs_coordinate_pictures
 
             // as a prefix, the first 2 chars of the parent directory
             var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(path))) + "_";
-            return Path.Combine(trashDir, prefix + Path.GetFileName(path) + GetRandomDigits());
+            return Path.Combine(deleteDir, prefix + Path.GetFileName(path) + GetRandomDigits());
         }
 
         public static string GetRandomDigits()
