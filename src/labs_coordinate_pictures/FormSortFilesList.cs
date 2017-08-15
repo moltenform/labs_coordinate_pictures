@@ -278,12 +278,54 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // both left and right should not overlap with files already deleted
+        // for the SearchDuplicatesInOneDir case, we can then show a warning
+        // if the user is trying to delete both the left and right file
+        bool checkOverlappingDeletes(bool left, bool needConfirm = true)
+        {
+            var filesWillBeDeleted = new HashSet<string>();
+            foreach (var item in SelectedItems())
+            {
+                var path = left ? item.GetLeft(_settings.LeftDirectory) :
+                    item.GetRight(_settings.RightDirectory);
+                var original = left ? item.GetRight(_settings.LeftDirectory) :
+                    item.GetLeft(_settings.RightDirectory);
+
+                if (path != null)
+                {
+                    if (filesWillBeDeleted.Contains(original) ||
+                        filesWillBeDeleted.Contains(path))
+                    {
+                        if (needConfirm)
+                        {
+                            MessageBox.Show("Warning, don't want to delete both " +
+                                path + " and " + original +
+                                "because it might delete all copies of file." +
+                                "Try Delete Right instead of Delete Left?");
+                        }
+
+                        return false;
+                    }
+
+                    filesWillBeDeleted.Add(path);
+                }
+            }
+
+            return true;
+        }
+
         internal void OnClickDeleteFile(bool left, bool needConfirm)
         {
             if (CheckSelectedItemsSameType() || _synchronous)
             {
                 if (needConfirm &&
                     !Utils.AskToConfirm("Delete " + SelectedItems().Count() + " files?"))
+                {
+                    return;
+                }
+
+                if (_action == SortFilesAction.SearchDuplicatesInOneDir &&
+                    !checkOverlappingDeletes(left, needConfirm))
                 {
                     return;
                 }
