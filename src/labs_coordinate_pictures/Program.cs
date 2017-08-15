@@ -61,7 +61,7 @@ namespace labs_coordinate_pictures
 
             // initialize logging and configs
             SimpleLog.Init(Path.Combine(configDirectory, "log.txt"));
-            SimpleLog.Current.WriteLog("Initializing.");
+            SimpleLog.Current.WriteLog("Initializing, current time = " + DateTime.Now.ToString());
             Configs.Init(Path.Combine(configDirectory, "options.ini"));
             Configs.Current.LoadPersisted();
             Configs.Current.Set(ConfigKey.Version, "0.1");

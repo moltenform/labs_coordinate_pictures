@@ -252,7 +252,7 @@ namespace labs_coordinate_pictures
         public static string GetSoftDeleteDestination(string path)
         {
             var deleteDir = GetSoftDeleteDirectory(path);
-            if (!Directory.Exists(deleteDir))
+            if (string.IsNullOrEmpty(deleteDir) || !Directory.Exists(deleteDir))
             {
                 MessageBox("Trash directory not found. Go to the main screen and to the " +
                     "option menu and click Options->Set trash directory...");

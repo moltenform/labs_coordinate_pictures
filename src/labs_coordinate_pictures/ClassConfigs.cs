@@ -21,6 +21,7 @@ namespace labs_coordinate_pictures
         EnableVerboseLogging,
         FilepathDeletedFilesDir,
         FilepathSortMusicToLibraryStagingDir,
+        FilepathSortMusicKeepAsMaterialDir,
         FilepathSortTwitterImagesDestinationDir,
         FilepathSortTwitterImagesSourceDir,
 
