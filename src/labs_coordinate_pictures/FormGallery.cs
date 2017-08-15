@@ -943,7 +943,7 @@ namespace labs_coordinate_pictures
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
-        private void RunBatchOptimize(IEnumerable<string> files, bool isJpeg, bool stripAllExif,
+        private void RunBatchOptimize(IEnumerable<string> files,
             string suffix, int minSavings = 0, int pauseEvery = 150)
         {
             int countOptimized = 0, countNotOptimized = 0;
@@ -963,19 +963,7 @@ namespace labs_coordinate_pictures
                     try
                     {
                         // run conversion, then delete the larger of the resulting pair of images.
-                        if (isJpeg)
-                        {
-                            Utils.JpgLosslessOptimize(path, pathOut, stripAllExif);
-
-                            if (!stripAllExif)
-                            {
-                                Utils.JpgStripThumbnails(pathOut);
-                            }
-                        }
-                        else
-                        {
-                            Utils.RunImageConversion(path, pathOut, "100%", 100);
-                        }
+                        Utils.RunImageConversion(path, pathOut, "100%", 100);
 
                         const int minOutputSize = 16;
                         var oldLength = new FileInfo(path).Length;
@@ -987,12 +975,6 @@ namespace labs_coordinate_pictures
                             Utils.SoftDelete(path);
                             SimpleLog.Current.WriteLog(
                                     "optimizing " + path + " to " + pathOut + ": keeping new");
-
-                            if (isJpeg)
-                            {
-                                // move from _optimmed.jpg to .jpg
-                                File.Move(pathOut, path);
-                            }
                         }
                         else
                         {
@@ -1030,27 +1012,6 @@ namespace labs_coordinate_pictures
             }));
         }
 
-        private void saveSpaceOptimizeJpgToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            const int minSavings = 30 * 1024;
-            int minSize = 0;
-            var strMinSize = InputBoxForm.GetStrInput(
-                "Only optimize jpg files with size greater than this many kb:",
-                "100", useClipboard: false);
-            if (int.TryParse(strMinSize, out minSize))
-            {
-                var stripAllExif = false;
-                var list = _filelist.GetList().Where(
-                    (item) => item.ToLowerInvariant().EndsWith(".jpg", StringComparison.Ordinal) &&
-                    new FileInfo(item).Length > 1024 * minSize);
-
-                RunLongActionInThread(() =>
-                {
-                    RunBatchOptimize(list, true, stripAllExif, "_optimmed.jpg", minSavings);
-                });
-            }
-        }
-
         private void saveSpacePngToWebpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // webp converter can be slow for large images, so ask the user first.
@@ -1069,7 +1030,7 @@ namespace labs_coordinate_pictures
 
             RunLongActionInThread(() =>
             {
-                RunBatchOptimize(list, false, false, ".webp");
+                RunBatchOptimize(list, ".webp");
             });
         }
 
@@ -1394,11 +1355,12 @@ namespace labs_coordinate_pictures
             }
 
             whichcat = "^%^" + whichcat + "^%^";
-            if (shortname.IndexOf("])") != -1)
+            var indexprefix = shortname.IndexOf("])", StringComparison.InvariantCulture);
+            if (indexprefix != -1)
             {
                 // numbered prefix
                 newname = Path.GetDirectoryName(currentfile) + Utils.Sep +
-                    shortname.Insert(shortname.IndexOf("])") + "])".Length, whichcat);
+                    shortname.Insert(indexprefix + "])".Length, whichcat);
             }
             else
             {

@@ -529,36 +529,6 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static void JpgStripThumbnails(string path)
-        {
-            // delete IFD1 tags, removes the Thumbnailimage + all associated tags.
-            var exiftool = Configs.Current.Directory + "/exiftool/exiftool" +
-                (Utils.IsWindows() ? ".exe" : "");
-            if (!File.Exists(exiftool))
-            {
-                MessageErr("exiftool not found, expected to be seen at " + exiftool);
-                throw new CoordinatePicturesException("");
-            }
-
-            var args = new string[] { "-ifd1:all=", "-PreviewImage=", "-overwrite_original", path };
-            Run(exiftool, args, hideWindow: true, waitForExit: true, shellExecute: false);
-        }
-
-        public static void JpgLosslessOptimize(string path, string pathOut, bool stripAllExif)
-        {
-            var jpegtran = Configs.Current.Directory + "/mozjpeg/jpegtran" +
-                (Utils.IsWindows() ? ".exe" : "");
-            if (!File.Exists(jpegtran))
-            {
-                MessageErr("mozjpeg not found, expected to be seen at " + jpegtran);
-                throw new CoordinatePicturesException("");
-            }
-
-            var args = new string[] { "-outfile", pathOut, "-optimise",
-                "-progressive", "-copy", stripAllExif ? "none" : "all", path };
-            Run(jpegtran, args, hideWindow: true, waitForExit: true, shellExecute: false);
-        }
-
         public static void PlayMedia(string path)
         {
             if (path == null)

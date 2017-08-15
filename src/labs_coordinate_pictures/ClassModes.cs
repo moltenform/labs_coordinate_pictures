@@ -466,7 +466,7 @@ Continue?";
             return new string[] { ".wav", ".mp3", ".mp4", ".m4a", ".ogg", ".wma", ".flac" };
         }
 
-        private Tuple<int, string> videoIdFromFilename(string s)
+        static Tuple<int, string> videoIdFromFilename(string s)
         {
             s = Path.GetFileName(s);
             var regex = new Regex(@"\[([^ 	]{11})\]");
@@ -478,7 +478,7 @@ Continue?";
             return null;
         }
 
-        private void sendToRawMaterial(string path, bool copy = false)
+        static void sendToRawMaterial(string path, bool copy = false)
         {
             // "delete" it by sending it to raw material
             var material = Configs.Current.Get(ConfigKey.FilepathSortMusicKeepAsMaterialDir);
@@ -515,9 +515,12 @@ Continue?";
         public override void OnCompletionAction(string baseDirectory,
             string path, string pathWithoutCategory, Tuple<string, string, string> category)
         {
-            if (!pathWithoutCategory.EndsWith(".m4a") && !pathWithoutCategory.EndsWith(".mp4")
-                 && !pathWithoutCategory.EndsWith(".mp3") && !pathWithoutCategory.EndsWith(".ogg")
-                 && !pathWithoutCategory.EndsWith(".wma") && !pathWithoutCategory.EndsWith(".aac"))
+            if (!pathWithoutCategory.EndsWith(".m4a", StringComparison.InvariantCulture) &&
+                !pathWithoutCategory.EndsWith(".mp4", StringComparison.InvariantCulture) &&
+                !pathWithoutCategory.EndsWith(".mp3", StringComparison.InvariantCulture) &&
+                !pathWithoutCategory.EndsWith(".ogg", StringComparison.InvariantCulture) &&
+                !pathWithoutCategory.EndsWith(".wma", StringComparison.InvariantCulture) &&
+                !pathWithoutCategory.EndsWith(".aac", StringComparison.InvariantCulture))
             {
                 return;
             }
