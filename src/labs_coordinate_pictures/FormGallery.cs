@@ -17,10 +17,10 @@ namespace labs_coordinate_pictures
     public partial class FormGallery : Form
     {
         // how many images to store in cache
-        const int ImageCacheSize = 16;
+        const int ImageCacheSize = 24;
 
         // how many images to prefetch after the user moves to the next image
-        const int ImageCacheBatch = 8;
+        const int ImageCacheBatch = 16;
 
         // see SortingImages.md for a description of modes and categories.
         // the 'mode' specifies filetypes, and can add custom commands
@@ -47,13 +47,14 @@ namespace labs_coordinate_pictures
             new UndoStack<Tuple<string, string>>();
 
         // placeholder image
-        Bitmap _bitmapBlank = new Bitmap(1, 1);
+        Bitmap _bitmapBlank = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
 
         // smart directory-list object that updates itself if filenames are changed
         FileListNavigation _filelist;
 
         // cache of images; we'll prefetch images into the cache on a bg thread
         ImageCache _imagecache;
+        Image _currentimage;
 
         // lock so that only one bg task occurs at a time.
         object _lock = new object();
@@ -105,6 +106,12 @@ namespace labs_coordinate_pictures
             OnOpenItem();
         }
 
+        private void pictureBox_Paint(object sender, PaintEventArgs e)
+        {
+            var image = _currentimage ?? _bitmapBlank;
+            e.Graphics.DrawImage(image, pictureBox.Left, pictureBox.Top, pictureBox.Width, pictureBox.Height);
+        }
+
         public FileListNavigation GetFilelist()
         {
             return _filelist;
@@ -115,10 +122,15 @@ namespace labs_coordinate_pictures
             return _imagecache;
         }
 
+        void setCurrentImage(Image im)
+        {
+            this._currentimage = im;
+            this.pictureBox.Invalidate();
+        }
+
         void OnOpenItem(bool resetvscroll = true)
         {
             // if the user resized the window, create a new cache for the new size
-            pictureBox.Image = _bitmapBlank;
             if (_imagecache == null || _imagecache.MaxWidth != pictureBox.Width ||
                 _imagecache.MaxHeight != pictureBox.Height)
             {
@@ -128,7 +140,7 @@ namespace labs_coordinate_pictures
             if (_filelist.Current == null)
             {
                 label.Text = "looks done.";
-                pictureBox.Image = _bitmapBlank;
+                setCurrentImage(_bitmapBlank);
             }
             else
             {
@@ -143,8 +155,8 @@ namespace labs_coordinate_pictures
 
                 // show the current image
                 int originalWidth = 0, originalHeight = 0;
-                pictureBox.Image = _imagecache.Get(
-                    _filelist.Current, out originalWidth, out originalHeight);
+                setCurrentImage(_imagecache.Get(
+                    _filelist.Current, out originalWidth, out originalHeight));
                 _currentImageResized = originalWidth > _imagecache.MaxWidth ||
                     originalHeight > _imagecache.MaxHeight;
 
@@ -163,13 +175,13 @@ namespace labs_coordinate_pictures
         {
             if (_imagecache != null)
             {
-                pictureBox.Image = null;
+                setCurrentImage(null);
                 _imagecache.Dispose();
             }
 
             // provide callbacks for ImageCache to see if it can dispose an image.
             Func<Bitmap, bool> canDisposeBitmap =
-                (bmp) => (bmp as object) != (pictureBox.Image as object);
+                (bmp) => (bmp as object) != (this._currentimage as object);
 
             Func<Action, bool> callbackOnUiThread =
                 (act) =>
@@ -892,7 +904,7 @@ namespace labs_coordinate_pictures
                 {
                     _imagecache.Excerpt.MakeBmp(_filelist.Current, e.X, e.Y,
                         pictureBox.Image.Width, pictureBox.Image.Height, _shouldRotateImages);
-                    pictureBox.Image = _imagecache.Excerpt.Bmp;
+                    setCurrentImage( _imagecache.Excerpt.Bmp);
                     _zoomed = true;
                 }
             }

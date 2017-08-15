@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -201,7 +202,7 @@ namespace labs_coordinate_pictures
                 }
 
                 bitmapWillLockFile = true;
-                bitmap = new Bitmap(1, 1);
+                bitmap = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
             }
 
             if (shouldrotate != null && shouldrotate.ShouldRotate(path))
@@ -218,7 +219,7 @@ namespace labs_coordinate_pictures
             {
                 originalWidth = 0;
                 originalHeight = 0;
-                return new Bitmap(1, 1);
+                return new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
             }
 
             bool bitmapWillLockFile;
@@ -264,7 +265,7 @@ namespace labs_coordinate_pictures
             // Kris Erickson, stackoverflow 87753.
             // also considered pixelformat Imaging.PixelFormat.Format32bppPArgb
             // GDI seems to have a lock, so we don't get great concurrency.
-            Bitmap bitmapResized = new Bitmap(newWidth, newHeight);
+            Bitmap bitmapResized = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(bitmapResized))
             {
                 if (newWidth != bitmapFull.Width || newHeight != bitmapFull.Height)
@@ -300,7 +301,7 @@ namespace labs_coordinate_pictures
                 return bitmap;
             }
 
-            Bitmap bitmapResized = new Bitmap(bitmap.Width * mult, bitmap.Height * mult);
+            Bitmap bitmapResized = new Bitmap(bitmap.Width * mult, bitmap.Height * mult, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(bitmapResized))
             {
                 g.SmoothingMode = SmoothingMode.None;
@@ -327,7 +328,7 @@ namespace labs_coordinate_pictures
         {
             MaxWidth = maxWidth;
             MaxHeight = maxHeight;
-            Bmp = new Bitmap(1, 1);
+            Bmp = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
         }
 
         public int MaxWidth { get; private set; }
@@ -338,7 +339,7 @@ namespace labs_coordinate_pictures
             int widthOfResizedImage, int heightOfResizedImage, JpegRotationFinder shouldRotateImages)
         {
             Bmp.Dispose();
-            Bmp = new Bitmap(MaxWidth, MaxHeight);
+            Bmp = new Bitmap(MaxWidth, MaxHeight, PixelFormat.Format32bppPArgb);
             if (path == null || !FilenameUtils.LooksLikeImage(path) || !File.Exists(path))
             {
                 return;
