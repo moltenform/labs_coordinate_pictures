@@ -39,30 +39,34 @@
             this.editInAltEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cropRotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertResizeImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuConvertImageFormats = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSpacePngToWebpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSpaceJpgFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuConvertImageFormats = new System.Windows.Forms.ToolStripMenuItem();
             this.keepAndDeleteOthersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.zoomInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.addNumberedPrefixByTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addNumberedPrefixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNumberedPrefixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.categoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewCategoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editCategoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.finishedCategorizingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuAddSubcategory = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuCleanSubcats = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label = new System.Windows.Forms.Label();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
-            this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.zoomInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -260,6 +264,15 @@
             this.convertResizeImageToolStripMenuItem.Text = "Convert/Resize Image...";
             this.convertResizeImageToolStripMenuItem.Click += new System.EventHandler(this.convertResizeImageToolStripMenuItem_Click);
             // 
+            // mnuConvertImageFormats
+            // 
+            this.mnuConvertImageFormats.Name = "mnuConvertImageFormats";
+            this.mnuConvertImageFormats.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.K)));
+            this.mnuConvertImageFormats.Size = new System.Drawing.Size(404, 22);
+            this.mnuConvertImageFormats.Text = "Convert Many Images...";
+            this.mnuConvertImageFormats.Click += new System.EventHandler(this.mnuConvertImageFormats_Click);
+            // 
             // saveSpacePngToWebpToolStripMenuItem
             // 
             this.saveSpacePngToWebpToolStripMenuItem.Name = "saveSpacePngToWebpToolStripMenuItem";
@@ -271,7 +284,7 @@
             // saveSpaceJpgFilesToolStripMenuItem
             // 
             this.saveSpaceJpgFilesToolStripMenuItem.Name = "saveSpaceJpgFilesToolStripMenuItem";
-            this.saveSpaceJpgFilesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+4";
+            this.saveSpaceJpgFilesToolStripMenuItem.ShortcutKeyDisplayString = "";
             this.saveSpaceJpgFilesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.saveSpaceJpgFilesToolStripMenuItem.Text = "Save space by losslessly optimizing jpg files";
             this.saveSpaceJpgFilesToolStripMenuItem.Click += new System.EventHandler(this.saveSpaceOptimizeJpgToolStripMenuItem_Click);
@@ -284,15 +297,6 @@
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Text = "Convert to several jpgs with different qualities";
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Click += new System.EventHandler(this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click);
             // 
-            // mnuConvertImageFormats
-            // 
-            this.mnuConvertImageFormats.Name = "mnuConvertImageFormats";
-            this.mnuConvertImageFormats.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.K)));
-            this.mnuConvertImageFormats.Size = new System.Drawing.Size(404, 22);
-            this.mnuConvertImageFormats.Text = "Convert Many Images...";
-            this.mnuConvertImageFormats.Click += new System.EventHandler(this.mnuConvertImageFormats_Click);
-            // 
             // keepAndDeleteOthersToolStripMenuItem
             // 
             this.keepAndDeleteOthersToolStripMenuItem.Name = "keepAndDeleteOthersToolStripMenuItem";
@@ -301,12 +305,50 @@
             this.keepAndDeleteOthersToolStripMenuItem.Text = "Keep this jpg and delete others with different qualities...";
             this.keepAndDeleteOthersToolStripMenuItem.Click += new System.EventHandler(this.keepAndDeleteOthersToolStripMenuItem_Click);
             // 
+            // viewToolStripMenuItem
+            // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.zoomInToolStripMenuItem,
+            this.zoomOutToolStripMenuItem,
+            this.toolStripMenuItem6,
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem});
+            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.viewToolStripMenuItem.Text = "View";
+            // 
+            // zoomInToolStripMenuItem
+            // 
+            this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
+            this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.zoomInToolStripMenuItem.Text = "Zoom In";
+            // 
+            // zoomOutToolStripMenuItem
+            // 
+            this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
+            this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.zoomOutToolStripMenuItem.Text = "Zoom Out";
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(250, 6);
+            // 
+            // mnuAutorotateJPGsForThisDirectoryToolStripMenuItem
+            // 
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Name = "mnuAutorotateJPGsForThisDirectoryToolStripMenuItem";
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
+            // 
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameItemToolStripMenuItem,
             this.replaceInFilenameToolStripMenuItem,
             this.toolStripMenuItem4,
+            this.addNumberedPrefixByTimeToolStripMenuItem,
             this.addNumberedPrefixToolStripMenuItem,
             this.removeNumberedPrefixToolStripMenuItem});
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
@@ -334,6 +376,13 @@
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
             this.toolStripMenuItem4.Size = new System.Drawing.Size(278, 6);
             // 
+            // addNumberedPrefixByTimeToolStripMenuItem
+            // 
+            this.addNumberedPrefixByTimeToolStripMenuItem.Name = "addNumberedPrefixByTimeToolStripMenuItem";
+            this.addNumberedPrefixByTimeToolStripMenuItem.Size = new System.Drawing.Size(281, 22);
+            this.addNumberedPrefixByTimeToolStripMenuItem.Text = "Add Numbered Prefix By Time";
+            this.addNumberedPrefixByTimeToolStripMenuItem.Click += new System.EventHandler(this.addNumberedPrefixByTimeToolStripMenuItem_Click);
+            // 
             // addNumberedPrefixToolStripMenuItem
             // 
             this.addNumberedPrefixToolStripMenuItem.Name = "addNumberedPrefixToolStripMenuItem";
@@ -355,7 +404,10 @@
             this.categoriesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewCategoriesToolStripMenuItem,
             this.editCategoriesToolStripMenuItem,
-            this.finishedCategorizingToolStripMenuItem});
+            this.finishedCategorizingToolStripMenuItem,
+            this.toolStripMenuItem7,
+            this.mnuAddSubcategory,
+            this.mnuCleanSubcats});
             this.categoriesToolStripMenuItem.Name = "categoriesToolStripMenuItem";
             this.categoriesToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
             this.categoriesToolStripMenuItem.Text = "Categories";
@@ -364,7 +416,7 @@
             // 
             this.viewCategoriesToolStripMenuItem.Name = "viewCategoriesToolStripMenuItem";
             this.viewCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+V";
-            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.viewCategoriesToolStripMenuItem.Text = "View Categories";
             this.viewCategoriesToolStripMenuItem.Click += new System.EventHandler(this.viewCategoriesToolStripMenuItem_Click);
             // 
@@ -372,7 +424,7 @@
             // 
             this.editCategoriesToolStripMenuItem.Name = "editCategoriesToolStripMenuItem";
             this.editCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+K";
-            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
             this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
@@ -380,9 +432,30 @@
             // 
             this.finishedCategorizingToolStripMenuItem.Name = "finishedCategorizingToolStripMenuItem";
             this.finishedCategorizingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
-            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.finishedCategorizingToolStripMenuItem.Text = "Finish Categorizing...";
             this.finishedCategorizingToolStripMenuItem.Click += new System.EventHandler(this.finishedCategorizingToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(259, 6);
+            // 
+            // mnuAddSubcategory
+            // 
+            this.mnuAddSubcategory.Name = "mnuAddSubcategory";
+            this.mnuAddSubcategory.ShortcutKeyDisplayString = "Ctrl+4";
+            this.mnuAddSubcategory.Size = new System.Drawing.Size(262, 22);
+            this.mnuAddSubcategory.Text = "Assign Subcategory...";
+            this.mnuAddSubcategory.Click += new System.EventHandler(this.mnuAddSubcategory_Click);
+            // 
+            // mnuCleanSubcats
+            // 
+            this.mnuCleanSubcats.Name = "mnuCleanSubcats";
+            this.mnuCleanSubcats.ShortcutKeyDisplayString = "Ctrl+Shift+4";
+            this.mnuCleanSubcats.Size = new System.Drawing.Size(262, 22);
+            this.mnuCleanSubcats.Text = "Clean Subcategories...";
+            this.mnuCleanSubcats.Click += new System.EventHandler(this.mnuCleanSubcats_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -431,43 +504,6 @@
             this.labelView.Size = new System.Drawing.Size(94, 379);
             this.labelView.TabIndex = 2;
             this.labelView.Text = "labelView";
-            // 
-            // viewToolStripMenuItem
-            // 
-            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.zoomInToolStripMenuItem,
-            this.zoomOutToolStripMenuItem,
-            this.toolStripMenuItem6,
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem});
-            this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.viewToolStripMenuItem.Text = "View";
-            // 
-            // zoomInToolStripMenuItem
-            // 
-            this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
-            this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
-            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
-            this.zoomInToolStripMenuItem.Text = "Zoom In";
-            // 
-            // zoomOutToolStripMenuItem
-            // 
-            this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
-            this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
-            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
-            this.zoomOutToolStripMenuItem.Text = "Zoom Out";
-            // 
-            // toolStripMenuItem6
-            // 
-            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(250, 6);
-            // 
-            // mnuAutorotateJPGsForThisDirectoryToolStripMenuItem
-            // 
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Name = "mnuAutorotateJPGsForThisDirectoryToolStripMenuItem";
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
             // 
             // FormGallery
             // 
@@ -543,5 +579,9 @@
         private System.Windows.Forms.ToolStripMenuItem zoomOutToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
         private System.Windows.Forms.ToolStripMenuItem mnuAutorotateJPGsForThisDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addNumberedPrefixByTimeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
+        private System.Windows.Forms.ToolStripMenuItem mnuAddSubcategory;
+        private System.Windows.Forms.ToolStripMenuItem mnuCleanSubcats;
     }
 }

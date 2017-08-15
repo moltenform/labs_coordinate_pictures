@@ -487,6 +487,8 @@ namespace labs_coordinate_pictures
                     replaceInFilenameToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D3)
                     removeNumberedPrefixToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.D4)
+                    mnuCleanSubcats_Click(null, null);
                 else if (e.KeyCode == Keys.V)
                     viewCategoriesToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.K)
@@ -513,7 +515,7 @@ namespace labs_coordinate_pictures
                 else if (e.KeyCode == Keys.D1)
                     saveSpacePngToWebpToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.D4)
-                    saveSpaceOptimizeJpgToolStripMenuItem_Click(null, null);
+                    mnuAddSubcategory_Click(null, null);
                 else if (e.KeyCode == Keys.OemCloseBrackets)
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.R)
@@ -578,6 +580,11 @@ namespace labs_coordinate_pictures
             // for convenience, don't include the numbered prefix or file extension.
             var current = FilenameUtils.GetFileNameWithoutNumberedPrefix(_filelist.Current);
             var currentNoExt = Path.GetFileNameWithoutExtension(current);
+            var currentNoExtParts = Utils.SplitByString(currentNoExt, "^%^");
+            if (currentNoExtParts.Length > 2)
+            {
+                currentNoExt = currentNoExtParts[0] + currentNoExtParts[2];
+            }
 
             var newName = InputBoxForm.GetStrInput("Enter a new name:", currentNoExt, mruList);
             if (!string.IsNullOrEmpty(newName))
@@ -587,6 +594,12 @@ namespace labs_coordinate_pictures
                 var prefix = hasNumberedPrefix ?
                     nameWithPrefix.Substring(0, FilenameUtils.NumberedPrefixLength()) :
                     "";
+
+                if (currentNoExtParts.Length > 2)
+                {
+                    prefix += "^%^" + currentNoExtParts[1] + "^%^";
+                }
+
                 var fullnewname = Path.GetDirectoryName(_filelist.Current) + Utils.Sep +
                     prefix + newName + Path.GetExtension(_filelist.Current);
 
@@ -730,14 +743,33 @@ namespace labs_coordinate_pictures
             }
         }
 
-        // add a prefix to files, useful when renaming and you want to maintain the order
+        private void addNumberedPrefixByTimeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            runAddNumberedPrefix(true);
+        }
+
         private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Utils.AskToConfirm("We now prefer adding numbered prefix based on filetime. Continue?"))
+            {
+                runAddNumberedPrefix(false);
+            }
+        }
+
+        // add a prefix to files, useful when renaming and you want to maintain the order
+        void runAddNumberedPrefix(bool byTime)
         {
             int addedPrefix = 0, alreadyPrefix = 0, failed = 0, hidden = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Add numbered prefix?"))
             {
                 int number = 0;
-                foreach (var path in _filelist.GetList())
+                IEnumerable<string> files = _filelist.GetList();
+                if (byTime)
+                {
+                    files = _filelist.GetList().OrderBy((s) => new FileInfo(s).LastWriteTimeUtc);
+                }
+
+                foreach (var path in files)
                 {
                     if (Utils.GetFileAttributesOrNone(path).HasFlag(FileAttributes.Hidden))
                     {
@@ -1300,6 +1332,127 @@ namespace labs_coordinate_pictures
             _shouldRotateImages.RefreshForDirectory(Path.GetDirectoryName(_filelist.Current));
             _imagecache.InvalidateCache();
             OnOpenItem();
+        }
+
+        static List<string> getSubcatsSeen(string[] list)
+        {
+            Dictionary<string, bool> subcatsseen = new Dictionary<string, bool>();
+            foreach (var file in list)
+            {
+                var shortname = Path.GetFileName(file);
+                if (shortname.Contains("^%^"))
+                {
+                    var subcat = Utils.SplitByString(shortname, "^%^")[1];
+                    subcatsseen[subcat] = true;
+                }
+            }
+
+            List<string> subcats = subcatsseen.Keys.ToList();
+            subcats.Sort();
+            return subcats;
+        }
+
+        private void mnuAddSubcategory_Click(object sender, EventArgs e)
+        {
+            var currentfile = _filelist.Current;
+            if (string.IsNullOrEmpty(currentfile))
+            {
+                return;
+            }
+
+            var subcats = getSubcatsSeen(_filelist.GetList());
+            var msg = "Enter a number to use an existing subcat:\r\n";
+            for (int i = 0; i < subcats.Count; i++)
+            {
+                msg += "" + (i + 1) + ") " + subcats[i] + "\r\n";
+            }
+
+            msg += " or, type any string to start a new subcat.";
+            string entered = InputBoxForm.GetStrInput(msg, "", InputBoxHistory.None, taller: true);
+            int ncat = -1;
+            string whichcat = "";
+            if (string.IsNullOrWhiteSpace(entered))
+            {
+                return;
+            }
+            else if (int.TryParse(entered, out ncat) && ncat >= 1 && ncat <= subcats.Count)
+            {
+                whichcat = subcats[ncat - 1];
+            }
+            else
+            {
+                whichcat = entered.Trim();
+            }
+
+            string newname;
+            string shortname = Path.GetFileName(currentfile);
+            var oldparts = Utils.SplitByString(shortname, "^%^");
+            if (oldparts.Length > 2)
+            {
+                // kill current subcategory
+                shortname = oldparts[0] + oldparts[2];
+            }
+
+            whichcat = "^%^" + whichcat + "^%^";
+            if (shortname.IndexOf("])") != -1)
+            {
+                // numbered prefix
+                newname = Path.GetDirectoryName(currentfile) + Utils.Sep +
+                    shortname.Insert(shortname.IndexOf("])") + "])".Length, whichcat);
+            }
+            else
+            {
+                // no numbered prefix
+                newname = Path.GetDirectoryName(currentfile) + Utils.Sep +
+                    whichcat + shortname;
+            }
+
+            if (WrapMoveFile(currentfile, newname))
+            {
+                RefreshUiAfterCurrentImagePossiblyMoved(newname);
+                RenameFile();
+            }
+        }
+
+        private void mnuCleanSubcats_Click(object sender, EventArgs e)
+        {
+            if (!Utils.AskToConfirm("We'll now remove subcategories, putting them into the filename, from '^%^basketball^%^-james.jpg' to 'basketball - james.jpg'. Continue?"))
+            {
+                return;
+            }
+
+            string failed = "";
+            int succeeded = 0;
+            foreach (var file in (string[])_filelist.GetList())
+            {
+                var shortname = Path.GetFileName(file);
+                var parts = Utils.SplitByString(shortname, "^%^");
+                if (parts.Length > 2)
+                {
+                    var newshortname = parts[0] + parts[1] + " - " + parts[2];
+                    var newname = Path.GetDirectoryName(file) + Utils.Sep + newshortname;
+                    if (File.Exists(newname))
+                    {
+                        failed += " file already exists at " + newname;
+                    }
+                    else if (WrapMoveFile(file, newname))
+                    {
+                        succeeded++;
+                    }
+                    else
+                    {
+                        failed += " could not move " + file + " to " + newname;
+                    }
+                }
+            }
+
+            if (failed.Length > 0)
+            {
+                MessageBox.Show("Failed to rename: " + failed);
+            }
+
+            MessageBox.Show("Renamed " + succeeded + " files.");
+            MoveFirst();
         }
     }
 

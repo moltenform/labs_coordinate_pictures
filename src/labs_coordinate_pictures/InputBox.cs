@@ -65,13 +65,20 @@ namespace labs_coordinate_pictures
         // ask user for string input.
         public static string GetStrInput(string mesage, string currentSuggestion = null,
             InputBoxHistory historyKey = InputBoxHistory.None, string[] more = null,
-            bool useClipboard = true, bool mustBeDirectory = false)
+            bool useClipboard = true, bool mustBeDirectory = false, bool taller = false)
         {
             using (InputBoxForm form = new InputBoxForm(historyKey))
             {
                 form._label.Text = mesage;
                 form._btnBrowse.Visible = mustBeDirectory;
                 form._btnBrowse.Click += (o, e) => form.OnBrowseClick();
+                if (taller)
+                {
+                    form._comboBox.Top += form.Height - 40;
+                    form._btnOK.Top += form.Height - 40;
+                    form._btnCancel.Top += form.Height - 40;
+                    form.Height *= 2;
+                }
 
                 // fill combo box with suggested input.
                 form._comboBox.Items.Clear();
@@ -242,7 +249,7 @@ namespace labs_coordinate_pictures
     // save MRU history, limits number of entries with a queue structure.
     public sealed class PersistMostRecentlyUsedList
     {
-        public const int MaxHistoryEntries = 10;
+        public const int MaxHistoryEntries = 50;
         public const int MaxEntryLength = 300;
         readonly string _delimiter = "||||";
         InputBoxHistory _historyKey = InputBoxHistory.None;
