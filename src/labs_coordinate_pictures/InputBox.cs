@@ -77,6 +77,7 @@ namespace labs_coordinate_pictures
                     form._comboBox.Top += form.Height - 40;
                     form._btnOK.Top += form.Height - 40;
                     form._btnCancel.Top += form.Height - 40;
+                    form._label.Height += form.Height - 40;
                     form.Height *= 2;
                 }
 

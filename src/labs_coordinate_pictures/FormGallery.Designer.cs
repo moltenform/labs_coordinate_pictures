@@ -48,6 +48,7 @@
             this.zoomOutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resizeToFitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,11 +65,11 @@
             this.mnuCleanSubcats = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label = new System.Windows.Forms.Label();
-            this.pictureBox = new System.Windows.Forms.PictureBox();
             this.labelView = new System.Windows.Forms.Label();
+            this.btnPicture = new System.Windows.Forms.Button();
+            this.setRotationTagToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -194,6 +195,7 @@
             this.editFileToolStripMenuItem,
             this.editInAltEditorToolStripMenuItem,
             this.cropRotateFileToolStripMenuItem,
+            this.setRotationTagToolStripMenuItem,
             this.convertResizeImageToolStripMenuItem,
             this.mnuConvertImageFormats,
             this.saveSpacePngToWebpToolStripMenuItem,
@@ -301,7 +303,8 @@
             this.zoomInToolStripMenuItem,
             this.zoomOutToolStripMenuItem,
             this.toolStripMenuItem6,
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem});
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem,
+            this.resizeToFitToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
@@ -331,6 +334,15 @@
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
+            // 
+            // resizeToFitToolStripMenuItem
+            // 
+            this.resizeToFitToolStripMenuItem.Checked = true;
+            this.resizeToFitToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.resizeToFitToolStripMenuItem.Name = "resizeToFitToolStripMenuItem";
+            this.resizeToFitToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.resizeToFitToolStripMenuItem.Text = "Resize to Fit";
+            this.resizeToFitToolStripMenuItem.Click += new System.EventHandler(this.resizeToFitToolStripMenuItem_Click);
             // 
             // renameToolStripMenuItem
             // 
@@ -450,11 +462,11 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.pictureBox, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.labelView, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.btnPicture, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -475,26 +487,37 @@
             this.label.TabIndex = 0;
             this.label.Text = "label";
             // 
-            // pictureBox
-            // 
-            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox.Location = new System.Drawing.Point(103, 16);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(543, 373);
-            this.pictureBox.TabIndex = 1;
-            this.pictureBox.TabStop = false;
-            this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox_Paint);
-            this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
-            // 
             // labelView
             // 
             this.labelView.AutoSize = true;
             this.labelView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelView.Location = new System.Drawing.Point(3, 13);
             this.labelView.Name = "labelView";
-            this.labelView.Size = new System.Drawing.Size(94, 379);
+            this.labelView.Size = new System.Drawing.Size(44, 379);
             this.labelView.TabIndex = 2;
             this.labelView.Text = "labelView";
+            // 
+            // btnPicture
+            // 
+            this.btnPicture.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnPicture.Enabled = false;
+            this.btnPicture.FlatAppearance.BorderSize = 0;
+            this.btnPicture.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPicture.Location = new System.Drawing.Point(53, 16);
+            this.btnPicture.Name = "btnPicture";
+            this.btnPicture.Size = new System.Drawing.Size(593, 373);
+            this.btnPicture.TabIndex = 3;
+            this.btnPicture.UseVisualStyleBackColor = true;
+            this.btnPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.btnPicture_Paint);
+            this.btnPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnPicture_MouseDown);
+            // 
+            // setRotationTagToolStripMenuItem
+            // 
+            this.setRotationTagToolStripMenuItem.Name = "setRotationTagToolStripMenuItem";
+            this.setRotationTagToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+R";
+            this.setRotationTagToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
+            this.setRotationTagToolStripMenuItem.Text = "Set Rotation Tag...";
+            this.setRotationTagToolStripMenuItem.Click += new System.EventHandler(this.setRotationTagToolStripMenuItem_Click);
             // 
             // FormGallery
             // 
@@ -515,7 +538,6 @@
             this.menuStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -534,7 +556,6 @@
         private System.Windows.Forms.ToolStripMenuItem categoriesToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label;
-        private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.ToolStripMenuItem moveManyPrevToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem moveManyNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem moveFirstToolStripMenuItem;
@@ -573,5 +594,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
         private System.Windows.Forms.ToolStripMenuItem mnuAddSubcategory;
         private System.Windows.Forms.ToolStripMenuItem mnuCleanSubcats;
+        private System.Windows.Forms.Button btnPicture;
+        private System.Windows.Forms.ToolStripMenuItem resizeToFitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setRotationTagToolStripMenuItem;
     }
 }

@@ -41,6 +41,7 @@ namespace labs_coordinate_pictures
             Func<Bitmap, bool> canDisposeBitmap,
             JpegRotationFinder shouldRotateThisImage)
         {
+            ResizeToFit = true;
             ResizeFactor = 1;
             MaxWidth = maxWidth;
             MaxHeight = maxHeight;
@@ -55,6 +56,7 @@ namespace labs_coordinate_pictures
         public int MaxHeight { get; private set; }
         public int MaxWidth { get; private set; }
         public int ResizeFactor { get; set; }
+        public bool ResizeToFit { get; set; }
         public int VerticalScrollFactor { get; set; }
 
         public void Dispose()
@@ -237,7 +239,7 @@ namespace labs_coordinate_pictures
 
                     int newWidth = (int)(bitmapFull.Width * ratio);
                     int newHeight = (int)(bitmapFull.Height * ratio);
-                    return ResizeImage(bitmapFull, newWidth, newHeight, path);
+                    return ResizeImage(bitmapFull, newWidth, newHeight, this.ResizeToFit, path);
                 }
             }
             else if (bitmapWillLockFile)
@@ -260,7 +262,7 @@ namespace labs_coordinate_pictures
         }
 
         public static Bitmap ResizeImage(Bitmap bitmapFull,
-            int newWidth, int newHeight, string pathForLogging)
+            int newWidth, int newHeight, bool resizeToFit, string pathForLogging)
         {
             // Kris Erickson, stackoverflow 87753.
             // also considered pixelformat Imaging.PixelFormat.Format32bppPArgb
@@ -268,7 +270,14 @@ namespace labs_coordinate_pictures
             Bitmap bitmapResized = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(bitmapResized))
             {
-                if (newWidth != bitmapFull.Width || newHeight != bitmapFull.Height)
+                if (!resizeToFit)
+                {
+                    // center onto image
+                    g.DrawImageUnscaled(bitmapFull,
+                        (newWidth - bitmapFull.Width) / 2,
+                        (newHeight - bitmapFull.Height) / 2);
+                }
+                else if (newWidth != bitmapFull.Width || newHeight != bitmapFull.Height)
                 {
                     g.SmoothingMode = SmoothingMode.HighQuality;
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;

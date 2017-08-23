@@ -100,16 +100,9 @@ namespace labs_coordinate_pictures
             _filelist = new FileListNavigation(
                 initialDirectory, _mode.GetFileTypes(), true, true, initialFilepath);
 
-            pictureBox.SizeMode = PictureBoxSizeMode.Normal;
             ModeUtils.UseDefaultCategoriesIfFirstRun(mode);
             RefreshCategories();
             OnOpenItem();
-        }
-
-        private void pictureBox_Paint(object sender, PaintEventArgs e)
-        {
-            var image = _currentimage ?? _bitmapBlank;
-            e.Graphics.DrawImage(image, pictureBox.Left, pictureBox.Top, pictureBox.Width, pictureBox.Height);
         }
 
         public FileListNavigation GetFilelist()
@@ -125,14 +118,14 @@ namespace labs_coordinate_pictures
         void setCurrentImage(Image im)
         {
             this._currentimage = im;
-            this.pictureBox.Invalidate();
+            this.btnPicture.Invalidate();
         }
 
         void OnOpenItem(bool resetvscroll = true)
         {
             // if the user resized the window, create a new cache for the new size
-            if (_imagecache == null || _imagecache.MaxWidth != pictureBox.Width ||
-                _imagecache.MaxHeight != pictureBox.Height)
+            if (_imagecache == null || _imagecache.MaxWidth != btnPicture.Width ||
+                _imagecache.MaxHeight != btnPicture.Height)
             {
                 RefreshImageCache();
             }
@@ -190,7 +183,7 @@ namespace labs_coordinate_pictures
                     return true;
                 };
 
-            _imagecache = new ImageCache(pictureBox.Width, pictureBox.Height,
+            _imagecache = new ImageCache(btnPicture.Width, btnPicture.Height,
                 ImageCacheSize, callbackOnUiThread, canDisposeBitmap, _shouldRotateImages);
         }
 
@@ -507,6 +500,10 @@ namespace labs_coordinate_pictures
                     editCategoriesToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.OemOpenBrackets)
                     convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click(null, null);
+                else if (e.KeyCode == Keys.F)
+                    viewFullImage(null, null);
+                else if (e.KeyCode == Keys.R)
+                    setRotationTagToolStripMenuItem_Click(null, null);
             }
             else if (!e.Shift && e.Control && !e.Alt)
             {
@@ -887,25 +884,6 @@ namespace labs_coordinate_pictures
                     {
                         RefreshUiAfterCurrentImagePossiblyMoved(pathDestination);
                     }
-                }
-            }
-        }
-
-        // ctrl-clicking a large image will show a zoomed-in view.
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
-        {
-            if ((ModifierKeys & Keys.Control) == Keys.Control)
-            {
-                if (_zoomed)
-                {
-                    OnOpenItem();
-                }
-                else if (_currentImageResized)
-                {
-                    _imagecache.Excerpt.MakeBmp(_filelist.Current, e.X, e.Y,
-                        pictureBox.Image.Width, pictureBox.Image.Height, _shouldRotateImages);
-                    setCurrentImage( _imagecache.Excerpt.Bmp);
-                    _zoomed = true;
                 }
             }
         }
@@ -1307,10 +1285,10 @@ namespace labs_coordinate_pictures
             OnOpenItem();
         }
 
-        static List<string> getSubcatsSeen(string[] list)
+        static List<string> getSubcatsSeen(string dir)
         {
             Dictionary<string, bool> subcatsseen = new Dictionary<string, bool>();
-            foreach (var file in list)
+            foreach (var file in Directory.EnumerateFiles(dir))
             {
                 var shortname = Path.GetFileName(file);
                 if (shortname.Contains("^%^"))
@@ -1333,7 +1311,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            var subcats = getSubcatsSeen(_filelist.GetList());
+            var subcats = getSubcatsSeen(Path.GetDirectoryName(currentfile));
             var msg = "Enter a number to use an existing subcat:\r\n";
             for (int i = 0; i < subcats.Count; i++)
             {
@@ -1428,6 +1406,114 @@ namespace labs_coordinate_pictures
             MessageBox.Show("Renamed " + succeeded + " files.");
             MoveFirst();
         }
+
+        private void viewFullImage(object sender, EventArgs e)
+        {
+            var currentfile = _filelist.Current;
+            if (!string.IsNullOrEmpty(currentfile))
+            {
+                var currentfileext = Path.GetExtension(currentfile);
+                var searchforfilestart = Path.GetFileNameWithoutExtension(currentfile) + "_";
+                var grandparentdir = Path.GetDirectoryName(Path.GetDirectoryName(currentfile));
+                string found = null;
+                foreach (var file in Directory.EnumerateFiles(grandparentdir))
+                {
+                    var shortname = Path.GetFileName(file);
+                    if (shortname.StartsWith(searchforfilestart, StringComparison.InvariantCulture) &&
+                        shortname.EndsWith(currentfileext, StringComparison.InvariantCulture))
+                    {
+                        found = file;
+                        break;
+                    }
+                }
+
+                if (found != null)
+                {
+                    StartExe(found, ConfigKey.None,
+                        @"C:\Windows\System32\mspaint.exe");
+                }
+            }
+        }
+
+        private void btnPicture_Paint(object sender, PaintEventArgs e)
+        {
+            var image = _currentimage ?? _bitmapBlank;
+            e.Graphics.DrawImage(image, btnPicture.Left, btnPicture.Top);
+        }
+
+        // ctrl-clicking a large image will show a zoomed-in view.
+        private void btnPicture_MouseDown(object sender, MouseEventArgs e)
+        {
+            if ((ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                if (_zoomed)
+                {
+                    OnOpenItem();
+                }
+                else if (_currentImageResized && _currentimage != null)
+                {
+                    _imagecache.Excerpt.MakeBmp(_filelist.Current, e.X, e.Y,
+                        _currentimage.Width, _currentimage.Height, _shouldRotateImages);
+                    setCurrentImage(_imagecache.Excerpt.Bmp);
+                    _zoomed = true;
+                }
+            }
+        }
+
+        private void resizeToFitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var prev = GetImageCache().ResizeToFit;
+            RefreshImageCache();
+            GetImageCache().ResizeToFit = !prev;
+            resizeToFitToolStripMenuItem.Checked = GetImageCache().ResizeToFit;
+            OnOpenItem();
+        }
+
+        private void setRotationTagToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_filelist.Current))
+            {
+                return;
+            }
+            else if (!_filelist.Current.EndsWith(".jpg", StringComparison.InvariantCulture))
+            {
+                MessageBox.Show("only valid for jpeg files");
+                return;
+            }
+
+            var opts = new string[] { "none", "0", "90", "180", "270", "striptags" };
+            var mapto = new string[] { "", "1", "6", "3", "8", "striptags" };
+            var current = JpegRotationFinder.RunForSingleFile(_filelist.Current);
+            var currents = current.ToString();
+            if (currents == "-1")
+            {
+                currents = "(rotation apparently not set)";
+            }
+            else if (currents == "-2")
+            {
+                currents = "(could not read tag)";
+            }
+
+            var prompt = "The EXIF rotate tag instructs viewing software to show the image in a rotated way. " +
+                "The current value is " + currents +
+                ". Please choose from the list:" +
+                Utils.NL + string.Join(Utils.NL, opts);
+            var s = InputBoxForm.GetStrInput(prompt, "0", more: opts, useClipboard: false);
+            if (!string.IsNullOrEmpty(s))
+            {
+                var index = opts.ToList().IndexOf(s);
+                if (index == -1)
+                {
+                    MessageBox.Show("Unsupported rotation.");
+                    return;
+                }
+                else
+                {
+                    JpegRotationFinder.RunAndGetResult(_filelist.Current, mapto[index]);
+                    OnOpenItem();
+                }
+            }
+        }
     }
 
     public class JpegRotationFinder
@@ -1440,7 +1526,7 @@ namespace labs_coordinate_pictures
             return _dict.ContainsKey(path);
         }
 
-        public void RefreshForDirectory(string dir)
+        public static string RunAndGetResult(string target, string setTo = null)
         {
             var exiftool = Configs.Current.Directory + "/exiftool/exiftool" +
                     (Utils.IsWindows() ? ".exe" : "");
@@ -1448,25 +1534,66 @@ namespace labs_coordinate_pictures
             {
                 Utils.MessageErr("exiftool not found, expected to be seen at " + exiftool);
             }
-            else if (Directory.Exists(dir))
+            else if (Directory.Exists(target) || File.Exists(target))
             {
-                var args = new string[] { "-Orientation", dir };
+                var args = new string[] { "-Orientation", target };
+                if (setTo == "striptags")
+                {
+                    args = new string[] { "-all=", "-overwrite_original", target };
+                }
+                else if (setTo != null)
+                {
+                    args = new string[] { "-Orientation#=" + setTo, "-overwrite_original", target };
+                }
+
                 string stdout = "";
                 string stderr = "";
                 int retcode = Utils.Run(exiftool, args, getStdout: true, outStdout: out stdout, outStderr: out stderr, hideWindow: true, waitForExit: true, shellExecute: false, workingDir: ".");
                 if (!string.IsNullOrEmpty(stderr))
                 {
                     MessageBox.Show("Exif tool showed the message: " + stderr);
+                    return "";
                 }
 
-                if (retcode == 0)
-                {
-                    parseStdOut(stdout);
-                }
+                return retcode == 0 ? stdout : "";
+            }
+
+            return "";
+        }
+
+        public void RefreshForDirectory(string dir)
+        {
+            var stdout = RunAndGetResult(dir);
+            if (!string.IsNullOrEmpty(stdout))
+            {
+                parseStdOutForDirectory(stdout);
             }
         }
 
-        void parseStdOut(string stdout)
+        static int numberFromString(string part)
+        {
+            var labels = new string[] { "Horizontal", // Horizontal (normal)
+                "Mirror horizontal", // Mirror horizontal
+                "Rotate 180", // Rotate 180
+                "Mirror vertical", // Mirror vertical
+                "and rotate 270 CW", // Mirror horizontal and rotate 270 CW
+                "Rotate 90 CW", // Rotate 90 CW
+                "and rotate 90 CW", // Mirror horizontal and rotate 90 CW
+                "Rotate 270 CW" // Rotate 270 CW
+            };
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                if (part.Contains(labels[i]))
+                {
+                    return i + 1;
+                }
+            }
+
+            return -1;
+        }
+
+        void parseStdOutForDirectory(string stdout)
         {
             var parts = Utils.SplitByString(stdout, "========");
             int rotatednow = 0;
@@ -1478,7 +1605,8 @@ namespace labs_coordinate_pictures
                 {
                     string path = subparts[0].Trim();
                     path = path.Replace("/", Utils.Sep);
-                    if (subparts[1].Contains("Rotate 90 CW"))
+                    var n = numberFromString(subparts[1]);
+                    if (n == 6)
                     {
                         _dict[path] = true;
                         rotatednow++;
@@ -1487,6 +1615,29 @@ namespace labs_coordinate_pictures
             }
 
             MessageBox.Show("Done. It looks like there are " + rotatednow + " rotated jpgs in this directory.");
+        }
+
+        public static int RunForSingleFile(string file)
+        {
+            var stdout = RunAndGetResult(file);
+            if (!string.IsNullOrEmpty(stdout))
+            {
+                var parts = Utils.SplitByString(stdout, "========");
+                foreach (string spart in parts)
+                {
+                    var part = spart.Trim();
+                    var subparts = Utils.SplitByString(part, "Orientation          ");
+                    if (subparts.Length == 2)
+                    {
+                        string path = subparts[0].Trim();
+                        path = path.Replace("/", Utils.Sep);
+
+                        return numberFromString(subparts[1]);
+                    }
+                }
+            }
+
+            return -2;
         }
     }
 }
