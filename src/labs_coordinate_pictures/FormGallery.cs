@@ -124,8 +124,8 @@ namespace labs_coordinate_pictures
         void OnOpenItem(bool resetvscroll = true)
         {
             // if the user resized the window, create a new cache for the new size
-            if (_imagecache == null || _imagecache.MaxWidth != btnPicture.Width ||
-                _imagecache.MaxHeight != btnPicture.Height)
+            if (_imagecache == null || _imagecache.MaxWidth != btnPicture.ClientRectangle.Width ||
+                _imagecache.MaxHeight != btnPicture.ClientRectangle.Height - 30)
             {
                 RefreshImageCache();
             }
@@ -183,7 +183,7 @@ namespace labs_coordinate_pictures
                     return true;
                 };
 
-            _imagecache = new ImageCache(btnPicture.Width, btnPicture.Height,
+            _imagecache = new ImageCache(btnPicture.ClientRectangle.Width, btnPicture.ClientRectangle.Height - 30,
                 ImageCacheSize, callbackOnUiThread, canDisposeBitmap, _shouldRotateImages);
         }
 
@@ -575,11 +575,11 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void RenameFile()
+        public bool RenameFile()
         {
             if (_filelist.Current == null || !_mode.SupportsRename())
             {
-                return;
+                return false;
             }
 
             InputBoxHistory mruList = FilenameUtils.LooksLikeImage(_filelist.Current) ?
@@ -615,8 +615,11 @@ namespace labs_coordinate_pictures
                 if (WrapMoveFile(_filelist.Current, fullnewname))
                 {
                     RefreshUiAfterCurrentImagePossiblyMoved(fullnewname);
+                    return true;
                 }
             }
+
+            return false;
         }
 
         void RefreshUiAfterCurrentImagePossiblyMoved(string setCurrentPath)
@@ -1285,22 +1288,24 @@ namespace labs_coordinate_pictures
             OnOpenItem();
         }
 
-        static List<string> getSubcatsSeen(string dir)
+        static List<Tuple<string, string, string>> getSubcatsSeen(string dir)
         {
-            Dictionary<string, bool> subcatsseen = new Dictionary<string, bool>();
-            foreach (var file in Directory.EnumerateFiles(dir))
+            var res = new List<Tuple<string, string, string>>();
+            var path = Path.Combine(dir, "subcategories.txt");
+            if (File.Exists(path))
             {
-                var shortname = Path.GetFileName(file);
-                if (shortname.Contains("^%^"))
+                foreach (var line in File.ReadAllLines(path))
                 {
-                    var subcat = Utils.SplitByString(shortname, "^%^")[1];
-                    subcatsseen[subcat] = true;
+                    if (line.Trim().Length > 0 &&
+                        !line.StartsWith("#", StringComparison.Ordinal))
+                    {
+                        var parts = Utils.SplitByString(line, "|");
+                        res.Add(new Tuple<string, string, string>(parts[0], parts[1], parts[2]));
+                    }
                 }
             }
 
-            List<string> subcats = subcatsseen.Keys.ToList();
-            subcats.Sort();
-            return subcats;
+            return res;
         }
 
         private void mnuAddSubcategory_Click(object sender, EventArgs e)
@@ -1312,27 +1317,23 @@ namespace labs_coordinate_pictures
             }
 
             var subcats = getSubcatsSeen(Path.GetDirectoryName(currentfile));
-            var msg = "Enter a number to use an existing subcat:\r\n";
+            var msg = "Choose a subcat:\r\n";
             for (int i = 0; i < subcats.Count; i++)
             {
-                msg += "" + (i + 1) + ") " + subcats[i] + "\r\n";
+                msg += "" + subcats[i].Item1 + ") " + subcats[i].Item2 + "\r\n";
             }
 
             msg += " or, type any string to start a new subcat.";
             string entered = InputBoxForm.GetStrInput(msg, "", InputBoxHistory.None, taller: true);
-            int ncat = -1;
-            string whichcat = "";
-            if (string.IsNullOrWhiteSpace(entered))
+            var found = subcats.Where((tp) => (tp.Item1 == entered)).ToList();
+            if (string.IsNullOrEmpty(entered))
             {
                 return;
             }
-            else if (int.TryParse(entered, out ncat) && ncat >= 1 && ncat <= subcats.Count)
+            else if (found.Count == 0)
             {
-                whichcat = subcats[ncat - 1];
-            }
-            else
-            {
-                whichcat = entered.Trim();
+                MessageBox.Show("No subcat found");
+                return;
             }
 
             string newname;
@@ -1344,7 +1345,7 @@ namespace labs_coordinate_pictures
                 shortname = oldparts[0] + oldparts[2];
             }
 
-            whichcat = "^%^" + whichcat + "^%^";
+            string whichcat = "^%^" + found[0].Item2 + "^%^";
             var indexprefix = shortname.IndexOf("])", StringComparison.InvariantCulture);
             if (indexprefix != -1)
             {
@@ -1362,7 +1363,14 @@ namespace labs_coordinate_pictures
             if (WrapMoveFile(currentfile, newname))
             {
                 RefreshUiAfterCurrentImagePossiblyMoved(newname);
-                RenameFile();
+                if (RenameFile())
+                {
+                    var largecat = found[0].Item3;
+                    if (!string.IsNullOrEmpty(largecat))
+                    {
+                        AssignCategory(largecat);
+                    }
+                }
             }
         }
 
