@@ -281,7 +281,7 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public void AutoAcceptSmallFiles(FormGallery form, int acceptFilesSmallerThan = 1024 * 45)
+        public void AutoAcceptSmallFiles(FormGallery form, int capJpg = 0, int capWebp = 0)
         {
             var list = form.GetFilelist().GetList();
             bool nameHasSuffix;
@@ -301,15 +301,34 @@ namespace labs_coordinate_pictures
             }
 
             // then, accept the small files
+            if (capJpg == 0)
+            {
+                var optCapWebp = InputBoxForm.GetInteger("Accept webp files less than this many Kb:", 50);
+                if (!optCapWebp.HasValue)
+                {
+                    return;
+                }
+
+                var optCapJpg = InputBoxForm.GetInteger("Accept jpg files less than this many Kb:", 100);
+                if (!optCapJpg.HasValue)
+                {
+                    return;
+                }
+
+                capWebp = 1024 * optCapWebp.Value;
+                capJpg = 1024 * optCapJpg.Value;
+            }
+
             int countAccepted = 0;
             var sizeIsGoodCategory = GetDefaultCategories().Split(new char[] { '/' })[2];
             foreach (var path in list)
             {
                 var fileLength = new FileInfo(path).Length;
-                if ((path.EndsWith(".webp", StringComparison.Ordinal) ||
-                    path.EndsWith(".jpg", StringComparison.Ordinal)) &&
-                    fileLength < acceptFilesSmallerThan &&
-                    fileLength > 0)
+                if (fileLength > 0 &&
+                    ((path.EndsWith(".webp", StringComparison.Ordinal) &&
+                    fileLength < capWebp) ||
+                    (path.EndsWith(".jpg", StringComparison.Ordinal) &&
+                    fileLength < capJpg)))
                 {
                     countAccepted++;
                     var newPath = FilenameUtils.AddCategoryToFilename(path, sizeIsGoodCategory);
