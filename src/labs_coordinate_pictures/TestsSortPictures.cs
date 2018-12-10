@@ -943,7 +943,7 @@ namespace labs_coordinate_pictures
             {
                 // test AutoAcceptSmallFiles
                 var acceptFilesSmallerThanBytes = 6;
-                mode.AutoAcceptSmallFiles(form, acceptFilesSmallerThanBytes);
+                mode.AutoAcceptSmallFiles(form, acceptFilesSmallerThanBytes, acceptFilesSmallerThanBytes);
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t1.bmp")));
                 TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t2.bmp")));
                 TestUtil.IsTrue(!File.Exists(Path.Combine(dir, "a1.jpg")));
@@ -1002,7 +1002,7 @@ namespace labs_coordinate_pictures
             TestUtil.IsStringArrayEq("abc", mruTestAddFirst.Get());
 
             // set valid data
-            var mruTest = new PersistMostRecentlyUsedList(InputBoxHistory.RenameImage, cfg);
+            var mruTest = new PersistMostRecentlyUsedList(InputBoxHistory.RenameImage, cfg, 10);
             TestUtil.IsStringArrayEq("abc", mruTest.Get());
             mruTest.AddToHistory("def");
             TestUtil.IsStringArrayEq("def|abc", mruTest.Get());

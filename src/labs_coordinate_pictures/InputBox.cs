@@ -250,18 +250,20 @@ namespace labs_coordinate_pictures
     // save MRU history, limits number of entries with a queue structure.
     public sealed class PersistMostRecentlyUsedList
     {
-        public const int MaxHistoryEntries = 50;
-        public const int MaxEntryLength = 300;
+        readonly int _maxHistoryEntries;
+        readonly int _maxEntryLength;
         readonly string _delimiter = "||||";
         InputBoxHistory _historyKey = InputBoxHistory.None;
         ConfigKey _configsKey = ConfigKey.None;
         Configs _configs;
         string[] _currentItems;
         public PersistMostRecentlyUsedList(InputBoxHistory historyKey,
-            Configs configs = null)
+            Configs configs = null, int maxHistoryEntries = 50)
         {
             _historyKey = historyKey;
             _configs = configs ?? Configs.Current;
+            _maxHistoryEntries = maxHistoryEntries;
+            _maxEntryLength = 300;
 
             // find the corresponding ConfigKey for this InputBoxHistory
             if (_historyKey != InputBoxHistory.None)
@@ -300,7 +302,7 @@ namespace labs_coordinate_pictures
 
                 // only add if it's not already in the list, and s does not contain _delimiter.
                 if (!string.IsNullOrEmpty(s) &&
-                    s.Length < MaxEntryLength && !s.Contains(_delimiter))
+                    s.Length < _maxEntryLength && !s.Contains(_delimiter))
                 {
                     List<string> list = new List<string>(_currentItems);
 
@@ -315,7 +317,7 @@ namespace labs_coordinate_pictures
                     list.Insert(0, s);
 
                     // if we've reached the limit, cut out the extra ones
-                    while (list.Count > MaxHistoryEntries)
+                    while (list.Count > _maxHistoryEntries)
                     {
                         list.RemoveAt(list.Count - 1);
                     }
