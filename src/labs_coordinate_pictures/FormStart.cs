@@ -351,7 +351,7 @@ namespace labs_coordinate_pictures
         private void onlineDocumentationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Utils.LaunchUrl(
-                "https://github.com/downpoured/labs_coordinate_pictures/blob/master/README.md");
+                "https://github.com/moltenjs/labs_coordinate_pictures/blob/master/README.md");
         }
     }
 }
