@@ -47,6 +47,7 @@
             this.toolStripPicturesSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.sortTwitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sortMusicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortTextFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setDirectoryForDeletedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSortmusicStagingLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,7 +69,6 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.onlineDocumentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.sortTextFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -207,6 +207,13 @@
             this.sortMusicToolStripMenuItem.Text = "Sort &Music...";
             this.sortMusicToolStripMenuItem.Click += new System.EventHandler(this.sortMusicToolStripMenuItem_Click);
             // 
+            // sortTextFilesToolStripMenuItem
+            // 
+            this.sortTextFilesToolStripMenuItem.Name = "sortTextFilesToolStripMenuItem";
+            this.sortTextFilesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.sortTextFilesToolStripMenuItem.Text = "Sort Te&xt and Playlists...";
+            this.sortTextFilesToolStripMenuItem.Click += new System.EventHandler(this.sortTextFilesToolStripMenuItem_Click);
+            // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -302,15 +309,15 @@
             this.setAltImageEditorToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setAltImageEditorToolStripMenuItem.Text = "Set alt image editor location...";
             // 
-            // setJpegCropDirectoryToolStripMenuItem
+            // setImageEditorJpegToolStripMenuItem
             // 
-            this.setImageEditorJpegToolStripMenuItem.Name = "setJpegCropDirectoryToolStripMenuItem";
+            this.setImageEditorJpegToolStripMenuItem.Name = "setImageEditorJpegToolStripMenuItem";
             this.setImageEditorJpegToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setImageEditorJpegToolStripMenuItem.Text = "Set image editor jpeg location...";
             // 
-            // setAltJpegcropLocationToolStripMenuItem
+            // setImageEditorCropLocationToolStripMenuItem
             // 
-            this.setImageEditorCropLocationToolStripMenuItem.Name = "setAltJpegcropLocationToolStripMenuItem";
+            this.setImageEditorCropLocationToolStripMenuItem.Name = "setImageEditorCropLocationToolStripMenuItem";
             this.setImageEditorCropLocationToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.setImageEditorCropLocationToolStripMenuItem.Text = "Set image editor crop location...";
             // 
@@ -355,13 +362,6 @@
             this.label1.Size = new System.Drawing.Size(201, 52);
             this.label1.TabIndex = 1;
             this.label1.Text = "\r\n\r\nWelcome to labs_coordinate_pictures.\r\nPlease use the menus above to proceed.";
-            // 
-            // sortTextFilesToolStripMenuItem
-            // 
-            this.sortTextFilesToolStripMenuItem.Name = "sortTextFilesToolStripMenuItem";
-            this.sortTextFilesToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
-            this.sortTextFilesToolStripMenuItem.Text = "Sort Te&xt Files...";
-            this.sortTextFilesToolStripMenuItem.Click += new System.EventHandler(this.sortTextFilesToolStripMenuItem_Click);
             // 
             // FormStart
             // 

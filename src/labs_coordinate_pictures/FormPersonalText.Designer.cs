@@ -40,6 +40,10 @@
             this.mnuUndo = new System.Windows.Forms.ToolStripMenuItem();
             this.categoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editCategoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playlistToolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyFilenamesInADirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.getHtmlFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.getURLsInCopiedTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -97,7 +101,8 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
-            this.categoriesToolStripMenuItem});
+            this.categoriesToolStripMenuItem,
+            this.playlistToolsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1154, 24);
@@ -153,6 +158,37 @@
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
             this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
+            // playlistToolsToolStripMenuItem
+            // 
+            this.playlistToolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyFilenamesInADirectoryToolStripMenuItem,
+            this.getHtmlFromClipboardToolStripMenuItem,
+            this.getURLsInCopiedTextToolStripMenuItem});
+            this.playlistToolsToolStripMenuItem.Name = "playlistToolsToolStripMenuItem";
+            this.playlistToolsToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
+            this.playlistToolsToolStripMenuItem.Text = "PlaylistTools";
+            // 
+            // copyFilenamesInADirectoryToolStripMenuItem
+            // 
+            this.copyFilenamesInADirectoryToolStripMenuItem.Name = "copyFilenamesInADirectoryToolStripMenuItem";
+            this.copyFilenamesInADirectoryToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.copyFilenamesInADirectoryToolStripMenuItem.Text = "Copy filenames in a directory";
+            this.copyFilenamesInADirectoryToolStripMenuItem.Click += new System.EventHandler(this.copyFilenamesInADirectoryToolStripMenuItem_Click);
+            // 
+            // getHtmlFromClipboardToolStripMenuItem
+            // 
+            this.getHtmlFromClipboardToolStripMenuItem.Name = "getHtmlFromClipboardToolStripMenuItem";
+            this.getHtmlFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.getHtmlFromClipboardToolStripMenuItem.Text = "Get clipboard as HTML";
+            this.getHtmlFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.getHtmlFromClipboardToolStripMenuItem_Click);
+            // 
+            // getURLsInCopiedTextToolStripMenuItem
+            // 
+            this.getURLsInCopiedTextToolStripMenuItem.Name = "getURLsInCopiedTextToolStripMenuItem";
+            this.getURLsInCopiedTextToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.getURLsInCopiedTextToolStripMenuItem.Text = "Get URLs in copied text";
+            this.getURLsInCopiedTextToolStripMenuItem.Click += new System.EventHandler(this.getURLsInCopiedTextToolStripMenuItem_Click);
+            // 
             // FormPersonalText
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -189,5 +225,9 @@
         private System.Windows.Forms.ToolStripMenuItem openFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem categoriesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editCategoriesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem playlistToolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyFilenamesInADirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem getHtmlFromClipboardToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem getURLsInCopiedTextToolStripMenuItem;
     }
 }

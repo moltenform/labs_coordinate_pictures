@@ -7,6 +7,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace labs_coordinate_pictures
@@ -208,6 +209,68 @@ namespace labs_coordinate_pictures
             {
                 e.Handled = true; // prevent propagation
                 e.SuppressKeyPress = true; // don't want the listbox to pick this up
+            }
+        }
+
+        private void copyFilenamesInADirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string file = Utils.AskOpenFileDialog("Choose one file from the directory...");
+            if (file != null)
+            {
+                var dir = Path.GetDirectoryName(file);
+                var s = "";
+                foreach (var fl in Directory.EnumerateFiles(dir, "*", SearchOption.TopDirectoryOnly))
+                {
+                    s += Path.GetFileName(fl) + "\r\n";
+                }
+
+                Clipboard.SetText(s);
+                MessageBox.Show("Filenames copied.");
+            }
+        }
+
+        private void getHtmlFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.ContainsText(TextDataFormat.Html))
+            {
+                var html = Clipboard.GetText(TextDataFormat.Html);
+                Clipboard.SetText(html, TextDataFormat.UnicodeText);
+                MessageBox.Show("got html from clipboard");
+            }
+            else
+            {
+                MessageBox.Show("clipboard doesn't appear to have html");
+            }
+        }
+
+        private void getURLsInCopiedTextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
+            {
+                var urlsSeen = new HashSet<string>();
+                var urls = new List<string>();
+                foreach (var match in Regex.Matches(Clipboard.GetText(), "https?://[^ '\"<>]+"))
+                {
+                    var url = ((Match)match).ToString();
+                    if (!urlsSeen.Contains(url))
+                    {
+                        urlsSeen.Add(url);
+                        urls.Add(url);
+                    }
+                }
+                if (Utils.AskToConfirm("got " + urls.Count + " urls. keep only youtube?"))
+                {
+                    var c = urls.Where((s) => s.Contains("//www.youtube.com/watch?v="));
+                    Clipboard.SetText(string.Join("\r\n", c));
+                }
+                else
+                {
+                    Clipboard.SetText(string.Join("\r\n", urls));
+                }
+            }
+            else
+            {
+                MessageBox.Show("clipboard doesn't appear to have text");
             }
         }
     }

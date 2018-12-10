@@ -35,14 +35,13 @@ namespace labs_coordinate_pictures
 
     public static class TestUtil
     {
-        // used to represent null, not accessible outside this class.
-        static object nullToken = new object();
+        static readonly object NullPlaceholder = new object();
 
         public static void IsEq(object expected, object actual)
         {
             // use a token to make sure that IsEq(null, null) works.
-            expected = expected ?? nullToken;
-            actual = actual ?? nullToken;
+            expected = expected ?? NullPlaceholder;
+            actual = actual ?? NullPlaceholder;
 
             if (!expected.Equals(actual))
             {
