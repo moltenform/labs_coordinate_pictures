@@ -137,7 +137,7 @@ namespace labs_coordinate_pictures
     {
         static Configs _instance;
         string _path;
-        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
+        Dictionary<ConfigKey, string> _dict = new Dictionary<ConfigKey, string>();
 
         internal Configs(string path)
         {
@@ -209,16 +209,16 @@ namespace labs_coordinate_pictures
                     continue;
                 }
 
-                _persisted[key] = split[1];
+                _dict[key] = split[1];
             }
         }
 
         void SavePersisted()
         {
             var sb = new StringBuilder();
-            foreach (var key in from key in _persisted.Keys orderby key select key)
+            foreach (var key in from key in _dict.Keys orderby key select key)
             {
-                var value = _persisted[key];
+                var value = _dict[key];
                 if (!string.IsNullOrEmpty(value))
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
@@ -236,8 +236,15 @@ namespace labs_coordinate_pictures
 
         public void Set(ConfigKey key, string s)
         {
-            _persisted[key] = s;
-            SavePersisted();
+            string prev;
+            var valueWasChanged = !_dict.TryGetValue(key, out prev) ||
+                prev != s ||
+                !File.Exists(_path);
+            if (valueWasChanged)
+            {
+                _dict[key] = s;
+                SavePersisted();
+            }
         }
 
         public void SetBool(ConfigKey key, bool b)
@@ -248,7 +255,7 @@ namespace labs_coordinate_pictures
         public string Get(ConfigKey key)
         {
             string s;
-            var ret = _persisted.TryGetValue(key, out s) ? s : "";
+            var ret = _dict.TryGetValue(key, out s) ? s : "";
             ConfirmChecksums.Check(key, ret);
             return ret;
         }
