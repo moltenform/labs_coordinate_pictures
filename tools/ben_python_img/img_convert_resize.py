@@ -230,9 +230,9 @@ def getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext=''):
             newHeight = int((float(height) / width) * smallestDimensionTarget)
             newWidth = smallestDimensionTarget
         
-        assertTrue(newWidth % 16 == 0 and newHeight % 16 == 0,
-            '%s %d %d %d %d'%(loggingContext, width, height, newWidth, newHeight) +
-            'warning: we\'d like height and width to both be a multiple of 16.')
+        if not(newWidth % 8 == 0 and newHeight % 8 == 0):
+            warn('%s %d %d %d %d'%(loggingContext, width, height, newWidth, newHeight) +
+            'we\'d like height and width to both be a multiple of 8.')
         return newWidth, newHeight
     else:
         raise ValueError('unknown resizeSpec')
