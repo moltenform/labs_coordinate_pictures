@@ -63,7 +63,7 @@ namespace labs_coordinate_pictures
                "(Optional) Locate 'qaac.exe'; directory should also contain 'dropq128.py'.",
                o, ConfigKey.FilepathM4aEncoder);
             setPythonLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-                "Locate 'python.exe'; currently only Python 2 is supported.",
+                "Locate 'python.exe' from Python 3.",
                 o, ConfigKey.FilepathPython);
             setWinMergeToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Select a diff/merge application, such as 'winmerge.exe'.",
@@ -88,6 +88,7 @@ namespace labs_coordinate_pictures
 
         private void FormStart_Load(object sender, EventArgs e)
         {
+            FindPythonDirectory();
             if (Environment.GetCommandLineArgs().Length > 1)
             {
                 OpenFileInGallery(Environment.GetCommandLineArgs()[1]);
@@ -352,6 +353,28 @@ namespace labs_coordinate_pictures
         {
             Utils.LaunchUrl(
                 "https://github.com/moltenjs/labs_coordinate_pictures/blob/master/README.md");
+        }
+
+        private static void FindPythonDirectory()
+        {
+            if (string.IsNullOrEmpty(Configs.Current.Get(ConfigKey.FilepathPython)))
+            {
+                var attempts = new string[] { @"C:\python34\python.exe",
+                    @"C:\python35\python.exe",
+                    @"C:\python36\python.exe",
+                    @"C:\python37\python.exe",
+                    @"C:\python38\python.exe" };
+                foreach (var attempt in attempts)
+                {
+                    if (File.Exists(attempt))
+                    {
+                        Configs.Current.Set(ConfigKey.FilepathPython, attempt);
+                        Configs.Current.Set(ConfigKey.FilepathChecksumPython,
+                            Utils.GetSha512(attempt));
+                        break;
+                    }
+                }
+            }
         }
     }
 }
