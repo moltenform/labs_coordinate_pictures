@@ -70,7 +70,8 @@ def safefilename(s):
         .replace(u': ', u', ').replace(u':', u'-') \
         .replace(u'| ', u', ').replace(u'|', u'-') \
         .replace(u'*', u'') \
-        .replace(u'"', u"'").replace(u'<', u'[').replace(u'>', u']')
+        .replace(u'"', u"'").replace(u'<', u'[').replace(u'>', u']') \
+        .replace(u'\r\n', u' ').replace(u'\r', u' ').replace(u'\n', u' ')
         
 def getRandomString():
     import random
@@ -114,6 +115,16 @@ def truncateWithEllipsis(s, maxLength):
             return s[0:maxLength]
         else:
             return s[0:maxLength - len(ellipsis)] + ellipsis
+
+def formatSize(n):
+    if n >= 1024 * 1024 * 1024:
+        return '%.2fGB' % (n / (1024.0 * 1024.0 * 1024.0))
+    elif n >= 1024 * 1024:
+        return '%.2fMB' % (n / (1024.0 * 1024.0))
+    elif n >= 1024:
+        return '%.2fKB' % (n / (1024.0))
+    else:
+        return '%db' % n
 
 def getClipboardTextTk():
     from Tkinter import Tk
@@ -271,7 +282,26 @@ def DBG(obj=None):
         pprint.pprint(newDict)
     else:
         pprint.pprint(obj)
-            
+
+def runAndCatchException(fn):
+    try:
+        fn()
+    except:
+        import sys
+        return sys.exc_info()[1]
+    return None
+
+def downloadUrl(url, toFile=None, timeout=30, asText=False):
+    import requests
+    resp = requests.get(url, timeout=timeout)
+    if toFile:
+        with open(toFile, 'wb') as fout:
+            fout.write(resp.content)
+    if asText:
+        return resp.text
+    else:
+        return resp.content
+
 def assertTrue(condition, *messageArgs):
     if not condition:
         msg = ' '.join(map(getPrintable, messageArgs)) if messageArgs else ''

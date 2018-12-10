@@ -72,13 +72,16 @@ def ensure_empty_directory(d):
     else:
         _os.makedirs(d)
 
-def copy(srcfile, destfile, overwrite):
+def copy(srcfile, destfile, overwrite, traceToStdout=False):
     if not exists(srcfile):
         raise IOError('source path does not exist')
-        
+
+    if traceToStdout:
+        trace('copy()', srcfile, destfile)
+
     if srcfile == destfile:
         pass
-    elif sys.platform == 'win32':
+    elif sys.platform.startswith('win'):
         from ctypes import windll, c_wchar_p, c_int, GetLastError
         failIfExists = c_int(0) if overwrite else c_int(1)
         res = windll.kernel32.CopyFileW(c_wchar_p(srcfile), c_wchar_p(destfile), failIfExists)
@@ -94,13 +97,16 @@ def copy(srcfile, destfile, overwrite):
 
     assertTrue(exists(destfile))
         
-def move(srcfile, destfile, overwrite, warn_between_drives=False):
+def move(srcfile, destfile, overwrite, warn_between_drives=False, traceToStdout=False):
     if not exists(srcfile):
         raise IOError('source path does not exist')
-        
+
+    if traceToStdout:
+        trace('move()', srcfile, destfile)
+
     if srcfile == destfile:
         pass
-    elif sys.platform == 'win32':
+    elif sys.platform.startswith('win'):
         from ctypes import windll, c_wchar_p, c_int, GetLastError
         ERROR_NOT_SAME_DEVICE = 17
         flags = 0
@@ -110,7 +116,8 @@ def move(srcfile, destfile, overwrite, warn_between_drives=False):
         if not res:
             err = GetLastError()
             if err == ERROR_NOT_SAME_DEVICE and warn_between_drives:
-                rinput('Note: moving file from one drive to another. Press Enter to continue.\r\n')
+                rinput('Note: moving file from one drive to another. ' +
+                    '%s %s Press Enter to continue.\r\n'%(srcfile, destfile))
                 return move(srcfile, destfile, overwrite, warn_between_drives=False)
                 
             raise IOError('MoveFileExW failed (maybe dest already exists?) err=%d' % err +
@@ -138,26 +145,36 @@ def copyFilePosixWithoutOverwrite(srcfile, destfile):
                 fdest.write(buffer)
     
 # unicodetype can be utf-8, utf-8-sig, etc.
-def readall(s, mode='r', unicodetype=None):
-    if unicodetype:
+def readall(s, mode='r', unicodetype=None, encoding=None):
+    if encoding:
+        # python 3-style
+        getF = lambda: open(s, mode, encoding=encoding)
+    elif unicodetype:
+        # python 2-style
         import codecs
-        f = codecs.open(s, mode, unicodetype)
+        getF = lambda: codecs.open(s, mode, encoding=unicodetype)
     else:
-        f = open(s, mode)
-    txt = f.read()
-    f.close()
+        getF = lambda: open(s, mode)
+
+    with getF() as f:
+        txt = f.read()
+
     return txt
 
 # unicodetype can be utf-8, utf-8-sig, etc.
-def writeall(s, txt, mode='w', unicodetype=None):
-    if unicodetype:
+def writeall(s, txt, mode='w', unicodetype=None, encoding=None):
+    if encoding:
+        # python 3-style
+        getF = lambda: open(s, mode, encoding=encoding)
+    elif unicodetype:
+        # python 2-style
         import codecs
-        f = codecs.open(s, mode, unicodetype)
+        getF = lambda: codecs.open(s, mode, encoding=unicodetype)
     else:
-        f = open(s, mode)
-    f.write(txt)
-    f.close()
+        getF = lambda: open(s, mode)
 
+    with getF() as f:
+        f.write(txt)
 
 # use this to make the caller pass argument names,
 # allowing foo(param=False) but preventing foo(False)
@@ -175,11 +192,17 @@ def listchildrenUnsorted(dir, _ind=_enforceExplicitlyNamedParameters, filenamesO
             yield filename if filenamesOnly else (dir + _os.path.sep + filename, filename)
 
 
-if sys.platform == 'win32':
+if sys.platform.startswith('win'):
     listchildren = listchildrenUnsorted
 else:
     def listchildren(*args, **kwargs):
         return sorted(listchildrenUnsorted(*args, **kwargs))
+
+def listdirs(dir, _ind=_enforceExplicitlyNamedParameters, filenamesOnly=False, allowedexts=None):
+    _checkNamedParameters(_ind)
+    for full, name in listchildren(dir, allowedexts=allowedexts):
+        if _os.path.isdir(full):
+            yield name if filenamesOnly else (full, name)
 
 def listfiles(dir, _ind=_enforceExplicitlyNamedParameters, filenamesOnly=False, allowedexts=None):
     _checkNamedParameters(_ind)
@@ -198,7 +221,7 @@ def recursefiles(root, _ind=_enforceExplicitlyNamedParameters, filenamesOnly=Fal
             dirnames[:] = newdirs
         
         if includeFiles:
-            for filename in (filenames if sys.platform == 'win32' else sorted(filenames)):
+            for filename in (filenames if sys.platform.startswith('win') else sorted(filenames)):
                 if not allowedexts or getext(filename) in allowedexts:
                     yield filename if filenamesOnly else (dirpath + _os.path.sep + filename, filename)
         
@@ -208,14 +231,72 @@ def recursefiles(root, _ind=_enforceExplicitlyNamedParameters, filenamesOnly=Fal
 def recursedirs(root, _ind=_enforceExplicitlyNamedParameters, filenamesOnly=False, fnFilterDirs=None, topdown=True):
     _checkNamedParameters(_ind)
     return recursefiles(root, filenamesOnly=filenamesOnly, fnFilterDirs=fnFilterDirs, includeFiles=False, includeDirs=True, topdown=topdown)
+
+class FileInfoEntryWrapper(object):
+    def __init__(self, obj):
+        self.obj = obj
+        self.path = obj.path
+        
+    def is_dir(self, *args):
+        return self.obj.is_dir(*args)
+        
+    def is_file(self, *args):
+        return self.obj.is_file(*args)
+        
+    def short(self):
+        return _os.path.split(self.path)[1]
+        
+    def size(self):
+        return self.obj.stat().st_size
+        
+    def mtime(self):
+        return self.obj.stat().st_mtime
     
+    def metadatachangetime(self):
+        assertTrue(not sys.platform.startswith('win'))
+        return self.obj.stat().st_ctime
+    
+    def createtime(self):
+        assertTrue(sys.platform.startswith('win'))
+        return self.obj.stat().st_ctime
+
+def recursefileinfo(root, recurse=True, followSymlinks=False, filesOnly=True):
+    assertTrue(isPy3OrNewer)
+    
+    # scandir's resources are released in destructor,
+    # do not create circular references holding it
+    for entry in _os.scandir(root):
+        if entry.is_dir(follow_symlinks=followSymlinks):
+            if not filesOnly:
+                yield FileInfoEntryWrapper(entry)
+            if recurse:
+                for subentry in recursefileinfo(entry.path, recurse=recurse,
+                        followSymlinks=followSymlinks, filesOnly=filesOnly):
+                    yield subentry
+        
+        if entry.is_file():
+            yield FileInfoEntryWrapper(entry)
+
+def listfileinfo(root, followSymlinks=False, filesOnly=True):
+    return recursefileinfo(root, recurse=False,
+        followSymlinks=followSymlinks, filesOnly=filesOnly)
+
 def isemptydir(dir):
     return len(_os.listdir(dir)) == 0
     
 def fileContentsEqual(f1, f2):
     import filecmp
     return filecmp.cmp(f1, f2, shallow=False)
-    
+
+def getFileLastModifiedTime(filepath):
+    return _os.path.getmtime(filepath)
+
+def setFileLastModifiedTime(filepath, lmt):
+    curtimes = os.stat(filepath)
+    newtimes = (curtimes.st_atime, lmt)
+    with open(filepath, 'ab') as f:
+        _os.utime(filepath, newtimes)
+
 # processes
 def openDirectoryInExplorer(dir):
     assert isdir(dir), 'not a dir? ' + dir
@@ -261,7 +342,7 @@ def findBinaryOnPath(binaryName):
     if _os.sep in binaryName:
         return binaryName if is_exe(binaryName) else None
 
-    if sys.platform == 'win32' and not binaryName.lower().endswith('.exe'):
+    if sys.platform.startswith('win') and not binaryName.lower().endswith('.exe'):
         binaryName += '.exe'
 
     for path in _os.environ["PATH"].split(_os.pathsep):
@@ -297,6 +378,30 @@ def computeHash(path, hasher=None, buffersize=0x40000):
                 hasher.update(buffer)
         return hasher.hexdigest()
 
+def windowsUrlFileGet(path):
+    assertEq('.url', _os.path.splitext(path)[1].lower())
+    s = readall(path, mode='r', encoding='latin1')
+    lines = s.split('\n')
+    for line in lines:
+        if line.startswith('URL='):
+            return line[len('URL='):]
+    raise RuntimeError('no url seen in ' + path)
+
+def windowsUrlFileWrite(path, url):
+    assertTrue(len(url) > 0)
+    assertTrue(not files.exists(path), 'file already exists at', path)
+    try:
+        testUrl = url.encode('ascii')
+    except e:
+        if isinstance(e, UnicodeEncodeError):
+            raise RuntimeError('can\'t support a non-ascii url' + url + ' ' + path)
+        else:
+            raise
+    f = open(path, 'w', encoding='ascii')
+    f.write('[InternetShortcut]\n')
+    f.write('URL=%s\n' % url)
+    f.close()
+
 # returns tuple (returncode, stdout, stderr)
 def run(listArgs, _ind=_enforceExplicitlyNamedParameters, shell=False, createNoWindow=True,
         throwOnFailure=RuntimeError, stripText=True, captureoutput=True, silenceoutput=False,
@@ -305,7 +410,7 @@ def run(listArgs, _ind=_enforceExplicitlyNamedParameters, shell=False, createNoW
     _checkNamedParameters(_ind)
     kwargs = {}
     
-    if sys.platform == 'win32' and createNoWindow:
+    if sys.platform.startswith('win') and createNoWindow:
         kwargs['creationflags'] = 0x08000000
     
     if captureoutput and not wait:
@@ -359,7 +464,7 @@ def runWithoutWaitUnicode(listArgs):
     # https://bugs.python.org/issue1759845
     
     import subprocess
-    if isPy3OrNewer or sys.platform != 'win32' or all(isinstance(arg, str) for arg in listArgs):
+    if isPy3OrNewer or not sys.platform.startswith('win') or all(isinstance(arg, str) for arg in listArgs):
         # no workaround needed in Python3
         p = subprocess.Popen(listArgs, shell=False)
         return p.pid
