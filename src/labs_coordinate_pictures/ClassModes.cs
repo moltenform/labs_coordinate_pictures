@@ -212,38 +212,14 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            // we certainly could start the script directly, but I currently prefer the
+            // we could start the script directly, but I currently prefer the
             // traditional workflow of manually running the python script.
-            // all we do here is write the current directory onto the python script.
             if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by " +
-                 "running a python script," +
-                 " ./ben_python_img/img_convert_resize.py" + Utils.NL + Utils.NL +
-                "Set the directory referred to in the script to" + Utils.NL + baseDirectory + "?"))
+                 "running a python script." + Utils.NL + Utils.NL +
+                "Open online documentation to read more?"))
             {
-                var script = Path.Combine(Configs.Current.Directory,
-                    "ben_python_img", "img_resize_keep_exif.py");
-
-                if (File.Exists(script))
-                {
-                    var parts = Utils.SplitByString(File.ReadAllText(script), "###template");
-                    if (parts.Length == 3)
-                    {
-                        var result = parts[0] +
-                            "###template" + Utils.NL + "    baseDirectory = r'" + baseDirectory +
-                            "'" + Utils.NL + "    ###template" + parts[2];
-
-                        File.WriteAllText(script, result);
-                        Utils.MessageBox("img_resize_keep_exif.py modified successfully.");
-                    }
-                    else
-                    {
-                        Utils.MessageErr("Could not find ###template in script.");
-                    }
-                }
-                else
-                {
-                    Utils.MessageErr("Could not find img_resize_keep_exif.py.");
-                }
+                Utils.LaunchUrl(
+                    "https://moltenjs.com/page/labs_coordinate_pictures/doc/keeping_metadata.html");
             }
 
             _hasRunCompletionAction = true;
