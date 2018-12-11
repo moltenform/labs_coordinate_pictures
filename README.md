@@ -22,7 +22,7 @@ Tools I wrote back in 2014, released under the GPL license.
 
 <i>a screenshot showing some of the features:</i>
 
-![Screenshot](https://moltenjs.com/page/labs_coordinate_pictures/doc/modifying_images_menu.png)
+<a href="#">![Screenshot](https://moltenjs.com/page/labs_coordinate_pictures/doc/modifying_images_menu.png)</a>
 
 Advanced features include:
 
