@@ -15,7 +15,7 @@ From another Python script,
 	img_convert_resize.convertOrResizeImage(
 		'input.png', 'output.webp')
 
-For personal image resizing, rename files with the format "mypicture\_\_MARKAS\_\_50%.jpg", and run
+To resizes images and keep exif metadata, rename files in the form "mypicture\_\_MARKAS\_\_50%.jpg", and run
 
 	import img_resize_keep_exif
 	img_resize_keep_exif.resizeAllAndKeepExif('/path/to/directory', 
@@ -31,16 +31,13 @@ Additional features
 * img_utils.readThumbnails to export jpg thumbnails to other jpgs, or remove thumbnail data.
 * img_utils.removeResolutionTags to remove jpg resolution tags.
 * img_utils.removeAllExifTags to remove all exif tags.
-* One sometimes wants the resized jpg to have both dimensions be multiples of 16, as this allows more lossless transformation.
+* One sometimes wants the resized jpg to have both dimensions be multiples of 8, as this allows more lossless transformation.
 	* Instead of providing a percentage like 50%, provide a dimension like 288h.
 	* This means that the smaller dimension (typically height) will be resized to 288 pixels (and aspect ratio preserved).
-	* An error will be raised if dimensions could not be made multiples of 16.
+	* We'll show a warning if dimensions could not be made multiples of 8.
 
 ### Dependencies
 
-* ben\_python\_common
-	* download github.com/downpoured/labs\_coordinate\_music/tree/master/ben\_python\_common
-	* place in directory ./tools/ben\_python\_img/ben\_python\_common
 * Pillow (a fork of PIL)
 	* pip install pillow
 * mozjpeg encoder
@@ -62,4 +59,4 @@ Additional features
 	* or edit ../options.ini to set 
 		* FilepathExifTool=C:\full\path\to\exiftool.exe (windows)
 		* FilepathExifTool=/full/path/to/exiftool (non-windows)
-	
+

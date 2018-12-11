@@ -1,21 +1,26 @@
-# Coordinate Pictures
+# labs\_coordinate\_pictures
 
-A collection of tools released under the GPL license. 
+Tools I wrote back in 2014, released under the GPL license. 
 
-[Sorting Images](doc/SortingImages.md)  
-Quickly rename, resize, categorize, and optimize images
+* [Sort images into categories](https://moltenjs.com/page/labs_coordinate_pictures/doc/sorting_images.html)  
 
-[Keeping Metadata](doc/KeepingMetadata.md)  
-Resize images while keeping exif metadata
+* [Edit and resize images](https://moltenjs.com/page/labs_coordinate_pictures/doc/modifying_images.html)  
 
-[Searching for Differences](doc/SearchDifferences.md)  
-Search for differences in two similar directories
+* [Rename images](https://moltenjs.com/page/labs_coordinate_pictures/doc/renaming_images.html)  
 
-[Searching for Duplicate Files](doc/SearchDuplicates.md)  
-Search for files with identical contents
+* [Resize images while keeping exif metadata](https://moltenjs.com/page/labs_coordinate_pictures/doc/keeping_metadata.html)  
 
-[Sync files from one folder to another](doc/SyncingFiles.md)  
-Mirror a directory, for backing up files or copying files over a network
+* [Search for differences in two similar folders](https://moltenjs.com/page/labs_coordinate_pictures/doc/search_differences.html)  
 
-[Getting Started](doc/GettingStarted.md)  
-Download, configuration, dev notes
+* [Search for duplicate files](https://moltenjs.com/page/labs_coordinate_pictures/doc/search_duplicates.html)  
+
+* [Search for duplicate files across two folders](https://moltenjs.com/page/labs_coordinate_pictures/doc/search_duplicates_two.html)  
+
+* [Sync files from one folder to another](https://moltenjs.com/page/labs_coordinate_pictures/doc/syncing_files.html)  
+
+* [Download](https://moltenjs.com/page/labs_coordinate_pictures/doc/download_and_setup.html)  
+
+<i>a screenshot showing some of the features:</i>
+
+![Screenshot](https://moltenjs.com/page/labs_coordinate_pictures/doc/modifying_images_menu.png)
+
