@@ -1,0 +1,893 @@
+MICROSOFT SOFTWARE LICENSE TERMS
+
+MICROSOFT VISUAL STUDIO COMMUNITY 2013
+
+These license terms are an agreement between Microsoft Corporation (or based on where you live, one of its affiliates) and you. They apply to the software named above. The terms also apply to any Microsoft services or updates for the software, except to the extent those have additional terms.
+
+If you comply with these license terms, you have the rights below.
+
+INSTALLATION AND USE RIGHTS.
+Individual license. If you are an individual working on your own applications to sell or for any other purpose, you may use the software to develop and test those applications.
+Organization licenses. If you are an organization, your users may use the software as follows:
+Any number of your users may use the software to develop and test your applications released under Open Source Initiative (OSI)-approved open source software licenses.
+Any number of your users may use the software to develop and test your applications as part of online or in person classroom training and education, or for performing academic research.
+If none of the above apply, and you are also not an enterprise (defined below), then up to 5 of your individual users can use the software concurrently to develop and test your applications.
+If you are an enterprise, your employees and contractors may not use the software to develop or test your applications, except for open source and education purposes as permitted above. An “enterprise” is any organization and its affiliates who collectively have either (a) more than 250 PCs or users or (b) more than one million US dollars (or the equivalent in other currencies) in annual revenues, and “affiliates” means those entities that control (via majority ownership), are controlled by, or are under common control with an organization.
+Demo use. The uses permitted above include use of the software in demonstrating your applications.
+Backup copy. You may make one backup copy of the software, for reinstalling the software.
+TERMS FOR SPECIFIC COMPONENTS.
+Utilities. The software contains some items on the Utilities List at https://go.microsoft.com/fwlink/?LinkId=313603. You may copy and install the Utilities you receive with the software, on third party machines, to debug and deploy your applications and databases you developed with the software. You must delete all Utilities installed on those machines within the earlier of (i) when you have finished debugging or deploying your applications; or (ii) 30 days after installation of the Utilities on those machines.
+Build Server. The software contains some items on the Build Server List at https://go.microsoft.com/fwlink/?LinkId=313603. You may install copies of those items, if included with the software, onto your build machines. You and others in your organization may use these items on your build machines solely for the purposes of compiling, building, verifying and archiving your applications or running quality or performance tests as part of the build process.
+Fonts. While the software is running, you may use its fonts to display and print content. You may only (i) embed fonts in content as permitted by the embedding restrictions in the fonts; and (ii) temporarily download them to a printer or other output device to help print content.
+Licenses for other components.
+Microsoft platforms. The software may include components from Microsoft Windows; Microsoft Windows Server; Microsoft SQL Server; Microsoft Exchange; Microsoft Office; and Microsoft Sharepoint. These components are governed by separate agreements and their own product support policies, as described in the Microsoft Licenses folder accompanying the software.
+Developer resources. The software includes compilers, languages, runtimes, environments, and other resources. These components may be governed by separate agreements and have their own product support policies. A list of these other components is located at www.support.microsoft.com/common/international.aspx.
+Third party components. The software may include third party components with separate legal notices or governed by other agreements, as described in the ThirdPartyNotices file accompanying the software. Even if such components are governed by other agreements, the disclaimers and the limitations on and exclusions of damages below also apply.
+Package Managers. The software includes package managers, like NuGet, that give you the option to download other Microsoft and third party software packages to use with your application. Those packages are under their own licenses, and not this agreement. Microsoft does not distribute, license or provide any warranties for any of the third party packages.
+DISTRIBUTABLE CODE. The software contains code that you are permitted to distribute in applications you develop if you comply with the terms below. (For this Section the term “distribution” also means deployment of your applications for third parties to access over the Internet.)
+Distribution Rights. The code and text files listed below are “Distributable Code.”
+REDIST.TXT Files. You may copy and distribute the object code form of code listed on the REDIST list located at https://go.microsoft.com/fwlink/?LinkId=313603.
+Sample Code, Templates and Styles. You may copy, modify and distribute the source and object code form of code marked as “sample”, “template”, and “Simple Styles” or “Sketch Styles”.
+Image Library. You may copy and distribute images and animations in the Image Library as described in the software documentation.
+Third Party Distribution. You may permit distributors of your applications to copy and distribute the Distributable Code as part of those applications.
+Distribution Requirements. For any Distributable Code you distribute, you must:
+add significant primary functionality to it in your applications;
+distribute Distributable Code included in a setup program only as part of that setup program without modification; and
+require distributors and external end users to agree to terms that protect the Distributable Code at least as much as this agreement.
+Distribution Restrictions.You may not:
+alter any copyright, trademark or patent notice in the Distributable Code;
+use Microsoft’s trademarks in your applications’ names or in a way that suggests your applications come from or are endorsed by Microsoft; or
+modify or distribute the source code of any Distributable Code so that any part of it becomes subject to an Excluded License. An “Excluded License” is one that requires, as a condition of use, modification or distribution, that (i) the code be disclosed or distributed in source code form; or (ii) others have the right to modify it.
+DATA. The software may prompt you from time to time to obtain a license key, such as by signing into a Microsoft account. If you do not obtain and enter a new license key when prompted, you may not be able to use the software and access your data in the software. The software may collect information about you and your use of the software, and send that to Microsoft. Microsoft may use this information to provide services and improve our products and services. Some features in the software may enable collection of data from users of applications you develop using the software. If you use these features to enable data collection in your applications, you must comply with applicable law, including providing appropriate notices to users of your applications. You can learn more about data collection and use in the help documentation and the privacy statement at https://go.microsoft.com/fwlink/?LinkId=398505. Your use of the software operates as your consent to these practices.
+SCOPE OF LICENSE. The software is licensed, not sold. This agreement only gives you some rights to use the software. Microsoft reserves all other rights. Unless applicable law gives you more rights despite this limitation, you may use the software only as expressly permitted in this agreement. In doing so, you must comply with any technical limitations in the software that only allow you to use it in certain ways. For more information, see www.microsoft.com/licensing/userights. You may not
+work around any technical limitations in the software;
+reverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the software except, and solely to the extent: (i) permitted by applicable law, despite this limitation; or (ii) required to debug changes to any libraries licensed under the GNU Lesser General Public License which are included with and linked to by the software;
+remove, minimize, block or modify any notices of Microsoft or its suppliers in the software;
+use the software in any way that is against the law;
+share, publish, or lend the software, or provide it as a hosted solution for others to use, or transfer the software or this agreement to any third party.
+SUPPORT SERVICES. Because this software is “as is,” we may not provide support services for it.
+ENTIRE AGREEMENT. This agreement, and the terms for supplements, updates, Internet-based services and support services that you use, are the entire agreement for the software and support services.
+EXPORT RESTRICTIONS. The software is subject to United States export laws and regulations. You must comply with all domestic and international export laws and regulations that apply to the software. These laws include restrictions on destinations, end users and end use. For additional information, see www.microsoft.com/exporting.
+APPLICABLE LAW. If you acquired the software in the United States, Washington law applies to interpretation of and claims for breach of this agreement, and the laws of the state where you live apply to all other claims. If you acquired the software in any other country, its laws apply.
+LEGAL EFFECT. This agreement describes certain legal rights. You may have other rights under the laws of your state or country. This agreement does not change your rights under the laws of your state or country if the laws of your state or country do not permit it to do so. Without limitation of the foregoing, for Australia, YOU HAVE STATUTORY GUARANTEES UNDER THE AUSTRALIAN CONSUMER LAW AND NOTHING IN THESE TERMS IS INTENDED TO AFFECT THOSE RIGHTS.
+DISCLAIMER OF WARRANTY. THE SOFTWARE IS LICENSED “AS-IS.”  YOU BEAR THE RISK OF USING IT. MICROSOFT GIVES NO EXPRESS WARRANTIES, GUARANTEES OR CONDITIONS. TO THE EXTENT PERMITTED UNDER YOUR LOCAL LAWS, MICROSOFT EXCLUDES THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+LIMITATION ON AND EXCLUSION OF DAMAGES. YOU CAN RECOVER FROM MICROSOFT AND ITS SUPPLIERS ONLY DIRECT DAMAGES UP TO U.S. $5.00. YOU CANNOT RECOVER ANY OTHER DAMAGES, INCLUDING CONSEQUENTIAL, LOST PROFITS, SPECIAL, INDIRECT OR INCIDENTAL DAMAGES.
+This limitation applies to (a) anything related to the software, services, content (including code) on third party Internet sites, or third party applications; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.
+
+It also applies even if Microsoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your state or country may not allow the exclusion or limitation of incidental, consequential or other damages.
+
+   *   *   *
+
+Please note: As this software is distributed in Quebec, Canada, some of the clauses in this agreement are provided below in French. Remarque : Ce logiciel étant distribué au Québec, Canada, certaines des clauses dans ce contrat sont fournies ci-dessous en français.
+
+EXONÉRATION DE GARANTIE. Le logiciel visé par une licence est offert « tel quel ». Toute utilisation de ce logiciel est à votre seule risque et péril. Microsoft n’accorde aucune autre garantie expresse. Vous pouvez bénéficier de droits additionnels en vertu du droit local sur la protection duesc consommateurs, que ce contrat ne peut modifier. La ou elles sont permises par le droit locale, les garanties implicites de qualité marchande, d’adéquation à un usage particulier et d’absence de contrefaçon sont exclues.
+
+LIMITATION DES DOMMAGES-INTÉRÊTS ET EXCLUSION DE RESPONSABILITÉ POUR LES DOMMAGES. Vous pouvez obtenir de Microsoft et de ses fournisseurs une indemnisation en cas de dommages directs uniquement à hauteur de 5,00 $ US. Vous ne pouvez prétendre à aucune indemnisation pour les autres dommages, y compris les dommages spéciaux, indirects ou accessoires et pertes de bénéfices.
+
+Cette limitation concerne: (a) tout ce qui est relié au logiciel, aux services ou au contenu (y compris le code) figurant sur des sites Internet tiers ou dans des programmes tiers; et (b) les réclamations au titre de violation de contrat ou de garantie, ou au titre de responsabilité stricte, de négligence ou d’une autre faute dans la limite autorisée par la loi en vigueur.
+
+Elle s’applique également, même si Microsoft connaissait ou devrait connaître l’éventualité d’un tel dommage. Si votre pays n’autorise pas l’exclusion ou la limitation de responsabilité pour les dommages indirects, accessoires ou de quelque nature que ce soit, il se peut que la limitation ou l’exclusion ci-dessus ne s’appliquera pas à votre égard.
+
+EFFET JURIDIQUE. Le présent contrat décrit certains droits juridiques. Vous pourriez avoir d’autres droits prévus par les lois de votre pays. Le présent contrat ne modifie pas les droits que vous confèrent les lois de votre pays si celles ci ne le permettent pas
+
+   *   *   *
+
+Notice about video codecs. The software may include H.264/MPEG-4 AVC and/or VC-1 decoding technology. MPEG LA, L.L.C. requires this notice:
+
+THIS PRODUCT IS LICENSED UNDER THE H.264/AVC AND THE VC-1 PATENT PORTFOLIO LICENSES FOR THE PERSONAL AND NON-COMMERCIAL USE OF A CONSUMER TO (i) ENCODE VIDEO IN COMPLIANCE WITH THE ABOVE STANDARDS (“VIDEO STANDARDS”) AND/OR (ii) DECODE AVC, AND VC-1 VIDEO THAT WAS ENCODED BY A CONSUMER ENGAGED IN A PERSONAL AND NON-COMMERCIAL ACTIVITY AND/OR WAS OBTAINED FROM A VIDEO PROVIDER LICENSED TO PROVIDE SUCH VIDEO. NONE OF THE LICENSES EXTEND TO ANY OTHER PRODUCT REGARDLESS OF WHETHER SUCH PRODUCT IS INCLUDED WITH THIS SOFTWARE IN A SINGLE ARTICLE. NO LICENSE IS GRANTED OR SHALL BE IMPLIED FOR ANY OTHER USE. ADDITIONAL INFORMATION MAY BE OBTAINED FROM MPEG LA, L.L.C. SEE WWW.MPEGLA.COM.
+
+For clarity, this notice does not limit use of the software for normal business uses for that business which do not include (i) redistribution of the decoding technology to third parties, or (ii) creation of content with the VIDEO STANDARDS compliant technologies for distribution to third parties.
+
+REDIST.TXT files
+-------------------------------------------------------------------
+Distributable Code Files for Visual Studio Ultimate 2013, Visual Studio Premium 2013, and Visual Studio Professional 2013 editions
+This is the "REDIST list" that is referenced in the "Distributable Code" section of the Microsoft Software License Terms for certain editions of Visual Studio 2013 ("the software"). If you have a validly licensed copy of such software, you may copy and distribute with your program the unmodified form of the files listed below, subject to the License Terms for the software.
+
+Microsoft Azure:
+
+Source
+
+MobileServices.js 
+MobileServices.min.js
+
+
+Object Code
+
+Microsoft.WindowsAzure.Mobile.dll, 
+Microsoft.WindowsAzure.Mobile.resources.dll, 
+Microsoft.WindowsAzure.Mobile.UI.dll, and 
+Microsoft.WindowsAzure.Ext.dll
+
+Blend and XAML Designers for Visual Studio:
+
+Blend Project and Item Templates for Visual Studio
+
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\Blend\ProjectTemplates 
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\Blend\ItemTemplates
+
+Blend Fonts for Visual Studio
+
+Buxton Sketch font, SketchFlow Print font, and SegoeMarker font.
+
+Blend Sketch Styles and Simple Styles for Visual Studio
+
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\Blend\AppThemes\ 
+Contents under: \MSBuild\Microsoft\Expression\Blend\Silverlight\         
+Target files and a .dll for subsettext 
+Contents under: \MSBuild\Microsoft\Expression\Blend\.NETFramework 
+Target files and a .dll for subsettext
+
+Behaviors Runtime for HTML
+
+.JS files under C:\Program Files (x86)\Microsoft Visual Studio 12.0\Blend\Libraries\HTML\
+
+Behaviors Runtime for XAML
+
+C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\BehaviorsXamlSDKManaged\12.0
+
+\SDKManifest.xml 
+\Redist\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.pri 
+           Microsoft.Xaml.Interactivity.pri 
+\References\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\References\CommonConfiguration\Neutral\<lang>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll
+
+C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\BehaviorsXamlSDKNative\12.0
+
+\SDKManifest.xml 
+\Redist\CommonConfiguration\<arch>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\Redist\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.pri 
+           Microsoft.Xaml.Interactivity.pri 
+\References\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\References\CommonConfiguration\Neutral\<lang>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll
+
+Behaviors Runtime for Phone XAML:
+
+C:\Program Files (x86)\Microsoft SDKs\WindowsPhoneApp\v8.1\ExtensionSDKs\BehaviorsXamlSDKManaged\12.0
+
+\SDKManifest.xml 
+\Redist\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.pri 
+           Microsoft.Xaml.Interactivity.pri 
+\References\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\References\CommonConfiguration\Neutral\<lang>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll
+
+C:\Program Files (x86)\Microsoft SDKs\WindowsPhoneApp\v8.1\ExtensionSDKs\BehaviorsXamlSDKNative\12.0
+
+\SDKManifest.xml 
+\Redist\CommonConfiguration\<arch>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\Redist\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.pri 
+           Microsoft.Xaml.Interactivity.pri 
+\References\CommonConfiguration\Neutral\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll 
+\References\CommonConfiguration\Neutral\<lang>\ 
+           Microsoft.Xaml.Interactions.dll 
+           Microsoft.Xaml.Interactivity.dll
+
+Sample Data Resources
+
+C:\Program Files (x86)\Microsoft Visual Studio 12.0\Blend\SampleDataResources
+
+Microsoft Visual Basic PowerPacks:
+
+vb_vbpowerpacks.exe
+
+LightSwitch:
+
+ajax-loader.gif 
+dark-theme-2.0.0.css 
+dark-theme-2.5.0.css 
+datajs-1.1.1.js 
+datajs-1.1.1.min.js 
+icons-18-black.png 
+icons-18-white.png 
+icons-36-black.png 
+icons-36-white.png 
+jquery.mobile.structure-1.3.0.css 
+jquery.mobile.structure-1.3.0.min.css 
+jquery.mobile.theme-1.3.0.css 
+jquery.mobile.theme-1.3.0.min.css 
+jquery.mobile-1.3.0.css 
+jquery.mobile-1.3.0.js 
+jquery.mobile-1.3.0.min.css 
+jquery.mobile-1.3.0.min.js 
+jquery.mobile-1.3.0-vsdoc.js 
+jquery-1.9.1.intellisense.js 
+jquery-1.9.1.js 
+jquery-1.9.1.min.js 
+light-theme-2.0.0.css 
+light-theme-2.5.0.css 
+Microsoft.CSharp.dll 
+Microsoft.Data.Edm.dll 
+Microsoft.Data.Edm.SL.dll 
+Microsoft.Data.OData.dll 
+Microsoft.Data.OData.SL.dll 
+Microsoft.Data.Services.Client.dll 
+Microsoft.Data.Services.Client.SL.dll 
+Microsoft.Data.Services.dll 
+Microsoft.IdentityModel.dll 
+Microsoft.IdentityModel.Extensions.dll 
+Microsoft.LightSwitch.AppBridge.dll 
+Microsoft.LightSwitch.Base.Client.dll 
+Microsoft.LightSwitch.Client.dll 
+Microsoft.LightSwitch.Client.Internal.dll 
+Microsoft.LightSwitch.CodeMarker.dll 
+Microsoft.LightSwitch.CodeMarker.dll 
+Microsoft.LightSwitch.Cosmopolitan.Client.dll 
+Microsoft.LightSwitch.dll 
+Microsoft.LightSwitch.dll 
+Microsoft.LightSwitch.ExportProvider.dll 
+Microsoft.LightSwitch.ExportProvider.dll 
+Microsoft.LightSwitch.Extensions.Client.dll 
+Microsoft.LightSwitch.Extensions.Design.Client.dll 
+Microsoft.LightSwitch.Extensions.Server.dll 
+Microsoft.LightSwitch.ManifestService.Client.dll 
+Microsoft.LightSwitch.ManifestService.dll 
+Microsoft.LightSwitch.Model.Xaml.Client.dll 
+Microsoft.LightSwitch.Model.Xaml.dll 
+Microsoft.LightSwitch.RuntimeEditor.Internal.dll 
+Microsoft.LightSwitch.SDKProxy.dll 
+Microsoft.LightSwitch.Server.dll 
+Microsoft.LightSwitch.Server.Host.dll 
+Microsoft.LightSwitch.Server.Manifest.dll 
+Microsoft.LightSwitch.Server.Sap.dll 
+Microsoft.VisualStudio.Debugger.Runtime.Dll.dll 
+msls.js 
+msls-2.0.0.css 
+msls-2.0.0.js 
+msls-2.0.0.min.css 
+msls-2.0.0.min.js 
+msls-2.0.0-vsdoc.js 
+msls-2.5.0.css 
+msls-2.5.0.js 
+msls-2.5.0.min.css 
+msls-2.5.0.min.js 
+msls-2.5.0-vsdoc.js 
+msls-black-icons-18.png 
+msls-black-icons-36.png 
+msls-dark-2.0.0.css 
+msls-dark-2.5.0.css 
+msls-light-2.0.0.css 
+msls-light-2.5.0.css 
+msls-loader-dark.gif 
+msls-loader-light.gif 
+msls-white-icons-18.png 
+msls-white-icons-36.png 
+System.ComponentModel.Composition.dll 
+System.ComponentModel.DataAnnotations.dll 
+System.ServiceModel.DomainServices.Client.dll 
+System.ServiceModel.DomainServices.Client.Web.dll 
+System.ServiceModel.DomainServices.EntityFramework.dll 
+System.ServiceModel.DomainServices.Hosting.dll 
+System.ServiceModel.DomainServices.Hosting.OData.dll 
+System.ServiceModel.DomainServices.Server.dll 
+System.ServiceModel.Extensions.dll 
+System.ServiceModel.PollingDuplex.dll 
+System.ServiceModel.PollingDuplex.dll 
+System.ServiceModel.Web.Extensions.dll 
+System.Spatial.dll 
+System.Spatial.SL.dll 
+System.Windows.Controls.Data.dll 
+System.Windows.Controls.Data.Input.dll 
+System.Windows.Controls.dll 
+System.Windows.Controls.DomainServices.dll 
+System.Windows.Controls.Input.dll 
+System.Windows.Controls.Navigation.dll 
+System.Windows.Data.dll 
+System.Xml.Linq.dll 
+System.Xml.Serialization.dll 
+user-customization.css 
+user-logo.png 
+user-splash-screen.png 
+winjs-1.0.0.js 
+winjs-1.0.0.min.js
+
+.NET Framework 4.5.1
+Subject to the License Terms for the software, you may copy and distribute the following .exe and .msu files, unmodified, with your program:
+
+Web Installer:
+
+NDP451-KB2859818-Web.exe
+Offline Installer:
+
+NDP451-KB2858728-x86-x64-AllOS-ENU.exe
+Language Packs:
+
+NDP451-KB2858728-x86-x64-AllOS-<Culture>.exe
+<Culture> uses three letter language code. For instance, NDP451-KB2858728-x86-x64-AllOS-ESN.exe
+
+Note: <Culture> represents the specific language identifier. Language Packs are available for the following (listed here with their associated identifier code):
+
+Arabic (ar), Chinese-Taiwan (zh-cht), Czech (cs), Danish (da), German (de), Greek (el), Finnish (fi), French (fr), Hebrew (he), Hungarian (hu), Italian (it), Japanese (ja), Korean (ko), Dutch-Netherlands (nl), Norwegian (no), Polish (pl), Portuguese-Brazil (pt-BR), Russian (ru), Swedish (sv), Turkish (tr), Chinese (zh-chs), Portuguese-Portugal (pt-PT), Spanish (es)
+
+Individual Packages:
+
+NDP451-KB2858725-x86-x64-ENU.exe
+NDP451-KB2858725-x86-ENU.exe
+Windows8-RT-KB2881468-x86.msu
+Windows8-RT-KB2881468-x64.msu
+Windows8-RT-KB2881468-arm.msu
+F# Runtime:
+Fsharp.Core.dll
+
+ADO.NET:
+
+Subject to the License Terms for the software, you may copy and distribute the following .dll files, unmodified, with your program:
+
+System.Data.dll
+System.Data.DatasetExtensions.dll
+System.Data.OracleClient.dll
+Adonetdiag.dll
+Visual C++ Runtime:
+
+Subject to the License Terms for the software, you may copy and distribute the .following EXE files, unmodified, with your program:
+
+These files can be run as prerequisites during installation.
+
+vcredist_x86.exe 
+vcredist_x64.exe 
+vcredist_arm.exe
+
+Subject to the License Terms for the software, you may copy and distribute the following MSM files, unmodified, as a part of the installation package of your program:
+
+Microsoft_VC120_CRT_arm.msm 
+Microsoft_VC120_CRT_x64.msm 
+Microsoft_VC120_CRT_x86.msm
+
+Microsoft_VC120_CXXAMP_x64.msm 
+Microsoft_VC120_CXXAMP_x86.msm 
+Microsoft_VC120_CXXAMP_arm.msm
+
+Microsoft_VC120_MFCLOC_x64.msm 
+Microsoft_VC120_MFCLOC_x86.msm
+
+Microsoft_VC120_MFC_x64.msm 
+Microsoft_VC120_MFC_x86.msm
+
+Microsoft_VC120_OpenMP_arm.msm 
+Microsoft_VC120_OpenMP_x64.msm 
+Microsoft_VC120_OpenMP_x86.msm
+
+ 
+
+Side-loading of Windows 8.1 Store Apps. The AppX files downloaded from the following location can be distributed unmodified with your Windows Store 8.1 apps that you intend to side-load: 
+http://download.microsoft.com/download/5/F/0/5F0F8404-9329-44A9-8176-ED6F7F746F25/VCLibs_Redist_Packages.zip
+
+ 
+
+Visual C++ Runtime Files:
+
+For your convenience, we have provided the following folders for use when distributing VC++ runtime files. Subject to the License Terms for the software, you may copy and distribute with your program any of the files within the folders listed below. You may not modify these files.
+
+\VC\redist\arm\Microsoft.VC120.CRT\msvcp120.dll 
+\VC\redist\arm\Microsoft.VC120.CRT\msvcr120.dll 
+\VC\redist\arm\Microsoft.VC120.CRT\vccorlib120.dll 
+\VC\redist\arm\Microsoft.VC120.CXXAMP\vcamp120.dll 
+\VC\redist\arm\Microsoft.VC120.OPENMP\vcomp120.dll
+
+\VC\redist\x64\Microsoft.VC120.CRT\msvcp120.dll 
+\VC\redist\x64\Microsoft.VC120.CRT\msvcr120.dll 
+\VC\redist\x64\Microsoft.VC120.CRT\vccorlib120.dll 
+\VC\redist\x64\Microsoft.VC120.CXXAMP\vcamp120.dll 
+\VC\redist\x64\Microsoft.VC120.MFC\mfc120.dll 
+\VC\redist\x64\Microsoft.VC120.MFC\mfc120u.dll 
+\VC\redist\x64\Microsoft.VC120.MFC\mfcm120.dll 
+\VC\redist\x64\Microsoft.VC120.MFC\mfcm120u.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120chs.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120cht.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120deu.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120enu.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120esn.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120fra.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120ita.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120jpn.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120kor.dll 
+\VC\redist\x64\Microsoft.VC120.MFCLOC\mfc120rus.dll 
+\VC\redist\x64\Microsoft.VC120.OpenMP\vcomp120.dll 
+\VC\redist\x86\Microsoft.VC120.CRT\msvcp120.dll 
+\VC\redist\x86\Microsoft.VC120.CRT\msvcr120.dll 
+\VC\redist\x86\Microsoft.VC120.CRT\vccorlib120.dll 
+\VC\redist\x86\Microsoft.VC120.CXXAMP\vcamp120.dll 
+\VC\redist\x86\Microsoft.VC120.MFC\mfc120.dll 
+\VC\redist\x86\Microsoft.VC120.MFC\mfc120u.dll 
+\VC\redist\x86\Microsoft.VC120.MFC\mfcm120.dll 
+\VC\redist\x86\Microsoft.VC120.MFC\mfcm120u.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120chs.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120cht.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120deu.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120enu.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120esn.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120fra.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120ita.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120jpn.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120kor.dll 
+\VC\redist\x86\Microsoft.VC120.MFCLOC\mfc120rus.dll 
+\VC\redist\x86\Microsoft.VC120.OPENMP\vcomp120.dll 
+Microsoft Visual Studio 12.0\DIA SDK\bin\msdia120.dll 
+Microsoft Visual Studio 12.0\DIA SDK\bin\amd64\msdia120.dll 
+Microsoft Visual Studio 12.0\DIA SDK\bin\arm\msdia120.dll
+
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\x86\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\x64\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\arm\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\x86\zumosdk120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\x64\zumosdk120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\arm\zumosdk120.winrt.dll 
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x86\Release\casablanca120.dll 
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x64\Release\casablanca120.dll
+
+Subject to the License Terms for the software, you may copy and distribute the following files with your program in your program’s application local folder or by deploying them into the Global Assembly Cache (GAC):
+
+VC\atlmfc\lib\mfcmifc80.dll 
+VC\atlmfc\lib\amd64\mfcmifc80.dll
+
+Distributable Code Files for the Concurrency Visualizer Software Development Kit
+Subject to the License Terms for the software, you may copy and distribute the following files, unmodified, with your program:
+
+Microsoft.ConcurrencyVisualizer.Markers.dll (for .NET 3.5)
+
+Microsoft.ConcurrencyVisualizer.Markers.dll (for .NET 4.0)
+
+cvmarkers.h
+
+cvmarkersobj.h
+
+Redistributable Code list for Visual Studio Ultimate 2013: Premium, Professional and Visual Studio Express for Windows 8.1 editions
+
+ASP.NET Libraries
+The following software components are licensed and supported separately under the Microsoft .NET Library terms located at http://www.microsoft.com/web/webpi/eula/aspnetcomponent_rtw_enu.htm.  If you do not agree to the license terms for these software components, you may not use them.
+
+MVC
+Web API
+Web Pages with Razor
+Entity Framework
+SignalR
+Katana
+Microsoft XML Document Transformation
+Redist list for Microsoft Windows Phone SDK 8.0
+This is the "REDIST list" that is referenced in the "Distributable Code" section of the Microsoft Software License Terms for Microsoft Windows Phone SDK 8.0 ("the software"). If you have a validly licensed copy of the software, you may copy and distribute the files listed below, unmodified, subject to the License Terms for the software.
+
+Microsoft XNA Game Studio 4.0
+
+Andyb.ttf
+JingJing.ttf
+Kooten.ttf
+Linds.ttf
+Miramo.ttf
+Miramob.ttf
+Moire-Bold.ttf
+Moire-ExtraBold.ttf
+Moire-Light.ttf
+Moire-Regular.ttf
+MotorwerkOblique.ttf
+NGO_____.ttf
+NGOB____.ttf
+OcraExt.ttf
+Peric.ttf
+Pericl.ttf
+Pesca.ttf
+Pescab.ttf
+QuartMS.ttf
+SegoeKeycaps.ttf
+Segoepr.ttf
+Segoeprb.ttf
+SegoeUIMono-Bold.ttf
+SegoeUIMono-Regular.ttf
+Wscsnbd.ttf
+Wscsnbdit.ttf
+Wscsnit.ttf
+Wscsnrg.ttf
+Blend for Visual Studio
+
+Redistributable files from Blend for Visual Studio are installed in the following locations:
+
+C:\Program files (x86)\Microsoft SDKs\Expression\Blend\Windows Phone\v8.0
+C:\Program files (x86)\Microsoft SDKs\Expression\Blend\Windows Phone\v7.1
+C:\Program Files\Microsoft SDKs\Expression\Blend\.NETFramework\v4.0
+C:\Program Files\Microsoft SDKs\Expression\Blend\.NETFramework\v4.5
+C:\Program Files\Microsoft SDKs\Expression\Blend\Silverlight\v5.0
+Microsoft Advertising SDK for Windows Phone:
+
+Microsoft.Advertising.Mobile.dll
+Microsoft.Advertising.Mobile.resources.dll
+Microsoft.Advertising.Mobile.UI.dll
+Microsofot.Advertising.Mobile.XNA.dll
+Windows Phone Assemblies:
+
+DoneListeningEarcon.wav
+ListeningEarcon.wav
+Microsoft.Phone.Controls.dll
+Microsoft.Phone.Controls.Maps.dll
+Windows Phone icon files:
+
+paths: %programfiles%\Microsoft SDKs\Windows Phone\v7.0\Icons\Dark, %programfiles%\Microsoft SDKs\Windows Phone\v7.0\Icons\Light, %programfiles%\Microsoft SDKs\Windows Phone\v7.1\Icons\Dark, %programfiles%\Microsoft SDKs\Windows Phone\v7.1\Icons\Light, %programfiles%\Microsoft SDKs\Windows Phone\v8.0\Icons\Dark, %programfiles%\Microsoft SDKs\Windows Phone\v8.0\Icons\Light
+appbar.add.rest.png
+appbar.back.rest.png
+appbar.basecircle.rest.png
+appbar.cancel.rest.png
+appbar.check.rest.png
+appbar.close.rest.png
+appbar.delete.rest.png
+appbar.download.rest.png
+appbar.edit.rest.png
+appbar.favs.addto.rest.png
+appbar.favs.rest.png
+appbar.feature.camera.rest.png
+appbar.feature.email.rest.png
+appbar.feature.search.rest.png
+appbar.feature.settings.rest.png
+appbar.feature.video.rest.png
+appbar.folder.rest.png
+appbar.minus.rest.png
+appbar.new.rest.png
+appbar.next.rest.png
+appbar.overflowdots.png
+appbar.questionmark.rest.png
+appbar.refresh.rest.png
+appbar.save.rest.png
+appbar.share.rest.png
+appbar.stop.rest.png
+appbar.sync.rest.png
+appbar.transport.ff.rest.png
+appbar.transport.pause.rest.png
+appbar.transport.play.rest.png
+appbar.transport.rew.rest.png
+appbar.upload.rest.png
+Distributable Code Files for Visual Studio 2013 SDK
+This is the "REDIST list" that is referenced in the "Distributable Code" section of the Microsoft Software License Terms for the Microsoft Visual Studio 2013 Software Development Kit ("the software"). If you have a validly licensed copy of the software, you may copy and distribute the unmodified object code form of the files listed below, subject to the License Terms for the software.
+
+vs120_piaredist.exe
+
+vs_isoshell.exe
+
+vs_isoshellLP.exe
+
+vs_intshelladditional.exe
+
+vs_intshelladditionalLP.exe
+
+Visual Studio Express 2013 for Windows Desktop
+Visual C++ Runtime Redistributable Packages:
+These packages install runtime components of C Runtime (CRT), Standard C++, C++ AMP, and OpenMP libraries.
+
+Subject to the License Terms for the software, you may copy and distribute the following MSM files, unmodified, as a part of the installation package of your program:Microsoft_VC120_CRT_x64.msm 
+Microsoft_VC120_CRT_x86.msm 
+
+Microsoft_VC120_CXXAMP_x64.msm 
+Microsoft_VC120_CXXAMP_x86.msm
+
+Microsoft_VC120_OpenMP_x64.msm 
+Microsoft_VC120_OpenMP_x86.msm
+
+Visual C++ Runtime files
+For your convenience, we have provided the following folders for use when distributing VC++ runtime files. Subject to the License Terms for the software, you may copy and distribute with your program any of the files within the folders listed below. You may not modify these files.
+
+\VC\redist\x86\Microsoft.VC120.CRT\ 
+msvcp120.dll 
+msvcr120.dll 
+vccorlib120.dll
+
+\VC\redist\x64\Microsoft.VC120.CRT\ 
+msvcp120.dll 
+msvcr120.dll 
+vccorlib120.dll
+
+\VC\redist\x86\Microsoft.VC120.OpenMP\ 
+vcomp120.dll
+
+\VC\redist\x64\Microsoft.VC120.OpenMP\ 
+vcomp120.dll
+
+\VC\redist\x86\Microsoft.VC120.CXXAMP\ 
+vcamp120.dll
+
+\VC\redist\x64\Microsoft.VC120.CXXAMP\ 
+vcamp120.dll
+
+
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x86\Release\casablanca120.dll 
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x64\Release\casablanca120.dll
+
+Visual Studio Express 2013 for Windows
+Visual C++ Runtime files
+For your convenience, we have provided the following folders for use when distributing VC++ runtime files. Subject to the License terms for the software, you may copy and distribute with your program any of the files within the folders listed below. You may not modify these files. 
+
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\x86\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\x64\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Retail\arm\casablanca120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\x86\zumosdk120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\x64\zumosdk120.winrt.dll 
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Retail\arm\zumosdk120.winrt.dll 
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x86\Release\casablanca120.dll 
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x64\Release\casablanca120.dll
+
+List of Utilities for Visual Studio 2013
+This is the “Utilities List” that is referenced in the “Utilities” section of Microsoft Software License Terms for certain editions of Visual Studio 2013 (the “software”). Depending on the specific edition of the software, the software you received may not include all of the files on this list. To determine your rights with respect to the following files, please refer to the Visual Studio License Terms that came with your edition of the software.
+
+Visual Studio IntelliTrace Standalone Collector
+IntelliTraceCollection.cab
+Visual Studio Concurrency Visualizer
+concvi_standalonecollection.exe
+Visual Studio Remote Tools
+rtools_setup_x86.exe
+rtools_setup_x64.exe
+rtools_setup_arm.exe
+Visual Studio Standalone Profiler
+vs_profiler_x64_*.exe
+vs_profiler_x86_*.exe
+\VC\redist\Debug_NonRedist\arm\Microsoft.VC120.DebugCRT\msvcp120d.dll
+\VC\redist\Debug_NonRedist\arm\Microsoft.VC120.DebugCRT\msvcr120d.dll
+\VC\redist\Debug_NonRedist\arm\Microsoft.VC120.DebugCRT\vccorlib120d.dll
+\VC\redist\Debug_NonRedist\arm\Microsoft.VC120.DebugCXXAMP\vcamp120d.dll
+\VC\redist\Debug_NonRedist\arm\Microsoft.VC120.DebugOPENMP\vcomp120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugCRT\msvcp120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugCRT\msvcr120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugCRT\vccorlib120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugCXXAMP\vcamp120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugMFC\mfc120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugMFC\mfc120ud.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugMFC\mfcm120d.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugMFC\mfcm120ud.dll
+\VC\redist\Debug_NonRedist\x64\Microsoft.VC120.DebugOpenMP\vcomp120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugCRT\msvcp120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugCRT\msvcr120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugCRT\vccorlib120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugCXXAMP\vcamp120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugMFC\mfc120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugMFC\mfc120ud.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugMFC\mfcm120d.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugMFC\mfcm120ud.dll
+\VC\redist\Debug_NonRedist\x86\Microsoft.VC120.DebugOpenMP\vcomp120d.dll
+\VC\redist\GraphicsDbgRedist\ARM\VsGraphicsHelper.dll
+\VC\redist\GraphicsDbgRedist\ARM\1033\VsGraphicsResources.dll
+\VC\redist\GraphicsDbgRedist\X64\VsGraphicsHelper.dll
+\VC\redist\GraphicsDbgRedist\X64\1033\VsGraphicsResources.dll
+\VC\redist\GraphicsDbgRedist\X86\VsGraphicsHelper.dll
+\VC\redist\GraphicsDbgRedist\X86\1033\VsGraphicsResources.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Debug\x86\casablanca120.winrt.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Debug\x64\casablanca120.winrt.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\CppRESTWindowsSDK\1.0\redist\Debug\arm\casablanca120.winrt.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Debug\x86\zumosdk120.winrt.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Debug\x64\zumosdk120.winrt.dll
+Microsoft SDKs\Windows\v8.1\ExtensionSDKs\MobileServicesCppClient\1.0\redist\Debug\arm\zumosdk120.winrt.dll
+Microsoft SDKs \Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x86\Debug\casablanca120.dll
+Microsoft SDKs \ Microsoft Cpp REST SDK for Visual Studio 2013\SDK\bin\x64\Debug\casablanca120.dll
+\VC\bin\arm\1033\pgort120ui.dll
+\VC\bin\arm\pgort120.dll
+\VC\bin\arm\pgosweep.exe
+List of BuildServer Files for Visual Studio 2013
+This is the "BUILDSERVER list" that is referenced in the "BUILDSERVER.TXT File" section of the Microsoft Software License Terms for certain editions of Visual Studio 2013 (the "software"). To determine your rights with respect to the following files, please refer to the License Terms that came with your edition of the software.
+
+SharePoint Tooling for Visual Studio 2012:
+
+Program Files(86)\MsBuild\Microsoft\Visual Studio\v11.0\SharePointTools\
+Microsoft.VisualStudio.SharePoint.targets
+Microsoft.VisualStudio.SharePoint.Tasks.dll
+Windows\Microsoft.NET\assembly\GAC_MSIL\
+Microsoft.VisualStudio.SharePoint.Designers.Models.dll
+Microsoft.VisualStudio.SharePoint.Designers.Models.Features.dll
+Microsoft.VisualStudio.SharePoint.Designers.Models.Packages.dll
+Microsoft.VisualStudio.SharePoint.dll
+Visual C++ BuildServer files
+
+All files in the following folders (and all files and folders within these folders, recursively)
+
+Program Files\Common Files\Merge Modules
+Program Files\Microsoft Visual Studio 12.0\VC\
+Program Files\Microsoft Visual Studio 12.0\Common7\Tools\ProjectComponents
+Program Files\MSBuild\Microsoft.Cpp\v4.0\V120\
+Individual Files
+
+Program Files\Microsoft Visual Studio 12.0\Common7\IDE\msobj120.dll
+Program Files\Microsoft Visual Studio 12.0\Common7\IDE\msvcdis120.dll
+Program Files\Microsoft Visual Studio 12.0\Common7\Tools\makehm.exe
+Program Files\Microsoft Visual Studio 12.0\Common7\Tools\VCVarsQueryRegistry.bat
+Program Files\Microsoft Visual Studio 12.0\Common7\Tools\vsvars32.bat
+Light Switch BuildServer files
+
+Microsoft.Data.Schema.dll
+
+Microsoft.Data.Schema.ScriptDom.dll
+
+Microsoft.Data.Schema.ScriptDom.Sql.dll
+
+Microsoft.Data.Schema.Sql.dll
+
+Microsoft.Data.Schema.Utilities.dll
+
+Microsoft.LightSwitch.AppBridge.dll
+
+Microsoft.LightSwitch.Base.Client.dll
+
+Microsoft.LightSwitch.Base.Server.dll
+
+Microsoft.LightSwitch.Build.Publish.targets
+
+Microsoft.LightSwitch.Build.Tasks.dll
+
+Microsoft.LightSwitch.Build.Tasks.targets
+
+Microsoft.LightSwitch.Client.dll
+
+Microsoft.LightSwitch.Client.Internal.dll
+
+Microsoft.LightSwitch.Client.Internal.Resources.dll
+
+Microsoft.LightSwitch.Client.Resources.dll
+
+Microsoft.LightSwitch.CodeMarker.dll
+
+Microsoft.LightSwitch.CommandLineBuild.Manifest.dll
+
+Microsoft.LightSwitch.CommandLineBuildLoader.dll
+
+Microsoft.LightSwitch.Common.targets
+
+Microsoft.LightSwitch.Deploy.Provider.dll
+
+Microsoft.LightSwitch.Design.CodeGen.dll
+
+Microsoft.LightSwitch.Design.CodeGen.Internal.dll
+
+Microsoft.LightSwitch.Design.Core.dll
+
+Microsoft.LightSwitch.Design.Core.Internal.dll
+
+Microsoft.LightSwitch.Design.DataAccess.dll
+
+Microsoft.LightSwitch.Design.DataAccess.Internal.dll
+
+Microsoft.LightSwitch.Design.Designer.dll
+
+Microsoft.LightSwitch.Design.Designer.Extensions.dll
+
+Microsoft.LightSwitch.Design.Designer.Framework.dll
+
+Microsoft.LightSwitch.Design.Designer.Internal.dll
+
+Microsoft.LightSwitch.Design.DesignerWpfUtilities.dll
+
+Microsoft.LightSwitch.Design.dll
+
+Microsoft.LightSwitch.Design.Extensions.Internal.dll
+
+Microsoft.LightSwitch.Design.Extensions.Reader.dll
+
+Microsoft.LightSwitch.Design.Extensions.Reader.Internal.dll
+
+Microsoft.LightSwitch.Design.Internal.dll
+
+Microsoft.LightSwitch.Design.Loader.dll
+
+Microsoft.LightSwitch.Design.Manifest.dll
+
+Microsoft.LightSwitch.Design.Package.dll
+
+Microsoft.LightSwitch.Design.PackageUI.Neutral.dll
+
+Microsoft.LightSwitch.Design.Project.dll
+
+Microsoft.LightSwitch.Design.Project.Upgrade.dll
+
+Microsoft.LightSwitch.Design.Project.Upgrade.Internal.dll
+
+Microsoft.LightSwitch.Design.Publish.dll
+
+Microsoft.LightSwitch.Design.Publish.Internal.dll
+
+Microsoft.LightSwitch.Design.Server.Internal.dll
+
+Microsoft.LightSwitch.Design.Utilities.dll
+
+Microsoft.LightSwitch.Design.VSTemplateWizard.dll
+
+Microsoft.LightSwitch.Design.WpfUtils.dll
+
+Microsoft.LightSwitch.dll
+
+Microsoft.LightSwitch.ExportProvider.dll
+
+Microsoft.LightSwitch.ExportProvider.Resources.dll
+
+Microsoft.LightSwitch.ManifestService.Client.dll
+
+Microsoft.LightSwitch.ManifestService.Client.Resources.dll
+
+Microsoft.LightSwitch.ManifestService.dll
+
+Microsoft.LightSwitch.Model.Xaml.Client.dll
+
+Microsoft.LightSwitch.Model.Xaml.Client.Resources.dll
+
+Microsoft.LightSwitch.Model.Xaml.dll
+
+Microsoft.LightSwitch.Publish.targets
+
+Microsoft.LightSwitch.Publish.Tasks.dll
+
+Microsoft.LightSwitch.Resources.dll
+
+Microsoft.LightSwitch.RuntimeEditor.Internal.dll
+
+Microsoft.LightSwitch.RuntimeEditor.Internal.Resources.dll
+
+Microsoft.LightSwitch.SDK.BuildTasks.dll
+
+Microsoft.LightSwitch.SDK.targets
+
+Microsoft.LightSwitch.SDKProxy.dll
+
+Microsoft.LightSwitch.SecurityData.svc
+
+Microsoft.LightSwitch.Server.dll
+
+Microsoft.LightSwitch.Server.Host.dll
+
+Microsoft.LightSwitch.Server.Internal.dll
+
+Microsoft.VisualStudio.Debugger.Runtime.dll.dll
+
+Microsoft.VisualStudio.ExtensionManager.dll
+
+Microsoft.VisualStudio.Settings.11.0.dll
+
+Microsoft.VisualStudio.Shell.11.0.dll
+
+Microsoft.VisualStudio.Shell.Interop.9.0.dll
+
+Microsoft.VisualStudio.TextTemplating.11.0.dll
+
+Microsoft.Web.Deployment.dll
+
+Microsoft.Web.Publishing.AllFilesInTheProject.targets
+
+Microsoft.Web.Publishing.AspNetCompileMerge.targets
+
+Microsoft.Web.Publishing.Deploy.FileSystem.targets
+
+Microsoft.Web.Publishing.Deploy.FPSE.targets
+
+Microsoft.Web.Publishing.Deploy.FTP.targets
+
+Microsoft.Web.Publishing.Deploy.MsDeploy.targets
+
+Microsoft.Web.Publishing.Deploy.Package.targets
+
+Microsoft.Web.Publishing.MsDeploy.Common.targets
+
+Microsoft.Web.Publishing.OnlyFilesToRunTheApp.targets
+
+Microsoft.Web.Publishing.targets
+
+Microsoft.Web.Publishing.Tasks.dll
+
+Microsoft.WebApplication.Build.Tasks.Dll
+
+Microsoft.WebApplication.targets
+
+Microsoft.WindowsAzure.ServiceRuntime.dll
+
+Microsoft.WindowsAzure.StorageClient.dll
+
+System.ServiceModel.PollingDuplex.dll
+
+vslsHost.exe
