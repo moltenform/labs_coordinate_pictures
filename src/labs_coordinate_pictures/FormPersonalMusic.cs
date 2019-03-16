@@ -16,5 +16,10 @@ namespace labs_coordinate_pictures
         {
             InitializeComponent();
         }
+        
+        public static void OnDragDropFile(string path)
+        {
+            SimpleLog.Current.WriteLog("DragDropFile " + path);
+        }
     }
 }

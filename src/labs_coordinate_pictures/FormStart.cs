@@ -276,40 +276,13 @@ namespace labs_coordinate_pictures
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
                 {
-                    string[] filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
-                    string filePath = filePaths[0];
+                    var filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    var filePath = filePaths[0];
                     if (!string.IsNullOrEmpty(filePath))
                     {
-                        OnStartSpotify(filePath);
+                        FormPersonalMusic.OnDragDropFile(filePath);
                     }
                 }
-            }
-        }
-
-        public static void OnStartSpotify(string path)
-        {
-            if (path.ToLowerInvariant().EndsWith(".url", StringComparison.Ordinal))
-            {
-                Utils.Run(path, null, hideWindow: true, waitForExit: false, shellExecute: true);
-            }
-            else if (FilenameUtils.LooksLikeAudio(path))
-            {
-                var script = Configs.Current.Get(ConfigKey.FilepathCoordMusicMainPy);
-
-                if (!File.Exists(script))
-                {
-                    Utils.MessageErr("could not find " + script + ".locate it by " +
-                        "choosing from the menu Options->Set coordmusic location...");
-                }
-                else
-                {
-                    Utils.RunPythonScriptOnSeparateThread(script,
-                        new string[] { "startspotify", path }, createWindow: true);
-                }
-            }
-            else
-            {
-                Utils.MessageErr("Unsupported file type.");
             }
         }
 
