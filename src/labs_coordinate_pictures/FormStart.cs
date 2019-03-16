@@ -276,11 +276,9 @@ namespace labs_coordinate_pictures
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
                 {
-                    var filePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
-                    var filePath = filePaths[0];
-                    if (!string.IsNullOrEmpty(filePath))
+                    if (e.Data.GetData(DataFormats.FileDrop) is string[] filePaths)
                     {
-                        FormPersonalMusic.OnDragDropFile(filePath);
+                        FormPersonalMusic.OnDragDropFiles(filePaths);
                     }
                 }
             }
