@@ -1,5 +1,7 @@
-from ben_python_common import *
+
 import sys
+sys.path.append('bn_python_common.zip')
+from bn_python_common import *
 
 # field to store original title in. There's an exif tag OriginalRawFileName AKA OriginalFilename, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"

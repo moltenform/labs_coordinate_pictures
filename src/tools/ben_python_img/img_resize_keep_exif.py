@@ -1,6 +1,9 @@
-from ben_python_common import *
+
 import img_utils
 import img_convert_resize
+import sys
+sys.path.append('bn_python_common.zip')
+from bn_python_common import *
 
 # Refer to README.md for more documentation.
 

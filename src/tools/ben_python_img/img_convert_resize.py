@@ -1,8 +1,9 @@
 
-from ben_python_common import *
 from PIL import Image
 import img_utils
 import sys
+sys.path.append('bn_python_common.zip')
+from bn_python_common import *
 
 ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
 
