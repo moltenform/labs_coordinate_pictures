@@ -1,9 +1,12 @@
-from ben_python_common import *
+
 import img_utils
 import img_convert_resize
 import img_resize_keep_exif
 import PIL
 from PIL import Image
+import sys
+sys.path.append('bn_python_common.zip')
+from bn_python_common import *
 
 def img_utils_testGetMarkFromFilename():
     # tests splitting a filename that contains the "__MARKAS__" marker.
@@ -124,9 +127,9 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
     expectedSizes = '''a100p.jpg|8524
 a200h.jpg|8524
 a200h__MARKAS__200h.jpg|8502
-a32h.jpg|1331
+a32h.jpg|1335
 a32h__MARKAS__32h.jpg|8502
-a50p.jpg|2539
+a50p.jpg|2549
 a50p__MARKAS__50%.jpg|8502'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
@@ -166,12 +169,21 @@ a6__MARKAS__.jpg|0'''.replace('\r\n', '\n')
     assertEq(expectedSizes, resultSizes)
     trace('img_resize_keep_exif_testCleanup passed.')
 
+def assertExceptionOrFalse(fn, excType):
+    ret = False
+    try:
+        ret = fn()
+    except:
+        e = sys.exc_info()[1]
+        assertTrue(isinstance(e, excType), 'wrong exc type')
+    assertTrue(not ret)
+
 def img_resize_keep_exif_testExifErrorsShouldRaise(tmpDir):
     # most exif operations on an invalid jpg should raise PythonImgExifError
     files.writeall(files.join(tmpDir, 'invalidjpg.jpg'), 'not a valid jpg')
     files.writeall(files.join(tmpDir, 'invalidjpg2.jpg'), 'not a valid jpg')
-    assertTrue(not img_utils.readOriginalFilename(
-        files.join(tmpDir, 'invalidjpg.jpg')))
+    assertExceptionOrFalse(lambda: not img_utils.readOriginalFilename(
+        files.join(tmpDir, 'invalidjpg.jpg')), img_utils.PythonImgExifError)
     assertException(lambda: img_utils.stampJpgWithOriginalFilename(
         files.join(tmpDir, 'invalidjpg.jpg'), 'test'), img_utils.PythonImgExifError)
     assertException(lambda: img_utils.transferMostUsefulExifTags(
@@ -225,20 +237,20 @@ def testCombinatoricImageConversion(tmpDir, testImage):
                 assertTrue(files.exists(outfile))
                 
     expectedSizes = '''start.bmp|43254
-start.bmp.jpg|15536
+start.bmp.jpg|15580
 start.bmp.png|39430
-start.bmp.webp|14468
-start.jpg|15536
+start.bmp.webp|14454
+start.jpg|15580
 start.jpg.bmp|43254
-start.jpg.png|39500
-start.jpg.webp|14468
+start.jpg.png|39483
+start.jpg.webp|14454
 start.png|39430
 start.png.bmp|43254
-start.png.jpg|15536
-start.png.webp|14468
-start.webp|14468
+start.png.jpg|15580
+start.png.webp|14454
+start.webp|14454
 start.webp.bmp|43254
-start.webp.jpg|15536
+start.webp.jpg|15580
 start.webp.png|22366'''.replace('\r\n', '\n')
     
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
@@ -276,9 +288,9 @@ def testJpgQualities(tmpDir, testImage):
             files.join(tmpDir, 'q%d.jpg'%qual), jpgQuality=qual)
     
     expectedSizes = '''q10.jpg|993
-q100.jpg|15536
+q100.jpg|15580
 q60.jpg|5120
-q90.jpg|9366
+q90.jpg|9406
 start.bmp|43254'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
@@ -297,7 +309,7 @@ if __name__ == '__main__':
     if files.isdir(tmpDir):
         files.rmtree(tmpDir)
     files.makedirs(tmpDir)
-        
+
     try:
         img_utils_testGetMarkFromFilename()
         img_utils_testGetFilesWithWrongExtension(tmpDir)
