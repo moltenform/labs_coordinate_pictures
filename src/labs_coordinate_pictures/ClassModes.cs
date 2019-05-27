@@ -219,7 +219,7 @@ namespace labs_coordinate_pictures
                 "Open online documentation to read more?"))
             {
                 Utils.LaunchUrl(
-                    "https://moltenjs.com/page/labs-coordinate-pictures/doc/keeping-metadata.html");
+                    "https://moltenform.com/page/labs-coordinate-pictures/doc/keeping-metadata.html");
             }
 
             _hasRunCompletionAction = true;
