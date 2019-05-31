@@ -1,8 +1,7 @@
-# labs\_coordinate\_pictures
 
-Tools I wrote back in 2014, released under the GPL license. 
+Tools for quickly viewing, categorizing, and resizing images
 
-* [Sort images into categories](https://moltenform.com/page/labs-coordinate-pictures/doc/sorting-images.html)  
+* [Sort images into categories](https://moltenform.com/page/labs-coordinate-pictures/doc/sorting-images.html)  with just one keypress
 
 * [Edit and resize images](https://moltenform.com/page/labs-coordinate-pictures/doc/modifying-images.html)  
 
