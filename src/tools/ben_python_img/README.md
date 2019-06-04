@@ -7,21 +7,17 @@ Aims for high quality; uses recent builds of mozjpeg and cwebp rather than PIL's
 
 ### Usage
 
-From another Python script,
+To resize images and keep exif metadata, see the (online documenation)[https://moltenform.com/page/labs-coordinate-pictures/doc/keeping-metadata.html]
+
+Basically, you will rename files in the form "mypicture\_\_MARKAS\_\_50%.jpg", edit `img_resize_keep_exif.py` to point to the directory, and then run `img_resize_keep_exif.py`
+
+To use ben\_python\_img from another Python script you can write something like this,
 
 	import img_convert_resize
 	img_convert_resize.convertOrResizeImage(
 		'input.jpg', 'output.jpg', '50%', jpgQuality=95)
 	img_convert_resize.convertOrResizeImage(
 		'input.png', 'output.webp')
-
-To resizes images and keep exif metadata, rename files in the form "mypicture\_\_MARKAS\_\_50%.jpg", and run
-
-	import img_resize_keep_exif
-	img_resize_keep_exif.resizeAllAndKeepExif('/path/to/directory', 
-		recurse=False, storeOriginalFilename=True, storeExifFromOriginal=True,
-		jpgHighQualityChromaSampling=False)
-	img_resize_keep_exif.cleanup('/path/to/directory', recurse=False)
 
 Additional features
 
