@@ -214,13 +214,12 @@ namespace labs_coordinate_pictures
 
             // we could start the script directly, but I currently prefer the
             // traditional workflow of manually running the python script.
-            if (Utils.AskToConfirm("Currently, resize+keep exif is done manually by " +
-                 "running a python script." + Utils.NL + Utils.NL +
-                "Open online documentation to read more?"))
-            {
-                Utils.LaunchUrl(
-                    "https://moltenform.com/page/labs-coordinate-pictures/doc/keeping-metadata.html");
-            }
+            var url = "https://moltenform.com/page/labs-coordinate-pictures" +
+                "/doc/keeping-metadata.html";
+            Utils.MessageBox("Currently, resize+keep exif is done manually by " +
+                "running a python script." + Utils.NL + Utils.NL +
+                "See the online documentation (copied to clipboard) at " + url);
+            Clipboard.SetText(url);
 
             _hasRunCompletionAction = true;
         }

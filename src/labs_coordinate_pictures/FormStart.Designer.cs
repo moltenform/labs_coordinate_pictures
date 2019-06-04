@@ -351,7 +351,7 @@
             // 
             this.onlineDocumentationToolStripMenuItem.Name = "onlineDocumentationToolStripMenuItem";
             this.onlineDocumentationToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.onlineDocumentationToolStripMenuItem.Text = "Online &Documentation";
+            this.onlineDocumentationToolStripMenuItem.Text = "Online &Documentation on GitHub";
             this.onlineDocumentationToolStripMenuItem.Click += new System.EventHandler(this.onlineDocumentationToolStripMenuItem_Click);
             // 
             // label1
