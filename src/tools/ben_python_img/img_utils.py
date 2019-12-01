@@ -191,3 +191,7 @@ def getMarkFromFilename(pathAndCategory):
     category = partsAfterMarker[0]
     pathWithoutCategory = parts[0] + "." + partsAfterMarker[1]
     return pathWithoutCategory, category
+
+def copyLastModified(infile, outfile):
+    lmt = files.getModTimeNs(infile)
+    files.setModTimeNs(outfile, lmt)

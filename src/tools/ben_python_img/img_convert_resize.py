@@ -8,13 +8,13 @@ from bn_python_common import *
 ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
 
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
-        jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False):
+        jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False, useJpegRotationTag=True):
     ''' returns a bool, True means that the file was rewritten, False means that it was just moved or copied.
     either True or False are a successful result; exceptions raised on error.'''
     
     useMozJpeg = True
     defaultJpgQuality = 94 if useMozJpeg else 93
-    
+
     if files.getext(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
         raise ValueError('only jpg files can have a quality less than 100.')
 
@@ -49,18 +49,21 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         dwebpsupports = ['png', 'tif']
         if files.getext(infile) == 'webp' and files.getext(outfile) in dwebpsupports:
             saveWebpToPng(infile, outfile)
+            img_utils.copyLastModified(infile, outfile)
             return ConvertResult.SuccessConverted
             
         # shortcut: cwebp natively can save from common formats
         cwebpsupports = ['bmp', 'png', 'tif']
         if files.getext(outfile) == 'webp' and files.getext(infile) in cwebpsupports:
             saveBmpOrPngToWebp(infile, outfile)
+            img_utils.copyLastModified(infile, outfile)
             return ConvertResult.SuccessConverted
             
         # shortcut: mozjpeg takes a bmp, we have a bmp.
         if files.getext(infile) == 'bmp' and files.getext(outfile) == 'jpg':
             saveToMozJpeg(False, infile, outfile,
                 jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
+            img_utils.copyLastModified(infile, outfile)
             return ConvertResult.SuccessConverted
             
     im = None
@@ -94,9 +97,12 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             files.deletesure(tmpPngOut)
         if memoryStreamIn:
             memoryStreamIn.close()
+            del memoryStreamIn
         if memoryStreamOut:
             memoryStreamOut.close()
+            del memoryStreamOut
             
+    img_utils.copyLastModified(infile, outfile)
     return ConvertResult.SuccessConverted
 
 def loadImageFromFile(infile, outfile):
