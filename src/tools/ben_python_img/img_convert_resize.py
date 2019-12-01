@@ -8,10 +8,9 @@ from bn_python_common import *
 ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
 
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
-        jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False, useJpegRotationTag=True):
-    ''' returns a bool, True means that the file was rewritten, False means that it was just moved or copied.
-    either True or False are a successful result; exceptions raised on error.'''
-    
+        jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False,
+        doTransferMostUsefulExifTags=True):
+
     useMozJpeg = True
     defaultJpgQuality = 94 if useMozJpeg else 93
 
@@ -74,7 +73,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         # load and resize image
         im, memoryStreamIn = loadImageFromFile(infile, outfile)
         im = resizeImage(im, resizeSpec, outfile)
-            
+        
         # save image
         if files.getext(outfile) == 'jpg':
             memoryStreamOut = cBytesIO()
@@ -101,7 +100,16 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         if memoryStreamOut:
             memoryStreamOut.close()
             del memoryStreamOut
-            
+
+    if files.getext(infile) == 'jpg' and files.getext(outfile) == 'jpg':
+        if doTransferMostUsefulExifTags:
+            try:
+                img_utils.transferMostUsefulExifTags(infile, outfile)
+            except BaseException as e:
+                # upon exception, just print a message and continue
+                trace('Exif exception occurred ' + str(e) + 'for ' + fullpath)
+                trace('Continuing...')
+
     img_utils.copyLastModified(infile, outfile)
     return ConvertResult.SuccessConverted
 

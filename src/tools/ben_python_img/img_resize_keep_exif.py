@@ -33,8 +33,10 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
         needTransferTags = False
         fileWasMovedNotCopied = True
     else:
-        ret = img_convert_resize.convertOrResizeImage(fullpath, pathWithoutCategory, resizeSpec=category, jpgQuality=None)
-        needTransferTags = ret != img_convert_resize.ConvertResult.SuccessCopied
+        # tell convertOrResizeImage not to transfer the tags yet, we'll do that ourselves.
+        img_convert_resize.convertOrResizeImage(fullpath, pathWithoutCategory, resizeSpec=category, jpgQuality=None,
+            doTransferMostUsefulExifTags=False)
+        needTransferTags = True
         fileWasMovedNotCopied = False
     
     assertTrue(files.exists(pathWithoutCategory))

@@ -142,10 +142,11 @@ def transferMostUsefulExifTags(src, dest):
     
     # to get everything except xmp and thumbnail, use
     # [exiftool(), '-tagsFromFile', src, '-XMP:All=', '-ThumbnailImage=', '-m', dest]
-    
+
     tagsWanted = [
         'DateTimeOriginal',
         'CreateDate',  # aka DateTimeDigitized
+        'Orientation',  # preserve rotation
         'Make',
         'Model',
         'LensInfo',
