@@ -692,11 +692,11 @@ namespace labs_coordinate_pictures
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
+            if (ModeUtils.IsJpg(_filelist.Current))
             {
                 StartExe(_filelist.Current, ConfigKey.FilepathImageEditorJpeg);
             }
-            else if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            else if (ModeUtils.IsWebp(_filelist.Current))
             {
                 StartExe(_filelist.Current, ConfigKey.None,
                     @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe");
@@ -717,7 +717,7 @@ namespace labs_coordinate_pictures
 
         private void editFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FilenameUtils.IsExt(_filelist.Current, ".webp"))
+            if (ModeUtils.IsWebp(_filelist.Current))
             {
                 Process.Start(_filelist.Current);
             }
@@ -745,7 +745,7 @@ namespace labs_coordinate_pictures
             {
                 StartExe(_filelist.Current, ConfigKey.FilepathAudioCrop);
             }
-            else if (FilenameUtils.IsExt(_filelist.Current, ".jpg"))
+            else if (ModeUtils.IsJpg(_filelist.Current))
             {
                 StartExe(_filelist.Current, ConfigKey.FilepathImageEditorCrop);
             }
@@ -1483,7 +1483,7 @@ namespace labs_coordinate_pictures
             {
                 return;
             }
-            else if (!_filelist.Current.EndsWith(".jpg", StringComparison.InvariantCulture))
+            else if (!ModeUtils.IsJpg(_filelist.Current))
             {
                 MessageBox.Show("only valid for jpeg files");
                 return;

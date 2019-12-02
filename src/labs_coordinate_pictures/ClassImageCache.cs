@@ -167,7 +167,7 @@ namespace labs_coordinate_pictures
             Bitmap bitmap = null;
             try
             {
-                if (path.ToLowerInvariant().EndsWith(".webp", StringComparison.Ordinal))
+                if (ModeUtils.IsWebp(path))
                 {
                     byte[] bytesData = File.ReadAllBytes(path);
                     var decoder = new Imazen.WebP.SimpleDecoder();
@@ -186,7 +186,7 @@ namespace labs_coordinate_pictures
             }
             catch (Exception e)
             {
-                if (path.ToLowerInvariant().EndsWith(".webp", StringComparison.Ordinal) &&
+                if (ModeUtils.IsWebp(path) &&
                     e.ToString().ToUpperInvariant().Contains("0x8007007E"))
                 {
                     Utils.MessageErr("It appears that the Visual C++ Redistributable " +

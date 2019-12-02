@@ -75,6 +75,16 @@ namespace labs_coordinate_pictures
                 Configs.Current.Set(mode.GetCategories(), mode.GetDefaultCategories());
             }
         }
+
+        public static bool IsWebp(string s)
+        {
+            return FilenameUtils.IsExtensionInList(s, new string[] { ".webp" });
+        }
+
+        public static bool IsJpg(string s)
+        {
+            return FilenameUtils.IsExtensionInList(s, new string[] { ".jpg", ".jpeg" });
+        }
     }
 
     // a 'mode' specifies a list of supported file extensions and can provide custom features.
@@ -300,9 +310,9 @@ namespace labs_coordinate_pictures
             {
                 var fileLength = new FileInfo(path).Length;
                 if (fileLength > 0 &&
-                    ((path.EndsWith(".webp", StringComparison.Ordinal) &&
+                    ((ModeUtils.IsWebp(path) &&
                     fileLength < capWebp) ||
-                    (path.EndsWith(".jpg", StringComparison.Ordinal) &&
+                    (ModeUtils.IsJpg(path) &&
                     fileLength < capJpg)))
                 {
                     countAccepted++;
