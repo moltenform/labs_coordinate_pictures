@@ -147,9 +147,8 @@ namespace labs_coordinate_pictures
                 _mode.OnOpenItem(_filelist.Current, this);
 
                 // show the current image
-                int originalWidth = 0, originalHeight = 0;
                 setCurrentImage(_imagecache.Get(
-                    _filelist.Current, out originalWidth, out originalHeight));
+                    _filelist.Current, out int originalWidth, out int originalHeight));
                 _currentImageResized = originalWidth > _imagecache.MaxWidth ||
                     originalHeight > _imagecache.MaxHeight;
 
@@ -1055,11 +1054,9 @@ namespace labs_coordinate_pictures
                 return;
             }
 
-            bool nameHasSuffix;
-            string pathWithoutSuffix;
             var pathsToDelete = FindSimilarFilenames.FindSimilarNames(
                 _filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
-                out nameHasSuffix, out pathWithoutSuffix);
+                out bool nameHasSuffix, out string pathWithoutSuffix);
 
             if (Utils.AskToConfirm("Delete the extra files " + Utils.NL +
                 string.Join(Utils.NL, pathsToDelete) + Utils.NL + "?"))
@@ -1120,9 +1117,8 @@ namespace labs_coordinate_pictures
             {
                 if (path.Contains(FilenameUtils.MarkerString))
                 {
-                    string pathWithoutCategory, category;
                     FilenameUtils.GetCategoryFromFilename(
-                        path, out pathWithoutCategory, out category);
+                        path, out string pathWithoutCategory, out string category);
 
                     var tupleFound = tuples.FirstOrDefault((item) => item.Item3 == category);
                     if (tupleFound == null)
@@ -1554,9 +1550,8 @@ namespace labs_coordinate_pictures
                     args = new string[] { "-Orientation#=" + setTo, "-overwrite_original", target };
                 }
 
-                string stdout = "";
-                string stderr = "";
-                int retcode = Utils.Run(exiftool, args, getStdout: true, outStdout: out stdout, outStderr: out stderr, hideWindow: true, waitForExit: true, shellExecute: false, workingDir: ".");
+                int retcode = Utils.Run(exiftool, args, getStdout: true, outStdout: out string stdout,
+                    outStderr: out string stderr, hideWindow: true, waitForExit: true, shellExecute: false, workingDir: ".");
                 if (!string.IsNullOrEmpty(stderr))
                 {
                     MessageBox.Show("Exif tool showed the message: " + stderr);

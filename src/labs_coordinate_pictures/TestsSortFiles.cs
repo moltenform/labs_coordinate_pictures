@@ -738,9 +738,8 @@ MTimeSmTextSmNameOneOnRight.a|MTimeSmTextSmNameOneOnRight.a|Changed";
             var form = new FormSortFilesList(
                 SortFilesAction.SearchDifferences, settings, "", allActionsSynchronous: true);
             ListView listView;
-            List<FileComparisonResult> mockSelection;
-            UndoStack<List<IUndoableFileOp>> undoStack;
-            form.GetTestHooks(out listView, out mockSelection, out undoStack);
+            form.GetTestHooks(out listView, out List<FileComparisonResult> mockSelection,
+                out UndoStack<List<IUndoableFileOp>> undoStack);
             form.RunSortFilesAction();
 
             // simulate column-header click to sort by path

@@ -269,14 +269,12 @@ namespace labs_coordinate_pictures
         public void AutoAcceptSmallFiles(FormGallery form, int capJpg = 0, int capWebp = 0)
         {
             var list = form.GetFilelist().GetList();
-            bool nameHasSuffix;
-            string pathWithoutSuffix;
 
             // first, check for duplicate names
             foreach (var path in list)
             {
                 var similar = FindSimilarFilenames.FindSimilarNames(
-                    path, GetFileTypes(), list, out nameHasSuffix, out pathWithoutSuffix);
+                    path, GetFileTypes(), list, out bool nameHasSuffix, out string pathWithoutSuffix);
                 if (similar.Count != 0)
                 {
                     Utils.MessageErr("the file " + path + " has similar name(s) "

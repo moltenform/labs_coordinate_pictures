@@ -118,8 +118,7 @@ namespace labs_coordinate_pictures
             string s = GetStrInput(message, defaultInt.ToString(), historyKey,
                 useClipboard: clipboardContainsInt);
 
-            int result = 0;
-            if (string.IsNullOrEmpty(s) || !int.TryParse(s, out result))
+            if (string.IsNullOrEmpty(s) || !int.TryParse(s, out int result))
             {
                 return null;
             }

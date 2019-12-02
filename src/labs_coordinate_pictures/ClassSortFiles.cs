@@ -206,10 +206,9 @@ namespace labs_coordinate_pictures
 
         public static void Go(SortFilesSettings settings)
         {
-            string unused;
             var workingDir = Environment.SystemDirectory;
             int retcode = Utils.Run("robocopy.exe", GetArgs(settings), shellExecute: false,
-                waitForExit: true, hideWindow: true, getStdout: false, outStdout: out unused,
+                waitForExit: true, hideWindow: true, getStdout: false, outStdout: out string unused,
                 outStderr: out unused, workingDir: workingDir);
 
             if (((retcode & 0x08) != 0) || ((retcode & 0x10) != 0))
@@ -232,8 +231,8 @@ namespace labs_coordinate_pictures
                 }
 
                 Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
-                    waitForExit: false, hideWindow: false, getStdout: false, outStdout: out unused,
-                    outStderr: out unused, workingDir: workingDir);
+                    waitForExit: false, hideWindow: false, getStdout: false, outStdout: out string _1,
+                    outStderr: out string _2, workingDir: workingDir);
             }
             else
             {
@@ -267,8 +266,7 @@ namespace labs_coordinate_pictures
             foreach (var info in diRight.EnumerateFiles("*", SearchOption.AllDirectories))
             {
                 var filenameRight = info.FullName.Substring(settings.RightDirectory.Length);
-                FileInfoForComparison objLeft;
-                if (filesInLeft.TryGetValue(filenameRight, out objLeft))
+                if (filesInLeft.TryGetValue(filenameRight, out FileInfoForComparison objLeft))
                 {
                     objLeft.MarkWhenVisited = true;
                     if (objLeft.FileSize != info.Length ||
@@ -386,8 +384,7 @@ namespace labs_coordinate_pictures
                 var obj = new FileInfoForComparison(
                     filename, info.Length, info.LastWriteTimeUtc);
 
-                List<FileInfoForComparison> list;
-                if (!map.TryGetValue(obj.FileSize, out list))
+                if (!map.TryGetValue(obj.FileSize, out List<FileInfoForComparison> list))
                 {
                     list = map[obj.FileSize] = new List<FileInfoForComparison>();
                 }
@@ -408,8 +405,7 @@ namespace labs_coordinate_pictures
                 return null;
             }
 
-            List<FileInfoForComparison> list;
-            if (map.TryGetValue(lengthOfFileToFind, out list))
+            if (map.TryGetValue(lengthOfFileToFind, out List<FileInfoForComparison> list))
             {
                 // look for an entry with the same filename
                 FileInfoForComparison hasSameName = null;

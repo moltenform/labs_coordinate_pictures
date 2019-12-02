@@ -308,8 +308,7 @@ namespace labs_coordinate_pictures
 
             Func<string, string> testGetCategory = (input) =>
             {
-                string pathWithoutCategory, category;
-                FilenameUtils.GetCategoryFromFilename(input, out pathWithoutCategory, out category);
+                FilenameUtils.GetCategoryFromFilename(input, out string pathWithoutCategory, out string category);
                 return pathWithoutCategory + "|" + category;
             };
 
@@ -470,9 +469,8 @@ namespace labs_coordinate_pictures
             {
                 if (historyKey != InputBoxHistory.None)
                 {
-                    ConfigKey key;
                     TestUtil.IsEq(true, Enum.TryParse<ConfigKey>(
-                        "MRU" + historyKey.ToString(), out key));
+                        "MRU" + historyKey.ToString(), out ConfigKey key));
 
                     TestUtil.IsTrue(key != ConfigKey.None);
                     checkUniqueness.Add((int)key);
@@ -690,8 +688,7 @@ namespace labs_coordinate_pictures
                 callbackOnUiThread, canDisposeBitmap, null))
             {
                 // retrieve from the cache
-                int gotW = 0, gotH = 0;
-                var bmp1 = cache.Get(Path.Combine(dir, "a1.png"), out gotW, out gotH);
+                var bmp1 = cache.Get(Path.Combine(dir, "a1.png"), out int gotW, out int gotH);
                 TestUtil.IsEq(1, gotW);
                 TestUtil.IsEq(1, gotH);
 
@@ -758,10 +755,9 @@ namespace labs_coordinate_pictures
             using (var excerpt = new ImageViewExcerpt(160, 120))
             using (var bitmapFull = new Bitmap(200, 240))
             {
-                int shiftx, shifty;
                 excerpt.GetShiftAmount(bitmapFull, clickX: 30, clickY: 40,
                     widthOfResizedImage: 150, heightOfResizedImage: 110,
-                    shiftX: out shiftx, shiftY: out shifty);
+                    shiftX: out int shiftx, shiftY: out int shifty);
 
                 TestUtil.IsEq(-40, shiftx);
                 TestUtil.IsEq(27, shifty);

@@ -25,9 +25,8 @@ namespace labs_coordinate_pictures
         public static int Run(string executable, string[] args, bool shellExecute, bool waitForExit,
             bool hideWindow)
         {
-            string stdout, stderr;
             return Run(executable, args, shellExecute, waitForExit,
-                hideWindow, false, out stdout, out stderr, null);
+                hideWindow, false, out string stdout, out string stderr, null);
         }
 
         // returns exit code. reading stdout implies waiting for exit.
@@ -448,10 +447,9 @@ namespace labs_coordinate_pictures
 
             var args = new List<string> { pyScript };
             args.AddRange(listArgs);
-            string stdout, stderr;
             int exitCode = Run(python, args.ToArray(), shellExecute: false,
                 waitForExit: true, hideWindow: !createWindow, getStdout: true,
-                outStdout: out stdout, outStderr: out stderr, workingDir: workingDir);
+                outStdout: out string stdout, outStderr: out string stderr, workingDir: workingDir);
 
             if (warnIfStdErr && exitCode != 0)
             {
@@ -1242,9 +1240,8 @@ namespace labs_coordinate_pictures
             {
                 if (otherFile.ToUpperInvariant() != path.ToUpperInvariant())
                 {
-                    string nameMiddleRemoved;
                     if (FilenameUtils.SameExceptExtension(nameWithoutSuffix, otherFile) ||
-                        (FindPathWithSuffixRemoved(otherFile, types, out nameMiddleRemoved) &&
+                        (FindPathWithSuffixRemoved(otherFile, types, out string nameMiddleRemoved) &&
                         FilenameUtils.SameExceptExtension(nameWithoutSuffix, nameMiddleRemoved)))
                     {
                         results.Add(otherFile);

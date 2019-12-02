@@ -236,8 +236,7 @@ namespace labs_coordinate_pictures
 
         public void Set(ConfigKey key, string s)
         {
-            string prev;
-            var valueWasChanged = !_dict.TryGetValue(key, out prev) ||
+            var valueWasChanged = !_dict.TryGetValue(key, out string prev) ||
                 prev != s ||
                 !File.Exists(_path);
             if (valueWasChanged)
@@ -254,8 +253,7 @@ namespace labs_coordinate_pictures
 
         public string Get(ConfigKey key)
         {
-            string s;
-            var ret = _dict.TryGetValue(key, out s) ? s : "";
+            var ret = _dict.TryGetValue(key, out string s) ? s : "";
             ConfirmChecksums.Check(key, ret);
             return ret;
         }
