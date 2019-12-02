@@ -12,6 +12,27 @@ using System.Threading;
 
 namespace labs_coordinate_pictures
 {
+    public struct CacheEntry
+    {
+        public string Path;
+        public Bitmap Image;
+        public int Width;
+        public int Height;
+        public DateTime Modtime;
+        public long Filesize;
+
+        public CacheEntry(string path, Bitmap image, int width,
+            int height, DateTime modtime, long filesize)
+        {
+            this.Path = path;
+            this.Image = image;
+            this.Width = width;
+            this.Height = height;
+            this.Modtime = modtime;
+            this.Filesize = filesize;
+        }
+    }
+
     public sealed class ImageCache : IDisposable
     {
         // list of images, one entry per file.
@@ -89,9 +110,9 @@ namespace labs_coordinate_pictures
                     }
                 }
 
-                originalWidth = _list[index].Item3;
-                originalHeight = _list[index].Item4;
-                return _list[index].Item2;
+                originalWidth = _list[index].Width;
+                originalHeight = _list[index].Height;
+                return _list[index].Image;
             }
         }
 
@@ -116,15 +137,19 @@ namespace labs_coordinate_pictures
 
                     // reading and resizing the bitmap can be done outside the lock,
                     // but this might do redundant work.
-                    int originalWidth = 0, originalHeight = 0;
-                    var bitmap = GetResizedBitmap(path, out originalWidth, out originalHeight);
-                    var lastModified = File.Exists(path) ?
-                        new FileInfo(path).LastWriteTimeUtc :
-                        DateTime.MinValue;
+                    var bitmap = GetResizedBitmap(path, out int originalWidth, out int originalHeight);
+                    DateTime lastmod = DateTime.MinValue;
+                    long filesize = 0;
+                    if (File.Exists(path))
+                    {
+                        var fileInfo = new FileInfo(path);
+                        lastmod = fileInfo.LastWriteTimeUtc;
+                        filesize = fileInfo.Length;
+                    }
 
                     bitmap = ResizeImageByFactor(bitmap, ResizeFactor, VerticalScrollFactor);
-                    _list.Add(new Tuple<string, Bitmap, int, int, DateTime>(
-                        path, bitmap, originalWidth, originalHeight, lastModified));
+                    _list.Add(new CacheEntry(
+                        path, bitmap, originalWidth, originalHeight, lastmod, filesize));
 
                     checkIfTooManyInCache = _list.Count > _cacheSize;
                 }
@@ -142,7 +167,7 @@ namespace labs_coordinate_pictures
                         var howManyToRemove = _list.Count - _cacheSize;
                         for (int i = howManyToRemove - 1; i >= 0; i--)
                         {
-                            if (i <= _list.Count - 1 && _canDisposeBitmap(_list[i].Item2))
+                            if (i <= _list.Count - 1 && _canDisposeBitmap(_list[i].Image))
                             {
                                 _list.RemoveAt(i);
                             }
@@ -224,8 +249,7 @@ namespace labs_coordinate_pictures
                 return new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
             }
 
-            bool bitmapWillLockFile;
-            Bitmap bitmapFull = GetBitmap(path, _shouldRotateThisImage, out bitmapWillLockFile);
+            Bitmap bitmapFull = GetBitmap(path, _shouldRotateThisImage, out bool bitmapWillLockFile);
 
             // resize and preserve ratio
             originalWidth = bitmapFull.Width;
@@ -355,17 +379,15 @@ namespace labs_coordinate_pictures
             }
 
             // we can disregard bitmapWillLockFile because we'll quickly dispose bitmapFull.
-            bool bitmapWillLockFile;
-            using (Bitmap bitmapFull = ImageCache.GetBitmap(path, shouldRotateImages, out bitmapWillLockFile))
+            using (Bitmap bitmapFull = ImageCache.GetBitmap(path, shouldRotateImages, out bool bitmapWillLockFile))
             {
                 if (bitmapFull.Width == 1 || bitmapFull.Height == 1)
                 {
                     return;
                 }
 
-                int shiftX, shiftY;
                 GetShiftAmount(bitmapFull, clickX, clickY,
-                    widthOfResizedImage, heightOfResizedImage, out shiftX, out shiftY);
+                    widthOfResizedImage, heightOfResizedImage, out int shiftX, out int shiftY);
 
                 // draw the entire image, but pushed off to the side
                 using (Graphics g = Graphics.FromImage(Bmp))
@@ -395,16 +417,15 @@ namespace labs_coordinate_pictures
     // enforces that Dispose() when removing images from the cache.
     public sealed class ListOfCachedImages : IDisposable
     {
-        // tuple of path/image/width/height/modified-time.
-        List<Tuple<string, Bitmap, int, int, DateTime>> _cache =
-            new List<Tuple<string, Bitmap, int, int, DateTime>>();
+        List<CacheEntry> _cache =
+            new List<CacheEntry>();
 
         public int Count
         {
             get { return _cache.Count; }
         }
 
-        public Tuple<string, Bitmap, int, int, DateTime> this[int index]
+        public CacheEntry this[int index]
         {
             get { return _cache[index]; }
         }
@@ -413,13 +434,21 @@ namespace labs_coordinate_pictures
         public int SearchForUpToDateCacheEntry(string path)
         {
             // linear search is fine as we only have a few entries.
-            int indexFound = _cache.FindIndex((tuple) => tuple.Item1 == path);
+            int indexFound = _cache.FindIndex((entry) => entry.Path == path);
             if (indexFound != -1)
             {
                 // is it up to date though? if it is out of date, invalidate the cached entry.
-                var isCurrent = File.Exists(path) ?
-                    new FileInfo(path).LastWriteTimeUtc == _cache[indexFound].Item5 :
-                    false;
+                DateTime lastmod = DateTime.MinValue;
+                long filesize = 0;
+                if (File.Exists(path))
+                {
+                    var fileInfo = new FileInfo(path);
+                    lastmod = fileInfo.LastWriteTimeUtc;
+                    filesize = fileInfo.Length;
+                }
+
+                var isCurrent = lastmod == _cache[indexFound].Modtime &&
+                    filesize == _cache[indexFound].Filesize;
 
                 if (!isCurrent)
                 {
@@ -431,24 +460,28 @@ namespace labs_coordinate_pictures
             return indexFound;
         }
 
-        public void Add(Tuple<string, Bitmap, int, int, DateTime> tuple)
+        public void Add(CacheEntry entry)
         {
-            _cache.Add(tuple);
+            _cache.Add(entry);
         }
 
         public void RemoveAt(int index)
         {
-            _cache[index].Item2.Dispose();
+            if (_cache[index].Image != null)
+            {
+                _cache[index].Image.Dispose();
+            }
+
             _cache.RemoveAt(index);
         }
 
         public void Dispose()
         {
-            foreach (var tuple in _cache)
+            foreach (var entry in _cache)
             {
-                if (tuple.Item2 != null)
+                if (entry.Image != null)
                 {
-                    tuple.Item2.Dispose();
+                    entry.Image.Dispose();
                 }
             }
 
