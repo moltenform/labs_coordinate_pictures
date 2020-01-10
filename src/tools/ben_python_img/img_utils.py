@@ -133,6 +133,12 @@ def removeAllExifTagsInDirectory(dirname):
             if filename.lower().endswith('.jpg'):
                 removeAllExifTags(filename)
 
+def stampJpgWithFilenameInDirectory(dirname, rec=False):
+    fn = files.recursefiles if rec else files.listfiles
+    for f, short in fn(dirname):
+        if short.lower().endswith('.jpg'):
+            stampJpgWithOriginalFilename(f, short)
+
 def transferMostUsefulExifTags(src, dest):
     '''When resizing a jpg file, all exif data is lost, since we convert to raw as an intermediate step.
     Also, if we copied all exif metadata, modern cameras add quite a bit of exif+xmp, at least 15kb.
@@ -144,6 +150,7 @@ def transferMostUsefulExifTags(src, dest):
     # [exiftool(), '-tagsFromFile', src, '-XMP:All=', '-ThumbnailImage=', '-m', dest]
 
     tagsWanted = [
+        ExifFieldForOriginalTitle,
         'DateTimeOriginal',
         'CreateDate',  # aka DateTimeDigitized
         'Orientation',  # preserve rotation
