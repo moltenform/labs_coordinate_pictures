@@ -685,7 +685,7 @@ namespace labs_coordinate_pictures
 
             // standard lookup
             using (var cache = new ImageCache(20, 20, cacheSize,
-                callbackOnUiThread, canDisposeBitmap, null))
+                callbackOnUiThread, canDisposeBitmap, null, false))
             {
                 // retrieve from the cache
                 var bmp1 = cache.Get(Path.Combine(dir, "a1.png"), out int gotW, out int gotH);
@@ -714,7 +714,7 @@ namespace labs_coordinate_pictures
 
             // add past the limit
             using (var cache = new ImageCache(20, 20, cacheSize,
-                callbackOnUiThread, canDisposeBitmap, null))
+                callbackOnUiThread, canDisposeBitmap, null, false))
             {
                 // fill up cache
                 removedFromCache.Clear();

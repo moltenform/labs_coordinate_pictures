@@ -76,6 +76,34 @@ namespace labs_coordinate_pictures
             bitmap.Dispose();
             return bitmapResized;
         }
+
+        public static Bitmap TileImage(Bitmap bitmap, bool tileImages, int maxWidth, int maxHeight)
+        {
+            if (!tileImages || (bitmap.Width >= maxWidth && bitmap.Height >= maxHeight))
+            {
+                return bitmap;
+            }
+
+            Bitmap bitmapTiled = new Bitmap(maxWidth, maxHeight, PixelFormat.Format32bppPArgb);
+            int countTilesW = Math.Max(2, maxWidth / bitmap.Width) + 1;
+            int countTilesH = Math.Max(2, maxHeight / bitmap.Height) + 1;
+            using (Graphics g = Graphics.FromImage(bitmapTiled))
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.None;
+                for (int y = 0; y < countTilesH; y++)
+                {
+                    for (int x = 0; x < countTilesW; x++)
+                    {
+                        g.DrawImageUnscaled(bitmap, x * bitmap.Width, y * bitmap.Height);
+                    }
+                }
+            }
+
+            bitmap.Dispose();
+            return bitmapTiled;
+        }
     }
 
     // show a full-resolution excerpt of a large image

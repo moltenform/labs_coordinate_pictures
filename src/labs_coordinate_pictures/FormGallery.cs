@@ -35,6 +35,9 @@ namespace labs_coordinate_pictures
         // during long-running operations on bg threads, we block most UI input
         bool _enabled = true;
 
+        // you can preview web bg by tiling images
+        bool _tileImages = false;
+
         // user can add custom categories; we store the original menu in order to restore later
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
@@ -93,6 +96,7 @@ namespace labs_coordinate_pictures
             redoMoveToolStripMenuItem.Click += (sender, e) => UndoOrRedo(false);
             zoomInToolStripMenuItem.Click += (sender, e) => changeZoom(true);
             zoomOutToolStripMenuItem.Click += (sender, e) => changeZoom(false);
+            tileImagesMenuItem.Click += (sender, e) => tileImages();
 
             _lastWindowState = WindowState;
             _lastWindowWidth = Width;
@@ -183,7 +187,7 @@ namespace labs_coordinate_pictures
                 };
 
             _imagecache = new ImageCache(btnPicture.ClientRectangle.Width, btnPicture.ClientRectangle.Height - 30,
-                ImageCacheSize, callbackOnUiThread, canDisposeBitmap, _shouldRotateImages);
+                ImageCacheSize, callbackOnUiThread, canDisposeBitmap, _shouldRotateImages, _tileImages);
         }
 
         void RefreshFilelist()
@@ -1517,6 +1521,14 @@ namespace labs_coordinate_pictures
                     OnOpenItem();
                 }
             }
+        }
+
+        private void tileImages()
+        {
+            this._tileImages = !this._tileImages;
+            this.tileImagesMenuItem.Checked = this._tileImages;
+            this.RefreshImageCache();
+            OnOpenItem();
         }
     }
 

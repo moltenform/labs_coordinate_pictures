@@ -46,6 +46,9 @@ namespace labs_coordinate_pictures
         // rough limit on length of _cache.
         int _cacheSize;
 
+        // you can preview web bg by tiling images
+        bool _tileImages = false;
+
         // when removing an entry from the cache, we can't remove the
         // entry that is currently shown by a form.
         Func<Action, bool> _callbackOnUiThread;
@@ -60,7 +63,8 @@ namespace labs_coordinate_pictures
             int cacheSize,
             Func<Action, bool> callbackOnUiThread,
             Func<Bitmap, bool> canDisposeBitmap,
-            JpegRotationFinder shouldRotateThisImage)
+            JpegRotationFinder shouldRotateThisImage,
+            bool tileImages)
         {
             ResizeToFit = true;
             ResizeFactor = 1;
@@ -70,6 +74,7 @@ namespace labs_coordinate_pictures
             _callbackOnUiThread = callbackOnUiThread;
             _canDisposeBitmap = canDisposeBitmap;
             _shouldRotateThisImage = shouldRotateThisImage;
+            _tileImages = tileImages;
             Excerpt = new ImageViewExcerpt(maxWidth, maxHeight);
         }
 
@@ -148,6 +153,8 @@ namespace labs_coordinate_pictures
                     }
 
                     bitmap = ClassImageOps.ResizeImageByFactor(bitmap, ResizeFactor, VerticalScrollFactor);
+                    bitmap = ClassImageOps.TileImage(bitmap, _tileImages, MaxWidth, MaxHeight);
+
                     _list.Add(new CacheEntry(
                         path, bitmap, originalWidth, originalHeight, lastmod, filesize));
 
