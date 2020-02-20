@@ -42,8 +42,13 @@ namespace labs_coordinate_pictures
         List<ToolStripItem> _originalCategoriesMenu;
         List<ToolStripItem> _originalEditMenu;
 
-        // shortcut key bindings from letter, to category.
+        // shortcut key bindings from letter, to category
         Dictionary<string, string> _categoryKeyBindings;
+
+        // which keys are currently down, so keydown evts aren't sent twice
+        // not perfect, since the keyup might occur when we're not focused,
+        // but it's not a big deal to skip a key event
+        HashSet<long> _keysDown = new HashSet<long>();
 
         // support undoing file moves
         UndoStack<Tuple<string, string>> _undoFileMoves =
@@ -442,19 +447,48 @@ namespace labs_coordinate_pictures
             }
         }
 
+        // ToolStripMenuItem does have automatic keybinding by setting ShortcutKeys,
+        // but it often requires Ctrl or Alt in the shortcutkey,
+        // and you can't specify keyup/keydown
         public void FormGallery_KeyUp(object sender, KeyEventArgs e)
         {
-            // ToolStripMenuItem does have automatic keybinding by setting ShortcutKeys,
-            // but it often requires Ctrl or Alt in the shortcutkey,
-            // and it uses KeyDown, firing many times if key is held.
-            // so we manually handle KeyUp.
+            if (_keysDown.Contains((long)e.KeyCode))
+            {
+                _keysDown.Remove((long)e.KeyCode);
+            }
+
+            // a few events that we should be sure aren't fired twice.
+            if (!_enabled)
+            {
+                return;
+            }
+            else if (!e.Shift && !e.Control && !e.Alt)
+            {
+                if (e.KeyCode == Keys.Delete)
+                    KeyDelete();
+            }
+            else if (!e.Shift && e.Control && !e.Alt)
+            {
+                if (e.KeyCode == Keys.Enter)
+                    finishedCategorizingToolStripMenuItem_Click(null, null);
+            }
+        }
+
+        private void FormGallery_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (_keysDown.Contains((long)e.KeyCode))
+            {
+                // apparently a repeated keydown event - ignore it.
+                return;
+            }
+
+            _keysDown.Add((long)e.KeyCode);
 
             if (!_enabled)
             {
                 return;
             }
-
-            if (!e.Shift && !e.Control && !e.Alt)
+            else if (!e.Shift && !e.Control && !e.Alt)
             {
                 if (e.KeyCode == Keys.F5)
                     RefreshFilelist();
@@ -470,8 +504,6 @@ namespace labs_coordinate_pictures
                     MoveFirst(true);
                 else if (e.KeyCode == Keys.End)
                     MoveFirst(false);
-                else if (e.KeyCode == Keys.Delete)
-                    KeyDelete();
                 else if (e.KeyCode == Keys.H)
                     RenameFile();
             }
@@ -532,8 +564,6 @@ namespace labs_coordinate_pictures
                     keepAndDeleteOthersToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.R)
                     cropRotateFileToolStripMenuItem_Click(null, null);
-                else if (e.KeyCode == Keys.Enter)
-                    finishedCategorizingToolStripMenuItem_Click(null, null);
                 else if (e.KeyCode == Keys.PageUp)
                     changeZoom(true);
                 else if (e.KeyCode == Keys.PageDown)

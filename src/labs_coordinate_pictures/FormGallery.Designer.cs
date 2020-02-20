@@ -50,6 +50,7 @@
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resizeToFitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tileImagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,7 +69,6 @@
             this.label = new System.Windows.Forms.Label();
             this.labelView = new System.Windows.Forms.Label();
             this.btnPicture = new System.Windows.Forms.Button();
-            this.tileImagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -356,6 +356,12 @@
             this.resizeToFitToolStripMenuItem.Text = "Resize to Fit";
             this.resizeToFitToolStripMenuItem.Click += new System.EventHandler(this.resizeToFitToolStripMenuItem_Click);
             // 
+            // tileImagesMenuItem
+            // 
+            this.tileImagesMenuItem.Name = "tileImagesMenuItem";
+            this.tileImagesMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.tileImagesMenuItem.Text = "Tile Images";
+            // 
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -481,7 +487,7 @@
             this.tableLayoutPanel1.Controls.Add(this.btnPicture, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 28);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -519,19 +525,13 @@
             this.btnPicture.FlatAppearance.BorderSize = 0;
             this.btnPicture.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPicture.Location = new System.Drawing.Point(71, 21);
-            this.btnPicture.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnPicture.Margin = new System.Windows.Forms.Padding(4);
             this.btnPicture.Name = "btnPicture";
             this.btnPicture.Size = new System.Drawing.Size(790, 459);
             this.btnPicture.TabIndex = 3;
             this.btnPicture.UseVisualStyleBackColor = true;
             this.btnPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.btnPicture_Paint);
             this.btnPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnPicture_MouseDown);
-            // 
-            // tileImagesMenuItem
-            // 
-            this.tileImagesMenuItem.Name = "tileImagesMenuItem";
-            this.tileImagesMenuItem.Size = new System.Drawing.Size(308, 26);
-            this.tileImagesMenuItem.Text = "Tile Images";
             // 
             // FormGallery
             // 
@@ -543,10 +543,11 @@
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormGallery";
             this.Text = "FormGallery";
             this.ResizeEnd += new System.EventHandler(this.FormGallery_ResizeEnd);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormGallery_KeyUp);
             this.Resize += new System.EventHandler(this.FormGallery_Resize);
             this.menuStrip1.ResumeLayout(false);
