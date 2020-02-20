@@ -132,7 +132,7 @@ def runProcessShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=True, captureoutput=True)
     if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
         
 def runProcessWithStdIn(args, sendToStdIn):
     import subprocess, sys
@@ -143,7 +143,7 @@ def runProcessWithStdIn(args, sendToStdIn):
     stderr = comm[1]
     retcode = sp.returncode
     if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
 
 def getTempFilename(ext):
     tempdir = img_utils.getTempLocation()
@@ -157,7 +157,7 @@ def loadImageFromWebp(infile):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
         throwOnFailure=None, stripText=False, captureoutput=True)
     if retcode != 0:
-        raise RuntimeError('failure running ' + str(args) + ' stderr=' + stderr)
+        raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
 
     # read the png directly from memory
     memoryStream = cBytesIO(stdout)
