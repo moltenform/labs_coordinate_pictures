@@ -28,6 +28,10 @@ namespace labs_coordinate_pictures
             this.Text = " ";
             this.AllowDrop = true;
             this._comboBox.Focus();
+
+            // we don't use autocomplete, we just enable it
+            // to get the Ctrl+Backspace shortcut
+            this._comboBox.AutoCompleteMode = AutoCompleteMode.Append;
         }
 
         // add MRU history, suggestions, and clipboard contents to the list of examples.
