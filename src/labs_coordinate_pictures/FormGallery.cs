@@ -343,6 +343,7 @@ namespace labs_coordinate_pictures
 
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AboutToOpenDialog();
             if (EditCategories(_mode.GetDefaultCategories(), _mode.GetCategories(), InputBoxHistory.EditCategoriesString))
             {
                 RefreshCategories();
@@ -377,12 +378,14 @@ namespace labs_coordinate_pictures
             const int millisecondsRetryMoving = 3000;
             if (File.Exists(pathDestination))
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("already exists: " + pathDestination);
                 return false;
             }
 
             if (!File.Exists(path))
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("does not exist: " + path);
                 return false;
             }
@@ -393,6 +396,7 @@ namespace labs_coordinate_pictures
                 bool succeeded = Utils.RepeatWhileFileLocked(path, millisecondsRetryMoving);
                 if (!succeeded)
                 {
+                    AboutToOpenDialog();
                     SimpleLog.Current.WriteLog("Move failed, access denied.");
                     Utils.MessageErr("File is locked: " + path);
                     return false;
@@ -402,6 +406,7 @@ namespace labs_coordinate_pictures
             }
             catch (IOException e)
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("IOException: " + e);
                 return false;
             }
@@ -422,10 +427,16 @@ namespace labs_coordinate_pictures
 
             if (moveConsidered == null)
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("nothing to undo", true);
             }
             else
             {
+                if (!Configs.Current.SuppressDialogs)
+                {
+                    AboutToOpenDialog();
+                }
+
                 var pathDestination = isUndo ? moveConsidered.Item1 : moveConsidered.Item2;
                 var pathSource = isUndo ? moveConsidered.Item2 : moveConsidered.Item1;
                 if (Configs.Current.SuppressDialogs ||
@@ -628,6 +639,7 @@ namespace labs_coordinate_pictures
                 currentNoExt = currentNoExtParts[0] + currentNoExtParts[2];
             }
 
+            AboutToOpenDialog();
             var newName = InputBoxForm.GetStrInput("Enter a new name:", currentNoExt, mruList);
             if (!string.IsNullOrEmpty(newName))
             {
@@ -708,30 +720,33 @@ namespace labs_coordinate_pictures
             Clipboard.SetText(_filelist.Current ?? "");
         }
 
-        static void StartExe(string path, ConfigKey key, string exeOverride = null)
+        static bool StartExe(string path, ConfigKey key, string exeOverride = null)
         {
             var exe = exeOverride ?? Configs.Current.Get(key);
             if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
             {
                 Utils.MessageErr("Could not find the application '" + exe +
                     "'. The location can be set in the Options menu (" + key.ToString() + ").");
+                return false;
             }
             else
             {
                 Utils.Run(exe, new string[] { path },
                     shellExecute: false, waitForExit: false, hideWindow: false);
+                return true;
             }
         }
 
         private void editInAltEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool showedDialog = false;
             if (ModeUtils.IsJpg(_filelist.Current))
             {
-                StartExe(_filelist.Current, ConfigKey.FilepathImageEditorJpeg);
+                showedDialog = !StartExe(_filelist.Current, ConfigKey.FilepathImageEditorJpeg);
             }
             else if (ModeUtils.IsWebp(_filelist.Current))
             {
-                StartExe(_filelist.Current, ConfigKey.None,
+                showedDialog = !StartExe(_filelist.Current, ConfigKey.None,
                     @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe");
             }
             else if (FilenameUtils.IsExt(_filelist.Current, ".gif"))
@@ -740,11 +755,17 @@ namespace labs_coordinate_pictures
             }
             else if (!FilenameUtils.LooksLikeAudio(_filelist.Current))
             {
-                StartExe(_filelist.Current, ConfigKey.FilepathImageEditorAlt);
+                showedDialog = !StartExe(_filelist.Current, ConfigKey.FilepathImageEditorAlt);
             }
             else
             {
+                showedDialog = true;
                 MessageBox.Show("Audio files currently have no alt editor.");
+            }
+
+            if (showedDialog)
+            {
+                AboutToOpenDialog();
             }
         }
 
@@ -784,6 +805,7 @@ namespace labs_coordinate_pictures
             }
             else
             {
+                AboutToOpenDialog();
                 MessageBox.Show("No application set for cropping this file type.");
             }
         }
@@ -795,6 +817,7 @@ namespace labs_coordinate_pictures
 
         private void addNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AboutToOpenDialog();
             if (Utils.AskToConfirm("We now prefer adding numbered prefix based on filetime. Continue?"))
             {
                 runAddNumberedPrefix(false);
@@ -859,11 +882,13 @@ namespace labs_coordinate_pictures
                 msg += Utils.NL + "note: " + failed + " file(s) could not be renamed";
             }
 
+            AboutToOpenDialog();
             Utils.MessageBox(msg);
         }
 
         private void removeNumberedPrefixToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AboutToOpenDialog();
             int nRemovedPrefix = 0, nSkippedAlready = 0, nFailedToRename = 0;
             if (_mode.SupportsRename() && Utils.AskToConfirm("Remove numbered prefix?"))
             {
@@ -891,6 +916,7 @@ namespace labs_coordinate_pictures
                 MoveFirst();
             }
 
+            AboutToOpenDialog();
             Utils.MessageBox(string.Format("{0} files skipped because they have no prefix, " +
                 "{1} files failed to be renamed, {2} files successfully renamed.",
                 nSkippedAlready, nFailedToRename, nRemovedPrefix));
@@ -904,6 +930,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
+            AboutToOpenDialog();
             var filename = Path.GetFileName(_filelist.Current);
             var search = InputBoxForm.GetStrInput(
                 "Search for this in filename (not directory name):",
@@ -932,6 +959,7 @@ namespace labs_coordinate_pictures
                 return;
             }
 
+            AboutToOpenDialog();
             var suggestions = new string[] { "50%", "100%", "70%" };
             var resize = InputBoxForm.GetStrInput("Resize by what value (example 50%):",
                 null, more: suggestions, useClipboard: false);
@@ -943,10 +971,12 @@ namespace labs_coordinate_pictures
             var checkResizeSpec = new Regex(@"^[0-9]+[h%]$");
             if (!checkResizeSpec.IsMatch(resize))
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("invalid resize spec.");
                 return;
             }
 
+            AboutToOpenDialog();
             suggestions = new string[] { "png|100", "jpg|90", "webp|100" };
             var fmt = InputBoxForm.GetStrInput("Convert to format|quality:",
                 null, InputBoxHistory.EditConvertResizeImage, suggestions, useClipboard: false);
@@ -958,6 +988,7 @@ namespace labs_coordinate_pictures
             var checkFormat = new Regex(@"^[a-zA-Z]+\|[1-9][0-9]*$");
             if (!checkFormat.IsMatch(fmt))
             {
+                AboutToOpenDialog();
                 Utils.MessageErr("invalid format string.");
                 return;
             }
@@ -967,6 +998,12 @@ namespace labs_coordinate_pictures
             var outFile = Path.GetDirectoryName(_filelist.Current) + Utils.Sep +
                 Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
             Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
+        }
+
+        private void AboutToOpenDialog()
+        {
+            // clear keysdown whenever we open a dialog
+            _keysDown.Clear();
         }
 
         private void RunBatchOptimize(IEnumerable<string> files,
@@ -981,6 +1018,7 @@ namespace labs_coordinate_pictures
 
                 if (pauseEvery > 0 && countOptimized % pauseEvery == pauseEvery - 1)
                 {
+                    AboutToOpenDialog();
                     Utils.MessageBox("Pausing... Click OK to continue");
                 }
 
@@ -1021,12 +1059,14 @@ namespace labs_coordinate_pictures
                     }
                     catch (Exception exc)
                     {
+                        AboutToOpenDialog();
                         Utils.MessageErr("Exception when converting " +
                             path + ": " + exc);
                     }
                 }
             }
 
+            AboutToOpenDialog();
             Utils.MessageBox("Complete. " +
                 countOptimized + "file(s) optimized, " +
                 countNotOptimized + " file(s) were better as originals.\n\n" +
@@ -1092,6 +1132,7 @@ namespace labs_coordinate_pictures
                 _filelist.Current, _mode.GetFileTypes(), _filelist.GetList(),
                 out bool nameHasSuffix, out string pathWithoutSuffix);
 
+            AboutToOpenDialog();
             if (Utils.AskToConfirm("Delete the extra files " + Utils.NL +
                 string.Join(Utils.NL, pathsToDelete) + Utils.NL + "?"))
             {
@@ -1111,6 +1152,7 @@ namespace labs_coordinate_pictures
         // modes provide a 'completion action' that is called for each file assigned to a category.
         private void finishedCategorizingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AboutToOpenDialog();
             if (!_mode.SupportsCompletionAction())
             {
                 Utils.MessageBox("Mode does not have an associated action.");
@@ -1157,6 +1199,7 @@ namespace labs_coordinate_pictures
                     var tupleFound = tuples.FirstOrDefault((item) => item.Item3 == category);
                     if (tupleFound == null)
                     {
+                        AboutToOpenDialog();
                         Utils.MessageErr("Unknown category for file " + path, true);
                     }
                     else
@@ -1243,6 +1286,7 @@ namespace labs_coordinate_pictures
 
         void mnuConvertImageFormats_Click(object sender, EventArgs e)
         {
+            AboutToOpenDialog();
             var dir = InputBoxForm.GetStrInput(
                 "Please enter the directory that contains the images:", this.GetFilelist().BaseDirectory, InputBoxHistory.OpenImageDirectory, mustBeDirectory: true);
             if (dir != null && dir.Length > 0 && Directory.Exists(dir))
@@ -1252,6 +1296,7 @@ namespace labs_coordinate_pictures
                     null, InputBoxHistory.None, suggestions, useClipboard: false);
                 if (srcformat != null && srcformat.Length > 0 && Array.IndexOf(suggestions, srcformat) == -1)
                 {
+                    AboutToOpenDialog();
                     MessageBox.Show("Format not supported");
                 }
                 else if (srcformat != null && srcformat.Length > 0)
@@ -1264,10 +1309,12 @@ namespace labs_coordinate_pictures
                     var index = Array.IndexOf(outformatstrings, destformat);
                     if (destformat != null && destformat.Length > 0 && index == -1)
                     {
+                        AboutToOpenDialog();
                         MessageBox.Show("Format not supported");
                     }
                     else if (srcformat != null && srcformat.Length > 0)
                     {
+                        AboutToOpenDialog();
                         mnuConvertImageFormatsGo(dir, srcformat, destformat, outformats[index]);
                     }
                 }
@@ -1353,6 +1400,7 @@ namespace labs_coordinate_pictures
                 msg += "" + subcats[i].Item1 + ") " + subcats[i].Item2 + "\r\n";
             }
 
+            AboutToOpenDialog();
             msg += " or, type any string to start a new subcat.";
             string entered = InputBoxForm.GetStrInput(msg, "", InputBoxHistory.None, taller: true);
             var found = subcats.Where((tp) => (tp.Item1 == entered)).ToList();
@@ -1362,6 +1410,7 @@ namespace labs_coordinate_pictures
             }
             else if (found.Count == 0)
             {
+                AboutToOpenDialog();
                 MessageBox.Show("No subcat found");
                 return;
             }
@@ -1438,9 +1487,11 @@ namespace labs_coordinate_pictures
 
             if (failed.Length > 0)
             {
+                AboutToOpenDialog();
                 MessageBox.Show("Failed to rename: " + failed);
             }
 
+            AboutToOpenDialog();
             MessageBox.Show("Renamed " + succeeded + " files.");
             MoveFirst();
         }
@@ -1515,6 +1566,7 @@ namespace labs_coordinate_pictures
             }
             else if (!ModeUtils.IsJpg(_filelist.Current))
             {
+                AboutToOpenDialog();
                 MessageBox.Show("only valid for jpeg files");
                 return;
             }
@@ -1532,6 +1584,7 @@ namespace labs_coordinate_pictures
                 currents = "(could not read tag)";
             }
 
+            AboutToOpenDialog();
             var prompt = "The EXIF rotate tag instructs viewing software to show the image in a rotated way. " +
                 "The current value is " + currents +
                 ". Please choose from the list:" +
@@ -1542,6 +1595,7 @@ namespace labs_coordinate_pictures
                 var index = opts.ToList().IndexOf(s);
                 if (index == -1)
                 {
+                    AboutToOpenDialog();
                     MessageBox.Show("Unsupported rotation.");
                     return;
                 }
