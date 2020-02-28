@@ -130,7 +130,7 @@ def loadImageFromFile(infile, outfile):
 
 def runProcessShowErr(args):
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
-        throwOnFailure=None, stripText=True, captureoutput=True)
+        throwOnFailure=None, stripText=True, captureOutput=True)
     if retcode != 0:
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
         
@@ -155,7 +155,7 @@ def loadImageFromWebp(infile):
     dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', '-']
     retcode, stdout, stderr = files.run(args, shell=False, createNoWindow=True,
-        throwOnFailure=None, stripText=False, captureoutput=True)
+        throwOnFailure=None, stripText=False, captureOutput=True)
     if retcode != 0:
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
 
