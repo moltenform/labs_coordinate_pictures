@@ -21,6 +21,39 @@ namespace labs_coordinate_pictures
         {
             InitializeComponent();
             this.KeyPreview = true;
+            this.mnuCopy.Click += MnuCopy_Click;
+            this.mnuEditLocal.Click += MnuEditLocal_Click;
+        }
+
+        private void MnuEditLocal_Click(object sender, EventArgs e)
+        {
+            // current limitations:
+            // 1) can't be undone
+            // 2) doesn't edit underlying file yet, until you assign a category
+            if (this.listBox.SelectedItems.Count != 1)
+            {
+                MessageBox.Show("You should first select exactly one.");
+                return;
+            }
+
+            var index = this.listBox.SelectedIndices[0];
+            var next = InputBoxForm.GetStrInput("edit:", this.listBox.Items[index].ToString());
+            if (!string.IsNullOrEmpty(next))
+            {
+                this.listBox.Items.RemoveAt(index);
+                this.listBox.Items.Insert(index, next);
+            }
+        }
+
+        private void MnuCopy_Click(object sender, EventArgs e)
+        {
+            var s = "";
+            foreach (var item in this.listBox.SelectedItems)
+            {
+                s += "\r\n" + item.ToString();
+            }
+
+            Clipboard.SetText(s);
         }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -86,7 +119,8 @@ namespace labs_coordinate_pictures
                     "coordinatepictures_" + categoryName + ".txt";
                 AddToFile(destfile);
                 listBox.SelectedItems.Clear();
-                listBox.SelectedItems.Add(0);
+                listBox.SelectedIndex = 0;
+                listBox.Focus();
             }
         }
 
