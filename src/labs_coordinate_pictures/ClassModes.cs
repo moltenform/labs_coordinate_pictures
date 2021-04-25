@@ -119,6 +119,12 @@ namespace labs_coordinate_pictures
             bool shift, bool alt, bool control, Keys keys)
         {
         }
+
+        // is it ok if a file has a category that's not in the list?
+        public virtual bool AllowUnknownCategories()
+        {
+            return false;
+        }
     }
 
     // modes that support rename and view image files.
@@ -171,7 +177,7 @@ namespace labs_coordinate_pictures
                 Directory.CreateDirectory(targetDir);
             }
 
-            // simply move the file to <baseDirectory>/<categoryname>/file.jpg
+            // move the file to <baseDirectory>/<categoryname>/file.jpg
             var newPath = Path.Combine(targetDir, Path.GetFileName(pathWithoutCategory));
             if (File.Exists(newPath))
             {
@@ -181,6 +187,11 @@ namespace labs_coordinate_pictures
 
             SimpleLog.Current.WriteLog("File.Move " + path + " to " + newPath);
             File.Move(path, newPath);
+        }
+
+        public override bool AllowUnknownCategories()
+        {
+            return true;
         }
     }
 

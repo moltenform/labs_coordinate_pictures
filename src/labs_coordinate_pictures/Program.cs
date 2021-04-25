@@ -77,7 +77,7 @@ namespace labs_coordinate_pictures
         private static void Application_UIException(object sender,
             UnhandledExceptionEventArgs e)
         {
-            // The app will still exit, which seems fine. Can be overridden in app.config.
+            // the app will still exit, which seems fine. Can be overridden in app.config.
             var exception = e.ExceptionObject as Exception;
             if (exception != null)
             {

@@ -815,7 +815,7 @@ namespace labs_coordinate_pictures
                     TestUtil.IsTrue(File.Exists(Path.Combine(dir, "art", "t3.jpg")));
                     TestUtil.IsTrue(File.Exists(Path.Combine(dir, "other", "t4.png")));
                     TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t5__MARKAS__badfiletype.wav")));
-                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "t6__MARKAS__unknowncategory.jpg")));
+                    TestUtil.IsTrue(File.Exists(Path.Combine(dir, "unknowncategory", "t6.jpg")));
                 }
             }
             finally

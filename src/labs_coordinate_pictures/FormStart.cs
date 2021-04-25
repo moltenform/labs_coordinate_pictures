@@ -99,11 +99,11 @@ namespace labs_coordinate_pictures
         {
             if (!Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
             {
-                return new ModeCheckFilesizes();
+                return new ModeCategorizeAndRename();
             }
             else if (paths.Any(path => FilenameUtils.LooksLikeImage(path)))
             {
-                return new ModeCheckFilesizes();
+                return new ModeCategorizeAndRename();
             }
             else if (paths.All(path =>
                 path.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||

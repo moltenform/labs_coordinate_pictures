@@ -158,7 +158,7 @@ namespace labs_coordinate_pictures
 
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (FormGallery.EditCategories("", ConfigKey.CategoriesModeText, InputBoxHistory.None))
+            if (FormGallery.EditCategories("", null, InputBoxHistory.None))
             {
                 Reload();
             }

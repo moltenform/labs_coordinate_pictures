@@ -304,8 +304,15 @@ namespace labs_coordinate_pictures
             RefreshCategories();
         }
 
-        public static bool EditCategories(string defaults, ConfigKey key, InputBoxHistory historykey)
+        public static bool EditCategories(string defaults, ModeBase mode, InputBoxHistory historykey)
         {
+            var key = mode != null ? mode.GetCategories() : ConfigKey.CategoriesModeText;
+            if (mode is ModeCheckFilesizes && !Utils.AskToConfirm("For ModeCheckFilesizes, it "
+                + "makes most sense to keep the default categories, are you sure you want to edit them?"))
+            {
+                return false;
+            }
+
             // in the input box, suggest category strings.
             var suggestions = new string[]
             {
@@ -344,7 +351,7 @@ namespace labs_coordinate_pictures
         private void editCategoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AboutToOpenDialog();
-            if (EditCategories(_mode.GetDefaultCategories(), _mode.GetCategories(), InputBoxHistory.EditCategoriesString))
+            if (EditCategories(_mode.GetDefaultCategories(), _mode, InputBoxHistory.EditCategoriesString))
             {
                 RefreshCategories();
             }
@@ -1197,15 +1204,21 @@ namespace labs_coordinate_pictures
                         path, out string pathWithoutCategory, out string category);
 
                     var tupleFound = tuples.FirstOrDefault((item) => item.Item3 == category);
-                    if (tupleFound == null)
-                    {
-                        AboutToOpenDialog();
-                        Utils.MessageErr("Unknown category for file " + path, true);
-                    }
-                    else
+                    if (tupleFound != null)
                     {
                         _mode.OnCompletionAction(
                             _filelist.BaseDirectory, path, pathWithoutCategory, tupleFound);
+                    }
+                    else if (_mode.AllowUnknownCategories())
+                    {
+                        var tp = new Tuple<string, string, string>("?", category, category);
+                        _mode.OnCompletionAction(
+                            _filelist.BaseDirectory, path, pathWithoutCategory, tp);
+                    }
+                    else
+                    {
+                        AboutToOpenDialog();
+                        Utils.MessageErr("Unknown category for file " + path, true);
                     }
                 }
             }
