@@ -69,6 +69,7 @@
             this.label = new System.Windows.Forms.Label();
             this.labelView = new System.Windows.Forms.Label();
             this.btnPicture = new System.Windows.Forms.Button();
+            this.goFirstAfterCategorizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -84,8 +85,7 @@
             this.categoriesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(865, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(649, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -105,86 +105,86 @@
             this.toolStripMenuItem5,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // movePrevMenuItem
             // 
             this.movePrevMenuItem.Name = "movePrevMenuItem";
             this.movePrevMenuItem.ShortcutKeyDisplayString = "Left";
-            this.movePrevMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.movePrevMenuItem.Size = new System.Drawing.Size(207, 22);
             this.movePrevMenuItem.Text = "Move Previous";
             // 
             // moveNextMenuItem
             // 
             this.moveNextMenuItem.Name = "moveNextMenuItem";
             this.moveNextMenuItem.ShortcutKeyDisplayString = "Right";
-            this.moveNextMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveNextMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveNextMenuItem.Text = "Move Next";
             // 
             // moveManyPrevToolStripMenuItem
             // 
             this.moveManyPrevToolStripMenuItem.Name = "moveManyPrevToolStripMenuItem";
             this.moveManyPrevToolStripMenuItem.ShortcutKeyDisplayString = "PgUp";
-            this.moveManyPrevToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveManyPrevToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveManyPrevToolStripMenuItem.Text = "Move 15 Previous";
             // 
             // moveManyNextToolStripMenuItem
             // 
             this.moveManyNextToolStripMenuItem.Name = "moveManyNextToolStripMenuItem";
             this.moveManyNextToolStripMenuItem.ShortcutKeyDisplayString = "PgDn";
-            this.moveManyNextToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveManyNextToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveManyNextToolStripMenuItem.Text = "Move 15 Next";
             // 
             // moveFirstToolStripMenuItem
             // 
             this.moveFirstToolStripMenuItem.Name = "moveFirstToolStripMenuItem";
             this.moveFirstToolStripMenuItem.ShortcutKeyDisplayString = "Home";
-            this.moveFirstToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveFirstToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveFirstToolStripMenuItem.Text = "Move First";
             // 
             // moveLastToolStripMenuItem
             // 
             this.moveLastToolStripMenuItem.Name = "moveLastToolStripMenuItem";
             this.moveLastToolStripMenuItem.ShortcutKeyDisplayString = "End";
-            this.moveLastToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveLastToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveLastToolStripMenuItem.Text = "Move Last";
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(248, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(204, 6);
             // 
             // showInExplorerToolStripMenuItem
             // 
             this.showInExplorerToolStripMenuItem.Name = "showInExplorerToolStripMenuItem";
             this.showInExplorerToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+W";
-            this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.showInExplorerToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.showInExplorerToolStripMenuItem.Text = "Show in Explorer";
             this.showInExplorerToolStripMenuItem.Click += new System.EventHandler(this.showInExplorerToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(248, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(204, 6);
             // 
             // moveToTrashToolStripMenuItem
             // 
             this.moveToTrashToolStripMenuItem.Name = "moveToTrashToolStripMenuItem";
             this.moveToTrashToolStripMenuItem.ShortcutKeyDisplayString = "Del";
-            this.moveToTrashToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.moveToTrashToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.moveToTrashToolStripMenuItem.Text = "Move to Trash";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(248, 6);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(204, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(251, 26);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -205,41 +205,41 @@
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem,
             this.keepAndDeleteOthersToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(47, 24);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
             // 
             // undoMoveToolStripMenuItem
             // 
             this.undoMoveToolStripMenuItem.Name = "undoMoveToolStripMenuItem";
             this.undoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
-            this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.undoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.undoMoveToolStripMenuItem.Text = "Undo Move...";
             // 
             // redoMoveToolStripMenuItem
             // 
             this.redoMoveToolStripMenuItem.Name = "redoMoveToolStripMenuItem";
             this.redoMoveToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Y";
-            this.redoMoveToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.redoMoveToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.redoMoveToolStripMenuItem.Text = "Redo Move...";
             // 
             // copyPathToolStripMenuItem
             // 
             this.copyPathToolStripMenuItem.Name = "copyPathToolStripMenuItem";
             this.copyPathToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+C";
-            this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.copyPathToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.copyPathToolStripMenuItem.Text = "Copy Path";
             this.copyPathToolStripMenuItem.Click += new System.EventHandler(this.copyPathToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(497, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(401, 6);
             // 
             // editFileToolStripMenuItem
             // 
             this.editFileToolStripMenuItem.Name = "editFileToolStripMenuItem";
             this.editFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+E";
-            this.editFileToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.editFileToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.editFileToolStripMenuItem.Text = "Edit File...";
             this.editFileToolStripMenuItem.Click += new System.EventHandler(this.editFileToolStripMenuItem_Click);
             // 
@@ -247,7 +247,7 @@
             // 
             this.editInAltEditorToolStripMenuItem.Name = "editInAltEditorToolStripMenuItem";
             this.editInAltEditorToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+E";
-            this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.editInAltEditorToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.editInAltEditorToolStripMenuItem.Text = "Edit File in Alternate Editor...";
             this.editInAltEditorToolStripMenuItem.Click += new System.EventHandler(this.editInAltEditorToolStripMenuItem_Click);
             // 
@@ -255,7 +255,7 @@
             // 
             this.cropRotateFileToolStripMenuItem.Name = "cropRotateFileToolStripMenuItem";
             this.cropRotateFileToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+X";
-            this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.cropRotateFileToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.cropRotateFileToolStripMenuItem.Text = "Crop/Rotate File...";
             this.cropRotateFileToolStripMenuItem.Click += new System.EventHandler(this.cropRotateFileToolStripMenuItem_Click);
             // 
@@ -263,7 +263,7 @@
             // 
             this.setRotationTagToolStripMenuItem.Name = "setRotationTagToolStripMenuItem";
             this.setRotationTagToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+R";
-            this.setRotationTagToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.setRotationTagToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.setRotationTagToolStripMenuItem.Text = "Set Rotation Tag...";
             this.setRotationTagToolStripMenuItem.Click += new System.EventHandler(this.setRotationTagToolStripMenuItem_Click);
             // 
@@ -271,7 +271,7 @@
             // 
             this.convertResizeImageToolStripMenuItem.Name = "convertResizeImageToolStripMenuItem";
             this.convertResizeImageToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+[";
-            this.convertResizeImageToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.convertResizeImageToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertResizeImageToolStripMenuItem.Text = "Convert/Resize Image...";
             this.convertResizeImageToolStripMenuItem.Click += new System.EventHandler(this.convertResizeImageToolStripMenuItem_Click);
             // 
@@ -280,7 +280,7 @@
             this.mnuConvertImageFormats.Name = "mnuConvertImageFormats";
             this.mnuConvertImageFormats.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.K)));
-            this.mnuConvertImageFormats.Size = new System.Drawing.Size(500, 26);
+            this.mnuConvertImageFormats.Size = new System.Drawing.Size(404, 22);
             this.mnuConvertImageFormats.Text = "Convert Many Images...";
             this.mnuConvertImageFormats.Click += new System.EventHandler(this.mnuConvertImageFormats_Click);
             // 
@@ -288,7 +288,7 @@
             // 
             this.saveSpacePngToWebpToolStripMenuItem.Name = "saveSpacePngToWebpToolStripMenuItem";
             this.saveSpacePngToWebpToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+1";
-            this.saveSpacePngToWebpToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.saveSpacePngToWebpToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.saveSpacePngToWebpToolStripMenuItem.Text = "Save space by converting png to lossless webp";
             this.saveSpacePngToWebpToolStripMenuItem.Click += new System.EventHandler(this.saveSpacePngToWebpToolStripMenuItem_Click);
             // 
@@ -296,7 +296,7 @@
             // 
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Name = "convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem";
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+[";
-            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Text = "Convert to several jpgs with different qualities";
             this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem.Click += new System.EventHandler(this.convertToSeveralJpgsInDifferentQualitiesToolStripMenuItem_Click);
             // 
@@ -304,7 +304,7 @@
             // 
             this.keepAndDeleteOthersToolStripMenuItem.Name = "keepAndDeleteOthersToolStripMenuItem";
             this.keepAndDeleteOthersToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+]";
-            this.keepAndDeleteOthersToolStripMenuItem.Size = new System.Drawing.Size(500, 26);
+            this.keepAndDeleteOthersToolStripMenuItem.Size = new System.Drawing.Size(404, 22);
             this.keepAndDeleteOthersToolStripMenuItem.Text = "Keep this jpg and delete others with different qualities...";
             this.keepAndDeleteOthersToolStripMenuItem.Click += new System.EventHandler(this.keepAndDeleteOthersToolStripMenuItem_Click);
             // 
@@ -316,34 +316,35 @@
             this.toolStripMenuItem6,
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem,
             this.resizeToFitToolStripMenuItem,
-            this.tileImagesMenuItem});
+            this.tileImagesMenuItem,
+            this.goFirstAfterCategorizeToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
             // 
             // zoomInToolStripMenuItem
             // 
             this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
             this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
-            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.zoomInToolStripMenuItem.Text = "Zoom In";
             // 
             // zoomOutToolStripMenuItem
             // 
             this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
             this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
-            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.zoomOutToolStripMenuItem.Text = "Zoom Out";
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(305, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(250, 6);
             // 
             // mnuAutorotateJPGsForThisDirectoryToolStripMenuItem
             // 
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Name = "mnuAutorotateJPGsForThisDirectoryToolStripMenuItem";
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
             // 
@@ -352,14 +353,14 @@
             this.resizeToFitToolStripMenuItem.Checked = true;
             this.resizeToFitToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.resizeToFitToolStripMenuItem.Name = "resizeToFitToolStripMenuItem";
-            this.resizeToFitToolStripMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.resizeToFitToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
             this.resizeToFitToolStripMenuItem.Text = "Resize to Fit";
             this.resizeToFitToolStripMenuItem.Click += new System.EventHandler(this.resizeToFitToolStripMenuItem_Click);
             // 
             // tileImagesMenuItem
             // 
             this.tileImagesMenuItem.Name = "tileImagesMenuItem";
-            this.tileImagesMenuItem.Size = new System.Drawing.Size(308, 26);
+            this.tileImagesMenuItem.Size = new System.Drawing.Size(253, 22);
             this.tileImagesMenuItem.Text = "Tile Images";
             // 
             // renameToolStripMenuItem
@@ -372,14 +373,14 @@
             this.addNumberedPrefixToolStripMenuItem,
             this.removeNumberedPrefixToolStripMenuItem});
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.renameToolStripMenuItem.Text = "Rename";
             // 
             // renameItemToolStripMenuItem
             // 
             this.renameItemToolStripMenuItem.Name = "renameItemToolStripMenuItem";
             this.renameItemToolStripMenuItem.ShortcutKeyDisplayString = "H";
-            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(344, 26);
+            this.renameItemToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.renameItemToolStripMenuItem.Text = "Rename...";
             // 
             // replaceInFilenameToolStripMenuItem
@@ -387,19 +388,19 @@
             this.replaceInFilenameToolStripMenuItem.Name = "replaceInFilenameToolStripMenuItem";
             this.replaceInFilenameToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.H)));
-            this.replaceInFilenameToolStripMenuItem.Size = new System.Drawing.Size(344, 26);
+            this.replaceInFilenameToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.replaceInFilenameToolStripMenuItem.Text = "Replace in Filename...";
             this.replaceInFilenameToolStripMenuItem.Click += new System.EventHandler(this.replaceInFilenameToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(341, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(279, 6);
             // 
             // addNumberedPrefixByTimeToolStripMenuItem
             // 
             this.addNumberedPrefixByTimeToolStripMenuItem.Name = "addNumberedPrefixByTimeToolStripMenuItem";
-            this.addNumberedPrefixByTimeToolStripMenuItem.Size = new System.Drawing.Size(344, 26);
+            this.addNumberedPrefixByTimeToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.addNumberedPrefixByTimeToolStripMenuItem.Text = "Add Numbered Prefix By Time";
             this.addNumberedPrefixByTimeToolStripMenuItem.Click += new System.EventHandler(this.addNumberedPrefixByTimeToolStripMenuItem_Click);
             // 
@@ -407,7 +408,7 @@
             // 
             this.addNumberedPrefixToolStripMenuItem.Name = "addNumberedPrefixToolStripMenuItem";
             this.addNumberedPrefixToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+3";
-            this.addNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(344, 26);
+            this.addNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.addNumberedPrefixToolStripMenuItem.Text = "Add Numbered Prefix";
             this.addNumberedPrefixToolStripMenuItem.Click += new System.EventHandler(this.addNumberedPrefixToolStripMenuItem_Click);
             // 
@@ -415,7 +416,7 @@
             // 
             this.removeNumberedPrefixToolStripMenuItem.Name = "removeNumberedPrefixToolStripMenuItem";
             this.removeNumberedPrefixToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+3";
-            this.removeNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(344, 26);
+            this.removeNumberedPrefixToolStripMenuItem.Size = new System.Drawing.Size(282, 22);
             this.removeNumberedPrefixToolStripMenuItem.Text = "Remove Numbered Prefix";
             this.removeNumberedPrefixToolStripMenuItem.Click += new System.EventHandler(this.removeNumberedPrefixToolStripMenuItem_Click);
             // 
@@ -429,14 +430,14 @@
             this.mnuAddSubcategory,
             this.mnuCleanSubcats});
             this.categoriesToolStripMenuItem.Name = "categoriesToolStripMenuItem";
-            this.categoriesToolStripMenuItem.Size = new System.Drawing.Size(92, 24);
+            this.categoriesToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
             this.categoriesToolStripMenuItem.Text = "Categories";
             // 
             // viewCategoriesToolStripMenuItem
             // 
             this.viewCategoriesToolStripMenuItem.Name = "viewCategoriesToolStripMenuItem";
             this.viewCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+V";
-            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
+            this.viewCategoriesToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.viewCategoriesToolStripMenuItem.Text = "View Categories";
             this.viewCategoriesToolStripMenuItem.Click += new System.EventHandler(this.viewCategoriesToolStripMenuItem_Click);
             // 
@@ -444,7 +445,7 @@
             // 
             this.editCategoriesToolStripMenuItem.Name = "editCategoriesToolStripMenuItem";
             this.editCategoriesToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+K";
-            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
+            this.editCategoriesToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.editCategoriesToolStripMenuItem.Text = "Edit Categories...";
             this.editCategoriesToolStripMenuItem.Click += new System.EventHandler(this.editCategoriesToolStripMenuItem_Click);
             // 
@@ -452,20 +453,20 @@
             // 
             this.finishedCategorizingToolStripMenuItem.Name = "finishedCategorizingToolStripMenuItem";
             this.finishedCategorizingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Enter";
-            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
+            this.finishedCategorizingToolStripMenuItem.Size = new System.Drawing.Size(262, 22);
             this.finishedCategorizingToolStripMenuItem.Text = "Finish Categorizing...";
             this.finishedCategorizingToolStripMenuItem.Click += new System.EventHandler(this.finishedCategorizingToolStripMenuItem_Click);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(315, 6);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(259, 6);
             // 
             // mnuAddSubcategory
             // 
             this.mnuAddSubcategory.Name = "mnuAddSubcategory";
             this.mnuAddSubcategory.ShortcutKeyDisplayString = "Ctrl+4";
-            this.mnuAddSubcategory.Size = new System.Drawing.Size(318, 26);
+            this.mnuAddSubcategory.Size = new System.Drawing.Size(262, 22);
             this.mnuAddSubcategory.Text = "Assign Subcategory...";
             this.mnuAddSubcategory.Click += new System.EventHandler(this.mnuAddSubcategory_Click);
             // 
@@ -473,26 +474,25 @@
             // 
             this.mnuCleanSubcats.Name = "mnuCleanSubcats";
             this.mnuCleanSubcats.ShortcutKeyDisplayString = "Ctrl+Shift+4";
-            this.mnuCleanSubcats.Size = new System.Drawing.Size(318, 26);
+            this.mnuCleanSubcats.Size = new System.Drawing.Size(262, 22);
             this.mnuCleanSubcats.Text = "Clean Subcategories...";
             this.mnuCleanSubcats.Click += new System.EventHandler(this.mnuCleanSubcats_Click);
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 67F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.labelView, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.btnPicture, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 28);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(865, 484);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(649, 392);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // label
@@ -500,10 +500,9 @@
             this.label.AutoSize = true;
             this.tableLayoutPanel1.SetColumnSpan(this.label, 2);
             this.label.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label.Location = new System.Drawing.Point(4, 0);
-            this.label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label.Location = new System.Drawing.Point(3, 0);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(857, 17);
+            this.label.Size = new System.Drawing.Size(643, 13);
             this.label.TabIndex = 0;
             this.label.Text = "label";
             // 
@@ -511,10 +510,9 @@
             // 
             this.labelView.AutoSize = true;
             this.labelView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelView.Location = new System.Drawing.Point(4, 17);
-            this.labelView.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelView.Location = new System.Drawing.Point(3, 13);
             this.labelView.Name = "labelView";
-            this.labelView.Size = new System.Drawing.Size(59, 467);
+            this.labelView.Size = new System.Drawing.Size(44, 382);
             this.labelView.TabIndex = 2;
             this.labelView.Text = "labelView";
             // 
@@ -524,26 +522,32 @@
             this.btnPicture.Enabled = false;
             this.btnPicture.FlatAppearance.BorderSize = 0;
             this.btnPicture.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPicture.Location = new System.Drawing.Point(71, 21);
-            this.btnPicture.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPicture.Location = new System.Drawing.Point(53, 16);
             this.btnPicture.Name = "btnPicture";
-            this.btnPicture.Size = new System.Drawing.Size(790, 459);
+            this.btnPicture.Size = new System.Drawing.Size(593, 376);
             this.btnPicture.TabIndex = 3;
             this.btnPicture.UseVisualStyleBackColor = true;
             this.btnPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.btnPicture_Paint);
             this.btnPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnPicture_MouseDown);
             // 
+            // goFirstAfterCategorizeToolStripMenuItem
+            // 
+            this.goFirstAfterCategorizeToolStripMenuItem.Checked = true;
+            this.goFirstAfterCategorizeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.goFirstAfterCategorizeToolStripMenuItem.Name = "goFirstAfterCategorizeToolStripMenuItem";
+            this.goFirstAfterCategorizeToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.goFirstAfterCategorizeToolStripMenuItem.Text = "Go First After Categorize";
+            // 
             // FormGallery
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(865, 512);
+            this.ClientSize = new System.Drawing.Size(649, 416);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormGallery";
             this.Text = "FormGallery";
             this.ResizeEnd += new System.EventHandler(this.FormGallery_ResizeEnd);
@@ -614,5 +618,6 @@
         private System.Windows.Forms.ToolStripMenuItem resizeToFitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setRotationTagToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tileImagesMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem goFirstAfterCategorizeToolStripMenuItem;
     }
 }

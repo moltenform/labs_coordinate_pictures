@@ -622,7 +622,13 @@ namespace labs_coordinate_pictures
             var newname = FilenameUtils.AddCategoryToFilename(_filelist.Current, categoryId);
             if (WrapMoveFile(_filelist.Current, newname))
             {
-                MoveOne(true);
+                if (goFirstAfterCategorizeToolStripMenuItem.Checked)
+                {
+                    MoveFirst();
+                } else
+                {
+                    MoveOne(true);
+                }
             }
         }
 
@@ -653,7 +659,7 @@ namespace labs_coordinate_pictures
                 var nameWithPrefix = Path.GetFileName(_filelist.Current);
                 var hasNumberedPrefix = current != nameWithPrefix;
                 var prefix = hasNumberedPrefix ?
-                    nameWithPrefix.Substring(0, FilenameUtils.NumberedPrefixLength()) :
+                    nameWithPrefix.Substring(0, nameWithPrefix.IndexOf("])") + 2) :
                     "";
 
                 if (currentNoExtParts.Length > 2)
