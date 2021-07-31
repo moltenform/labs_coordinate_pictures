@@ -37,7 +37,7 @@ Additional features
 * Pillow (a fork of PIL)
 	* pip install pillow
 * mozjpeg encoder
-	* unzip ./tools/mozjpeg\_3.1\_x86.zip
+	* unzip ./tools/mozjpeg\_4.0.3\_x86.zip
 	* (or download from github.com/mozilla/mozjpeg and build)
 	* either specify location from coordinate\_pictures UI, (Options->set mozjpeg location)
 	* or edit ../options.ini to set 

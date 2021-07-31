@@ -127,13 +127,17 @@ def img_resize_keep_exif_testActualFiles(tmpDir):
     expectedSizes = '''a100p.jpg|8524
 a200h.jpg|8524
 a200h__MARKAS__200h.jpg|8502
-a32h.jpg|1335
+a32h.jpg|1293
 a32h__MARKAS__32h.jpg|8502
-a50p.jpg|2549
+a50p.jpg|2506
 a50p__MARKAS__50%.jpg|8502'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
-    assertEq(expectedSizes, resultSizes, 'current pillow version=%s' % PIL.PILLOW_VERSION)
+    try:
+        pVersion = PIL.PILLOW_VERSION
+    except AttributeError:
+        pVersion = PIL.__version__
+    assertEq(expectedSizes, resultSizes, 'current pillow version=%s' % pVersion)
     trace('img_resize_keep_exif_testActualFiles passed.')
 
 def img_resize_keep_exif_testCleanup(tmpDir):
@@ -237,20 +241,20 @@ def testCombinatoricImageConversion(tmpDir, testImage):
                 assertTrue(files.exists(outfile))
                 
     expectedSizes = '''start.bmp|43254
-start.bmp.jpg|15580
+start.bmp.jpg|15536
 start.bmp.png|39430
 start.bmp.webp|14454
-start.jpg|15580
+start.jpg|15536
 start.jpg.bmp|43254
 start.jpg.png|39483
 start.jpg.webp|14454
 start.png|39430
 start.png.bmp|43254
-start.png.jpg|15580
+start.png.jpg|15536
 start.png.webp|14454
 start.webp|14454
 start.webp.bmp|43254
-start.webp.jpg|15580
+start.webp.jpg|15536
 start.webp.png|22366'''.replace('\r\n', '\n')
     
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
@@ -287,10 +291,10 @@ def testJpgQualities(tmpDir, testImage):
         img_convert_resize.convertOrResizeImage(files.join(tmpDir, 'start.bmp'),
             files.join(tmpDir, 'q%d.jpg'%qual), jpgQuality=qual)
     
-    expectedSizes = '''q10.jpg|993
-q100.jpg|15580
-q60.jpg|5120
-q90.jpg|9406
+    expectedSizes = '''q10.jpg|961
+q100.jpg|15536
+q60.jpg|5093
+q90.jpg|9361
 start.bmp|43254'''.replace('\r\n', '\n')
     resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
         for file, short in sorted(files.listfiles(tmpDir))])
