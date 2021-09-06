@@ -51,6 +51,7 @@
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resizeToFitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tileImagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.goFirstAfterCategorizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceInFilenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,7 +70,6 @@
             this.label = new System.Windows.Forms.Label();
             this.labelView = new System.Windows.Forms.Label();
             this.btnPicture = new System.Windows.Forms.Button();
-            this.goFirstAfterCategorizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -85,6 +85,7 @@
             this.categoriesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
             this.menuStrip1.Size = new System.Drawing.Size(649, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
@@ -326,26 +327,26 @@
             // 
             this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
             this.zoomInToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageUp";
-            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.zoomInToolStripMenuItem.Text = "Zoom In";
             // 
             // zoomOutToolStripMenuItem
             // 
             this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
             this.zoomOutToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+PageDn";
-            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.zoomOutToolStripMenuItem.Text = "Zoom Out";
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(250, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(201, 6);
             // 
             // mnuAutorotateJPGsForThisDirectoryToolStripMenuItem
             // 
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Name = "mnuAutorotateJPGsForThisDirectoryToolStripMenuItem";
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
-            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Auto-rotate JPGs for this directory";
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Text = "Use Exif Rotation Flags";
             this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem.Click += new System.EventHandler(this.mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click);
             // 
             // resizeToFitToolStripMenuItem
@@ -353,15 +354,24 @@
             this.resizeToFitToolStripMenuItem.Checked = true;
             this.resizeToFitToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.resizeToFitToolStripMenuItem.Name = "resizeToFitToolStripMenuItem";
-            this.resizeToFitToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.resizeToFitToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.resizeToFitToolStripMenuItem.Text = "Resize to Fit";
             this.resizeToFitToolStripMenuItem.Click += new System.EventHandler(this.resizeToFitToolStripMenuItem_Click);
             // 
             // tileImagesMenuItem
             // 
             this.tileImagesMenuItem.Name = "tileImagesMenuItem";
-            this.tileImagesMenuItem.Size = new System.Drawing.Size(253, 22);
+            this.tileImagesMenuItem.Size = new System.Drawing.Size(204, 22);
             this.tileImagesMenuItem.Text = "Tile Images";
+            // 
+            // goFirstAfterCategorizeToolStripMenuItem
+            // 
+            this.goFirstAfterCategorizeToolStripMenuItem.Checked = true;
+            this.goFirstAfterCategorizeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.goFirstAfterCategorizeToolStripMenuItem.Name = "goFirstAfterCategorizeToolStripMenuItem";
+            this.goFirstAfterCategorizeToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.goFirstAfterCategorizeToolStripMenuItem.Text = "Go First After Categorize";
+            this.goFirstAfterCategorizeToolStripMenuItem.Click += new System.EventHandler(this.goFirstAfterCategorizeToolStripMenuItem_Click);
             // 
             // renameToolStripMenuItem
             // 
@@ -529,14 +539,6 @@
             this.btnPicture.UseVisualStyleBackColor = true;
             this.btnPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.btnPicture_Paint);
             this.btnPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnPicture_MouseDown);
-            // 
-            // goFirstAfterCategorizeToolStripMenuItem
-            // 
-            this.goFirstAfterCategorizeToolStripMenuItem.Checked = true;
-            this.goFirstAfterCategorizeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.goFirstAfterCategorizeToolStripMenuItem.Name = "goFirstAfterCategorizeToolStripMenuItem";
-            this.goFirstAfterCategorizeToolStripMenuItem.Size = new System.Drawing.Size(253, 22);
-            this.goFirstAfterCategorizeToolStripMenuItem.Text = "Go First After Categorize";
             // 
             // FormGallery
             // 

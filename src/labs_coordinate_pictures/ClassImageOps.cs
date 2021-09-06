@@ -165,4 +165,26 @@ namespace labs_coordinate_pictures
             Bmp.Dispose();
         }
     }
+
+    /**
+     * Important to dispose, and other tips:
+     * http://www.nathanaeljones.com/blog/2009/20-image-resizing-pitfalls
+     *
+     * Should I use WIC to load images?
+     * - Would automatically detect rotated jpgs in a faster way
+     * - Would support HEIC images and any new upcoming image formats
+     * - Potentially faster than current methods. Might be able to multithread it,
+     * whereas current resizing uses gdi and the gdi lock seems to prevents multithreading.
+     *
+     * Could run Install-Package stakx.WIC -Version 0.1.0 in Nuget console
+     * (WIC.DotNet is slightly newer but needs to use .NET standard)
+     * and
+     * github.com/ReneSlijkhuis/example-wic-applications/blob/master/example_6/Program.cs
+     * and
+     * using stakx.WIC;
+     * and
+     * new System.Drawing.Bitmap(width, height, stride, format, scan)
+     *
+     * In the end, though there's not enough reason to add this.
+     */
 }

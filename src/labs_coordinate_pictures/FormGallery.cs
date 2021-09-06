@@ -1379,7 +1379,7 @@ namespace labs_coordinate_pictures
 
         void mnuAutorotateJPGsForThisDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _shouldRotateImages.RefreshForDirectory(Path.GetDirectoryName(_filelist.Current));
+            _shouldRotateImages.RefreshForDirectoryRecurse(_filelist.BaseDirectory, FilenameUtils.MarkerString);
             _imagecache.InvalidateCache();
             OnOpenItem();
         }
@@ -1626,6 +1626,11 @@ namespace labs_coordinate_pictures
             }
         }
 
+        void goFirstAfterCategorizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            goFirstAfterCategorizeToolStripMenuItem.Checked = !goFirstAfterCategorizeToolStripMenuItem.Checked;
+        }
+
         private void tileImages()
         {
             this._tileImages = !this._tileImages;
@@ -1637,12 +1642,22 @@ namespace labs_coordinate_pictures
 
     public class JpegRotationFinder
     {
-        Dictionary<string, bool> _dict =
-            new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        readonly Dictionary<string, JpegRotationType> _dict =
+            new Dictionary<string, JpegRotationType>(StringComparer.InvariantCultureIgnoreCase);
 
-        public bool ShouldRotate(string path)
+        public enum JpegRotationType
         {
-            return _dict.ContainsKey(path);
+            Unknown,
+            Cw0,
+            Cw90,
+            Cw180,
+            Cw270,
+            Other,
+        }
+
+        public JpegRotationType ShouldRotate(string path)
+        {
+            return _dict.ContainsKey(path) ? _dict[path] : JpegRotationType.Unknown;
         }
 
         public static string RunAndGetResult(string target, string setTo = null)
@@ -1669,8 +1684,7 @@ namespace labs_coordinate_pictures
                     outStderr: out string stderr, hideWindow: true, waitForExit: true, shellExecute: false, workingDir: ".");
                 if (!string.IsNullOrEmpty(stderr))
                 {
-                    MessageBox.Show("Exif tool showed the message: " + stderr);
-                    return "";
+                    Console.WriteLine("Exif tool showed the message: " + stderr);
                 }
 
                 return retcode == 0 ? stdout : "";
@@ -1679,42 +1693,73 @@ namespace labs_coordinate_pictures
             return "";
         }
 
-        public void RefreshForDirectory(string dir)
+        private int RefreshForDirectory(string dir, string skipIfContains)
         {
-            var stdout = RunAndGetResult(dir);
-            if (!string.IsNullOrEmpty(stdout))
+            bool hasAFileToGet = false;
+            foreach (var file in Directory.EnumerateFiles(dir))
             {
-                parseStdOutForDirectory(stdout);
-            }
-        }
-
-        static int numberFromString(string part)
-        {
-            var labels = new string[] { "Horizontal", // Horizontal (normal)
-                "Mirror horizontal", // Mirror horizontal
-                "Rotate 180", // Rotate 180
-                "Mirror vertical", // Mirror vertical
-                "and rotate 270 CW", // Mirror horizontal and rotate 270 CW
-                "Rotate 90 CW", // Rotate 90 CW
-                "and rotate 90 CW", // Mirror horizontal and rotate 90 CW
-                "Rotate 270 CW" // Rotate 270 CW
-            };
-
-            for (int i = 0; i < labels.Length; i++)
-            {
-                if (part.Contains(labels[i]))
+                if (file.ToLowerInvariant().EndsWith(".jpg") && !file.Contains(skipIfContains))
                 {
-                    return i + 1;
+                    hasAFileToGet = true;
                 }
             }
 
-            return -1;
+            if (hasAFileToGet)
+            {
+                var stdout = RunAndGetResult(dir);
+                if (!string.IsNullOrEmpty(stdout))
+                {
+                    return parseStdOutForDirectory(stdout);
+                }
+            }
+
+            return 0;
         }
 
-        void parseStdOutForDirectory(string stdout)
+        public void RefreshForDirectoryRecurse(string dir, string skipIfContains)
+        {
+            int total = 0;
+            foreach (var subdir in Directory.EnumerateDirectories(dir, "*", SearchOption.AllDirectories))
+            {
+                total += RefreshForDirectory(subdir, skipIfContains);
+            }
+
+            MessageBox.Show("Done. It looks like there are " + total + " rotated jpgs in this directory.");
+        }
+
+        private static JpegRotationType numberFromString(string part)
+        {
+            if (part.Contains("Rotate 90 CW"))
+            {
+                return JpegRotationType.Cw90;
+            }
+            else if (part.Contains("Rotate 180"))
+            {
+                return JpegRotationType.Cw180;
+            }
+            else if (part.Contains("Rotate 270 CW"))
+            {
+                return JpegRotationType.Cw270;
+            }
+            else if (part.Contains("Mirror horizontal") || part.Contains("Mirror vertical") || part.Contains("Vertical"))
+            {
+                return JpegRotationType.Other;
+            }
+            else if (part.Contains("Horizontal"))
+            {
+                return JpegRotationType.Cw0;
+            }
+            else
+            {
+                // other keys might be Horizontal (normal), "and rotate 270 CW" or "and rotate 90 CW"
+                return JpegRotationType.Unknown;
+            }
+        }
+
+        private int parseStdOutForDirectory(string stdout)
         {
             var parts = Utils.SplitByString(stdout, "========");
-            int rotatednow = 0;
+            int rotatedNow = 0;
             foreach (string spart in parts)
             {
                 var part = spart.Trim();
@@ -1724,18 +1769,18 @@ namespace labs_coordinate_pictures
                     string path = subparts[0].Trim();
                     path = path.Replace("/", Utils.Sep);
                     var n = numberFromString(subparts[1]);
-                    if (n == 6)
+                    if (n != JpegRotationType.Unknown && n != JpegRotationType.Other && n != JpegRotationType.Cw0)
                     {
-                        _dict[path] = true;
-                        rotatednow++;
+                        _dict[path] = n;
+                        rotatedNow++;
                     }
                 }
             }
 
-            MessageBox.Show("Done. It looks like there are " + rotatednow + " rotated jpgs in this directory.");
+            return rotatedNow;
         }
 
-        public static int RunForSingleFile(string file)
+        public static JpegRotationType RunForSingleFile(string file)
         {
             var stdout = RunAndGetResult(file);
             if (!string.IsNullOrEmpty(stdout))
@@ -1749,13 +1794,12 @@ namespace labs_coordinate_pictures
                     {
                         string path = subparts[0].Trim();
                         path = path.Replace("/", Utils.Sep);
-
                         return numberFromString(subparts[1]);
                     }
                 }
             }
 
-            return -2;
+            return JpegRotationType.Unknown;
         }
     }
 }

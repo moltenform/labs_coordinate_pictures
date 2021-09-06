@@ -414,11 +414,13 @@ namespace labs_coordinate_pictures
         }
 
         public static void RunPythonScriptOnSeparateThread(string pyScript,
-            string[] listArgs, bool createWindow = false)
+            string[] listArgs, bool createWindow = false, bool autoWorkingDir = false,
+            string workingDir = null)
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
-                RunPythonScript(pyScript, listArgs, createWindow: createWindow);
+                RunPythonScript(pyScript, listArgs, createWindow: createWindow,
+                    workingDir: autoWorkingDir ? Path.GetDirectoryName(pyScript) : workingDir);
             });
         }
 

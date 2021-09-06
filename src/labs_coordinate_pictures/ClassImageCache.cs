@@ -194,7 +194,7 @@ namespace labs_coordinate_pictures
         }
 
         // bitmapWillLockFile indicates whether holding onto Bitmap will hold lock on a file.
-        public static Bitmap GetBitmap(string path, JpegRotationFinder shouldrotate, out bool bitmapWillLockFile)
+        public static Bitmap GetBitmap(string path, JpegRotationFinder shouldRotate, out bool bitmapWillLockFile)
         {
             Bitmap bitmap = null;
             try
@@ -239,9 +239,18 @@ namespace labs_coordinate_pictures
                 bitmap = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
             }
 
-            if (shouldrotate != null && shouldrotate.ShouldRotate(path))
+            var rotate = shouldRotate == null ? JpegRotationFinder.JpegRotationType.Unknown : shouldRotate.ShouldRotate(path);
+            if (rotate == JpegRotationFinder.JpegRotationType.Cw90)
             {
                 bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            }
+            else if (rotate == JpegRotationFinder.JpegRotationType.Cw180)
+            {
+                bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            }
+            else if (rotate == JpegRotationFinder.JpegRotationType.Cw270)
+            {
+                bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
             }
 
             return bitmap;

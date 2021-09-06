@@ -84,6 +84,11 @@ namespace labs_coordinate_pictures
             {
                 TestUtil.RunTests();
             }
+
+            if (Configs.Current.GetBool(ConfigKey.EnablePersonalFeatures))
+            {
+                this.label1.Text += "\r\n\r\n\r\nDrag/drop your music or images here.";
+            }
         }
 
         private void FormStart_Load(object sender, EventArgs e)
