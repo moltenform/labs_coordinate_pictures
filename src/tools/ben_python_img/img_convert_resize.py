@@ -120,7 +120,7 @@ def loadImageFromFile(infile, outfile):
     else:
         im = Image.open(infile)
     
-    # discard the transparency channel if saving to jpg
+    # discard the transparency channel (by replacing with white) if saving to jpg
     if im.mode == 'RGBA' and (outfile.lower().endswith('jpg') or outfile.lower().endswith('bmp')):
         newimg = Image.new("RGB", im.size, (255, 255, 255))
         newimg.paste(im, mask=im.split()[3])  # 3 is the alpha channel

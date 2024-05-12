@@ -56,10 +56,11 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
             assertTrue(files.exists(fullpath))
             softDeleteFile(pathWithoutCategory)
 
-def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling):
-    inputformat = 'jpg'
+def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling, inputFormat=None):
+    if inputFormat is None:
+       inputFormat = ['.jpg'] 
     fnGetFiles = files.recursefiles if recurse else files.listfiles
-    filesWithWrongExtension = img_utils.getFilesWrongExtension(root, fnGetFiles, inputformat)
+    filesWithWrongExtension = img_utils.getFilesWrongExtension(root, fnGetFiles, inputFormat)
     if len(filesWithWrongExtension) > 0:
         warn('files seen with wrong extension: ' + str(filesWithWrongExtension))
         
@@ -67,12 +68,14 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
         img_utils.verifyExifToolIsPresent()
     
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
-    allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))
+    allfiles = list(fnGetFiles(root, allowedexts=inputFormat))
     for fullpath, short in allfiles:
         if img_utils.MarkerString not in fullpath:
             continue
         
         resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
+
+
 
 def simpleResize(root, recursive, inputformat='png', outputformat='jpg',
         resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):

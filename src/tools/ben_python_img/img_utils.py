@@ -133,7 +133,7 @@ def removeAllExifTagsInDirectory(dirname):
     assertTrue(files.isdir(dirname))
     if getInputBool('remove all tags?'):
         for filename, short in files.listfiles(dirname):
-            if filename.lower().endswith('.jpg'):
+            if filename.lower().endswith('.jpg') or filename.lower().endswith('.jxl'):
                 removeAllExifTags(filename)
 
 def stampJpgWithFilenameInDirectory(dirname, rec=False):
@@ -181,8 +181,9 @@ def transferMostUsefulExifTags(src, dest):
     cmd.append(dest)
     files.run(cmd, shell=False, throwOnFailure=PythonImgExifError)
     
-def getFilesWrongExtension(root, fnGetFiles, inputExt):
-    return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=[inputExt]))
+def getFilesWrongExtension(root, fnGetFiles, arrInputExt):
+    assertTrue(isinstance(arrInputExt, list))
+    return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=arrInputExt))
     
 def getMarkFromFilename(pathAndCategory):
     '''returns tuple pathWithoutCategory, category'''

@@ -35,7 +35,7 @@ def img_utils_testGetFilesWithWrongExtension(tmpDir):
     files.writeall(files.join(tmpDirExt, 'e'), 'content')
     files.makedirs(tmpDirExt + '/subdir')
     fnGetFiles = files.listfiles
-    setRet = img_utils.getFilesWrongExtension(tmpDirExt, fnGetFiles, 'jpg')
+    setRet = img_utils.getFilesWrongExtension(tmpDirExt, fnGetFiles, ['jpg'])
     expected = [files.join(tmpDirExt, 'd.txt'), files.join(tmpDirExt, 'e')]
     assertEq(expected, list(sorted(f[0] for f in setRet)))
         
