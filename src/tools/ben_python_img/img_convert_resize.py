@@ -5,6 +5,8 @@ import sys
 sys.path.append('bn_python_common.zip')
 from bn_python_common import *
 
+from PIL.Image import Resampling
+
 ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
 
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
@@ -258,7 +260,7 @@ def resizeImage(im, resizeSpec, loggingContext):
         return im
     else:
         # if enlarging, consider Image.BICUBIC
-        ret = im.resize((newWidth, newHeight), Image.ANTIALIAS)
+        ret = im.resize((newWidth, newHeight), Resampling.LANCZOS)
         return ret
 
 
