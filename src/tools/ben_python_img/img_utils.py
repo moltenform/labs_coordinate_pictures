@@ -68,6 +68,37 @@ def readExifField(filename, exifField):
     else:
         return ''
 
+def readContainsExifFieldViaStdin(f, exifField):
+    # this way we won't be blocked by exiftool not opening unicode filenames
+    data = files.readall(f, 'rb')
+    args = [exiftool(),
+        '-S',
+        '-%s' % exifField,
+        '-']
+    
+    current_version = sys.version_info
+    assertTrue(current_version[0] >= 3 and current_version[1] >= 7)
+    kwargs = dict(
+        input=data,
+        capture_output = True
+        )
+    
+    if sys.platform.startswith('win'):
+        kwargs['creationflags'] = 0x08000000
+    results = subprocess.run(
+       args, **kwargs
+    )
+    assertEq(0, results.returncode, 'non zero code', f)
+    sres = results.stdout.strip() # leave in bytes format because we can run into unicode errors otherwise
+    if sres:
+        if not sres.startswith((exifField + ': ').encode('utf-8')):
+            raise PythonImgExifError('expected (' + exifField + '): but got (' + sres + ')')
+        v = (sres[len(exifField + ': '):]).strip()
+        return bool(v)
+    else:
+        return False
+
+
 def setExifField(filename, exifField, value):
     # -m flag lets exiftool() ignores minor errors
     assert isinstance(exifField, str)
@@ -136,11 +167,24 @@ def removeAllExifTagsInDirectory(dirname):
             if filename.lower().endswith('.jpg') or filename.lower().endswith('.jxl'):
                 removeAllExifTags(filename)
 
-def stampJpgWithFilenameInDirectory(dirname, rec=False):
-    fn = files.recursefiles if rec else files.listfiles
+def stampJpgWithFilenameInDirectory(dirname, recurse=False, onlyIfNotAlreadySet=True):
+    fn = files.recursefiles if recurse else files.listfiles
     for f, short in fn(dirname):
-        if short.lower().endswith('.jpg'):
-            stampJpgWithOriginalFilename(f, short)
+        if short.lower().endswith('.jpg') or short.lower().endswith('.jxl'):
+            if onlyIfNotAlreadySet:
+                try:
+                    alreadySet = readOriginalFilename(f)
+                except:
+                    trace('Error seen on', f)
+                    raise
+                if not alreadySet:
+                    trace('setting', f)
+                    stampJpgWithOriginalFilename(f, short)
+                else:
+                    trace('skipping because already set', f)
+            else:
+                trace('setting', f)
+                stampJpgWithOriginalFilename(f, short)
 
 def transferMostUsefulExifTags(src, dest):
     '''When resizing a jpg file, all exif data is lost, since we convert to raw as an intermediate step.
@@ -205,3 +249,5 @@ def getMarkFromFilename(pathAndCategory):
 def copyLastModified(infile, outfile):
     lmt = files.getModTimeNs(infile)
     files.setModTimeNs(outfile, lmt)
+
+
