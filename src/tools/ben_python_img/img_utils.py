@@ -2,6 +2,7 @@
 import sys
 sys.path.append('bn_python_common.zip')
 from bn_python_common import *
+import subprocess
 
 # field to store original title in. There's an exif tag OriginalRawFileName AKA OriginalFilename, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"
@@ -75,7 +76,9 @@ def setExifField(filename, exifField, value):
         '-overwrite_original',
         '-m',
         filename]
+    stampBefore = files.getModTimeNs(filename)
     files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+    files.setModTimeNs(filename, stampBefore)
 
 def readThumbnails(dirname, removeThumbnails, outputDir=None):
     if outputDir and not files.isdir(outputDir):
@@ -192,12 +195,10 @@ def getMarkFromFilename(pathAndCategory):
     if len(parts) != 2:
         raise ValueError('Expected path to have exactly one marker')
 
-    partsAfterMarker = parts[1].split('.')
-    if (len(partsAfterMarker) != 2):
-        raise ValueError('Parts after the marker shouldn\'t have another .')
+    partsAfterMarker = parts[1].rsplit('.', 1)
     
     category = partsAfterMarker[0]
-    pathWithoutCategory = parts[0] + "." + partsAfterMarker[1]
+    pathWithoutCategory = parts[0] + "." + files.getext(pathAndCategory)
     return pathWithoutCategory, category
 
 def copyLastModified(infile, outfile):
