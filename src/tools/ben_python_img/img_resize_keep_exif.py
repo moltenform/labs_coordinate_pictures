@@ -13,8 +13,8 @@ def cleanup(dir, recurse, informat='jpg', prompt=True):
     if prompt and not getInputBool('run cleanup?'):
         return
     
-    fnGetFiles = files.recursefiles if recurse else files.listfiles
-    for fullpath, short in fnGetFiles(dir, allowedexts=[informat]):
+    fnGetFiles = files.recurseFiles if recurse else files.listFiles
+    for fullpath, short in fnGetFiles(dir, allowedExts=[informat]):
         if img_utils.MarkerString in short:
             pathWithoutCategory, category = img_utils.getMarkFromFilename(fullpath)
             if files.exists(pathWithoutCategory):
@@ -43,7 +43,7 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
     
     try:
         if storeOriginalFilename:
-            img_utils.stampJpgWithOriginalFilename(pathWithoutCategory, files.getname(pathWithoutCategory))
+            img_utils.stampJpgWithOriginalFilename(pathWithoutCategory, files.getName(pathWithoutCategory))
         if storeExifFromOriginal and needTransferTags:
             img_utils.transferMostUsefulExifTags(fullpath, pathWithoutCategory)
     except img_utils.PythonImgExifError as e:
@@ -59,7 +59,7 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
 def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling, inputFormat=None):
     if inputFormat is None:
        inputFormat = ['.jpg'] 
-    fnGetFiles = files.recursefiles if recurse else files.listfiles
+    fnGetFiles = files.recurseFiles if recurse else files.listFiles
     filesWithWrongExtension = img_utils.getFilesWrongExtension(root, fnGetFiles, inputFormat)
     if len(filesWithWrongExtension) > 0:
         warn('files seen with wrong extension: ' + str(filesWithWrongExtension))
@@ -68,7 +68,7 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
         img_utils.verifyExifToolIsPresent()
     
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
-    allfiles = list(fnGetFiles(root, allowedexts=inputFormat))
+    allfiles = list(fnGetFiles(root, allowedExts=inputFormat))
     for fullpath, short in allfiles:
         if img_utils.MarkerString not in fullpath:
             continue
@@ -80,12 +80,12 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
 def simpleResize(root, recursive, inputformat='png', outputformat='jpg',
         resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
-    fnGetFiles = files.recursefiles if recurse else files.listfiles
-    allfiles = list(fnGetFiles(root, allowedexts=[inputformat]))
+    fnGetFiles = files.recurseFiles if recurse else files.listFiles
+    allfiles = list(fnGetFiles(root, allowedExts=[inputformat]))
     for fullpath, short in allfiles:
-        if files.getext(fullpath) == inputformat:
+        if files.getExt(fullpath) == inputformat:
             trace(short)
-            outname = files.getparent(fullpath) + files.sep + addPrefix + files.splitext(short)[0] + '.' + outputformat
+            outname = files.getParent(fullpath) + files.sep + addPrefix + files.splitExt(short)[0] + '.' + outputformat
             if files.exists(outname):
                 trace('already exists', outname)
             else:

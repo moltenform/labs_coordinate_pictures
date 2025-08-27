@@ -27,14 +27,14 @@ def img_utils_testGetMarkFromFilename():
 def img_utils_testGetFilesWithWrongExtension(tmpDir):
     # looks for files that do not have the given extension.
     tmpDirExt = files.join(tmpDir, 'testWrongExtension')
-    files.makedirs(tmpDirExt)
-    files.writeall(files.join(tmpDirExt, 'a.jpg'), 'content')
-    files.writeall(files.join(tmpDirExt, 'B.JPG'), 'content')
-    files.writeall(files.join(tmpDirExt, 'c.jpg'), 'content')
-    files.writeall(files.join(tmpDirExt, 'd.txt'), 'content')
-    files.writeall(files.join(tmpDirExt, 'e'), 'content')
-    files.makedirs(tmpDirExt + '/subdir')
-    fnGetFiles = files.listfiles
+    files.makeDirs(tmpDirExt)
+    files.writeAll(files.join(tmpDirExt, 'a.jpg'), 'content')
+    files.writeAll(files.join(tmpDirExt, 'B.JPG'), 'content')
+    files.writeAll(files.join(tmpDirExt, 'c.jpg'), 'content')
+    files.writeAll(files.join(tmpDirExt, 'd.txt'), 'content')
+    files.writeAll(files.join(tmpDirExt, 'e'), 'content')
+    files.makeDirs(tmpDirExt + '/subdir')
+    fnGetFiles = files.listFiles
     setRet = img_utils.getFilesWrongExtension(tmpDirExt, fnGetFiles, ['jpg'])
     expected = [files.join(tmpDirExt, 'd.txt'), files.join(tmpDirExt, 'e')]
     assertEq(expected, list(sorted(f[0] for f in setRet)))
@@ -73,7 +73,7 @@ def img_convert_testGetNewSizeFromResizeSpec():
 def img_resize_keep_exif_testActualFiles(tmpDir):
     trace('img_resize_keep_exif_testActualFiles started.')
     tmpDir = files.join(tmpDir, 'testResizeKeepExif')
-    files.makedirs(tmpDir)
+    files.makeDirs(tmpDir)
     
     # create initial files
     im = createTestImage(96, 144, 1)
@@ -131,8 +131,8 @@ a32h.jpg|1293
 a32h__MARKAS__32h.jpg|8502
 a50p.jpg|2506
 a50p__MARKAS__50%.jpg|8502'''.replace('\r\n', '\n')
-    resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
-        for file, short in sorted(files.listfiles(tmpDir))])
+    resultSizes = '\n'.join([short + '|' + str(files.getSize(file))
+        for file, short in sorted(files.listFiles(tmpDir))])
     try:
         pVersion = PIL.PILLOW_VERSION
     except AttributeError:
@@ -145,20 +145,20 @@ def img_resize_keep_exif_testCleanup(tmpDir):
     # which will discard the previous files with __MARKAS__.
     trace('img_resize_keep_exif_testCleanup started.')
     tmpDir = files.join(tmpDir, 'testCleanup')
-    files.makedirs(tmpDir)
-    files.writeall(files.join(tmpDir, 'a1.jpg'), '')
-    files.writeall(files.join(tmpDir, 'a1__MARKAS__50%.jpg'), '')
-    files.writeall(files.join(tmpDir, 'a2.jpg'), '')
-    files.writeall(files.join(tmpDir, 'a2__MARKAS__200h.jpg'), '')
-    files.writeall(files.join(tmpDir, 'a3.png'), '')
-    files.writeall(files.join(tmpDir, 'a3__MARKAS__100%.png'), '')
+    files.makeDirs(tmpDir)
+    files.writeAll(files.join(tmpDir, 'a1.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a1__MARKAS__50%.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a2.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a2__MARKAS__200h.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a3.png'), '')
+    files.writeAll(files.join(tmpDir, 'a3__MARKAS__100%.png'), '')
     
     # file with no corresponding markas should not be deleted.
-    files.writeall(files.join(tmpDir, 'a4.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a4.jpg'), '')
     
     # files with no corresponding converted file should not be deleted.
-    files.writeall(files.join(tmpDir, 'a5__MARKAS__100%.jpg'), '')
-    files.writeall(files.join(tmpDir, 'a6__MARKAS__.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a5__MARKAS__100%.jpg'), '')
+    files.writeAll(files.join(tmpDir, 'a6__MARKAS__.jpg'), '')
     
     img_resize_keep_exif.cleanup(tmpDir, recurse=False, prompt=False)
     expectedSizes = '''a1.jpg|0
@@ -168,8 +168,8 @@ a3__MARKAS__100%.png|0
 a4.jpg|0
 a5__MARKAS__100%.jpg|0
 a6__MARKAS__.jpg|0'''.replace('\r\n', '\n')
-    resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
-        for file, short in sorted(files.listfiles(tmpDir))])
+    resultSizes = '\n'.join([short + '|' + str(files.getSize(file))
+        for file, short in sorted(files.listFiles(tmpDir))])
     assertEq(expectedSizes, resultSizes)
     trace('img_resize_keep_exif_testCleanup passed.')
 
@@ -184,8 +184,8 @@ def assertExceptionOrFalse(fn, excType):
 
 def img_resize_keep_exif_testExifErrorsShouldRaise(tmpDir):
     # most exif operations on an invalid jpg should raise PythonImgExifError
-    files.writeall(files.join(tmpDir, 'invalidjpg.jpg'), 'not a valid jpg')
-    files.writeall(files.join(tmpDir, 'invalidjpg2.jpg'), 'not a valid jpg')
+    files.writeAll(files.join(tmpDir, 'invalidjpg.jpg'), 'not a valid jpg')
+    files.writeAll(files.join(tmpDir, 'invalidjpg2.jpg'), 'not a valid jpg')
     assertExceptionOrFalse(lambda: not img_utils.readOriginalFilename(
         files.join(tmpDir, 'invalidjpg.jpg')), img_utils.PythonImgExifError)
     assertException(lambda: img_utils.stampJpgWithOriginalFilename(
@@ -257,8 +257,8 @@ start.webp.bmp|43254
 start.webp.jpg|15536
 start.webp.png|22366'''.replace('\r\n', '\n')
     
-    resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
-        for file, short in sorted(files.listfiles(tmpDir)) if short.startswith('start')])
+    resultSizes = '\n'.join([short + '|' + str(files.getSize(file))
+        for file, short in sorted(files.listFiles(tmpDir)) if short.startswith('start')])
     assertEq(expectedSizes, resultSizes)
     
     # are bmps equivalent
@@ -284,7 +284,7 @@ start.webp.png|22366'''.replace('\r\n', '\n')
 def testJpgQualities(tmpDir, testImage):
     # simply write several jpgs at different qualities, and make sure the file sizes are as expected.
     tmpDir = files.join(tmpDir, 'testJpgQuality')
-    files.makedirs(tmpDir)
+    files.makeDirs(tmpDir)
     testImage.save(files.join(tmpDir, 'start.bmp'))
     qualities = [100, 90, 60, 10]
     for qual in qualities:
@@ -296,8 +296,8 @@ q100.jpg|15536
 q60.jpg|5093
 q90.jpg|9361
 start.bmp|43254'''.replace('\r\n', '\n')
-    resultSizes = '\n'.join([short + '|' + str(files.getsize(file))
-        for file, short in sorted(files.listfiles(tmpDir))])
+    resultSizes = '\n'.join([short + '|' + str(files.getSize(file))
+        for file, short in sorted(files.listFiles(tmpDir))])
     assertEq(expectedSizes, resultSizes)
 
 def img_convert_resize_tests(tmpDir):
@@ -310,9 +310,9 @@ def img_convert_resize_tests(tmpDir):
 if __name__ == '__main__':
     # passes on pillow 3.2, 3.3, 4.0
     tmpDir = files.join(img_utils.getTempLocation(), 'testimgconvert')
-    if files.isdir(tmpDir):
-        files.rmtree(tmpDir)
-    files.makedirs(tmpDir)
+    if files.isDir(tmpDir):
+        files.rmTree(tmpDir)
+    files.makeDirs(tmpDir)
 
     try:
         img_utils_testGetMarkFromFilename()
@@ -323,4 +323,4 @@ if __name__ == '__main__':
         img_convert_testGetNewSizeFromResizeSpec()
         img_convert_resize_tests(tmpDir)
     finally:
-        files.rmtree(tmpDir)
+        files.rmTree(tmpDir)

@@ -16,7 +16,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
     useMozJpeg = True
     defaultJpgQuality = 94 if useMozJpeg else 93
 
-    if files.getext(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
+    if files.getExt(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
         raise ValueError('only jpg files can have a quality less than 100.')
 
     if not jpgQuality:
@@ -42,26 +42,26 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         
     if needsNoResize:
         # shortcut: just copy the file if no format conversion or resize
-        if files.getext(infile) == files.getext(outfile):
+        if files.getExt(infile) == files.getExt(outfile):
             files.copy(infile, outfile, False)
             return ConvertResult.SuccessCopied
         
         # shortcut: dwebp natively can save to common formats
         dwebpsupports = ['png', 'tif']
-        if files.getext(infile) == 'webp' and files.getext(outfile) in dwebpsupports:
+        if files.getExt(infile) == 'webp' and files.getExt(outfile) in dwebpsupports:
             saveWebpToPng(infile, outfile)
             img_utils.copyLastModified(infile, outfile)
             return ConvertResult.SuccessConverted
             
         # shortcut: cwebp natively can save from common formats
         cwebpsupports = ['bmp', 'png', 'tif']
-        if files.getext(outfile) == 'webp' and files.getext(infile) in cwebpsupports:
+        if files.getExt(outfile) == 'webp' and files.getExt(infile) in cwebpsupports:
             saveBmpOrPngToWebp(infile, outfile)
             img_utils.copyLastModified(infile, outfile)
             return ConvertResult.SuccessConverted
             
         # shortcut: mozjpeg takes a bmp, we have a bmp.
-        if files.getext(infile) == 'bmp' and files.getext(outfile) == 'jpg':
+        if files.getExt(infile) == 'bmp' and files.getExt(outfile) == 'jpg':
             saveToMozJpeg(False, infile, outfile,
                 jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
             img_utils.copyLastModified(infile, outfile)
@@ -77,12 +77,12 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         im = resizeImage(im, resizeSpec, outfile)
         
         # save image
-        if files.getext(outfile) == 'jpg':
+        if files.getExt(outfile) == 'jpg':
             memoryStreamOut = cBytesIO()
             im.save(memoryStreamOut, format='bmp')
             saveToMozJpeg(True, memoryStreamOut.getvalue(),
                 outfile, jpgQuality, jpgHighQualityChromaSampling, jpgCorrectResolution)
-        elif files.getext(outfile) == 'webp':
+        elif files.getExt(outfile) == 'webp':
             tmpPngOut = getTempFilename('png')
             im.save(tmpPngOut)
             assertTrue(files.exists(tmpPngOut))
@@ -95,7 +95,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         im.close()
         del im
         if tmpPngOut:
-            files.deletesure(tmpPngOut)
+            files.deleteSure(tmpPngOut)
         if memoryStreamIn:
             memoryStreamIn.close()
             del memoryStreamIn
@@ -103,7 +103,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             memoryStreamOut.close()
             del memoryStreamOut
 
-    if files.getext(infile) == 'jpg' and files.getext(outfile) == 'jpg':
+    if files.getExt(infile) == 'jpg' and files.getExt(outfile) == 'jpg':
         if doTransferMostUsefulExifTags:
             try:
                 img_utils.transferMostUsefulExifTags(infile, outfile)
@@ -117,7 +117,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
 
 def loadImageFromFile(infile, outfile):
     memoryStream = None
-    if files.getext(infile) == 'webp':
+    if files.getExt(infile) == 'webp':
         im, memoryStream = loadImageFromWebp(infile)
     else:
         im = Image.open(infile)
@@ -168,10 +168,10 @@ def loadImageFromWebp(infile):
 def saveWebpToPng(infile, outfile):
     dwebp = img_utils.getDwebpLocation()
     args = [dwebp, infile, '-o', outfile]
-    if files.getext(outfile) == 'bmp':
+    if files.getExt(outfile) == 'bmp':
         # the bmp written by dwebp does not seem to be readable by mozjpeg.
         raise ValueError('Format not supported')
-    elif files.getext(outfile) == 'tif':
+    elif files.getExt(outfile) == 'tif':
         args.append('-tiff')
     runProcessShowErr(args)
     if not files.exists(outfile):

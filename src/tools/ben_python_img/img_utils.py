@@ -31,7 +31,7 @@ def getTempLocation():
     import tempfile
     dir = files.join(tempfile.gettempdir(), 'test_labs_coordinate_pictures')
     if not files.exists(dir):
-        files.makedirs(dir)
+        files.makeDirs(dir)
     return dir
     
 def getImageDims(path):
@@ -70,7 +70,7 @@ def readExifField(filename, exifField):
 
 def readContainsExifFieldViaStdin(f, exifField):
     # this way we won't be blocked by exiftool not opening unicode filenames
-    data = files.readall(f, 'rb')
+    data = files.readAll(f, 'rb')
     args = [exiftool(),
         '-S',
         '-%s' % exifField,
@@ -107,15 +107,15 @@ def setExifField(filename, exifField, value):
         '-overwrite_original',
         '-m',
         filename]
-    stampBefore = files.getModTimeNs(filename)
+    stampBefore = files.getLastModTime(filename, files.TimeUnits.Nanoseconds)
     files.run(args, shell=False, throwOnFailure=PythonImgExifError)
-    files.setModTimeNs(filename, stampBefore)
+    files.setLastModTime(filename, stampBefore, files.TimeUnits.Nanoseconds)
 
 def readThumbnails(dirname, removeThumbnails, outputDir=None):
-    if outputDir and not files.isdir(outputDir):
-        files.makedirs(outputDir)
-    assertTrue(files.isdir(dirname))
-    for filename, short in files.listfiles(dirname):
+    if outputDir and not files.isDir(outputDir):
+        files.makeDirs(outputDir)
+    assertTrue(files.isDir(dirname))
+    for filename, short in files.listFiles(dirname):
         if filename.lower().endswith('.jpg'):
             if not removeThumbnails:
                 outFile = files.join(outputDir, short)
@@ -161,14 +161,14 @@ def removeAllExifTags(filename):
     files.run(args, shell=False)
     
 def removeAllExifTagsInDirectory(dirname):
-    assertTrue(files.isdir(dirname))
+    assertTrue(files.isDir(dirname))
     if getInputBool('remove all tags?'):
-        for filename, short in files.listfiles(dirname):
+        for filename, short in files.listFiles(dirname):
             if filename.lower().endswith('.jpg') or filename.lower().endswith('.jxl'):
                 removeAllExifTags(filename)
 
 def stampJpgWithFilenameInDirectory(dirname, recurse=False, onlyIfNotAlreadySet=True):
-    fn = files.recursefiles if recurse else files.listfiles
+    fn = files.recurseFiles if recurse else files.listFiles
     for f, short in fn(dirname):
         if short.lower().endswith('.jpg') or short.lower().endswith('.jxl'):
             if onlyIfNotAlreadySet:
@@ -227,13 +227,13 @@ def transferMostUsefulExifTags(src, dest):
     
 def getFilesWrongExtension(root, fnGetFiles, arrInputExt):
     assertTrue(isinstance(arrInputExt, list))
-    return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedexts=arrInputExt))
+    return set(fnGetFiles(root)) - set(fnGetFiles(root, allowedExts=arrInputExt))
     
 def getMarkFromFilename(pathAndCategory):
     '''returns tuple pathWithoutCategory, category'''
     
     # check nothing in path has mark
-    if (MarkerString in files.getparent(pathAndCategory)):
+    if (MarkerString in files.getParent(pathAndCategory)):
         raise ValueError('Directories should not have marker')
 
     parts = pathAndCategory.split(MarkerString)
@@ -243,11 +243,11 @@ def getMarkFromFilename(pathAndCategory):
     partsAfterMarker = parts[1].rsplit('.', 1)
     
     category = partsAfterMarker[0]
-    pathWithoutCategory = parts[0] + "." + files.getext(pathAndCategory)
+    pathWithoutCategory = parts[0] + "." + files.getExt(pathAndCategory)
     return pathWithoutCategory, category
 
 def copyLastModified(infile, outfile):
-    lmt = files.getModTimeNs(infile)
-    files.setModTimeNs(outfile, lmt)
+    lmt = files.getLastModTime(infile, files.TimeUnits.Nanoseconds)
+    files.setLastModTime(outfile, lmt, files.TimeUnits.Nanoseconds)
 
 
