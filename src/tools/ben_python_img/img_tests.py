@@ -5,8 +5,8 @@ import img_resize_keep_exif
 import PIL
 from PIL import Image
 import sys
-sys.path.append('bn_python_common.zip')
-from bn_python_common import *
+from shinerainsevenlib.standard import *
+from shinerainsevenlib.core import *
 
 def img_utils_testGetMarkFromFilename():
     # tests splitting a filename that contains the "__MARKAS__" marker.

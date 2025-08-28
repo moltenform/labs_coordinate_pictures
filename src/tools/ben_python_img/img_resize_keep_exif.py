@@ -2,8 +2,8 @@
 import img_utils
 import img_convert_resize
 import sys
-sys.path.append('bn_python_common.zip')
-from bn_python_common import *
+from shinerainsevenlib.standard import *
+from shinerainsevenlib.core import *
 
 # Refer to README.md for more documentation.
 

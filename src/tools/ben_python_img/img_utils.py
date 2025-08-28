@@ -1,8 +1,9 @@
 
 import sys
-sys.path.append('bn_python_common.zip')
-from bn_python_common import *
 import subprocess
+from shinerainsevenlib.standard import *
+from shinerainsevenlib.core import *
+
 
 # field to store original title in. There's an exif tag OriginalRawFileName AKA OriginalFilename, but isn't shown in UI.
 ExifFieldForOriginalTitle = "Copyright"
@@ -10,21 +11,28 @@ MarkerString = "__MARKAS__"
 
 def getToolPath(path):
     ret = path + ('.exe' if sys.platform.startswith('win') else '')
-    if not files.exists(ret):
-        raise RuntimeError('tool not found, did not see ' + ret)
-    return ret
+    if files.getBinaryLocation(ret):
+    	return ret
+    if files.getBinaryLocation('../exiftool/' + ret):
+    	return '../exiftool/' + ret
+    if files.getBinaryLocation('../webp/' + ret):
+    	return '../webp/' + ret
+    if files.getBinaryLocation('../mozjpeg/' + ret):
+    	return '../mozjpeg/' + ret
+    	
+    raise RuntimeError('tool not found, did not see ' + ret)
 
 def getCwebpLocation():
-    return getToolPath('../webp/cwebp')
+    return getToolPath('cwebp')
     
 def getMozjpegLocation():
-    return getToolPath('../mozjpeg/cjpeg')
+    return getToolPath('cjpeg')
     
 def getExifToolLocation():
-    return getToolPath('../exiftool/exiftool')
+    return getToolPath('exiftool')
 
 def getDwebpLocation():
-    return getToolPath('../webp/dwebp')
+    return getToolPath('dwebp')
     
 def getTempLocation():
     # will also be periodically deleted by coordinate_pictures
@@ -60,7 +68,7 @@ def readExifField(filename, exifField):
         filename]
     
     ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
-    sres = bytes_to_string(stdout.strip())
+    sres = bytesToString(stdout.strip())
     if sres:
         if not sres.startswith(exifField + ': '):
             raise PythonImgExifError('expected (' + exifField + '): but got (' + sres + ')')

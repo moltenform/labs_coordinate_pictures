@@ -2,25 +2,29 @@
 from PIL import Image
 import img_utils
 import sys
-sys.path.append('bn_python_common.zip')
-from bn_python_common import *
+from enum import StrEnum, auto
+from shinerainsevenlib.standard import *
+from shinerainsevenlib.core import *
+from io import BytesIO as cBytesIO
 
 from PIL.Image import Resampling
 
-ConvertResult = SimpleEnum(('SuccessConverted', 'SuccessCopied'))
+class ConvertResult(StrEnum):
+    SuccessConverted = auto()
+    SuccessCopied = auto()
 
 def convertOrResizeImage(infile, outfile, resizeSpec='100%',
         jpgQuality=None, jpgHighQualityChromaSampling=False, jpgCorrectResolution=False,
-        doTransferMostUsefulExifTags=True):
+        doTransferMostUsefulExifTags=True, useIm=False):
 
-    useMozJpeg = True
-    defaultJpgQuality = 94 if useMozJpeg else 93
+    if files.getExt(outfile) == 'jpg':
+        useMozJpeg = True
+        defaultJpgQuality = 94 if useMozJpeg else 93
+        if not jpgQuality:
+            jpgQuality = defaultJpgQuality
 
     if files.getExt(outfile) != 'jpg' and jpgQuality and jpgQuality != 100:
         raise ValueError('only jpg files can have a quality less than 100.')
-
-    if not jpgQuality:
-        jpgQuality = defaultJpgQuality
             
     if sys.platform == 'win32' and infile.lower() == outfile.lower():
         return ConvertResult.SuccessCopied
@@ -46,6 +50,13 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
             files.copy(infile, outfile, False)
             return ConvertResult.SuccessCopied
         
+    if useIm:
+        assertTrue(not jpgHighQualityChromaSampling)
+        assertTrue(not jpgCorrectResolution)
+        assertTrue(not doTransferMostUsefulExifTags)
+        return convertOrResizeImageIm(infile, outfile, resizeSpec, jpgQuality)
+    
+    if needsNoResize:
         # shortcut: dwebp natively can save to common formats
         dwebpsupports = ['png', 'tif']
         if files.getExt(infile) == 'webp' and files.getExt(outfile) in dwebpsupports:
@@ -263,6 +274,21 @@ def resizeImage(im, resizeSpec, loggingContext):
         ret = im.resize((newWidth, newHeight), Resampling.LANCZOS)
         return ret
 
+def convertOrResizeImageIm(infile, outfile, resizeSpec, jpgQuality):
+    args = ['magick', 'convert', infile]
+    if resizeSpec and resizeSpec != '100%':
+        assertTrue(resizeSpec.endswith('%'))
+        args.extend(['-resize', resizeSpec])
+    
+    if jpgQuality:
+        jpgQuality = str(int(jpgQuality))
+        args.extend(['-quality', jpgQuality])
+    
+    args.append(outfile)
+    files.run(args)
+    assertTrue(files.exists(outfile))
+    img_utils.copyLastModified(infile, outfile)
+    return ConvertResult.SuccessConverted
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
