@@ -982,8 +982,15 @@ namespace labs_coordinate_pictures
 
         public static bool LooksLikeImage(string filepath)
         {
-            return IsExtensionInList(filepath, new string[] { ".jpg", ".png",
-                ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
+            if (Configs.EnableWebp())
+            {
+                return IsExtensionInList(filepath, new string[] { ".jpg", ".png",
+                    ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
+            } else
+            {
+                return IsExtensionInList(filepath, new string[] { ".jpg", ".png",
+                    ".gif", ".bmp", ".emf", ".wmf", ".jpeg" });
+            }
         }
 
         public static bool LooksLikeAudio(string filepath)

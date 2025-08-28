@@ -199,7 +199,7 @@ namespace labs_coordinate_pictures
             Bitmap bitmap = null;
             try
             {
-                if (ModeUtils.IsWebp(path))
+                if (ModeUtils.IsWebp(path) && Configs.EnableWebp())
                 {
                     byte[] bytesData = File.ReadAllBytes(path);
                     var decoder = new Imazen.WebP.SimpleDecoder();

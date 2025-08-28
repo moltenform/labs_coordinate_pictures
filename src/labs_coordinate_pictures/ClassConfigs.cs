@@ -262,5 +262,13 @@ namespace labs_coordinate_pictures
         {
             return !string.IsNullOrEmpty(Get(key));
         }
+
+        public static bool EnableWebp()
+        {
+            // Webp disabled due to security issues,
+            // since the Imazen.Webp library is tied to old insecure webp versions.
+            // We'll need to move to another webp library.
+            return false;
+        }
     }
 }

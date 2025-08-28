@@ -150,7 +150,14 @@ namespace labs_coordinate_pictures
 
         public override string[] GetFileTypes()
         {
-            return new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp" };
+            if (Configs.EnableWebp())
+            {
+                return new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp" };
+            }
+            else
+            {
+                return new string[] { ".jpg", ".png", ".gif", ".bmp"};
+            }
         }
     }
 

@@ -7,7 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 
 // Getting libwebp.dll:
-// Get libwebp-0.4.3.tar.gz from http://downloads.webmproject.org/releases/webp/index.html
+// Get libwebp-1.6.0.tar.gz from http://downloads.webmproject.org/releases/webp/index.html
 // Open VS x64 native tools cmd prompt
 // nmake /f Makefile.vc CFG=release-dynamic
 // https://developers.google.com/speed/webp/faq?hl=en
