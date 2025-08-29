@@ -1044,9 +1044,9 @@ namespace labs_coordinate_pictures
             var nameOnly = Path.GetFileName(filepath);
             if (nameOnly.Length > NumberedPrefixLength() &&
                 nameOnly.StartsWith("([", StringComparison.Ordinal) &&
-                nameOnly.IndexOf("])") > 2)
+                nameOnly.IndexOf("])", StringComparison.InvariantCulture) > 2)
             {
-                return nameOnly.Substring(nameOnly.IndexOf("])") + 2);
+                return nameOnly.Substring(nameOnly.IndexOf("])", StringComparison.InvariantCulture) + 2);
             }
             else
             {

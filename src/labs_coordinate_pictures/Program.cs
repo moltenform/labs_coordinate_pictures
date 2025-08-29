@@ -24,7 +24,8 @@ namespace labs_coordinate_pictures
 
             if (!Debugger.IsAttached)
             {
-                // by default fatal exceptions like AV won't be caught, seems fine to me.
+                // With this configuration, fatal exceptions like access-violation won't be caught,
+                // but that's not necessary to log at the moment.
                 Application.ThreadException += Application_ThreadException;
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 AppDomain.CurrentDomain.UnhandledException +=

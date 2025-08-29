@@ -659,7 +659,7 @@ namespace labs_coordinate_pictures
                 var nameWithPrefix = Path.GetFileName(_filelist.Current);
                 var hasNumberedPrefix = current != nameWithPrefix;
                 var prefix = hasNumberedPrefix ?
-                    nameWithPrefix.Substring(0, nameWithPrefix.IndexOf("])") + 2) :
+                    nameWithPrefix.Substring(0, nameWithPrefix.IndexOf("])", StringComparison.InvariantCulture) + 2) :
                     "";
 
                 if (currentNoExtParts.Length > 2)
@@ -1698,7 +1698,7 @@ namespace labs_coordinate_pictures
             bool hasAFileToGet = false;
             foreach (var file in Directory.EnumerateFiles(dir))
             {
-                if (file.ToLowerInvariant().EndsWith(".jpg") && !file.Contains(skipIfContains))
+                if (file.ToLowerInvariant().EndsWith(".jpg", StringComparison.InvariantCulture) && !file.Contains(skipIfContains))
                 {
                     hasAFileToGet = true;
                 }

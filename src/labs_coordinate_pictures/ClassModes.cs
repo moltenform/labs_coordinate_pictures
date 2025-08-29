@@ -156,7 +156,7 @@ namespace labs_coordinate_pictures
             }
             else
             {
-                return new string[] { ".jpg", ".png", ".gif", ".bmp"};
+                return new string[] { ".jpg", ".png", ".gif", ".bmp" };
             }
         }
     }

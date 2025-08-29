@@ -31,6 +31,11 @@ namespace labs_coordinate_pictures
             this.Modtime = modtime;
             this.Filesize = filesize;
         }
+
+        public static bool operator ==(CacheEntry lhs, CacheEntry rhs) => throw new NotImplementedException();
+        public static bool operator !=(CacheEntry lhs, CacheEntry rhs) => throw new NotImplementedException();
+        public override bool Equals(object obj) => throw new NotImplementedException();
+        public override int GetHashCode() => throw new NotImplementedException();
     }
 
     public sealed class ImageCache : IDisposable
