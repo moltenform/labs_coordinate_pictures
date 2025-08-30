@@ -11,13 +11,13 @@ MarkerString = "__MARKAS__"
 
 def getToolPath(path):
     ret = path + ('.exe' if sys.platform.startswith('win') else '')
-    if files.getBinaryLocation(ret):
+    if files.findBinaryOnPath(ret):
     	return ret
-    if files.getBinaryLocation('../exiftool/' + ret):
+    if files.findBinaryOnPath('../exiftool/' + ret):
     	return '../exiftool/' + ret
-    if files.getBinaryLocation('../webp/' + ret):
+    if files.findBinaryOnPath('../webp/' + ret):
     	return '../webp/' + ret
-    if files.getBinaryLocation('../mozjpeg/' + ret):
+    if files.findBinaryOnPath('../mozjpeg/' + ret):
     	return '../mozjpeg/' + ret
     	
     raise RuntimeError('tool not found, did not see ' + ret)
@@ -171,7 +171,7 @@ def removeAllExifTags(filename):
 def removeAllExifTagsInDirectory(dirname):
     assertTrue(files.isDir(dirname))
     if getInputBool('remove all tags?'):
-        for filename, short in files.listFiles(dirname):
+        for filename, _short in files.listFiles(dirname):
             if filename.lower().endswith('.jpg') or filename.lower().endswith('.jxl'):
                 removeAllExifTags(filename)
 
@@ -241,7 +241,7 @@ def getMarkFromFilename(pathAndCategory):
     '''returns tuple pathWithoutCategory, category'''
     
     # check nothing in path has mark
-    if (MarkerString in files.getParent(pathAndCategory)):
+    if MarkerString in files.getParent(pathAndCategory):
         raise ValueError('Directories should not have marker')
 
     parts = pathAndCategory.split(MarkerString)

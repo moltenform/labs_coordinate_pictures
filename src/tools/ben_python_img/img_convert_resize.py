@@ -7,8 +7,6 @@ from shinerainsevenlib.standard import *
 from shinerainsevenlib.core import *
 from io import BytesIO as cBytesIO
 
-from PIL.Image import Resampling
-
 class ConvertResult(StrEnum):
     SuccessConverted = auto()
     SuccessCopied = auto()
@@ -120,7 +118,7 @@ def convertOrResizeImage(infile, outfile, resizeSpec='100%',
                 img_utils.transferMostUsefulExifTags(infile, outfile)
             except BaseException as e:
                 # upon exception, just print a message and continue
-                trace('Exif exception occurred ' + str(e) + 'for ' + fullpath)
+                trace('Exif exception occurred ' + str(e) + 'for ' + infile)
                 trace('Continuing...')
 
     img_utils.copyLastModified(infile, outfile)
@@ -148,7 +146,7 @@ def runProcessShowErr(args):
         raise RuntimeError('failure running ' + str(args) + ' stderr=' + str(stderr))
         
 def runProcessWithStdIn(args, sendToStdIn):
-    import subprocess, sys
+    import subprocess
     showNoWindow = 0x08000000 if sys.platform.startswith('win') else 0
     sp = subprocess.Popen(args, shell=False, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=showNoWindow)
@@ -271,7 +269,7 @@ def resizeImage(im, resizeSpec, loggingContext):
         return im
     else:
         # if enlarging, consider Image.BICUBIC
-        ret = im.resize((newWidth, newHeight), Resampling.LANCZOS)
+        ret = im.resize((newWidth, newHeight), Image.Resampling.LANCZOS)
         return ret
 
 def convertOrResizeImageIm(infile, outfile, resizeSpec, jpgQuality):
@@ -294,7 +292,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
         if cmd == 'convert_resize':
-            _, cmd, infile, outfile, resizeSpec, jpgQuality = sys.argv
-            convertOrResizeImage(infile, outfile, resizeSpec, int(jpgQuality))
+            _, topCmd, topInfile, topOutfile, topResizeSpec, topJpgQuality = sys.argv
+            convertOrResizeImage(topInfile, topOutfile, topResizeSpec, int(topJpgQuality))
         else:
             assertTrue(False, 'unknown command' + cmd)

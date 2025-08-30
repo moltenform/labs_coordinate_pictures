@@ -69,7 +69,7 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
     
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
     allfiles = list(fnGetFiles(root, allowedExts=inputFormat))
-    for fullpath, short in allfiles:
+    for fullpath, _short in allfiles:
         if img_utils.MarkerString not in fullpath:
             continue
         
@@ -80,7 +80,7 @@ def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOrig
 def simpleResize(root, recursive, inputformat='png', outputformat='jpg',
         resizeSpec='100%', jpgQuality=None, addPrefix='', softDeleteOriginals=False):
     # If we didn't call list(files) to first freeze the list of files to process, we would encounter as input the files we just created.
-    fnGetFiles = files.recurseFiles if recurse else files.listFiles
+    fnGetFiles = files.recurseFiles if recursive else files.listFiles
     allfiles = list(fnGetFiles(root, allowedExts=[inputformat]))
     for fullpath, short in allfiles:
         if files.getExt(fullpath) == inputformat:
@@ -96,11 +96,11 @@ def simpleResize(root, recursive, inputformat='png', outputformat='jpg',
 
 
 if __name__ == '__main__':
-    dir = '/path/to/directory_with_files_to_resize'
-    recurse = False
-    storeOriginalFilename = getInputBool('store original filename in exif data?')
-    storeExifFromOriginal = True
-    jpgHighQualityChromaSampling = False
+    topDir = '/path/to/directory_with_files_to_resize'
+    topRecurse = False
+    topStoreOriginalFilename = getInputBool('store original filename in exif data?')
+    topStoreExifFromOriginal = True
+    topJpgHighQualityChromaSampling = False
     
-    # resizeAllAndKeepExif(dir, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling)
-    # cleanup(dir, recurse)
+    # resizeAllAndKeepExif(topDir, topRecurse, topStoreOriginalFilename, topStoreExifFromOriginal, topJpgHighQualityChromaSampling)
+    # cleanup(topDir, topRecurse)
