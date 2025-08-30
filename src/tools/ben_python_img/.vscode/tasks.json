@@ -1,5 +1,4 @@
 {
-    
     "version": "2.0.0",
     "tasks": [
         {
@@ -44,7 +43,7 @@
         {
             "label": "autoformat",
             "type": "shell",
-            "command": "py -m yapf --exclude=OUTSIDE/**/*.py --in-place --recursive --parallel .",
+            "command": "py -m yapf --exclude=*/tests/**/*.py --in-place --recursive --parallel .",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

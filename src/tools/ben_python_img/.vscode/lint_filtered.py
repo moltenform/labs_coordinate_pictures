@@ -76,4 +76,3 @@ if __name__ == '__main__':
             mainPylint()
     finally:
         files.writeAll('__init__.py', '')
-
