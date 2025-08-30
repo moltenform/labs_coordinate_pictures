@@ -7,7 +7,8 @@
             "request": "launch",
             "module": "pytest",
             "args": ["--capture=no", "--maxfail=1", "-v", "tests/"],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
         },
     ]
 }

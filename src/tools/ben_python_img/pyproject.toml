@@ -16,10 +16,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "shinerainsevenlib",
-  "pillow",
+    "shinerainsevenlib",
+    "pillow",
 ]
-
 [project.optional-dependencies]
 dev = [
     "pylint",

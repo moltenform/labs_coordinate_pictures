@@ -222,8 +222,7 @@ def saveToMozJpeg(infileIsMemoryStream, infile, outfile,
     
     # for some reason mozjpeg sets xresolution=94, it is usually 96.
     if jpgCorrectResolution:
-        import img_exif
-        img_exif.deleteResolutionTagsOne(outfile)
+        img_utils.removeResolutionTags(outfile)
 
 def getNewSizeFromResizeSpec(resizeSpec, width, height, loggingContext=''):
     # returning 0, 0 means to return the original image unchanged.

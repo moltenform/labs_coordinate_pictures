@@ -12,14 +12,14 @@ MarkerString = "__MARKAS__"
 def getToolPath(path):
     ret = path + ('.exe' if sys.platform.startswith('win') else '')
     if files.findBinaryOnPath(ret):
-    	return ret
+        return ret
     if files.findBinaryOnPath('../exiftool/' + ret):
-    	return '../exiftool/' + ret
+        return '../exiftool/' + ret
     if files.findBinaryOnPath('../webp/' + ret):
-    	return '../webp/' + ret
+        return '../webp/' + ret
     if files.findBinaryOnPath('../mozjpeg/' + ret):
-    	return '../mozjpeg/' + ret
-    	
+        return '../mozjpeg/' + ret
+
     raise RuntimeError('tool not found, did not see ' + ret)
 
 def getCwebpLocation():
@@ -46,9 +46,13 @@ def getImageDims(path):
     from PIL import Image
     with Image.open(path) as im:
         ret = im.size
+
     return ret
 
 def exiftool():
+    # originally we required an absolute path,
+    # maybe because scoop wrappers worked differently wrt return codes?
+    # scoop wrappers seem to work fine now.
     return getExifToolLocation()
 
 class PythonImgExifError(Exception):
@@ -56,7 +60,7 @@ class PythonImgExifError(Exception):
     
 def verifyExifToolIsPresent():
     path = exiftool()
-    if not path or not files.exists(path):
+    if not files.findBinaryOnPath(path):
         warn('could not find exiftool, expected to find it at ' + path)
 
 def readExifField(filename, exifField):

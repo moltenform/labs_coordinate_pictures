@@ -58,7 +58,7 @@ def resizeAndKeepExif(fullpath, storeOriginalFilename, storeExifFromOriginal, jp
 
 def resizeAllAndKeepExif(root, recurse, storeOriginalFilename, storeExifFromOriginal, jpgHighQualityChromaSampling, inputFormat=None):
     if inputFormat is None:
-       inputFormat = ['.jpg'] 
+       inputFormat = ['jpg'] 
     fnGetFiles = files.recurseFiles if recurse else files.listFiles
     filesWithWrongExtension = img_utils.getFilesWrongExtension(root, fnGetFiles, inputFormat)
     if len(filesWithWrongExtension) > 0:
