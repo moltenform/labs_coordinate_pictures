@@ -77,7 +77,10 @@ def readExifField(filename, exifField):
     assertTrue(isinstance(exifField, str))
     args = [exiftool(), '-S', '-%s' % exifField, filename]
 
-    retcode, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+    retcode, stdout, stderr = files.run(
+        args, shell=False, throwOnFailure=PythonImgExifError
+    )
+
     sres = bytesToString(stdout.strip())
     if sres:
         if not sres.startswith(exifField + ': '):
@@ -179,7 +182,9 @@ def removeResolutionTags(filename):
         exiftool(), filename
     )
     args = args.split('|')
-    retcode, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+    retcode, stdout, stderr = files.run(
+        args, shell=False, throwOnFailure=PythonImgExifError
+    )
 
 
 def removeAllExifTags(filename):

@@ -1,10 +1,10 @@
-
 import sys
 from PIL import Image
 from shinerainsevenlib.standard import *
 from shinerainsevenlib.core import *
 import pytest
 import tempfile
+
 
 class RNG(object):
     # so that same sequence is generated regardless of Python version
@@ -19,6 +19,7 @@ class RNG(object):
         self.previous = ret
         return ret
 
+
 def createTestImage(width, height, seed):
     rng = RNG(seed)
     im = Image.new("RGB", (width, height))
@@ -28,8 +29,9 @@ def createTestImage(width, height, seed):
             im.putpixel((x, y), (v, v, v))
     return im
 
+
 def checkFilesAndSizes(dir, expected, startWith):
-    expectNames = jslike.map(expected, lambda s:s.split('|')[0])
+    expectNames = jslike.map(expected, lambda s: s.split('|')[0])
     resultNames = files.listFiles(dir, filenamesOnly=True)
     resultNames = jslike.filter(resultNames, lambda s: s.startswith(startWith))
     assert len(resultNames) > 1
@@ -42,6 +44,7 @@ def checkFilesAndSizes(dir, expected, startWith):
             expectSizeRow = jslike.find(expected, lambda s: s.startswith(short + '|'))
             expectSize = int(expectSizeRow.split('|')[1])
             assert expectSize == pytest.approx(resultSize, rel=0.05)
+
 
 @pytest.fixture(name='fxTmpDir')
 def fxTmpDirImplementation():
