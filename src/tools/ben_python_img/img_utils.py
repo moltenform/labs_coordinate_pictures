@@ -74,10 +74,10 @@ def verifyExifToolIsPresent():
 
 def readExifField(filename, exifField):
     # returns string, not byte sequence
-    assert isinstance(exifField, str)
+    assertTrue(isinstance(exifField, str))
     args = [exiftool(), '-S', '-%s' % exifField, filename]
 
-    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+    retcode, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
     sres = bytesToString(stdout.strip())
     if sres:
         if not sres.startswith(exifField + ': '):
@@ -100,7 +100,7 @@ def readContainsExifFieldViaStdin(f, exifField):
 
     if sys.platform.startswith('win'):
         kwargs['creationflags'] = 0x08000000
-    results = subprocess.run(args, **kwargs)
+    results = subprocess.run(args, check=False, **kwargs)
     assertEq(0, results.returncode, 'non zero code', f)
     sres = results.stdout.strip(
     ) # leave in bytes format because we can run into unicode errors otherwise
@@ -117,7 +117,7 @@ def readContainsExifFieldViaStdin(f, exifField):
 
 def setExifField(filename, exifField, value):
     # -m flag lets exiftool() ignores minor errors
-    assert isinstance(exifField, str)
+    assertTrue(isinstance(exifField, str))
     args = [
         exiftool(),
         '-%s=%s' % (exifField, value), '-overwrite_original', '-m', filename
@@ -145,7 +145,7 @@ def readThumbnails(dirname, removeThumbnails, outputDir=None):
                 )
 
             trace(short)
-            ret, stdout, stderr = files.run(
+            retcode, stdout, stderr = files.run(
                 args.split('|'), shell=True, throwOnFailure=PythonImgExifError
             )
             trace(stdout)
@@ -155,7 +155,7 @@ def readExifCreationTime(filename):
     for field in ('-CreateDate', '-DateTimeOriginal'):
         args = "{0}|{1}|{2}|-T".format(exiftool(), field, filename)
         args = args.split('|')
-        ret, stdout, stderr = files.run(
+        retcode, stdout, stderr = files.run(
             args, shell=False, throwOnFailure=PythonImgExifError
         )
         sres = stdout.strip()
@@ -179,7 +179,7 @@ def removeResolutionTags(filename):
         exiftool(), filename
     )
     args = args.split('|')
-    ret, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
+    retcode, stdout, stderr = files.run(args, shell=False, throwOnFailure=PythonImgExifError)
 
 
 def removeAllExifTags(filename):

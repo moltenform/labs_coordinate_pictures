@@ -16,7 +16,7 @@ def cleanup(dir, recurse, informat='jpg', prompt=True):
     fnGetFiles = files.recurseFiles if recurse else files.listFiles
     for fullpath, short in fnGetFiles(dir, allowedExts=[informat]):
         if img_utils.MarkerString in short:
-            pathWithoutCategory, category = img_utils.getMarkFromFilename(fullpath)
+            pathWithoutCategory, _category = img_utils.getMarkFromFilename(fullpath)
             if files.exists(pathWithoutCategory):
                 trace('deleting', short)
                 softDeleteFile(fullpath)
