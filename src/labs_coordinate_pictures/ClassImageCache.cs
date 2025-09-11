@@ -207,7 +207,7 @@ namespace labs_coordinate_pictures
                 if (ModeUtils.IsWebp(path) && Configs.EnableWebp())
                 {
                     byte[] bytesData = File.ReadAllBytes(path);
-                    var decoder = new Imazen.WebP.SimpleDecoder();
+                    var decoder = new ImazenWebPSimpleDecoder();
                     bitmap = decoder.DecodeFromBytes(bytesData, bytesData.LongLength);
                     bitmapWillLockFile = false;
                 }
@@ -379,6 +379,16 @@ namespace labs_coordinate_pictures
             }
 
             _cache.Clear();
+        }
+    }
+
+    class ImazenWebPSimpleDecoder
+    {
+        // stub replacement for Imazen.WebP.SimpleDecoder, available on NuGet
+        // but not yet updated to safe webp versions.
+        public Bitmap DecodeFromBytes(byte[] bytes, long length)
+        {
+            return null;
         }
     }
 }
