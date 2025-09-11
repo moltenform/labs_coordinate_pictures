@@ -506,6 +506,10 @@ namespace labs_coordinate_pictures
                 {
                     MessageErr("M4a encoder not found, use Options->Set m4a encoder.");
                     throw new CoordinatePicturesException("");
+                } else if (!encoder.EndsWith("dropq128.py"))
+                {
+                    MessageErr("Expected M4a encoder to end with dropq128.py, use Options->Set m4a encoder.");
+                    throw new CoordinatePicturesException("");
                 }
 
                 var pathOutput = Path.GetDirectoryName(path) + Sep +

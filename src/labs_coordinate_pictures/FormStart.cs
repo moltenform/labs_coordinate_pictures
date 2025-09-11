@@ -20,6 +20,9 @@ namespace labs_coordinate_pictures
             setDirectoryForDeletedToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
                 "When pressing Delete to 'move to trash', files will be moved to this directory.",
                 o, ConfigKey.FilepathDeletedFilesDir);
+            setDestinationForTempFilesToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
+                "When making a temporary copy of a file, use this directory.",
+                o, ConfigKey.FilepathTempFilesDir);
             setSortmusicStagingLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsDir(
                "(Optional) Set sortmusic staging directory.",
                o, ConfigKey.FilepathSortMusicToLibraryStagingDir);
@@ -41,6 +44,9 @@ namespace labs_coordinate_pictures
             setAudioPlayerToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Select an application for playing audio.",
                 o, ConfigKey.FilepathAudioPlayer);
+            setVideoPlayerLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
+                "(Optional) Select an application for playing videos.",
+                o, ConfigKey.FilepathVideoPlayer);
             setCreateSyncToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "(Optional) Locate 'create synchronicity.exe'",
                 o, ConfigKey.FilepathCreateSync);
@@ -60,7 +66,7 @@ namespace labs_coordinate_pictures
                 "(Optional) Select an application for cropping jpgs, such as jpegcrop.exe.",
                 o, ConfigKey.FilepathImageEditorCrop);
             setM4aEncoderLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
-               "(Optional) Locate 'qaac.exe'; directory should also contain 'dropq128.py'.",
+               "(Optional) Locate 'dropq128.py' script that encodes audio from wav to m4a.",
                o, ConfigKey.FilepathM4aEncoder);
             setPythonLocationToolStripMenuItem.Click += (o, e) => OnSetConfigsFile(
                 "Locate 'python.exe' from Python 3.",

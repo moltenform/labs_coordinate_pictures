@@ -435,7 +435,7 @@ namespace labs_coordinate_pictures
             if (moveConsidered == null)
             {
                 AboutToOpenDialog();
-                Utils.MessageErr("nothing to undo", true);
+                Utils.MessageErr("Nothing to undo.", true);
             }
             else
             {
@@ -1637,6 +1637,31 @@ namespace labs_coordinate_pictures
             this.tileImagesMenuItem.Checked = this._tileImages;
             this.RefreshImageCache();
             OnOpenItem();
+        }
+
+        private void FormGallery_Load(object sender, EventArgs e)
+        {
+            this.btnFlowLayoutTemplate.Visible = false;
+           if (this._mode != null && this._mode is ModeAudioBase)
+           {
+               this.tableLayoutPanel1.ColumnStyles[1] = new ColumnStyle(System.Windows.Forms.SizeType.Absolute, 1F);
+               this.tableLayoutPanel1.ColumnStyles[2] = new ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F);
+                var tuples = ModeUtils.ModeToTuples(_mode);
+                foreach (var tuple in tuples)
+                {
+                    Button btn = new Button();
+                    btn.Text = tuple.Item1.ToString();
+                    btn.Width = btnFlowLayoutTemplate.Width;
+                    btn.Height = btnFlowLayoutTemplate.Height;
+                    // https://www.youtube.com/watch?v=NxfYFAw0JDs
+                    this.flowLayoutPanel1.Controls.Add(btn);
+                }
+
+           } else
+           {
+               this.tableLayoutPanel1.ColumnStyles[1] = new ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F);
+               this.tableLayoutPanel1.ColumnStyles[2] = new ColumnStyle(System.Windows.Forms.SizeType.Absolute, 1F);
+           }
         }
     }
 
