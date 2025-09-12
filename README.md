@@ -13,7 +13,7 @@ Tools for quickly viewing, categorizing, and resizing images
 
 * [Sync files from one folder to another](https://moltenform.com/page/labs-coordinate-pictures/doc/syncing-files.html)  
 
-* [Set up and install](https://moltenform.com/page/labs-coordinate-pictures/doc/download-and-setup.html)  
+* [How to Install](https://moltenform.com/page/labs-coordinate-pictures/doc/download-and-setup.html) (See GitHub Releases)
 
 <a href="#">![Screenshot](https://moltenform.com/page/labs-coordinate-pictures/doc/modifying-images-menu.png)</a>
 
