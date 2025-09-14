@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;

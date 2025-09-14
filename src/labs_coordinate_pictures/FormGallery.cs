@@ -1010,7 +1010,7 @@ namespace labs_coordinate_pictures
             int nQual = int.Parse(parts[1]);
             var outFile = Path.GetDirectoryName(_filelist.Current) + Utils.Sep +
                 Path.GetFileNameWithoutExtension(_filelist.Current) + "_out." + parts[0];
-            Utils.RunImageConversion(_filelist.Current, outFile, resize, nQual);
+            FormatConversions.RunImageConversion(_filelist.Current, outFile, resize, nQual);
         }
 
         private void AboutToOpenDialog()
@@ -1040,7 +1040,7 @@ namespace labs_coordinate_pictures
                     try
                     {
                         // run conversion, then delete the larger of the resulting pair of images.
-                        Utils.RunImageConversion(path, pathOut, "100%", 100);
+                        FormatConversions.RunImageConversion(path, pathOut, "100%", 100);
 
                         const int minOutputSize = 16;
                         var oldLength = new FileInfo(path).Length;
@@ -1128,7 +1128,7 @@ namespace labs_coordinate_pictures
                 foreach (var quality in qualities)
                 {
                     var pathOutput = _filelist.Current + quality.ToString() + ".jpg";
-                    Utils.RunImageConversion(_filelist.Current, pathOutput, "100%", quality);
+                    FormatConversions.RunImageConversion(_filelist.Current, pathOutput, "100%", quality);
                 }
             });
         }
