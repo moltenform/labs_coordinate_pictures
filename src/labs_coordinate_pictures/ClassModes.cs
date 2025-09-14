@@ -151,7 +151,7 @@ namespace labs_coordinate_pictures
 
         public override string[] GetFileTypes()
         {
-            if (Configs.EnableWebp())
+            if (FilenameUtils.EnableWebp())
             {
                 return new string[] { ".jpg", ".png", ".gif", ".bmp", ".webp" };
             }
@@ -377,12 +377,12 @@ namespace labs_coordinate_pictures
         {
             // some audio players hold a lock on the file while playing.
             // so, before renaming the file, tell the audio player to play silence.flac.
-            Utils.PlayMedia(null);
+            FormatConversions.PlayMedia(null);
         }
 
         public override void OnOpenItem(string path, FormGallery obj)
         {
-            Utils.PlayMedia(path);
+            FormatConversions.PlayMedia(path);
             Thread.Sleep(1000);
         }
     }
@@ -421,7 +421,7 @@ namespace labs_coordinate_pictures
                 }
 
                 // 1) convert song__MARKAS__144.wav to song__MARKAS__144.m4a
-                var pathM4a = Utils.RunM4aConversion(path, category.Item3);
+                var pathM4a = FormatConversions.RunM4aConversion(path, category.Item3);
                 if (!string.IsNullOrEmpty(pathM4a))
                 {
                     // 2) see that song__MARKAS__144.m4a should be renamed to song.m4a
