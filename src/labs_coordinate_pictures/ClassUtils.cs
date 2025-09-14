@@ -1,5 +1,5 @@
 ﻿// Copyright (c) Ben Fisher, 2016.
-// Licensed under GPLv3. See LICENSE in the project root for license information.
+// Licensed under LGPLv3.
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -76,6 +77,12 @@ namespace labs_coordinate_pictures
             return waitForExit ? process.ExitCode : 0;
         }
 
+        public static string GetCurrentExecutableDir()
+        {
+            var currentExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            return Path.GetDirectoryName(currentExePath);
+        }
+
         public static bool IsWindows()
         {
             return Environment.OSVersion.Platform.ToString().StartsWith(
@@ -123,6 +130,10 @@ namespace labs_coordinate_pictures
             return string.Join("|", items);
         }
 
+        /// <param name="title">title</param>
+        /// <param name="extensionFilter">e.g. ["*.jpg;*.png;*.gif", "*.*"]</param>
+        /// <param name="extensionFilterNames">e.g. ["Images", "All Files"]</param>
+        /// <param name="initialDir">initial folder, although OS might ignore it</param>
         public static string AskOpenFileDialog(string title, string[] extensionFilter = null,
             string[] extensionFilterNames = null, string initialDir = null)
         {
@@ -143,6 +154,10 @@ namespace labs_coordinate_pictures
             }
         }
 
+        /// <param name="title">title</param>
+        /// <param name="extensionFilter">e.g. ["*.jpg;*.png;*.gif", "*.*"]</param>
+        /// <param name="extensionFilterNames">e.g. ["Images", "All Files"]</param>
+        /// <param name="initialDir">initial folder, although OS might ignore it</param>
         public static string[] AskOpenFilesDialog(string title, string[] extensionFilter = null,
             string[] extensionFilterNames = null, string initialDir = null)
         {
@@ -164,6 +179,10 @@ namespace labs_coordinate_pictures
             }
         }
 
+        /// <param name="title">title</param>
+        /// <param name="extensionFilter">e.g. ["*.jpg;*.png;*.gif", "*.*"]</param>
+        /// <param name="extensionFilterNames">e.g. ["Images", "All Files"]</param>
+        /// <param name="initialDir">initial folder, although OS might ignore it</param>
         public static string AskSaveFileDialog(string title, string[] extensionFilter = null,
             string[] extensionFilterNames = null, string initialDir = null)
         {
@@ -220,7 +239,8 @@ namespace labs_coordinate_pictures
 
         public static string GetSoftDeleteDirectory(string path)
         {
-            var overrideFn = typeof(Utils).GetMethod("OverrideGetSoftDeleteDir",
+            var overrideFn = typeof(Utils).GetMethod(
+                "OverrideGetSoftDeleteDir",
                 BindingFlags.Static | BindingFlags.Public);
 
             if (overrideFn != null)
@@ -229,18 +249,21 @@ namespace labs_coordinate_pictures
             }
 
             var deleteDir = Configs.Current.Get(ConfigKey.FilepathDeletedFilesDir);
-            if (string.IsNullOrEmpty(deleteDir))
+            if (string.IsNullOrEmpty(deleteDir) || !Directory.Exists(deleteDir))
             {
-                // for ease-of-use, pick a default trash directory
-                deleteDir = Path.Combine(Configs.Current.Directory, "(deleted)");
+                // for ease-of-use, instead of ConfigKeyGetOrAskUserIfNotSet, just
+                // go ahead with a default trash directory.
+                deleteDir = Path.Combine(Utils.GetCurrentExecutableDir(), "(deleted)");
                 try
                 {
                     if (!Directory.Exists(deleteDir))
+                    {
                         Directory.CreateDirectory(deleteDir);
+                }
                 }
                 catch (IOException)
                 {
-                    deleteDir = "";
+                    throw new CoordinatePicturesException("No trash directory set, and current directory not writable.");
                 }
             }
 
@@ -251,12 +274,6 @@ namespace labs_coordinate_pictures
         public static string GetSoftDeleteDestination(string path)
         {
             var deleteDir = GetSoftDeleteDirectory(path);
-            if (string.IsNullOrEmpty(deleteDir) || !Directory.Exists(deleteDir))
-            {
-                MessageBox("Trash directory not found. Go to the main screen and to the " +
-                    "option menu and click Options->Set trash directory...");
-                return null;
-            }
 
             // as a prefix, the first 2 chars of the parent directory
             var prefix = FirstTwoChars(Path.GetFileName(Path.GetDirectoryName(path))) + "_";
@@ -361,7 +378,9 @@ namespace labs_coordinate_pictures
             finally
             {
                 if (stream != null)
+                {
                     stream.Close();
+            }
             }
 
             return false;
@@ -371,7 +390,9 @@ namespace labs_coordinate_pictures
         public static string FormatFilesize(string filepath)
         {
             if (!File.Exists(filepath))
+            {
                 return " file not found";
+            }
 
             return FormatFilesize(new FileInfo(filepath).Length);
         }
@@ -392,8 +413,10 @@ namespace labs_coordinate_pictures
             foreach (var process in Process.GetProcessesByName(processName))
             {
                 if (process.Id != thisId)
+                {
                     process.Kill();
             }
+        }
         }
 
         public static string FormatPythonError(string stderr)
@@ -413,9 +436,9 @@ namespace labs_coordinate_pictures
             }
         }
 
-        public static void RunPythonScriptOnSeparateThread(string pyScript,
-            string[] listArgs, bool createWindow = false, bool autoWorkingDir = false,
-            string workingDir = null)
+        public static void RunPythonScriptOnSeparateThread(
+            string pyScript, string[] listArgs, bool createWindow = false,
+            bool autoWorkingDir = false, string workingDir = null)
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
@@ -424,8 +447,8 @@ namespace labs_coordinate_pictures
             });
         }
 
-        public static string RunPythonScript(string pyScript,
-            string[] listArgs, bool createWindow = false,
+        public static string RunPythonScript(
+            string pyScript, string[] listArgs, bool createWindow = false,
             bool warnIfStdErr = true, string workingDir = null)
         {
             if (!pyScript.Contains(Utils.Sep))
@@ -459,93 +482,6 @@ namespace labs_coordinate_pictures
             }
 
             return stderr;
-        }
-
-        public static void RunImageConversion(string pathInput, string pathOutput,
-            string resizeSpec, int jpgQuality)
-        {
-            if (File.Exists(pathOutput))
-            {
-                MessageBox("File already exists, " + pathOutput);
-                return;
-            }
-
-            // send the working directory for the script so that it can find options.ini
-            var workingDir = Path.Combine(Configs.Current.Directory,
-                "ben_python_img");
-            var script = Path.Combine(Configs.Current.Directory,
-                "ben_python_img", "img_convert_resize.py");
-            var args = new string[] { "convert_resize",
-                pathInput, pathOutput, resizeSpec, jpgQuality.ToString() };
-            var stderr = RunPythonScript(script, args,
-                createWindow: false, warnIfStdErr: false, workingDir: workingDir);
-
-            if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathOutput))
-            {
-                MessageBox("RunImageConversion failed, " + FormatPythonError(stderr));
-            }
-        }
-
-        public static string RunM4aConversion(string path, string qualitySpec)
-        {
-            var qualities = new string[] { "16", "24", "96", "128", "144",
-                "160", "192", "224", "256", "288", "320", "640", "flac" };
-            if (Array.IndexOf(qualities, qualitySpec) == -1)
-            {
-                throw new CoordinatePicturesException("Unsupported bitrate.");
-            }
-            else if (!path.EndsWith(".wav", StringComparison.Ordinal) &&
-                !path.EndsWith(".flac", StringComparison.Ordinal))
-            {
-                throw new CoordinatePicturesException("Unsupported input format.");
-            }
-            else
-            {
-                var encoder = Configs.Current.Get(ConfigKey.FilepathM4aEncoder);
-                if (!File.Exists(encoder))
-                {
-                    MessageErr("M4a encoder not found, use Options->Set m4a encoder.");
-                    throw new CoordinatePicturesException("");
-                }
-
-                var pathOutput = Path.GetDirectoryName(path) + Sep +
-                    Path.GetFileNameWithoutExtension(path) +
-                    (qualitySpec == "flac" ? ".flac" : ".m4a");
-                var script = Path.GetDirectoryName(encoder) + Sep +
-                    "dropq" + qualitySpec + ".py";
-                var args = new string[] { path };
-                var stderr = RunPythonScript(
-                    script, args, createWindow: false, warnIfStdErr: false);
-
-                if (!File.Exists(pathOutput))
-                {
-                    MessageErr("RunM4aConversion failed, " + FormatPythonError(stderr));
-                    return null;
-                }
-                else
-                {
-                    return pathOutput;
-                }
-            }
-        }
-
-        public static void PlayMedia(string path)
-        {
-            if (path == null)
-                path = Path.Combine(Configs.Current.Directory, "silence.flac");
-
-            var player = Configs.Current.Get(ConfigKey.FilepathAudioPlayer);
-            if (string.IsNullOrEmpty(player) || !File.Exists(player))
-            {
-                MessageBox("Media player not found. Go to the main screen " +
-                    "and to the option menu and click Options->Set media player location...");
-                return;
-            }
-
-            var args = player.ToLower().Contains("foobar") ? new string[] { "/playnow", path } :
-                new string[] { path };
-
-            Run(player, args, hideWindow: true, waitForExit: false, shellExecute: false);
         }
 
         public static string GetClipboard()
@@ -733,6 +669,37 @@ namespace labs_coordinate_pictures
             return false;
 #endif
         }
+
+        public static string[] SplitLines(string s)
+        {
+            // let's support both win and unix newlines
+            return s.Replace("\r\n", "\n").Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static void AssertEq(object expected, object actual, string msg = "")
+        {
+            bool areEqual;
+            if (expected == null || actual == null)
+            {
+                areEqual = expected == null && actual == null;
+            }
+            else
+            {
+                areEqual = expected.Equals(actual);
+            }
+
+            if (!areEqual)
+            {
+                throw new CoordinatePicturesException(
+                    "Assertion failure, " + Utils.NL + Utils.NL + msg +
+                    ", expected " + expected + " but got " + actual);
+            }
+        }
+
+        public static void AssertTrue(bool actual, string msg = "")
+        {
+            AssertEq(true, actual, msg);
+        }
     }
 
     // file list that updates itself when file names are changed.
@@ -741,7 +708,7 @@ namespace labs_coordinate_pictures
         bool _dirty = true;
         string[] _list = new string[] { };
         FileSystemWatcher _watcher;
-        string _baseDir;
+        readonly string _baseDir;
 
         public FileListAutoUpdated(string baseDir, bool recurse)
         {
@@ -808,8 +775,8 @@ namespace labs_coordinate_pictures
     // FileListAutoUpdated has not yet received the notification event.
     public sealed class FileListNavigation : IDisposable
     {
-        string[] _extensionsAllowed;
-        bool _excludeMarked;
+        readonly string[] _extensionsAllowed;
+        readonly bool _excludeMarked;
         FileListAutoUpdated _list;
         public FileListNavigation(string baseDir, string[] extensionsAllowed,
              bool recurse, bool excludeMarked = true, string sCurrent = "")
@@ -826,13 +793,13 @@ namespace labs_coordinate_pictures
 
         public void Refresh()
         {
-            _list = new FileListAutoUpdated(BaseDirectory, _list.Recurse);
+            this._list = new FileListAutoUpdated(this.BaseDirectory, this._list.Recurse);
             TrySetPath("");
         }
 
         public void NotifyFileChanges()
         {
-            _list.Dirty();
+            this._list.Dirty();
         }
 
         // try an action twice if necessary.
@@ -841,10 +808,10 @@ namespace labs_coordinate_pictures
         // so tell it to refresh and retry once more.
         void TryAgainIfFileIsMissing(Func<string[], string> fn)
         {
-            var list = GetList();
+            var list = this.GetList();
             if (list.Length == 0)
             {
-                Current = null;
+                this.Current = null;
                 return;
             }
 
@@ -852,18 +819,18 @@ namespace labs_coordinate_pictures
             if (firstTry != null && !File.Exists(firstTry))
             {
                 // refresh the list and try again
-                list = GetList(true);
+                list = this.GetList(true);
                 if (list.Length == 0)
                 {
-                    Current = null;
+                    this.Current = null;
                     return;
                 }
 
-                Current = fn(list);
+                this.Current = fn(list);
             }
             else
             {
-                Current = firstTry;
+                this.Current = firstTry;
             }
         }
 
@@ -881,9 +848,9 @@ namespace labs_coordinate_pictures
         public void GoNextOrPrev(bool isNext, List<string> neighbors = null,
             int retrieveNeighbors = 0)
         {
-            TryAgainIfFileIsMissing((list) =>
+            this.TryAgainIfFileIsMissing((list) =>
             {
-                var index = GetLessThanOrEqual(list, Current ?? "");
+                var index = GetLessThanOrEqual(list, this.Current ?? "");
                 if (isNext)
                 {
                     // caller has asked us to return adjacent items
@@ -898,7 +865,7 @@ namespace labs_coordinate_pictures
                 {
                     // index is LessThanOrEqual, but we want strictly LessThan
                     // so move prev if equal.
-                    if (index > 0 && Current == list[index])
+                    if (index > 0 && this.Current == list[index])
                     {
                         index--;
                     }
@@ -916,7 +883,7 @@ namespace labs_coordinate_pictures
 
         public void GoFirst()
         {
-            TryAgainIfFileIsMissing((list) =>
+            this.TryAgainIfFileIsMissing((list) =>
             {
                 return list[0];
             });
@@ -924,7 +891,7 @@ namespace labs_coordinate_pictures
 
         public void GoLast()
         {
-            TryAgainIfFileIsMissing((list) =>
+            this.TryAgainIfFileIsMissing((list) =>
             {
                 return list[list.Length - 1];
             });
@@ -932,12 +899,12 @@ namespace labs_coordinate_pictures
 
         public void TrySetPath(string current, bool verify = true)
         {
-            Current = current;
+            this.Current = current;
             if (verify)
             {
-                TryAgainIfFileIsMissing((list) =>
+                this.TryAgainIfFileIsMissing((list) =>
                 {
-                    var index = GetLessThanOrEqual(list, Current ?? "");
+                    var index = GetLessThanOrEqual(list, this.Current ?? "");
                     return Utils.ArrayAt(list, index);
                 });
             }
@@ -947,20 +914,20 @@ namespace labs_coordinate_pictures
         {
             Func<string, bool> includeFile = (path) =>
             {
-                if (!includeMarked && _excludeMarked && path.Contains(FilenameUtils.MarkerString))
+                if (!includeMarked && this._excludeMarked && path.Contains(FilenameUtils.MarkerString))
                     return false;
-                else if (!FilenameUtils.IsExtensionInList(path, _extensionsAllowed))
+                else if (!FilenameUtils.IsExtensionInList(path, this._extensionsAllowed))
                     return false;
                 else
                     return true;
             };
 
-            return _list.GetList(forceRefresh).Where(includeFile).ToArray();
+            return this._list.GetList(forceRefresh).Where(includeFile).ToArray();
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -968,9 +935,9 @@ namespace labs_coordinate_pictures
         {
             if (disposing)
             {
-                if (_list != null)
+                if (this._list != null)
                 {
-                    _list.Dispose();
+                    this._list.Dispose();
                 }
             }
         }
@@ -982,7 +949,7 @@ namespace labs_coordinate_pictures
 
         public static bool LooksLikeImage(string filepath)
         {
-            if (Configs.EnableWebp())
+            if (FilenameUtils.EnableWebp())
             {
                 return IsExtensionInList(filepath, new string[] { ".jpg", ".png",
                     ".gif", ".bmp", ".webp", ".emf", ".wmf", ".jpeg" });
@@ -1068,8 +1035,10 @@ namespace labs_coordinate_pictures
                 MarkerString + category + ext;
         }
 
-        public static void GetCategoryFromFilename(string pathAndCategory,
-            out string pathWithoutCategory, out string category)
+        public static void GetCategoryFromFilename(
+            string pathAndCategory,
+            out string pathWithoutCategory,
+            out string category)
         {
             // check nothing in path has mark
             if (Path.GetDirectoryName(pathAndCategory).Contains(MarkerString))
@@ -1080,9 +1049,6 @@ namespace labs_coordinate_pictures
             var parts = Utils.SplitByString(pathAndCategory, MarkerString);
             if (parts.Length != 2)
             {
-                Utils.MessageErr("Path " + pathAndCategory +
-                    " should contain exactly 1 marker.", true);
-
                 throw new CoordinatePicturesException("Path " + pathAndCategory +
                     " should contain exactly 1 marker.");
             }
@@ -1119,6 +1085,14 @@ namespace labs_coordinate_pictures
                 return false;
             }
         }
+
+        public static bool EnableWebp()
+        {
+            // Webp disabled due to security issues,
+            // since the Imazen.Webp library is tied to old insecure webp versions.
+            // We'll need to move to another webp library.
+            return false;
+        }
     }
 
     // Simple logging class, writes synchronously to a text file.
@@ -1126,9 +1100,9 @@ namespace labs_coordinate_pictures
     {
         private const int CheckFileSizePeriod = 32;
         private static SimpleLog _instance;
-        string _path;
-        int _maxFileSize;
-        int _counter;
+        private readonly string _path;
+        private readonly int _maxFileSize;
+        private int _counter;
         public SimpleLog(string path, int maxFileSize = 4 * 1024 * 1024)
         {
             _path = path;
@@ -1169,8 +1143,8 @@ namespace labs_coordinate_pictures
             catch (Exception)
             {
                 if (!Utils.AskToConfirm("Could not write to " + _path +
-                    "; labs_coordinate_pictures.exe currently needs to be " +
-                    "in writable directory. Continue?"))
+                    "; this program needs to be run " +
+                    "in a folder where you have write permissions. Continue?"))
                 {
                     Environment.Exit(1);
                 }
@@ -1262,6 +1236,57 @@ namespace labs_coordinate_pictures
         }
     }
 
+    public static class ConfigKeyGetOrAskUserIfNotSet
+    {
+        static int _mainThread = 0;
+        public static void RecordMainThread()
+        {
+            _mainThread = System.Threading.Thread.CurrentThread.ManagedThreadId;
+        }
+
+        public static bool IsMainThread()
+        {
+            if (_mainThread == 0)
+            {
+                throw new CoordinatePicturesException("Please make call to RecordMainThread() when your app starts.");
+            }
+
+            return _mainThread == System.Threading.Thread.CurrentThread.ManagedThreadId;
+        }
+
+        public static string GetOrAsk(ConfigKey configKey)
+        {
+            if (!IsMainThread())
+            {
+                // Throw, even if we could have gotten a value. developer needs to call this from main thread.
+                throw new CoordinatePicturesException("This can only be called from the main thread.");
+            }
+
+            var val = Configs.Current.Get(configKey);
+            if (string.IsNullOrEmpty(val) || (!File.Exists(val) && !Directory.Exists(val)))
+            {
+                var s = configKey.ToString().EndsWith("Dir", StringComparison.InvariantCulture) ?
+                    "Please choose any file in the directory for " + configKey :
+                    "Please choose a file for " + configKey;
+
+                var got = Utils.AskOpenFileDialog(s);
+                if (string.IsNullOrEmpty(got))
+                {
+                    throw new CoordinatePicturesException("A path for " + configKey + " is needed.");
+                }
+
+                if (configKey.ToString().EndsWith("Dir", StringComparison.InvariantCulture))
+                {
+                    got = Path.GetDirectoryName(got);
+                }
+
+                Configs.Current.Set(configKey, got);
+            }
+
+            return Configs.Current.Get(configKey);
+        }
+    }
+
     public sealed class UndoStack<T>
     {
         List<T> _list = new List<T>();
@@ -1311,7 +1336,7 @@ namespace labs_coordinate_pictures
     public sealed class CoordinatePicturesException : Exception
     {
         public CoordinatePicturesException(string message, Exception e)
-            : base("CoordinatePicturesException " + message, e)
+            : base("ShineRainSevenCsException " + message, e)
         {
         }
 
@@ -1325,7 +1350,34 @@ namespace labs_coordinate_pictures
         {
         }
 
-        CoordinatePicturesException(System.Runtime.Serialization.SerializationInfo info,
+        CoordinatePicturesException(
+            System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public sealed class ShineRainSevenCsTestException : Exception
+    {
+        public ShineRainSevenCsTestException(string message, Exception e)
+            : base("Test failure " + message, e)
+        {
+        }
+
+        public ShineRainSevenCsTestException(string message)
+            : this(message, null)
+        {
+        }
+
+        public ShineRainSevenCsTestException()
+            : this("", null)
+        {
+        }
+
+        ShineRainSevenCsTestException(
+            SerializationInfo info,
             System.Runtime.Serialization.StreamingContext context)
             : base(info, context)
         {

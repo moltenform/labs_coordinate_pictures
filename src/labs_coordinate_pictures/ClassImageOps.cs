@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -163,6 +166,96 @@ namespace labs_coordinate_pictures
         public void Dispose()
         {
             Bmp.Dispose();
+        }
+    }
+
+    public static class FormatConversions
+    {
+        public static void RunImageConversion(string pathInput, string pathOutput,
+            string resizeSpec, int jpgQuality)
+        {
+            if (File.Exists(pathOutput))
+            {
+                Utils.MessageBox("File already exists, " + pathOutput);
+                return;
+            }
+
+            // send the working directory for the script so that it can find options.ini
+            var workingDir = Path.Combine(Configs.Current.Directory,
+                "ben_python_img");
+            var script = Path.Combine(Configs.Current.Directory,
+                "ben_python_img", "img_convert_resize.py");
+            var args = new string[] { "convert_resize",
+                pathInput, pathOutput, resizeSpec, jpgQuality.ToString() };
+            var stderr = Utils.RunPythonScript(script, args,
+                createWindow: false, warnIfStdErr: false, workingDir: workingDir);
+
+            if (!string.IsNullOrEmpty(stderr) || !File.Exists(pathOutput))
+            {
+                Utils.MessageBox("RunImageConversion failed, " + Utils.FormatPythonError(stderr));
+            }
+        }
+
+        public static string RunM4aConversion(string path, string qualitySpec)
+        {
+            var qualities = new string[] { "16", "24", "96", "128", "144",
+                "160", "192", "224", "256", "288", "320", "640", "flac" };
+            if (Array.IndexOf(qualities, qualitySpec) == -1)
+            {
+                throw new CoordinatePicturesException("Unsupported bitrate.");
+            }
+            else if (!path.EndsWith(".wav", StringComparison.Ordinal) &&
+                !path.EndsWith(".flac", StringComparison.Ordinal))
+            {
+                throw new CoordinatePicturesException("Unsupported input format.");
+            }
+            else
+            {
+                var encoder = Configs.Current.Get(ConfigKey.FilepathM4aEncoder);
+                if (!File.Exists(encoder))
+                {
+                    Utils.MessageErr("M4a encoder not found, use Options->Set m4a encoder.");
+                    throw new CoordinatePicturesException("");
+                }
+
+                var pathOutput = Path.GetDirectoryName(path) + Utils.Sep +
+                    Path.GetFileNameWithoutExtension(path) +
+                    (qualitySpec == "flac" ? ".flac" : ".m4a");
+                var script = Path.GetDirectoryName(encoder) + Utils.Sep +
+                    "dropq" + qualitySpec + ".py";
+                var args = new string[] { path };
+                var stderr = Utils.RunPythonScript(
+                    script, args, createWindow: false, warnIfStdErr: false);
+
+                if (!File.Exists(pathOutput))
+                {
+                    Utils.MessageErr("RunM4aConversion failed, " + Utils.FormatPythonError(stderr));
+                    return null;
+                }
+                else
+                {
+                    return pathOutput;
+                }
+            }
+        }
+
+        public static void PlayMedia(string path)
+        {
+            if (path == null)
+                path = Path.Combine(Configs.Current.Directory, "silence.flac");
+
+            var player = Configs.Current.Get(ConfigKey.FilepathAudioPlayer);
+            if (string.IsNullOrEmpty(player) || !File.Exists(player))
+            {
+                Utils.MessageBox("Media player not found. Go to the main screen " +
+                    "and to the option menu and click Options->Set media player location...");
+                return;
+            }
+
+            var args = player.ToLower().Contains("foobar") ? new string[] { "/playnow", path } :
+                new string[] { path };
+
+            Utils.Run(player, args, hideWindow: true, waitForExit: false, shellExecute: false);
         }
     }
 

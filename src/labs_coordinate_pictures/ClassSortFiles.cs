@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Ben Fisher, 2016.
+// Licensed under GPLv3. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -231,8 +234,8 @@ namespace labs_coordinate_pictures
                 }
 
                 Utils.Run("notepad.exe", new string[] { settings.LogFile }, shellExecute: false,
-                    waitForExit: false, hideWindow: false, getStdout: false, outStdout: out string _1,
-                    outStderr: out string _2, workingDir: workingDir);
+                    waitForExit: false, hideWindow: false, getStdout: false, outStdout: out string _stdout,
+                    outStderr: out string _stderr, workingDir: workingDir);
             }
             else
             {

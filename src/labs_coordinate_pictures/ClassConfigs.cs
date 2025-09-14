@@ -1,5 +1,5 @@
 ﻿// Copyright (c) Ben Fisher, 2016.
-// Licensed under GPLv3. See LICENSE in the project root for license information.
+// Licensed under LGPLv3.
 
 using System;
 using System.Collections.Generic;
@@ -137,7 +137,7 @@ namespace labs_coordinate_pictures
     {
         static Configs _instance;
         string _path;
-        Dictionary<ConfigKey, string> _dict = new Dictionary<ConfigKey, string>();
+        Dictionary<ConfigKey, string> _persisted = new Dictionary<ConfigKey, string>();
 
         internal Configs(string path)
         {
@@ -209,16 +209,16 @@ namespace labs_coordinate_pictures
                     continue;
                 }
 
-                _dict[key] = split[1];
+                this._persisted[key] = split[1];
             }
         }
 
         void SavePersisted()
         {
             var sb = new StringBuilder();
-            foreach (var key in from key in _dict.Keys orderby key select key)
+            foreach (var key in from key in this._persisted.Keys orderby key select key)
             {
-                var value = _dict[key];
+                var value = this._persisted[key];
                 if (!string.IsNullOrEmpty(value))
                 {
                     if (value.Contains("\r") || value.Contains("\n"))
@@ -236,14 +236,22 @@ namespace labs_coordinate_pictures
 
         public void Set(ConfigKey key, string s)
         {
-            var valueWasChanged = !_dict.TryGetValue(key, out string prev) ||
+            var valueWasChanged = !_persisted.TryGetValue(key, out string prev) ||
                 prev != s ||
                 !File.Exists(_path);
             if (valueWasChanged)
             {
-                _dict[key] = s;
+                _persisted[key] = s;
                 SavePersisted();
             }
+        }
+
+        // See also, ConfigKeyAutoAskIfNull
+        public string Get(ConfigKey key)
+        {
+            var ret = _persisted.TryGetValue(key, out string s) ? s : "";
+            ConfirmChecksums.Check(key, ret);
+            return ret;
         }
 
         public void SetBool(ConfigKey key, bool b)
@@ -251,24 +259,9 @@ namespace labs_coordinate_pictures
             Set(key, b ? "true" : "");
         }
 
-        public string Get(ConfigKey key)
-        {
-            var ret = _dict.TryGetValue(key, out string s) ? s : "";
-            ConfirmChecksums.Check(key, ret);
-            return ret;
-        }
-
         public bool GetBool(ConfigKey key)
         {
             return !string.IsNullOrEmpty(Get(key));
-        }
-
-        public static bool EnableWebp()
-        {
-            // Webp disabled due to security issues,
-            // since the Imazen.Webp library is tied to old insecure webp versions.
-            // We'll need to move to another webp library.
-            return false;
         }
     }
 }
