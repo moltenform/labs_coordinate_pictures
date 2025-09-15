@@ -3,6 +3,8 @@
 
 OUTSIDE
 nocpy*
+log.txt
+options.ini
 
 *.pyc
 
